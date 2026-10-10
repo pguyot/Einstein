@@ -24,7 +24,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <K/Exceptions/IO/TEOFException.h>
-#include <K/Streams/TStream.h>
+#include <K/Streams/TRandomAccessStream.h>
 
 #include <algorithm>
 #include <cstring>
@@ -35,11 +35,11 @@
 /// don't need to know about it.
 ///
 /// Created without data, the stream is for writing and the data grows as
-/// needed. Created with data, the stream is for reading. Like TFileStream,
-/// reading past the end returns fewer bytes, and the Get... methods throw an
-/// EOFException.
+/// needed. Created with data, the stream is for reading. Reading and writing
+/// happen at the cursor. Like TFileStream, reading past the end returns fewer
+/// bytes, and the Get... methods throw an EOFException.
 ///
-class TMemoryStream : public TStream
+class TMemoryStream : public TRandomAccessStream
 {
 public:
 	///
@@ -60,6 +60,15 @@ public:
 	}
 
 	///
+	/// Create a stream that reads the given data, without copying it.
+	///
+	TMemoryStream(std::vector<KUInt8>&& inData) :
+			mData(std::move(inData))
+	{
+		mIsReading = 1;
+	}
+
+	///
 	/// Read data, advancing the cursor. Returns fewer bytes at the end.
 	///
 	void
@@ -73,13 +82,16 @@ public:
 	}
 
 	///
-	/// Append data.
+	/// Write data at the cursor, growing the data if needed.
 	///
 	void
 	Write(const void* inBuffer, KUInt32* ioCount) override
 	{
-		const KUInt8* theBytes = (const KUInt8*) inBuffer;
-		mData.insert(mData.end(), theBytes, theBytes + *ioCount);
+		if (mCursor + *ioCount > mData.size())
+			mData.resize(mCursor + *ioCount);
+		if (*ioCount > 0)
+			::memcpy(mData.data() + mCursor, inBuffer, *ioCount);
+		mCursor += *ioCount;
 	}
 
 	///
@@ -105,6 +117,31 @@ public:
 #endif
 		}
 		return mData[mCursor];
+	}
+
+	///
+	/// Position of the cursor from the start of the data.
+	///
+	KSInt64
+	GetCursor(void) const override
+	{
+		return (KSInt64) mCursor;
+	}
+
+	///
+	/// Move the cursor. Positions outside the data are moved to the nearest
+	/// end.
+	///
+	void
+	SetCursor(KSInt64 inPos, ECursorMode inMode) override
+	{
+		KSInt64 thePos = inPos;
+		if (inMode == kFromLEOF)
+			thePos += (KSInt64) mData.size();
+		else if (inMode == kFromCursor)
+			thePos += (KSInt64) mCursor;
+		thePos = std::max((KSInt64) 0, std::min(thePos, (KSInt64) mData.size()));
+		mCursor = (size_t) thePos;
 	}
 
 	///

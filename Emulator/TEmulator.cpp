@@ -40,7 +40,8 @@
 #endif
 
 // K
-#include <K/Streams/TFileStream.h>
+#include <K/Misc/CRC32.h>
+#include <K/Streams/TMemoryStream.h>
 #include <K/Streams/TRandomAccessStream.h>
 #include <K/Streams/TResetStream.h>
 #include <K/Streams/TStream.h>
@@ -82,7 +83,8 @@
 //            (ROM, RAM size, flash, PCMCIA cards); flash only in debug files.
 // Version 9: kind and image path of the inserted PCMCIA cards.
 // Version 10: screen size must match and is no longer loaded.
-static const KUInt32 kStateFileVersion = 10;
+// Version 11: CRC32 of the file at the end.
+static const KUInt32 kStateFileVersion = 11;
 
 // Number of values written by TEmulator::GetStateIdentity().
 static const size_t kStateIdentitySize = 5 + 2 * kNbSockets;
@@ -484,19 +486,84 @@ TEmulator::BreakInMonitor(const char* msg)
 }
 
 // -------------------------------------------------------------------------- //
+//  * WriteStateFile( const char*, const std::vector<KUInt8>& )
+// -------------------------------------------------------------------------- //
+// Write the state and a CRC32 of it. Every write and the close are checked,
+// so a full disk can't leave a cut-off file that looks complete.
+static Boolean
+WriteStateFile(const char* inPath, const std::vector<KUInt8>& inData)
+{
+	FILE* theFile = ::fopen(inPath, "wb");
+	if (theFile == nullptr)
+		return false;
+	KUInt32 theCRC = GetCRC32(inData.data(), (KUInt32) inData.size());
+	KUInt8 theCRCBytes[4] = {
+		(KUInt8) (theCRC >> 24), (KUInt8) (theCRC >> 16),
+		(KUInt8) (theCRC >> 8), (KUInt8) theCRC
+	};
+	Boolean theResult = (::fwrite(inData.data(), 1, inData.size(), theFile) == inData.size())
+		&& (::fwrite(theCRCBytes, 1, 4, theFile) == 4)
+		&& (::fflush(theFile) == 0);
+	if (::fclose(theFile) != 0)
+		theResult = false;
+	return theResult;
+}
+
+// -------------------------------------------------------------------------- //
+//  * ReadStateFile( const char*, std::vector<KUInt8>& )
+// -------------------------------------------------------------------------- //
+// Read a whole state file and check its CRC32, so a damaged or cut-off file
+// is refused before anything is loaded. Returns nullptr if the file is fine,
+// or what is wrong with it.
+static const char*
+ReadStateFile(const char* inPath, std::vector<KUInt8>& outData)
+{
+	outData.clear();
+	FILE* theFile = ::fopen(inPath, "rb");
+	if (theFile == nullptr)
+		return "the file could not be opened";
+	long theSize = -1;
+	if (::fseek(theFile, 0, SEEK_END) == 0)
+		theSize = ::ftell(theFile);
+	Boolean theReadOK = (theSize >= 4) && (::fseek(theFile, 0, SEEK_SET) == 0);
+	if (theReadOK)
+	{
+		outData.resize((size_t) theSize);
+		theReadOK = (::fread(outData.data(), 1, outData.size(), theFile) == outData.size());
+	}
+	::fclose(theFile);
+	if (!theReadOK)
+	{
+		outData.clear();
+		return "the file is too short or could not be read";
+	}
+	size_t theDataSize = outData.size() - 4;
+	const KUInt8* theCRCBytes = outData.data() + theDataSize;
+	KUInt32 theSavedCRC = ((KUInt32) theCRCBytes[0] << 24) | ((KUInt32) theCRCBytes[1] << 16)
+		| ((KUInt32) theCRCBytes[2] << 8) | (KUInt32) theCRCBytes[3];
+	if (GetCRC32(outData.data(), (KUInt32) theDataSize) != theSavedCRC)
+	{
+		outData.clear();
+		return "the file is damaged (checksum)";
+	}
+	outData.resize(theDataSize);
+	return nullptr;
+}
+
+// -------------------------------------------------------------------------- //
 //  * SaveState( const char* inPath ) const
 // -------------------------------------------------------------------------- //
 Boolean
 TEmulator::SaveState(const char* inPath, EStateKind inKind)
 {
-	// Write to a temporary file and rename it when everything was written, so
-	// a file with the final name is always complete. A cut-off file would be
-	// loaded partially.
+	// Collect the state in memory, then write it to a temporary file and rename
+	// it when everything was written, so a file with the final name is always
+	// complete.
 	std::string theTempPath = std::string(inPath) + ".tmp";
+	TMemoryStream theMemoryStream;
+	TStream* theStream = &theMemoryStream;
 	try
 	{
-		// Open the file for writing.
-		std::unique_ptr<TStream> theStream(new TFileStream(theTempPath.c_str(), "wb"));
 		theStream->Version(kStateFileVersion);
 		theStream->PutInt32BE('EINI');
 		theStream->PutInt32BE('SNAP');
@@ -521,11 +588,16 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 		}
 
 		theStream->TransferFlags((inKind == kDebugState) ? kStateIncludesFlash : 0);
-		TransferState(theStream.get());
+		TransferState(theStream);
 	} catch (const std::exception& e)
 	{
-		(void) ::remove(theTempPath.c_str());
 		KPrintf("Could not save the emulator state to %s (%s).\n", inPath, e.what());
+		return false;
+	}
+	if (!WriteStateFile(theTempPath.c_str(), theMemoryStream.GetData()))
+	{
+		(void) ::remove(theTempPath.c_str());
+		KPrintf("Could not save the emulator state to %s (writing failed).\n", inPath);
 		return false;
 	}
 #if TARGET_OS_WIN32
@@ -546,10 +618,17 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 Boolean
 TEmulator::LoadState(const char* inPath)
 {
+	std::vector<KUInt8> theData;
+	const char* theError = ReadStateFile(inPath, theData);
+	if (theError != nullptr)
+	{
+		KPrintf("Not loading the state from %s: %s.\n", inPath, theError);
+		return false;
+	}
+	TMemoryStream theMemoryStream(std::move(theData));
+	TStream* theStream = &theMemoryStream;
 	try
 	{
-		// Open the file for Reading.
-		std::unique_ptr<TStream> theStream(new TFileStream(inPath, "rb"));
 		if (theStream->GetInt32BE() != 'EINI')
 		{
 			KPrintf("This is not a file created by Einstein!\n");
@@ -608,10 +687,10 @@ TEmulator::LoadState(const char* inPath)
 		}
 
 		theStream->TransferFlags((theKind == kDebugState) ? kStateIncludesFlash : 0);
-		TransferState(theStream.get());
+		TransferState(theStream);
 	} catch (const std::exception& e)
 	{
-		// The file was cut off or could not be read. Part of the state may
+		// The contents of the file don't fit what we expect. Part of the state may
 		// have been loaded, so at least drop the translated code.
 		mMemory.GetJITObject()->InvalidateAll();
 		KPrintf("Could not load the emulator state from %s (%s).\n", inPath, e.what());
@@ -627,9 +706,13 @@ Boolean
 TEmulator::ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards)
 {
 	outCards.clear();
+	std::vector<KUInt8> theData;
+	if (ReadStateFile(inPath, theData) != nullptr)
+		return false;
+	TMemoryStream theMemoryStream(std::move(theData));
+	TStream* theStream = &theMemoryStream;
 	try
 	{
-		std::unique_ptr<TStream> theStream(new TFileStream(inPath, "rb"));
 		if (theStream->GetInt32BE() != 'EINI' || theStream->GetInt32BE() != 'SNAP'
 			|| theStream->GetInt32BE() != kStateFileVersion)
 			return false;

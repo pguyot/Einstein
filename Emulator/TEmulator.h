@@ -452,7 +452,7 @@ public:
 	///
 	/// Read which cards were inserted when a state file was saved, without
 	/// loading it. A fast start inserts the same cards before loading.
-	/// \return false if the file is not a state file of this version.
+	/// \return false if the file is damaged or not a state file of this version.
 	///
 	static Boolean ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards);
 

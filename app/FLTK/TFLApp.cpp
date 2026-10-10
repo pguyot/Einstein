@@ -1527,7 +1527,7 @@ TFLApp::LoadFastStartState()
 	std::vector<TEmulator::SStateCard> cards;
 	if (!TEmulator::ReadStateCards(path.c_str(), cards))
 	{
-		KPrintf("Fast start: %s is not a state file of this version.\n", path.c_str());
+		KPrintf("Fast start: %s is damaged or from another Einstein version.\n", path.c_str());
 		(void) ::remove(path.c_str());
 		return kFastStartNone;
 	}
