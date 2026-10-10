@@ -1555,7 +1555,7 @@ TFLApp::LoadFastStartState()
 
 	// Start over as after a normal launch, in case part of the state was
 	// loaded before an error.
-	KPrintf("Fast start: the saved state does not match, booting normally.\n");
+	KPrintf("Fast start: the saved state was not loaded, booting normally.\n");
 	mEmulator->GetMemory()->ClearRAM();
 	mEmulator->ResetState();
 	return kFastStartFailed;

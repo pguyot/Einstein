@@ -334,6 +334,7 @@ TATACard::TransferState(TStream* inStream)
 	KUInt32 theFifoPos = (KUInt32) mFifoPos;
 	inStream->TransferInt32BE(theFifoSize, 0);
 	inStream->TransferInt32BE(theFifoPos, 0);
+	inStream->CheckDataSize(theFifoSize, kSectorSize, "the ATA card FIFO size");
 	if (inStream->IsReading() || inStream->IsResetting())
 	{
 		mFifo.resize(theFifoSize);

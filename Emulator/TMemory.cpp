@@ -59,6 +59,10 @@
 // -------------------------------------------------------------------------- //
 #define debugFlash 0
 
+// Most breakpoints a state file may hold. Set by hand in the Monitor, so
+// usually a handful.
+static const KUInt32 kMaxSavedBreakpoints = 65536;
+
 const int TMemory::kSerialNumberCRC[256] = {
 	0x00, 0x8C, 0x46, 0xCA, 0x23, 0xAF, 0x65, 0xE9,
 	0x9D, 0x11, 0xDB, 0x57, 0xBE, 0x32, 0xF8, 0x74,
@@ -3126,21 +3130,22 @@ TMemory::TransferState(TStream* inStream)
 	if (inStream->IsReading())
 		WriteROMBreakpoints(false);
 
-	// The various registers.
-	inStream->TransferInt32BE(mRAMSize);
-	inStream->TransferInt32BE(mRAMEnd);
+	// The various registers. The RAM size is configuration and must match
+	// (TEmulator::LoadState() checks it before loading).
+	KUInt32 theRAMSize = mRAMSize;
+	KUInt32 theRAMEnd = mRAMEnd;
+	inStream->TransferInt32BE(theRAMSize);
+	inStream->TransferInt32BE(theRAMEnd);
+	if (inStream->IsReading() && (theRAMSize != mRAMSize || theRAMEnd != mRAMEnd))
+		throw std::runtime_error("the RAM size does not match");
 	inStream->TransferInt32BE(mBankCtrlRegister, 0);
 	inStream->TransferInt32BE(mBPCount);
+	inStream->CheckLimit(mBPCount, kMaxSavedBreakpoints, "the number of breakpoints");
 	// How far NewtonOS has read the serial number chip, one bit at a time.
 	// 64 is the power-on position: a 0 bit, then the 64 bits of the number.
 	inStream->TransferInt32BE(mSerialNumberIx, 64);
 
 	// The RAM
-	if (inStream->IsReading())
-	{
-		mRAM = (KUInt8*) ::realloc(mRAM, mRAMSize);
-		mRAMOffset = ((KUIntPtr) mRAM) - TMemoryConsts::kRAMStart;
-	}
 	inStream->TransferInt32ArrayBE((KUInt32*) mRAM, mRAMSize / sizeof(KUInt32));
 
 	// The breakpoints.
@@ -3168,7 +3173,7 @@ TMemory::TransferState(TStream* inStream)
 		mFlash.TransferState(inStream);
 
 	// Invalidate the JIT cache. After loading, RAM and ROM hold different code,
-	// and RAM was reallocated, so all translated pages must go. After a reset,
+	// so all translated pages must go. After a reset,
 	// NewtonOS starts over, so drop them as well.
 	if (inStream->IsReading() || inStream->IsResetting())
 		mJIT.InvalidateAll();

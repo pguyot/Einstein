@@ -41,6 +41,11 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
+// Largest card state block in a state file. Today the blocks are small, but a
+// linear card holds up to 64 MB plus a few KB for the CIS, in case its
+// contents are saved one day.
+static const KUInt32 kMaxCardStateSize = 64 * 1024 * 1024 + 4096;
+
 // -------------------------------------------------------------------------- //
 //  * TPCMCIAController( TLog*, TEmulator*, int )
 // -------------------------------------------------------------------------- //
@@ -431,6 +436,7 @@ TPCMCIAController::TransferState(TStream* inStream)
 		KUInt32 theSize = 0;
 		inStream->TransferInt32BE(theSavedTag);
 		inStream->TransferInt32BE(theSize);
+		inStream->CheckDataSize(theSize, kMaxCardStateSize, "the PCMCIA card state size");
 		std::vector<KUInt8> theData(theSize);
 		if (theSize > 0)
 			inStream->Transfer(theData.data(), &theSize);

@@ -1074,6 +1074,8 @@ TScreenManager::TransferState(TStream* inStream)
 	inStream->TransferInt32ArrayBE(mTabletBuffer, kTabletBufferSize, 0);
 	inStream->TransferInt32BE(mTabletBufCCrsr, 0);
 	inStream->TransferInt32BE(mTabletBufPCrsr, 0);
+	inStream->CheckLimit(mTabletBufCCrsr, kTabletBufferSize - 1, "the pen sample read position");
+	inStream->CheckLimit(mTabletBufPCrsr, kTabletBufferSize - 1, "the pen sample write position");
 
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
 	inStream->Transfer(mScreenBuffer, &count);

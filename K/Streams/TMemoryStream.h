@@ -145,6 +145,15 @@ public:
 	}
 
 	///
+	/// Number of bytes after the cursor.
+	///
+	KSInt64
+	GetBytesLeft() const override
+	{
+		return (KSInt64) (mData.size() - mCursor);
+	}
+
+	///
 	/// The data written so far, or the data to be read.
 	///
 	const std::vector<KUInt8>&

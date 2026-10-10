@@ -86,6 +86,10 @@
 // Version 11: CRC32 of the file at the end.
 static const KUInt32 kStateFileVersion = 11;
 
+// Longest PCMCIA card image path in a state file. Longer paths are saved
+// empty, so the card is not inserted again at a fast start.
+static const KUInt32 kMaxStatePathLength = 2048;
+
 // Number of values written by TEmulator::GetStateIdentity().
 static const size_t kStateIdentitySize = 5 + 2 * kNbSockets;
 
@@ -582,6 +586,8 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 			TPCMCIACard* theCard = theController ? theController->CurrentCard() : nullptr;
 			const char* thePath = (theCard && theCard->GetImagePath()) ? theCard->GetImagePath() : "";
 			KUInt32 theLength = (KUInt32)::strlen(thePath);
+			if (theLength > kMaxStatePathLength)
+				theLength = 0;
 			theStream->PutInt32BE(theCard ? theCard->GetStateTag() : 0);
 			theStream->PutInt32BE(theLength);
 			theStream->Write(thePath, &theLength);
@@ -682,6 +688,7 @@ TEmulator::LoadState(const char* inPath)
 		{
 			(void) theStream->GetInt32BE();
 			KUInt32 theLength = theStream->GetInt32BE();
+			theStream->CheckDataSize(theLength, kMaxStatePathLength, "the card image path length");
 			std::vector<char> thePath(theLength);
 			theStream->Read(thePath.data(), &theLength);
 		}
@@ -724,6 +731,7 @@ TEmulator::ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards)
 			SStateCard theCard;
 			theCard.fTag = theStream->GetInt32BE();
 			KUInt32 theLength = theStream->GetInt32BE();
+			theStream->CheckDataSize(theLength, kMaxStatePathLength, "the card image path length");
 			std::vector<char> thePath(theLength);
 			theStream->Read(thePath.data(), &theLength);
 			theCard.fImagePath.assign(thePath.data(), theLength);

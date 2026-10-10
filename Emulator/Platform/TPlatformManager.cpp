@@ -55,9 +55,20 @@
 
 #include "Emulator/Serial/TSerialPortDriver.h"
 
+#include <algorithm>
+#include <new>
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
+
+// Limits for the queues in a state file. Events and buffers only wait here
+// until NewtonOS fetches them, so there are usually just a few.
+static const KUInt32 kMaxSavedEvents = 65536;
+static const KUInt32 kMaxSavedBuffers = 1024;
+// A buffer holds a package or NewtonScript code, at most the size of the
+// largest store (a 64 MB linear card).
+static const KUInt32 kMaxBufferSize = 64 * 1024 * 1024;
 
 // -------------------------------------------------------------------------- //
 //  * TPlatformManager( TLog*, TScreenManager* )
@@ -544,6 +555,7 @@ TPlatformManager::TransferState(TStream* inStream)
 	// Events that NewtonOS did not fetch yet.
 	KUInt32 theEventCount = mEventQueuePCrsr - mEventQueueCCrsr;
 	inStream->TransferInt32BE(theEventCount, 0);
+	inStream->CheckLimit(theEventCount, kMaxSavedEvents, "the number of platform events");
 	if (inStream->IsReading() || inStream->IsResetting())
 	{
 		if (theEventCount >= mEventQueueSize)
@@ -562,10 +574,9 @@ TPlatformManager::TransferState(TStream* inStream)
 		inStream->TransferInt32BE(theType);
 		inStream->TransferInt32BE(thePort);
 		inStream->TransferInt32BE(theEvent->fData.aevent.fSize);
+		inStream->CheckDataSize(theEvent->fData.aevent.fSize, kMAXEVENTSIZE, "the size of a platform event");
 		theEvent->fType = (EEventType) theType;
 		theEvent->fData.aevent.fPort = (EPort) thePort;
-		if (theEvent->fData.aevent.fSize > kMAXEVENTSIZE)
-			theEvent->fData.aevent.fSize = kMAXEVENTSIZE;
 		KUInt32 theSize = theEvent->fData.aevent.fSize;
 		inStream->Transfer(theEvent->fData.aevent.fData, &theSize);
 	}
@@ -573,6 +584,7 @@ TPlatformManager::TransferState(TStream* inStream)
 	// Buffers that NewtonOS did not fetch yet.
 	KUInt32 theBufferCount = mBufferCount;
 	inStream->TransferInt32BE(theBufferCount, 0);
+	inStream->CheckLimit(theBufferCount, kMaxSavedBuffers, "the number of platform buffers");
 	if (inStream->IsReading() || inStream->IsResetting())
 	{
 		for (KUInt32 indexBuffer = 0; indexBuffer < mBufferCount; indexBuffer++)
@@ -596,7 +608,12 @@ TPlatformManager::TransferState(TStream* inStream)
 		inStream->TransferInt32BE(theBuffer->fID);
 		inStream->TransferInt32BE(theBuffer->fSize);
 		if (inStream->IsReading())
-			theBuffer->fData = (const KUInt8*) ::calloc(1, theBuffer->fSize);
+		{
+			inStream->CheckDataSize(theBuffer->fSize, kMaxBufferSize, "the size of a platform buffer");
+			theBuffer->fData = (const KUInt8*) ::calloc(1, std::max(theBuffer->fSize, (KUInt32) 1));
+			if (theBuffer->fData == nullptr)
+				throw std::bad_alloc();
+		}
 		KUInt32 theSize = theBuffer->fSize;
 		inStream->Transfer((void*) theBuffer->fData, &theSize);
 	}
