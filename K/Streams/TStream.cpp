@@ -53,6 +53,11 @@
 #include <K/Exceptions/IO/TEOFException.h>
 #endif
 
+#include <algorithm>
+
+// Number of words that GetInt32ArrayBE() and PutInt32ArrayBE() convert at once.
+static const KUInt32 kArrayBlockWords = 4096;
+
 // ------------------------------------------------------------------------- //
 //  * GetCString( KUInt32 )
 // ------------------------------------------------------------------------- //
@@ -430,11 +435,27 @@ TStream::GetInt32ArrayBE(
 	KUInt32* outArray,
 	const KUInt32 inCount)
 {
-	KUInt32* cursor = outArray;
-	KUInt32 count = inCount;
-	while (count-- > 0)
+	// Read blocks, not single words: RAM and flash are millions of words.
+	// Each word is converted like GetInt32BE() does it.
+	KUInt32 theBuffer[kArrayBlockWords];
+	KUInt32 theDone = 0;
+	while (theDone < inCount)
 	{
-		*cursor++ = GetInt32BE();
+		KUInt32 theWords = std::min(inCount - theDone, kArrayBlockWords);
+		KUInt32 theBytes = theWords * (KUInt32) sizeof(KUInt32);
+		Read(theBuffer, &theBytes);
+		KUInt32 theWordsRead = theBytes / (KUInt32) sizeof(KUInt32);
+		for (KUInt32 i = 0; i < theWordsRead; i++)
+			outArray[theDone + i] = UByteSex_ToLittleEndian(UByteSex_FromBigEndian(theBuffer[i]));
+		theDone += theWordsRead;
+		if (theWordsRead < theWords)
+		{
+#if HAS_EXCEPTION_HANDLING
+			throw EOFException;
+#else
+			return;
+#endif
+		}
 	}
 }
 
@@ -462,11 +483,17 @@ TStream::PutInt32ArrayBE(
 	const KUInt32* inArray,
 	const KUInt32 inCount)
 {
-	const KUInt32* cursor = inArray;
-	KUInt32 count = inCount;
-	while (count-- > 0)
+	// Write blocks, not single words, see GetInt32ArrayBE().
+	KUInt32 theBuffer[kArrayBlockWords];
+	KUInt32 theDone = 0;
+	while (theDone < inCount)
 	{
-		PutInt32BE(*cursor++);
+		KUInt32 theWords = std::min(inCount - theDone, kArrayBlockWords);
+		for (KUInt32 i = 0; i < theWords; i++)
+			theBuffer[i] = UByteSex_ToBigEndian(inArray[theDone + i]);
+		KUInt32 theBytes = theWords * (KUInt32) sizeof(KUInt32);
+		Write(theBuffer, &theBytes);
+		theDone += theWords;
 	}
 }
 
