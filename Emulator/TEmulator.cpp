@@ -198,7 +198,21 @@ TEmulator::~TEmulator(void)
 void
 TEmulator::Run(void)
 {
+	Run(mStopCount);
+}
+
+// -------------------------------------------------------------------------- //
+//  * Run( KUInt32 )
+// -------------------------------------------------------------------------- //
+void
+TEmulator::Run(KUInt32 inStopCount)
+{
 	mRunning = true;
+	// A Stop() between reading the count and setting mRunning would be lost.
+	// Stop() counts first, so either we see the new count here, or the loop
+	// sees mRunning == false.
+	if (mStopCount != inStopCount)
+		mRunning = false;
 	mBPHalted = false;
 
 	mInterruptManager->ResumeTimer();
@@ -869,6 +883,7 @@ TEmulator::TransferState(TStream* inStream)
 void
 TEmulator::Stop(void)
 {
+	mStopCount++;
 	mSignal.store(false);
 	mRunning = false;
 	mPaused = false;

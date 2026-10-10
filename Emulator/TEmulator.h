@@ -111,6 +111,22 @@ public:
 	void Run(void);
 
 	///
+	/// Run the emulator until it is interrupted, unless Stop() was called
+	/// since GetStopCount() returned inStopCount. Then a stop that comes just
+	/// before the emulator starts running is not lost.
+	///
+	void Run(KUInt32 inStopCount);
+
+	///
+	/// How often Stop() was called, see Run(KUInt32).
+	///
+	KUInt32
+	GetStopCount(void) const
+	{
+		return mStopCount;
+	}
+
+	///
 	/// Perform a single step.
 	/// This is useful for debugging. Timers are suspended.
 	///
@@ -595,6 +611,9 @@ private:
 
 	/// If we're running.
 	std::atomic<bool> mRunning { false };
+
+	/// Number of Stop() calls, see Run(KUInt32).
+	std::atomic<KUInt32> mStopCount { 0 };
 
 	/// If we're paused (until next interrupt).
 	std::atomic<bool> mPaused { false };

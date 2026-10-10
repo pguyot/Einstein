@@ -31,6 +31,7 @@
 #include <K/Threads/TThread.h>
 
 #include <atomic>
+#include <mutex>
 #include <string>
 
 #include "TMonitorCore.h"
@@ -450,6 +451,7 @@ protected:
 		kStateRequestReset
 	};
 	std::atomic<EStateRequest> mStateRequest { kStateRequestNone }; ///< Pending request for the monitor thread.
+	std::mutex mStateRequestMutex; ///< Held while the UI queues a request, and while the monitor thread sets mHalted after running.
 	std::string mStateRequestPath; ///< File for mStateRequest, set before mStateRequest.
 	Boolean mStateRequestFastStart { false }; ///< Save a fast start file, set before mStateRequest.
 	Boolean mSaveFastStart { false }; ///< Kind of file for the "save" command, set before kSaveState.

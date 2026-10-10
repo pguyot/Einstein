@@ -234,6 +234,10 @@ TMonitor::Run()
 void
 TMonitor::RunEmulator()
 {
+	// Stops from here on end the run, even if they come before the emulator
+	// starts (see TEmulator::Run(KUInt32)).
+	KUInt32 theStopCount = mEmulator->GetStopCount();
+
 	// We aren't stopped.
 	mHalted = false;
 
@@ -268,15 +272,21 @@ TMonitor::RunEmulator()
 			(void) mMemory->DisableBreakpoint(realPC);
 			mEmulator->Step();
 			(void) mMemory->EnableBreakpoint(realPC);
-			mEmulator->Run();
+			mEmulator->Run(theStopCount);
 		} else
 		{
 			// Just run.
-			mEmulator->Run();
+			mEmulator->Run(theStopCount);
 		}
 
 		// Did the UI stop the emulator to save or load the state? Then continue.
-		if (ProcessStateRequest() && !mEmulator->IsBPHalted())
+		// Read the count before the request is cleared: the stop for this
+		// request is done, but a new request after that must stop the next run.
+		KUInt32 theNextStopCount = mEmulator->GetStopCount();
+		Boolean theRequestDone = ProcessStateRequest();
+		if (theRequestDone)
+			theStopCount = theNextStopCount;
+		if (theRequestDone && !mEmulator->IsBPHalted())
 		{
 			// After a load, the PC may point to a breakpoint.
 			realPC = mProcessor->GetRegister(15) - 4;
@@ -309,7 +319,14 @@ TMonitor::RunEmulator()
 		}
 	}
 
-	mHalted = true;
+	// From now on, the UI does not queue requests (see RequestStateTransfer).
+	{
+		std::lock_guard<std::mutex> theLock(mStateRequestMutex);
+		mHalted = true;
+	}
+	// A request that came while the emulator stopped for another reason
+	// (breakpoint, stop command). Do it now; the emulator stays halted.
+	(void) ProcessStateRequest();
 #if !TARGET_UI_FLTK
 	// Write a byte to the socket pair.
 	(void) ::write(mSocketPair[1], &someByte, 1);
@@ -612,6 +629,9 @@ TMonitor::RequestStateTransfer(EStateRequest inRequest, const char* inPath)
 		return true;
 	}
 
+	// mHalted can't change while we hold this lock, so RunEmulator() either
+	// sees our request or we see that it halted.
+	std::lock_guard<std::mutex> theLock(mStateRequestMutex);
 	if (mHalted)
 	{
 		// The monitor thread is busy with another command.
