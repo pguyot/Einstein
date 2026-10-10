@@ -115,6 +115,11 @@ public:
 	void Save(void) const;
 
 	///
+	/// Return a checksum of the whole flash memory.
+	///
+	KUInt32 GetChecksum(void) const;
+
+	///
 	/// Power flash on.
 	///
 	void PowerOn(void) const;

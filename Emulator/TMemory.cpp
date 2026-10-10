@@ -37,6 +37,7 @@
 
 // K
 #include <K/Defines/UByteSex.h>
+#include <K/Misc/CRC32.h>
 #include <K/Streams/TStream.h>
 
 // Einstein
@@ -57,6 +58,10 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 #define debugFlash 0
+
+// Most breakpoints a state file may hold. Set by hand in the Monitor, so
+// usually a handful.
+static const KUInt32 kMaxSavedBreakpoints = 65536;
 
 const int TMemory::kSerialNumberCRC[256] = {
 	0x00, 0x8C, 0x46, 0xCA, 0x23, 0xAF, 0x65, 0xE9,
@@ -132,6 +137,10 @@ TMemory::TMemory(
 		mJIT(this, &mMMU)
 {
 	Init();
+
+	// Remember what ROM we run, to check that a state file belongs to it.
+	// A TROMImage always holds the full ROM and REX area.
+	mROMChecksum = GetCRC32(mROMImagePtr, TMemoryConsts::kHighROMEnd);
 }
 
 // -------------------------------------------------------------------------- //
@@ -3103,21 +3112,40 @@ TMemory::TransferState(TStream* inStream)
 	// Invalidate the JIT cache.
 	mJIT.InvalidateTLB();
 
-	// The various registers.
-	inStream->TransferInt32BE(mRAMSize);
-	inStream->TransferInt32BE(mRAMEnd);
-	inStream->TransferInt32BE(mBankCtrlRegister);
-	inStream->TransferInt32BE(mBPCount);
+	// The ROM is not saved: a state file is only loaded with the same ROM
+	// (see TEmulator::LoadState). But breakpoints are written into the ROM.
+	// Before loading, remove the current ones; after loading, set the loaded
+	// ones. Breakpoints in RAM are part of the RAM contents.
+	auto WriteROMBreakpoints = [this](Boolean inSetThem) {
+		for (KUInt32 indexBP = 0; indexBP < mBPCount; indexBP++)
+		{
+			const SBreakpoint& theBP = mBreakpoints[indexBP];
+			if (!(theBP.fAddress & TMemoryConsts::kROMEndMask))
+			{
+				*((KUInt32*) ((KUIntPtr) mROMImagePtr + theBP.fAddress))
+					= inSetThem ? theBP.fBPValue : theBP.fOriginalValue;
+			}
+		}
+	};
+	if (inStream->IsReading())
+		WriteROMBreakpoints(false);
 
-	// The ROM.
-	inStream->TransferInt32ArrayBE((KUInt32*) mROMImagePtr, 0x01000000 / sizeof(KUInt32));
+	// The various registers. The RAM size is configuration and must match
+	// (TEmulator::LoadState() checks it before loading).
+	KUInt32 theRAMSize = mRAMSize;
+	KUInt32 theRAMEnd = mRAMEnd;
+	inStream->TransferInt32BE(theRAMSize);
+	inStream->TransferInt32BE(theRAMEnd);
+	if (inStream->IsReading() && (theRAMSize != mRAMSize || theRAMEnd != mRAMEnd))
+		throw std::runtime_error("the RAM size does not match");
+	inStream->TransferInt32BE(mBankCtrlRegister, 0);
+	inStream->TransferInt32BE(mBPCount);
+	inStream->CheckLimit(mBPCount, kMaxSavedBreakpoints, "the number of breakpoints");
+	// How far NewtonOS has read the serial number chip, one bit at a time.
+	// 64 is the power-on position: a 0 bit, then the 64 bits of the number.
+	inStream->TransferInt32BE(mSerialNumberIx, 64);
 
 	// The RAM
-	if (inStream->IsReading())
-	{
-		mRAM = (KUInt8*) ::realloc(mRAM, mRAMSize);
-		mRAMOffset = ((KUIntPtr) mRAM) - TMemoryConsts::kRAMStart;
-	}
 	inStream->TransferInt32ArrayBE((KUInt32*) mRAM, mRAMSize / sizeof(KUInt32));
 
 	// The breakpoints.
@@ -3133,15 +3161,34 @@ TMemory::TransferState(TStream* inStream)
 		inStream->TransferInt32BE(mBreakpoints[indexBP].fOriginalValue);
 		inStream->TransferInt32BE(mBreakpoints[indexBP].fBPValue);
 	}
+	if (inStream->IsReading())
+		WriteROMBreakpoints(true);
 
 	// The MMU
 	mMMU.TransferState(inStream);
 
-	// The flash.
-	mFlash.TransferState(inStream);
+	// The flash, only in debug snapshots. Fast start snapshots check the flash
+	// with a checksum instead (see TEmulator::SaveState).
+	if (inStream->TransferFlags() & TEmulator::kStateIncludesFlash)
+		mFlash.TransferState(inStream);
 
-	// Invalidate the JIT cache.
-	mJIT.InvalidateTLB();
+	// Invalidate the JIT cache. After loading, RAM and ROM hold different code,
+	// so all translated pages must go. After a reset,
+	// NewtonOS starts over, so drop them as well.
+	if (inStream->IsReading() || inStream->IsResetting())
+		mJIT.InvalidateAll();
+	else
+		mJIT.InvalidateTLB();
+}
+
+// -------------------------------------------------------------------------- //
+//  * ClearRAM( void )
+// -------------------------------------------------------------------------- //
+void
+TMemory::ClearRAM(void)
+{
+	::memset(mRAM, 0, mRAMSize);
+	mJIT.InvalidateAll();
 }
 
 // -------------------------------------------------------------------------- //

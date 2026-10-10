@@ -759,6 +759,29 @@ public:
 	}
 
 	///
+	/// Clear the RAM, as after a fresh start.
+	///
+	void ClearRAM(void);
+
+	///
+	/// Checksum of the ROM and REX as loaded, before any breakpoint was set.
+	///
+	KUInt32
+	GetROMChecksum(void) const
+	{
+		return mROMChecksum;
+	}
+
+	///
+	/// Checksum of the whole flash memory.
+	///
+	KUInt32
+	GetFlashChecksum(void) const
+	{
+		return mFlash.GetChecksum();
+	}
+
+	///
 	/// Save or restore the state to or from a stream.
 	///
 	void TransferState(TStream* inStream);
@@ -873,6 +896,11 @@ private:
 
 	/// 16 MB
 	KUInt8* mROMImagePtr { nullptr };
+
+	/// Checksum of the ROM and REX, computed by the TROMImage constructor
+	/// before any breakpoint. It stays 0 when TMemory is created from a plain
+	/// ROM buffer (unit tests), because the size of that buffer is not known.
+	KUInt32 mROMChecksum { 0 };
 
 	/// RAM
 	KUInt8* mRAM { nullptr };

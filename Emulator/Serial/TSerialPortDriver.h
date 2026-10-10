@@ -33,6 +33,7 @@ class TInterruptManager;
 class TDMAManager;
 class TMemory;
 class TEmulator;
+class TStream;
 
 ///
 /// Class for the 4 voyager serial ports.
@@ -91,6 +92,35 @@ public:
 	/// Write register.
 	///
 	virtual void WriteDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue);
+
+	///
+	/// Save or load the emulated hardware state of this port (DMA registers).
+	/// The layout must be the same for all drivers, so loading works with any
+	/// driver that is selected in the preferences.
+	///
+	virtual void
+	TransferState(TStream* inStream)
+	{
+		(void) inStream;
+	}
+
+	///
+	/// Stop touching emulated memory and registers until Resume() is called.
+	/// Used while the emulator state is saved or loaded. Suspend() and
+	/// Resume() must be called from the same thread.
+	///
+	virtual void
+	Suspend()
+	{
+	}
+
+	///
+	/// Continue after Suspend().
+	///
+	virtual void
+	Resume()
+	{
+	}
 
 	///
 	/// GIve NewtonScrip access to our list of options

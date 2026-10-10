@@ -26,6 +26,8 @@
 
 #include "TSerialPortDriver.h"
 
+#include <mutex>
+
 class TLog;
 class TInterruptManager;
 class TDMAManager;
@@ -88,6 +90,21 @@ public:
 	/// Write DMA register.
 	///
 	void WriteDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue) override;
+
+	///
+	/// Save or load the transmit and receive DMA registers.
+	///
+	void TransferState(TStream* inStream) override;
+
+	///
+	/// Stop DMA while the emulator state is saved or loaded.
+	///
+	void Suspend() override;
+
+	///
+	/// Continue DMA after Suspend().
+	///
+	void Resume() override;
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
@@ -159,6 +176,10 @@ protected:
 
 	/// the event that triggered the interrupt?
 	KUInt32 mRxDMAEvent { 0 };
+
+	/// Held by the worker thread of a derived class while it handles DMA
+	/// (emulated memory and the registers above), and by Suspend().
+	std::mutex mDMAMutex;
 };
 
 #endif

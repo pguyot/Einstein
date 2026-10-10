@@ -89,6 +89,12 @@ public:
 	///
 	void InvalidatePage(KUInt32 inPAddr);
 
+	///
+	/// Invalidate all translated pages, for example after the whole memory
+	/// was loaded from a file. Pages are translated again on their next use.
+	///
+	void InvalidateAll(void);
+
 protected:
 	struct SEntry {
 		TPage mPage;

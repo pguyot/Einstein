@@ -46,14 +46,14 @@ TARMProcessor* TNewt::mCPU = nullptr; ///< Reference back to the emulated CPU
 /**
  This object is used to look up and call host functions by symbol name.
 
- This is a list of function calls from NewtonOS via teh EinsteinGlue.ntkc into functions
- inside the EInstein emulator. All calls have exactly one argument which can contain
- literals but alos complex hierarchies of arrays and frames. If the argument is unused,
+ This is a list of function calls from NewtonOS via the EinsteinGlue.ntkc into functions
+ inside the Einstein emulator. All calls have exactly one argument which can contain
+ literals but also complex hierarchies of arrays and frames. If the argument is unused,
  it should be NIL.
 
  On the Einstein side, these functions shall be names in camelcase starting
  with 'NS...'. They commonly make extensive use of the tools in the TNewt namespace
- to read paramaters from Newton memory into host space, and generate results that
+ to read parameters from Newton memory into host space, and generate results that
  the calling NewtonScript can understand.
 
  A typical NewtonScript call into Einstein look like this:
@@ -64,9 +64,9 @@ TARMProcessor* TNewt::mCPU = nullptr; ///< Reference back to the emulated CPU
  which returns the version number of EinsteinGlue.ntkc, and
 	call Einstein.Version with (nil);
  which return -1 if this is not running on Einstein, 0 if this is Einstein, but without TNewt, or
- simpe integer version number that will increase over time.
+ simple integer version number that will increase over time.
 
- The source code for EinsteinGlue.ntkc is in /Dirvers/packages/NTKGlue
+ The source code for EinsteinGlue.ntkc is in /Drivers/packages/NTKGlue
  */
 PlatformCallMap TNewt::CallMap = {
 	{ "print", [](RefArg, RefArg arg) -> NewtRef {

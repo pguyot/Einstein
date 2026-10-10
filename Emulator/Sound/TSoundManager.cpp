@@ -23,6 +23,8 @@
 
 #include "TSoundManager.h"
 
+#include <K/Streams/TStream.h>
+
 #include <stdlib.h>
 
 #ifdef TARGET_OS_WIN32
@@ -60,6 +62,21 @@ void
 TSoundManager::RaiseInputInterrupt(void) const
 {
 	mInterruptManager->RaiseInterrupt(mInputIntMask);
+}
+
+// -------------------------------------------------------------------------- //
+//  * TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+void
+TSoundManager::TransferState(TStream* inStream)
+{
+	inStream->TransferInt32BE(mInputIntMask, 0);
+	inStream->TransferInt32BE(mOutputIntMask, 0);
+	// The volume is kept on reset, it is like a knob on the device.
+	KUInt32 theVolume = mOutputVolume;
+	inStream->TransferInt32BE(theVolume);
+	if (inStream->IsReading())
+		OutputVolume(theVolume); // also tells the host
 }
 
 // -------------------------------------------------------------------------- //

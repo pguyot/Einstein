@@ -37,6 +37,7 @@
 #include <thread>
 
 // K
+#include <K/Streams/TStream.h>
 #include <K/Threads/TMutex.h>
 #include <K/Unicode/UUTF16CStr.h>
 
@@ -54,9 +55,20 @@
 
 #include "Emulator/Serial/TSerialPortDriver.h"
 
+#include <algorithm>
+#include <new>
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
+
+// Limits for the queues in a state file. Events and buffers only wait here
+// until NewtonOS fetches them, so there are usually just a few.
+static const KUInt32 kMaxSavedEvents = 65536;
+static const KUInt32 kMaxSavedBuffers = 1024;
+// A buffer holds a package or NewtonScript code, at most the size of the
+// largest store (a 64 MB linear card).
+static const KUInt32 kMaxBufferSize = 64 * 1024 * 1024;
 
 // -------------------------------------------------------------------------- //
 //  * TPlatformManager( TLog*, TScreenManager* )
@@ -514,6 +526,103 @@ TPlatformManager::PowerOn(void)
 }
 
 // -------------------------------------------------------------------------- //
+//  * TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+// The queues are saved by content: the pending events and buffers. Their
+// capacity is a detail of this process and is not saved.
+void
+TPlatformManager::TransferState(TStream* inStream)
+{
+	// The UI and sound threads add events at any time. The guard unlocks the
+	// mutex when we leave, even if reading fails with an exception.
+	struct SUnlockGuard {
+		TMutex* fMutex;
+		~SUnlockGuard() { fMutex->Unlock(); }
+	};
+	mMutex->Lock();
+	SUnlockGuard theUnlockGuard { mMutex };
+
+	// Power state, and the locks shared with the platform driver in NewtonOS.
+	// A reset powers on, empties the queues, and locks the queue until
+	// NewtonOS finished booting again, as at startup.
+	Boolean thePowerOn = mPowerOn;
+	inStream->TransferBoolean(thePowerOn, true);
+	inStream->TransferBoolean(mQueuePreLock, false);
+	inStream->TransferInt32BE(mQueueLockCount, 0);
+	inStream->TransferInt32BE(mQueueBootLock, 1);
+	inStream->TransferInt32BE(mBufferNextID);
+
+	// Events that NewtonOS did not fetch yet.
+	KUInt32 theEventCount = mEventQueuePCrsr - mEventQueueCCrsr;
+	inStream->TransferInt32BE(theEventCount, 0);
+	inStream->CheckLimit(theEventCount, kMaxSavedEvents, "the number of platform events");
+	if (inStream->IsReading() || inStream->IsResetting())
+	{
+		if (theEventCount >= mEventQueueSize)
+		{
+			mEventQueueSize = theEventCount + kEVENTQUEUESIZEINCREMENT;
+			mEventQueue = (SEvent*) ::realloc(mEventQueue, sizeof(SEvent) * mEventQueueSize);
+		}
+		mEventQueueCCrsr = 0;
+		mEventQueuePCrsr = theEventCount;
+	}
+	for (KUInt32 indexEvent = 0; indexEvent < theEventCount; indexEvent++)
+	{
+		SEvent* theEvent = &mEventQueue[mEventQueueCCrsr + indexEvent];
+		KUInt32 theType = theEvent->fType;
+		KUInt32 thePort = theEvent->fData.aevent.fPort;
+		inStream->TransferInt32BE(theType);
+		inStream->TransferInt32BE(thePort);
+		inStream->TransferInt32BE(theEvent->fData.aevent.fSize);
+		inStream->CheckDataSize(theEvent->fData.aevent.fSize, kMAXEVENTSIZE, "the size of a platform event");
+		theEvent->fType = (EEventType) theType;
+		theEvent->fData.aevent.fPort = (EPort) thePort;
+		KUInt32 theSize = theEvent->fData.aevent.fSize;
+		inStream->Transfer(theEvent->fData.aevent.fData, &theSize);
+	}
+
+	// Buffers that NewtonOS did not fetch yet.
+	KUInt32 theBufferCount = mBufferCount;
+	inStream->TransferInt32BE(theBufferCount, 0);
+	inStream->CheckLimit(theBufferCount, kMaxSavedBuffers, "the number of platform buffers");
+	if (inStream->IsReading() || inStream->IsResetting())
+	{
+		for (KUInt32 indexBuffer = 0; indexBuffer < mBufferCount; indexBuffer++)
+			::free((void*) mBufferQueue[indexBuffer].fData);
+		if (theBufferCount >= mBufferQueueSize)
+		{
+			mBufferQueueSize = theBufferCount + kBUFFERQUEUESIZEINCREMENT;
+			mBufferQueue = (SBuffer*) ::realloc(mBufferQueue, sizeof(SBuffer) * mBufferQueueSize);
+		}
+		// No stale pointers if reading fails halfway.
+		for (KUInt32 indexBuffer = 0; indexBuffer < theBufferCount; indexBuffer++)
+		{
+			mBufferQueue[indexBuffer].fData = nullptr;
+			mBufferQueue[indexBuffer].fSize = 0;
+		}
+		mBufferCount = theBufferCount;
+	}
+	for (KUInt32 indexBuffer = 0; indexBuffer < theBufferCount; indexBuffer++)
+	{
+		SBuffer* theBuffer = &mBufferQueue[indexBuffer];
+		inStream->TransferInt32BE(theBuffer->fID);
+		inStream->TransferInt32BE(theBuffer->fSize);
+		if (inStream->IsReading())
+		{
+			inStream->CheckDataSize(theBuffer->fSize, kMaxBufferSize, "the size of a platform buffer");
+			theBuffer->fData = (const KUInt8*) ::calloc(1, std::max(theBuffer->fSize, (KUInt32) 1));
+			if (theBuffer->fData == nullptr)
+				throw std::bad_alloc();
+		}
+		KUInt32 theSize = theBuffer->fSize;
+		inStream->Transfer((void*) theBuffer->fData, &theSize);
+	}
+
+	if (inStream->IsReading() || inStream->IsResetting())
+		mPowerOn = thePowerOn;
+}
+
+// -------------------------------------------------------------------------- //
 //  * LockEventQueue( void )
 // -------------------------------------------------------------------------- //
 void
@@ -572,6 +681,19 @@ TPlatformManager::UnlockQueueBootLock()
 		mMutex->Unlock();
 		UnlockEventQueue();
 	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * ResetEventQueueLocks()
+// -------------------------------------------------------------------------- //
+void
+TPlatformManager::ResetEventQueueLocks()
+{
+	mMutex->Lock();
+	mQueuePreLock = false;
+	mQueueLockCount = 0;
+	mQueueBootLock = 1;
+	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //

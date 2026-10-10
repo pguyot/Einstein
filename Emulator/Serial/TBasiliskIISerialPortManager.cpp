@@ -339,26 +339,30 @@ TBasiliskIISerialPortManager::HandleDMA()
 
 		// handle transmitting DMA
 
-		if (mTxDMAIntEnable & 0x00000002)
-		{ // DMA is enabled
-			if (mTxDMADataCountdown)
-			{
-				// write a byte
-				KUInt8 data = 0;
-				mMemory->ReadBP(mTxDMAPhysicalData, data);
-				write(pBasiliskLocalFD, &data, 1);
-				mTxDMAPhysicalData++;
-				mTxDMABytesToBufferEnd--;
-				if (mTxDMABytesToBufferEnd == 0)
+		{
+			// Suspend() holds this mutex while the emulator state is saved or loaded
+			std::lock_guard<std::mutex> theLock(mDMAMutex);
+			if (mTxDMAIntEnable & 0x00000002)
+			{ // DMA is enabled
+				if (mTxDMADataCountdown)
 				{
-					mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
-				}
-				mTxDMADataCountdown--;
-				if (mTxDMADataCountdown == 0)
-				{
-					// trigger a "send buffer empty" interrupt
-					mTxDMAEvent = 0x00000080;
-					mInterruptManager->RaiseInterrupt(0x00000100);
+					// write a byte
+					KUInt8 data = 0;
+					mMemory->ReadBP(mTxDMAPhysicalData, data);
+					write(pBasiliskLocalFD, &data, 1);
+					mTxDMAPhysicalData++;
+					mTxDMABytesToBufferEnd--;
+					if (mTxDMABytesToBufferEnd == 0)
+					{
+						mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
+					}
+					mTxDMADataCountdown--;
+					if (mTxDMADataCountdown == 0)
+					{
+						// trigger a "send buffer empty" interrupt
+						mTxDMAEvent = 0x00000080;
+						mInterruptManager->RaiseInterrupt(0x00000100);
+					}
 				}
 			}
 		}
@@ -414,6 +418,8 @@ TBasiliskIISerialPortManager::HandleDMA()
 				//				if (c&TIOCPKT_NOSTOP) puts("     - TIOCPKT_NOSTOP");
 			} else
 			{
+				// Suspend() holds this mutex while the emulator state is saved or loaded
+				std::lock_guard<std::mutex> theLock(mDMAMutex);
 				// handle incomming data (ignore buf[0]!)
 				for (int i = 1; i < n; i++)
 				{

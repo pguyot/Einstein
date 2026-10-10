@@ -108,6 +108,15 @@ public:
 	// user wants to reset or reboot the emulator
 	void UserActionReset(int inType);
 
+	// user wants to save the emulator state (temporary, for testing Fast start)
+	void UserActionSaveState();
+
+	// user wants to load the emulator state (temporary, for testing Fast start)
+	void UserActionLoadState();
+
+	// user wants to check that saving and loading is symmetric (temporary)
+	void UserActionCheckState();
+
 	// user wants to see the About window
 	void UserActionShowAboutPanel();
 
@@ -195,6 +204,44 @@ private:
 	void InitMonitor(const char* theROMImagePath);
 
 	void MountPCCardsKeptInSlot();
+
+	// Result of LoadFastStartState()
+	enum EFastStart {
+		kFastStartNone, ///< no fast start file, or fast start is off
+		kFastStartFailed, ///< the file did not match; its cards are inserted
+		kFastStartLoaded ///< the emulator continues where it was quit
+	};
+
+	// On launch: insert the cards from the fast start file and load it
+	EFastStart LoadFastStartState();
+
+	// On quit: start letting the Newton fall asleep, to save the fast start
+	// file. Returns false if no state will be saved. If it returns true,
+	// QuitNow() is called when the state was saved (or after a timeout).
+	bool StartSavingFastStartState();
+
+	// Timer callback that runs while the fast start file is being saved
+	static void SaveFastStartStateTimer(void* inData);
+
+	// Close all windows, which ends Fl::run()
+	void QuitNow();
+
+	// Find the card in the card list that was saved in a state file, -1 if none
+	long FindCardForState(KUInt32 inTag, const std::string& inImagePath);
+
+	// Progress of saving the fast start file. The UI keeps running meanwhile;
+	// waiting inside a callback (for example a macOS menu bar action) could
+	// keep the emulator thread from getting the FLTK lock.
+	enum class EFastStartSave {
+		kIdle,
+		kWaitForSleep,
+		kWaitForHalt,
+		kSave
+	};
+	EFastStartSave mFastStartSave { EFastStartSave::kIdle };
+
+	// When the current step of saving the fast start file started, in seconds
+	double mFastStartSaveStepStart { 0.0 };
 
 	// create the driver for our screen output
 	void CreateScreenManager(

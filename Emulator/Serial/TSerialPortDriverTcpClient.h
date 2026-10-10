@@ -30,6 +30,7 @@
 #include <Windows.h>
 #include <Winsock2.h>
 #endif
+#include <mutex>
 #include <thread>
 
 class TLog;

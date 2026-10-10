@@ -30,7 +30,10 @@
 // C++11 and up
 #include <algorithm>
 #include <chrono>
+#include <fstream>
+#include <iterator>
 #include <thread>
+#include <vector>
 
 // ANSI C & POSIX
 #include <errno.h>
@@ -210,11 +213,13 @@ TMonitor::Run()
 				break;
 
 			case kSaveState:
-				SaveEmulatorState(mFilename);
+				if (!SaveEmulatorState(mFilename, mSaveFastStart))
+					PrintLine("Saving the emulator state failed", MONITOR_LOG_ERROR);
 				break;
 
 			case kLoadState:
-				LoadEmulatorState(mFilename);
+				if (!LoadEmulatorState(mFilename))
+					PrintLine("Loading the emulator state failed", MONITOR_LOG_ERROR);
 				break;
 		}
 	}
@@ -229,10 +234,17 @@ TMonitor::Run()
 void
 TMonitor::RunEmulator()
 {
+	// Stops from here on end the run, even if they come before the emulator
+	// starts (see TEmulator::Run(KUInt32)).
+	KUInt32 theStopCount = mEmulator->GetStopCount();
+
 	// We aren't stopped.
 	mHalted = false;
 
-#if !TARGET_UI_FLTK
+#if TARGET_UI_FLTK
+	// Show the running view. The UI thread does not draw while we hold the mutex.
+	DrawScreen();
+#else
 	char someByte = 0;
 	// Write a byte to the socket pair.
 	(void) ::write(mSocketPair[1], &someByte, 1);
@@ -260,11 +272,30 @@ TMonitor::RunEmulator()
 			(void) mMemory->DisableBreakpoint(realPC);
 			mEmulator->Step();
 			(void) mMemory->EnableBreakpoint(realPC);
-			mEmulator->Run();
+			mEmulator->Run(theStopCount);
 		} else
 		{
 			// Just run.
-			mEmulator->Run();
+			mEmulator->Run(theStopCount);
+		}
+
+		// Did the UI stop the emulator to save or load the state? Then continue.
+		// Read the count before the request is cleared: the stop for this
+		// request is done, but a new request after that must stop the next run.
+		KUInt32 theNextStopCount = mEmulator->GetStopCount();
+		Boolean theRequestDone = ProcessStateRequest();
+		if (theRequestDone)
+			theStopCount = theNextStopCount;
+		if (theRequestDone && !mEmulator->IsBPHalted())
+		{
+			// After a load, the PC may point to a breakpoint.
+			realPC = mProcessor->GetRegister(15) - 4;
+			instructionIsBP = false;
+			if (!mMemory->Read((TMemory::VAddr) realPC, instruction))
+			{
+				instructionIsBP = ((instruction & 0xFFF000F0) == 0xE1200070);
+			}
+			continue;
 		}
 
 		// We're halted now. Check if it was because of a BP.
@@ -288,7 +319,14 @@ TMonitor::RunEmulator()
 		}
 	}
 
-	mHalted = true;
+	// From now on, the UI does not queue requests (see RequestStateTransfer).
+	{
+		std::lock_guard<std::mutex> theLock(mStateRequestMutex);
+		mHalted = true;
+	}
+	// A request that came while the emulator stopped for another reason
+	// (breakpoint, stop command). Do it now; the emulator stays halted.
+	(void) ProcessStateRequest();
 #if !TARGET_UI_FLTK
 	// Write a byte to the socket pair.
 	(void) ::write(mSocketPair[1], &someByte, 1);
@@ -337,34 +375,37 @@ TMonitor::StepEmulator()
 // -------------------------------------------------------------------------- //
 // SaveEmulatorState( const char * )
 // -------------------------------------------------------------------------- //
-void
-TMonitor::SaveEmulatorState(const char* inFilename)
+Boolean
+TMonitor::SaveEmulatorState(const char* inFilename, Boolean inFastStart)
 {
 	if (inFilename == 0)
 	{
 		inFilename = "/tmp/einstein.state";
 	}
-	mEmulator->SaveState(inFilename);
+	Boolean theResult = mEmulator->SaveState(inFilename,
+		inFastStart ? TEmulator::kFastStartState : TEmulator::kDebugState);
 
 #if !TARGET_UI_FLTK
 	char someByte = 0;
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif
+	return theResult;
 }
 
 // -------------------------------------------------------------------------- //
 // LoadEmulatroState( const char * )
 // -------------------------------------------------------------------------- //
-void
+Boolean
 TMonitor::LoadEmulatorState(const char* inFilename)
 {
 	if (inFilename == 0)
 	{
 		inFilename = "/tmp/einstein.state";
 	}
+	Boolean theResult = false;
 	if (TFileStream::Exists(inFilename))
 	{
-		mEmulator->LoadState(inFilename);
+		theResult = mEmulator->LoadState(inFilename);
 	}
 	TScreenManager* screen = mEmulator->GetScreenManager();
 	TScreenManager::SRect rect;
@@ -377,6 +418,7 @@ TMonitor::LoadEmulatorState(const char* inFilename)
 	char someByte = 0;
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif
+	return theResult;
 }
 
 // -------------------------------------------------------------------------- //
@@ -527,6 +569,224 @@ TMonitor::Stop()
 	ReleaseMutex();
 }
 
+// -------------------------------------------------------------------------- //
+// RequestSaveState( const char* )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::RequestSaveState(const char* inPath, Boolean inFastStart)
+{
+	if (mStateRequest != kStateRequestNone)
+		return false;
+	mStateRequestFastStart = inFastStart;
+	return RequestStateTransfer(kStateRequestSave, inPath);
+}
+
+// -------------------------------------------------------------------------- //
+// RequestLoadState( const char* )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::RequestLoadState(const char* inPath)
+{
+	return RequestStateTransfer(kStateRequestLoad, inPath);
+}
+
+// -------------------------------------------------------------------------- //
+// RequestCheckState( const char* )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::RequestCheckState(const char* inBasePath)
+{
+	return RequestStateTransfer(kStateRequestCheck, inBasePath);
+}
+
+// -------------------------------------------------------------------------- //
+// RequestReset( void )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::RequestReset()
+{
+	return RequestStateTransfer(kStateRequestReset, "");
+}
+
+// -------------------------------------------------------------------------- //
+// RequestStateTransfer( EStateRequest, const char* )
+// -------------------------------------------------------------------------- //
+// Called from the UI thread. The monitor thread holds mMutex at all times,
+// except while it waits for a command.
+Boolean
+TMonitor::RequestStateTransfer(EStateRequest inRequest, const char* inPath)
+{
+	// Only one request at a time.
+	if (mStateRequest != kStateRequestNone)
+		return false;
+
+	if (mMutex->TryLock())
+	{
+		// The emulator is halted and the monitor thread waits for a command.
+		// It can't start the emulator while we hold the mutex.
+		DoStateTransfer(inRequest, inPath);
+		mMutex->Unlock();
+		return true;
+	}
+
+	// mHalted can't change while we hold this lock, so RunEmulator() either
+	// sees our request or we see that it halted.
+	std::lock_guard<std::mutex> theLock(mStateRequestMutex);
+	if (mHalted)
+	{
+		// The monitor thread is busy with another command.
+		return false;
+	}
+
+	// The emulator is running. Hand the request to the monitor thread and stop
+	// the emulator. RunEmulator() saves or loads, then continues to run.
+	mStateRequestPath = inPath;
+	mStateRequest = inRequest;
+	mEmulator->Stop();
+	return true;
+}
+
+// -------------------------------------------------------------------------- //
+// DoStateTransfer( EStateRequest, const char* )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
+{
+	char theLine[512];
+	if (inRequest == kStateRequestCheck)
+	{
+		CheckStateRoundTrip(inPath);
+	} else if (inRequest == kStateRequestReset)
+	{
+		mEmulator->ResetState();
+		PrintLine("Machine reset", MONITOR_LOG_INFO);
+	} else if (inRequest == kStateRequestSave)
+	{
+		if (SaveEmulatorState(inPath, mStateRequestFastStart))
+		{
+			(void) ::snprintf(theLine, sizeof(theLine), "Emulator state saved to %s", inPath);
+			PrintLine(theLine, MONITOR_LOG_INFO);
+		} else
+		{
+			(void) ::snprintf(theLine, sizeof(theLine), "Could not save the emulator state to %s", inPath);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
+		}
+	} else
+	{
+		if (LoadEmulatorState(inPath))
+		{
+			(void) ::snprintf(theLine, sizeof(theLine), "Emulator state loaded from %s", inPath);
+			PrintLine(theLine, MONITOR_LOG_INFO);
+		} else
+		{
+			(void) ::snprintf(theLine, sizeof(theLine), "Could not load the emulator state from %s", inPath);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
+		}
+	}
+}
+
+// -------------------------------------------------------------------------- //
+// CheckStateRoundTrip( const char* )
+// -------------------------------------------------------------------------- //
+// Save the state to file A, load A, and save again to file B. If saving and
+// loading are symmetric, A and B are identical. If not, report the sections
+// that differ. This finds values that are saved but not loaded (or loaded in
+// a different order). It cannot find state that is not saved at all.
+void
+TMonitor::CheckStateRoundTrip(const char* inBasePath)
+{
+	char theLine[512];
+	std::string thePathA = std::string(inBasePath) + "A.state";
+	std::string thePathB = std::string(inBasePath) + "B.state";
+
+	if (!SaveEmulatorState(thePathA.c_str()))
+	{
+		(void) ::snprintf(theLine, sizeof(theLine), "State round trip: could not save %s", thePathA.c_str());
+		PrintLine(theLine, MONITOR_LOG_ERROR);
+		return;
+	}
+	std::vector<TEmulator::SStateSection> theSections = mEmulator->GetStateSections();
+	if (!LoadEmulatorState(thePathA.c_str()))
+	{
+		(void) ::snprintf(theLine, sizeof(theLine), "State round trip: could not load %s", thePathA.c_str());
+		PrintLine(theLine, MONITOR_LOG_ERROR);
+		return;
+	}
+	if (!SaveEmulatorState(thePathB.c_str()))
+	{
+		(void) ::snprintf(theLine, sizeof(theLine), "State round trip: could not save %s", thePathB.c_str());
+		PrintLine(theLine, MONITOR_LOG_ERROR);
+		return;
+	}
+
+	// Read both files.
+	std::ifstream theFileA(thePathA, std::ios::binary);
+	std::ifstream theFileB(thePathB, std::ios::binary);
+	std::vector<char> theDataA((std::istreambuf_iterator<char>(theFileA)), std::istreambuf_iterator<char>());
+	std::vector<char> theDataB((std::istreambuf_iterator<char>(theFileB)), std::istreambuf_iterator<char>());
+
+	// Count the differing bytes per section. Bytes before the first section
+	// are the file header.
+	size_t theCommonSize = std::min(theDataA.size(), theDataB.size());
+	std::vector<size_t> theDiffsPerSection(theSections.size() + 1, 0);
+	size_t theDiffCount = 0;
+	size_t theFirstDiff = theCommonSize;
+	size_t theSectionIx = 0; // 0 is the header, i+1 is theSections[i]
+	for (size_t i = 0; i < theCommonSize; i++)
+	{
+		while (theSectionIx < theSections.size() && (KSInt64) i >= theSections[theSectionIx].fOffset)
+			theSectionIx++;
+		if (theDataA[i] != theDataB[i])
+		{
+			if (theDiffCount == 0)
+				theFirstDiff = i;
+			theDiffCount++;
+			theDiffsPerSection[theSectionIx]++;
+		}
+	}
+
+	if (theDiffCount == 0 && theDataA.size() == theDataB.size())
+	{
+		(void) ::snprintf(theLine, sizeof(theLine),
+			"State round trip OK: %lu bytes identical", (unsigned long) theDataA.size());
+		PrintLine(theLine, MONITOR_LOG_INFO);
+		return;
+	}
+
+	(void) ::snprintf(theLine, sizeof(theLine),
+		"State round trip FAILED: %lu bytes differ, first at offset %lu",
+		(unsigned long) theDiffCount, (unsigned long) theFirstDiff);
+	PrintLine(theLine, MONITOR_LOG_ERROR);
+	if (theDataA.size() != theDataB.size())
+	{
+		(void) ::snprintf(theLine, sizeof(theLine), "  file sizes differ: %lu and %lu bytes",
+			(unsigned long) theDataA.size(), (unsigned long) theDataB.size());
+		PrintLine(theLine, MONITOR_LOG_ERROR);
+	}
+	for (size_t i = 0; i < theDiffsPerSection.size(); i++)
+	{
+		if (theDiffsPerSection[i] == 0)
+			continue;
+		(void) ::snprintf(theLine, sizeof(theLine), "  %lu bytes differ in %s",
+			(unsigned long) theDiffsPerSection[i], (i == 0) ? "the file header" : theSections[i - 1].fName);
+		PrintLine(theLine, MONITOR_LOG_ERROR);
+	}
+}
+
+// -------------------------------------------------------------------------- //
+// ProcessStateRequest( void )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::ProcessStateRequest()
+{
+	EStateRequest theRequest = mStateRequest;
+	if (theRequest == kStateRequestNone)
+		return false;
+	DoStateTransfer(theRequest, mStateRequestPath.c_str());
+	mStateRequest = kStateRequestNone;
+	return true;
+}
+
 // little helper to return the printable version of any character
 static char
 cc(unsigned int v)
@@ -591,14 +851,26 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		{
 			PrintLine("The emulator is already running", MONITOR_LOG_ERROR);
 		}
+	} else if ((::strcmp(inCommand, "checkstate") == 0)
+		|| (::strncmp(inCommand, "checkstate ", 11) == 0))
+	{
+		// Works while running and while halted.
+		const char* theBasePath = inCommand[10] ? inCommand + 11 : "/tmp/einstein-check";
+		if (!RequestCheckState(theBasePath))
+		{
+			PrintLine("The monitor is busy, try again", MONITOR_LOG_ERROR);
+		}
 	} else if (::strncmp(inCommand, "save ", 5) == 0)
 	{
 		if (mHalted)
 		{
-			PrintLine("Saving emulator state", MONITOR_LOG_INFO);
+			// "save fast <path>" writes a fast start file (flash checksum only)
+			mSaveFastStart = (::strncmp(inCommand, "save fast ", 10) == 0);
+			PrintLine(mSaveFastStart ? "Saving emulator state for a fast start" : "Saving emulator state",
+				MONITOR_LOG_INFO);
 			if (!mFilename)
 				mFilename = (char*) malloc(2048);
-			strcpy(mFilename, inCommand + 5);
+			strcpy(mFilename, inCommand + (mSaveFastStart ? 10 : 5));
 			mCommand = kSaveState;
 			SignalCondVar();
 		} else
@@ -1417,6 +1689,8 @@ TMonitor::PrintHelp()
 	PrintLine(" raise <val>        raise the interrupts", MONITOR_LOG_INFO);
 	PrintLine(" gpio <val>         raise the gpio interrupts", MONITOR_LOG_INFO);
 	PrintLine(" load|save path     load or save the emulator state", MONITOR_LOG_INFO);
+	PrintLine(" save fast path     save for a fast start (flash checksum only)", MONITOR_LOG_INFO);
+	PrintLine(" checkstate [path]  save, load, save again, compare (round trip)", MONITOR_LOG_INFO);
 	PrintLine(" snap|revert        (re)store machine state while running", MONITOR_LOG_INFO);
 	PrintLine(" help log           help with logging", MONITOR_LOG_INFO);
 	PrintLine(" help script        help with scripting", MONITOR_LOG_INFO);

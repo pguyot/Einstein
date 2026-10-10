@@ -23,6 +23,7 @@
 
 #include "TBasicSerialPortManager.h"
 #include "app/TPathHelper.h"
+#include <K/Streams/TStream.h>
 
 // POSIX
 #include <signal.h>
@@ -526,6 +527,51 @@ TBasicSerialPortManager::run(TInterruptManager* inInterruptManager,
 	mDMAManager = inDMAManager;
 	mMemory = inMemory;
 	// nothing to do here
+}
+
+// -------------------------------------------------------------------------- //
+//  * Suspend( void )
+// -------------------------------------------------------------------------- //
+// Wait until the worker thread has finished the transfer it is working on,
+// and keep it from starting another one until Resume() is called. Connections
+// stay open. Must be called from the same thread as Resume().
+void
+TBasicSerialPortManager::Suspend()
+{
+	mDMAMutex.lock();
+}
+
+// -------------------------------------------------------------------------- //
+//  * Resume( void )
+// -------------------------------------------------------------------------- //
+void
+TBasicSerialPortManager::Resume()
+{
+	mDMAMutex.unlock();
+}
+
+// -------------------------------------------------------------------------- //
+//  * TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+void
+TBasicSerialPortManager::TransferState(TStream* inStream)
+{
+	inStream->TransferInt32BE(mTxDMAPhysicalBufferStart, 0);
+	inStream->TransferInt32BE(mTxDMAPhysicalData, 0);
+	inStream->TransferInt32BE(mTxDMADataCountdown, 0);
+	inStream->TransferInt32BE(mTxDMABytesToBufferEnd, 0);
+	inStream->TransferInt32BE(mTxDMAIntEnable, 0);
+	inStream->TransferInt32BE(mTxDMAEvent, 0);
+	inStream->TransferInt32BE(mRxDMAPhysicalBufferStart, 0);
+	inStream->TransferInt32BE(mRxDMAPhysicalData, 0);
+	inStream->TransferInt32BE(mRxDMADataCountdown, 0);
+	inStream->TransferInt32BE(mRxDMABytesToBufferEnd, 0);
+	inStream->TransferInt32BE(mRxDMAIntEnable, 0);
+	inStream->TransferInt32BE(mRxDMAEvent, 0);
+
+	// Let the driver thread look at the new DMA state when it resumes.
+	if (inStream->IsReading() || inStream->IsResetting())
+		TriggerEvent(kSerCmd_TxCtrlChanged);
 }
 
 // -------------------------------------------------------------------------- //

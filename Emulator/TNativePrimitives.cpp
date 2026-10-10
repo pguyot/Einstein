@@ -621,6 +621,9 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 			{
 				mLog->LogLine("TMainPlatformDriver::Init");
 			}
+			// NewtonOS starts, also after a reboot. Events wait until the boot
+			// is complete (PowerOnDeviceCheck).
+			mPlatformManager->ResetEventQueueLocks();
 			mProcessor->SetRegister(0, 0);
 			break;
 
@@ -832,6 +835,12 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 					(unsigned int) mProcessor->GetRegister(1));
 			}
 			{
+				// The system is up and running, deliver the Einstein events that
+				// waited for the boot. This is called again after each wake-up,
+				// and after a Hardware Reset, which locks the queue again
+				// (TEmulator::ResetState()). Unlocking twice does nothing.
+				mPlatformManager->UnlockQueueBootLock();
+
 				static int firstPause = 1;
 				if (firstPause)
 				{
@@ -840,13 +849,6 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 					if (mScreenManager->OverlayIsOn())
 					{
 						mScreenManager->OverlayOff();
-					}
-					if (firstPause == 0)
-					{
-						// the system is up and running, check if we missed any Einstein events
-						// and they are still pending in the queue
-						mPlatformManager->UnlockQueueBootLock();
-						// mEmulator->DoPowerRestored();
 					}
 					// this is a hack that will install packages that were added to a
 					// directory on the host. This is used by iOS/iPhone/Android.
@@ -3396,6 +3398,8 @@ TNativePrimitives::TransferState(TStream* inStream)
 	inStream->TransferInt32BE(mTabletCalibration.fUnknown_10);
 	inStream->TransferInt32BE(mTabletSampleRate);
 	inStream->TransferByte(mInputVolume);
+	inStream->TransferInt32BE(mSoundOutputBuffer1Addr, 0);
+	inStream->TransferInt32BE(mSoundOutputBuffer2Addr, 0);
 }
 
 // ============================================================================== //

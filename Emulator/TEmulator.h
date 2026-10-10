@@ -27,6 +27,8 @@
 #include <K/Defines/KDefinitions.h>
 #include <atomic>
 #include <functional>
+#include <string>
+#include <vector>
 
 // Einstein
 #include "Emulator/TARMProcessor.h"
@@ -107,6 +109,22 @@ public:
 	/// Run the emulator until it is interrupted.
 	///
 	void Run(void);
+
+	///
+	/// Run the emulator until it is interrupted, unless Stop() was called
+	/// since GetStopCount() returned inStopCount. Then a stop that comes just
+	/// before the emulator starts running is not lost.
+	///
+	void Run(KUInt32 inStopCount);
+
+	///
+	/// How often Stop() was called, see Run(KUInt32).
+	///
+	KUInt32
+	GetStopCount(void) const
+	{
+		return mStopCount;
+	}
 
 	///
 	/// Perform a single step.
@@ -406,18 +424,79 @@ public:
 	void Quit(void);
 
 	///
-	/// Save the state to a file.
+	/// Kinds of state files.
 	///
-	/// \return an error code if a problem occurred.
-	///
-	void SaveState(const char* inPath);
+	enum EStateKind {
+		/// For a fast start after quitting: the flash is not saved, only its
+		/// checksum, so the file is only loaded if the flash did not change.
+		kFastStartState = 'fast',
+		/// For debugging: the whole flash is saved and loaded, so a state can
+		/// be loaded again after the soups changed.
+		kDebugState = 'dbug'
+	};
 
 	///
-	/// Load the state from a file.
+	/// Transfer flag (TStream::TransferFlags()): save or load the flash.
 	///
-	/// \return an error code if a problem occurred.
+	static const KUInt32 kStateIncludesFlash = 0x00000001;
+
 	///
-	void LoadState(const char* inPath);
+	/// Save the state to a file.
+	///
+	/// \return false if the state could not be saved.
+	///
+	Boolean SaveState(const char* inPath, EStateKind inKind = kDebugState);
+
+	///
+	/// Load the state from a file. The file is only loaded if it belongs to
+	/// the same ROM, RAM size, PCMCIA cards (and flash, for fast start files).
+	/// Otherwise nothing is changed and false is returned.
+	///
+	/// \return false if the state could not be loaded. If the file was cut
+	/// off, part of the state may have been loaded already.
+	///
+	Boolean LoadState(const char* inPath);
+
+	///
+	/// A PCMCIA card as recorded in a state file.
+	///
+	struct SStateCard {
+		KUInt32 fTag { 0 }; ///< kind of card (TPCMCIACard::GetStateTag()), 0 if empty
+		std::string fImagePath; ///< image file, empty if none
+	};
+
+	///
+	/// Read which cards were inserted when a state file was saved, without
+	/// loading it. A fast start inserts the same cards before loading.
+	/// \return false if the file is damaged or not a state file of this version.
+	///
+	static Boolean ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards);
+
+	///
+	/// Reset the machine like the reset button: all emulated hardware goes to
+	/// its power-on state and the CPU restarts. RAM, flash and the clock are
+	/// kept. The emulator must not be running (see TMonitor::RequestReset()).
+	///
+	void ResetState(void);
+
+	///
+	/// A section of a state file, see GetStateSections().
+	///
+	struct SStateSection {
+		const char* fName; ///< what this section holds
+		KSInt64 fOffset; ///< start of the section in the file
+	};
+
+	///
+	/// Where the sections of the last state file written by SaveState()
+	/// start. Used to find out which part of the state differs between two
+	/// files (see TMonitor's state round trip check).
+	///
+	const std::vector<SStateSection>&
+	GetStateSections() const
+	{
+		return mStateSections;
+	}
 
 	///
 	/// Save or restore the state to or from a file.
@@ -523,26 +602,40 @@ private:
 	/** \brief Tell the JIT thread that an interrupt occurred or that we quit. */
 	std::atomic<bool> mSignal { false };
 
+	// The flags below control the emulator thread. They are written by other
+	// threads (UI, Monitor, interrupt timer), so they must be atomic. They are
+	// not part of the emulated machine and are not saved in a state file.
+
 	/// We got a (processor) interrupt.
-	KUInt32 mInterrupted { 0 };
+	std::atomic<bool> mInterrupted { false };
 
 	/// If we're running.
-	KUInt32 mRunning { false };
+	std::atomic<bool> mRunning { false };
+
+	/// Number of Stop() calls, see Run(KUInt32).
+	std::atomic<KUInt32> mStopCount { 0 };
 
 	/// If we're paused (until next interrupt).
-	KUInt32 mPaused { false };
+	std::atomic<bool> mPaused { false };
 
 	/// If we're halted because of a breakpoint.
-	KUInt32 mBPHalted { false };
+	std::atomic<bool> mBPHalted { false };
 
 	/// ID of the breakpoint.
-	KUInt16 mBPID { 0 };
+	std::atomic<KUInt16> mBPID { 0 };
 
 	/// Call this when the user quits Einstein
 	std::function<void()> mCallOnQuit;
 
 	/// Call this when power is restored
 	std::function<void()> mCallOnPowerRestored;
+
+	/// Sections of the last state file written, see GetStateSections().
+	std::vector<SStateSection> mStateSections;
+
+	/// What a state file must match to be loaded: ROM, RAM size, flash, and
+	/// for each PCMCIA socket the kind of card and its contents.
+	std::vector<KUInt32> GetStateIdentity();
 
 	/// if set, OS will offer to erase internal flash on next Reset
 	bool mZAPMemory { false };

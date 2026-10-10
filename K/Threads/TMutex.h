@@ -81,9 +81,10 @@ public:
 	void Unlock(void);
 
 	///
-	/// Try to lock the mutex.
+	/// Try to lock the mutex without waiting.
 	///
-	/// \return \c true if the mutex was locked.
+	/// \return \c true if the mutex is now locked by the caller (call Unlock()
+	/// later), \c false if the mutex is already locked.
 	///
 	Boolean TryLock(void);
 

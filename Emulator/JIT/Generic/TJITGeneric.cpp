@@ -193,7 +193,7 @@ TJITGeneric::Run(TARMProcessor* ioCPU, std::atomic<bool>* inSignal)
 void
 TJITGeneric::Step(TARMProcessor* ioCPU, KUInt32 count)
 {
-	KUInt32* pendingInterrupts = &ioCPU->mPendingInterrupts;
+	std::atomic<KUInt32>* pendingInterrupts = &ioCPU->mPendingInterrupts;
 	KUInt32* pcPtr = &ioCPU->mCurrentRegisters[TARMProcessor::kR15];
 	TMemory* theMemoryInterface = ioCPU->mMemory;
 	JITUnit* theJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr);

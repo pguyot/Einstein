@@ -86,6 +86,15 @@ public:
 	}
 
 	///
+	/// Invalidate all translated code, for example after loading a state.
+	///
+	void
+	InvalidateAll(void)
+	{
+		mCache.InvalidateAll();
+	}
+
+	///
 	/// One or more steps with JIT.
 	///
 	/// \param ioObject			ARM CPU.

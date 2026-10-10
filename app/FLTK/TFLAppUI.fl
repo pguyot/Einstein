@@ -41,7 +41,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
     code1 {wAppWindow->label(PROJECT_NAME);}
     class TFLAppWindow visible
   } {
-    Fl_Menu_Bar wMenubar {open selected
+    Fl_Menu_Bar wMenubar {open
       xywh {0 0 320 24} color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
     } {
@@ -163,27 +163,42 @@ o->show();
         }
         MenuItem {} {
           label Reboot
-          callback {gApp->UserActionReset(1);}
-          xywh {30 30 31 20} divider
+          callback {gApp->UserActionReset(1);} selected
+          xywh {30 30 31 20} hide divider
+        }
+        MenuItem {} {
+          label {Save State}
+          callback {gApp->UserActionSaveState();}
+          xywh {0 0 100 20} shortcut 0x41006b hide
+        }
+        MenuItem {} {
+          label {Load State}
+          callback {gApp->UserActionLoadState();}
+          xywh {0 0 100 20} shortcut 0x41006c hide
+        }
+        MenuItem {} {
+          label {Check State Round Trip}
+          callback {gApp->UserActionCheckState();}
+          xywh {0 0 100 20} shortcut 0x410072 hide divider
         }
         Submenu {} {
           label Reset open
-          xywh {0 0 62 20} hide divider
+          xywh {0 0 62 20} divider
         } {
           MenuItem {} {
-            label {NewtonScript Reboot}
+            label {System Reboot}
             callback {gApp->UserActionReset(1);}
-            xywh {20 20 31 20} hide
+            xywh {20 20 31 20}
           }
           MenuItem {} {
             label {Hardware Reset}
             callback {gApp->UserActionReset(0);}
-            xywh {0 0 31 20} hide
+            xywh {0 0 31 20}
           }
           MenuItem {} {
             label {Brain Wipe}
             callback {gApp->UserActionReset(2);}
-            xywh {40 40 31 20} hide
+            xywh {40 40 31 20}
           }
         }
         MenuItem {} {

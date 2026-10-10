@@ -138,6 +138,34 @@ public:
 	void Remove() override;
 
 	///
+	/// This is a linear flash card.
+	///
+	KUInt32
+	GetStateTag(void) override
+	{
+		return 'line';
+	}
+
+	///
+	/// Return the path of the card's image file.
+	///
+	const char*
+	GetImagePath(void) override
+	{
+		return mFilePath;
+	}
+
+	///
+	/// Return a checksum of the card's memory.
+	///
+	KUInt32 GetContentsChecksum(void) override;
+
+	///
+	/// Save or load the state of the flash command state machine.
+	///
+	void TransferState(TStream* inStream) override;
+
+	///
 	/// Get PCMCIA pins.
 	///
 	KUInt32 GetVPCPins(void) override;

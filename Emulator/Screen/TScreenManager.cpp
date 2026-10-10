@@ -1053,15 +1053,12 @@ TScreenManager::TransferState(TStream* inStream)
 {
 	KUInt32 t;
 
-	inStream->TransferInt32BE(mPortraitWidth);
-	inStream->TransferInt32BE(mPortraitHeight);
-	inStream->TransferInt32BE(mPhysicalWidth);
-	inStream->TransferInt32BE(mPhysicalHeight);
-	inStream->TransferBoolean(mFullScreen);
-	inStream->TransferBoolean(mScreenIsLandscape);
+	// The screen size, full screen and landscape mode are configuration from
+	// the front end and not saved. TEmulator::LoadState() refuses a file
+	// that was saved with a different screen size.
 	inStream->TransferBoolean(mBypassTablet);
-	inStream->TransferBoolean(mTabletIsDown);
-	inStream->TransferBoolean(mPenIsDown);
+	inStream->TransferBoolean(mTabletIsDown, false);
+	inStream->TransferBoolean(mPenIsDown, false);
 	inStream->TransferInt32BE(mTabletSampleRate);
 	t = mTabletOrientation;
 	inStream->TransferInt32BE(t);
@@ -1073,11 +1070,18 @@ TScreenManager::TransferState(TStream* inStream)
 	inStream->TransferBoolean(mBacklight);
 	inStream->TransferBoolean(mKbdIsConnected);
 
+	// Pen samples that NewtonOS did not fetch yet (ring buffer).
+	inStream->TransferInt32ArrayBE(mTabletBuffer, kTabletBufferSize, 0);
+	inStream->TransferInt32BE(mTabletBufCCrsr, 0);
+	inStream->TransferInt32BE(mTabletBufPCrsr, 0);
+	inStream->CheckLimit(mTabletBufCCrsr, kTabletBufferSize - 1, "the pen sample read position");
+	inStream->CheckLimit(mTabletBufPCrsr, kTabletBufferSize - 1, "the pen sample write position");
+
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
 	inStream->Transfer(mScreenBuffer, &count);
 
-	if (inStream->IsReading())
-		PowerOnScreen();
+	// TEmulator::TransferState() switches the screen on or off after loading,
+	// depending on the loaded power state.
 }
 
 // -------------------------------------------------------------------------- //

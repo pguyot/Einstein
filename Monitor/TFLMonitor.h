@@ -50,6 +50,11 @@ public:
 	Boolean DrawScreen() override;
 
 	///
+	/// Draw the screen from the UI thread, but only if that is safe.
+	///
+	void DrawScreenFromUI();
+
+	///
 	/// Show the Monitor window
 	///
 	void Show() override;

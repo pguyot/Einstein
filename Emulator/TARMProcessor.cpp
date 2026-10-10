@@ -1003,7 +1003,10 @@ TARMProcessor::TransferState(TStream* inStream)
 	tmp = (KUInt32) mMode;
 	inStream->TransferInt32BE(tmp);
 	mMode = (EMode) tmp;
-	inStream->TransferInt32BE(mPendingInterrupts);
+	tmp = mPendingInterrupts;
+	inStream->TransferInt32BE(tmp);
+	if (inStream->IsReading())
+		mPendingInterrupts = tmp;
 }
 
 // -------------------------------------------------------------------------- //

@@ -720,8 +720,12 @@ TFLScreenManager::PowerOff(void)
 void
 TFLScreenManager::PowerOnScreen(void)
 {
+	// Called from the emulator thread: FLTK widgets need the FLTK lock.
+	Fl::lock();
 	mWidget->label("");
 	mWidget->PowerOn();
+	Fl::unlock();
+	Fl::awake();
 	gApp->PowerChangedEvent(true);
 }
 
@@ -731,8 +735,12 @@ TFLScreenManager::PowerOnScreen(void)
 void
 TFLScreenManager::PowerOffScreen(void)
 {
+	// Called from the emulator thread: FLTK widgets need the FLTK lock.
+	Fl::lock();
 	mWidget->label("Newton is sleeping...");
 	mWidget->PowerOff();
+	Fl::unlock();
+	Fl::awake();
 	gApp->PowerChangedEvent(false);
 }
 

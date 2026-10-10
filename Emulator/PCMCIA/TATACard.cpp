@@ -73,6 +73,8 @@
 // Einstein
 #include "TPCMCIAController.h"
 #include "Emulator/Log/TLog.h"
+#include <K/Misc/CRC32.h>
+#include <K/Streams/TStream.h>
 
 #ifdef min
 #undef min
@@ -294,6 +296,52 @@ TATACard::Remove()
 	// Every sector was written when it arrived, but make sure it reached the disk.
 	FlushImage();
 	TPCMCIACard::Remove();
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetContentsChecksum( void )
+// -------------------------------------------------------------------------- //
+KUInt32
+TATACard::GetContentsChecksum(void)
+{
+	return GetCRC32(mData.data(), (KUInt32) mData.size());
+}
+
+// -------------------------------------------------------------------------- //
+//  * TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+void
+TATACard::TransferState(TStream* inStream)
+{
+	KUInt32 theState = (KUInt32) mState;
+	inStream->TransferInt32BE(theState, (KUInt32) State::Idle);
+	mState = (State) theState;
+
+	inStream->TransferByte(mErrorReg, 0);
+	inStream->TransferByte(mFeaturesReg, 0);
+	inStream->TransferByte(mSectorCountReg, 0);
+	inStream->TransferByte(mSectorNumberReg, 0);
+	inStream->TransferByte(mCylinderLowReg, 0);
+	inStream->TransferByte(mCylinderHighReg, 0);
+	inStream->TransferByte(mDriveHeadReg, 0);
+	inStream->TransferByte(mCommandReg, 0);
+	inStream->TransferByte(mDeviceControlReg, 0);
+	inStream->TransferByte(mConfigOptionReg, 0);
+	inStream->TransferByte(mConfigStatusReg, 0);
+
+	// The block that is being read or written through the data register.
+	KUInt32 theFifoSize = (KUInt32) mFifo.size();
+	KUInt32 theFifoPos = (KUInt32) mFifoPos;
+	inStream->TransferInt32BE(theFifoSize, 0);
+	inStream->TransferInt32BE(theFifoPos, 0);
+	inStream->CheckDataSize(theFifoSize, kSectorSize, "the ATA card FIFO size");
+	if (inStream->IsReading() || inStream->IsResetting())
+	{
+		mFifo.resize(theFifoSize);
+		mFifoPos = std::min((size_t) theFifoPos, mFifo.size());
+	}
+	if (theFifoSize > 0)
+		inStream->Transfer(mFifo.data(), &theFifoSize);
 }
 
 // -------------------------------------------------------------------------- //

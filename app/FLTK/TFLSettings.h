@@ -183,6 +183,10 @@ public:
 	int mBreakAtROMBoot = 0;
 	int mFetchDateAndTime = 1;
 
+	// when quitting, save the state of the sleeping Newton, and continue from
+	// there on the next start (if nothing changed)
+	int mFastStart = 1;
+
 	// driver for the external serial port (TSerialPorts::EDriverID), default is the TCP client
 	int mExtrDriver = 4;
 

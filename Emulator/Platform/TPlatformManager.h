@@ -26,6 +26,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <atomic>
+
 // Einstein
 #include "PlatformEvents.h"
 #ifndef IGNORE_TNEWT
@@ -40,6 +42,7 @@ class TMemory;
 class TLog;
 class TMutex;
 class TPCMCIACard;
+class TStream;
 
 ///
 /// Class for the native-side of the platform driver.
@@ -124,6 +127,12 @@ public:
 	void PowerOn(void);
 
 	///
+	/// Save or load the power state, the event and buffer queues, and the
+	/// queue locks shared with the platform driver in NewtonOS.
+	///
+	void TransferState(TStream* inStream);
+
+	///
 	/// Is the system powered on?
 	///
 	Boolean
@@ -168,6 +177,19 @@ public:
 	 * \see LockEventQueue(), UnlockEventQueue()
 	 */
 	void UnlockQueueBootLock();
+
+	/**
+	 * Lock the event queue until the boot is complete, as at launch.
+	 *
+	 * Called when NewtonOS starts (TMainPlatformDriver::Init), also after a
+	 * reboot. Locks taken by the NewtonOS that ran before are gone: a
+	 * NewtonScript Reboot() arrives as an event, and NewtonOS reboots before
+	 * it answers, so its UnlockEventQueue() never comes. Pending events stay
+	 * in the queue and are sent when the boot is complete.
+	 *
+	 * \see UnlockQueueBootLock()
+	 */
+	void ResetEventQueueLocks();
 
 	///
 	/// Get some information about the user.
@@ -376,8 +398,8 @@ private:
 	/// Next ID for buffers.
 	KUInt32 mBufferNextID { 0 };
 
-	/// If power is on.
-	Boolean mPowerOn { true };
+	/// If power is on. Written by the emulator thread, read by the UI thread.
+	std::atomic<bool> mPowerOn { true };
 
 	/// Non-recursive lock to keep interrupts from triggering twice
 	Boolean mQueuePreLock { false };

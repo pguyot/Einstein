@@ -30,6 +30,10 @@
 #include <K/Threads/TMutex.h>
 #include <K/Threads/TThread.h>
 
+#include <atomic>
+#include <mutex>
+#include <string>
+
 #include "TMonitorCore.h"
 #include "Emulator/Log/TBufferLog.h"
 
@@ -108,6 +112,37 @@ public:
 	void Stop(void);
 
 	///
+	/// Save the emulator state to a file. Call this from the UI thread, while
+	/// the emulator runs or while it is halted. A running emulator is stopped,
+	/// saved, and continues to run. A fast start file holds a checksum of the
+	/// flash instead of its contents (see TEmulator::EStateKind).
+	/// \return false if the monitor is busy and the state was not saved.
+	///
+	Boolean RequestSaveState(const char* inPath, Boolean inFastStart = false);
+
+	///
+	/// Load the emulator state from a file, see RequestSaveState().
+	/// \return false if the monitor is busy and the state was not loaded.
+	///
+	Boolean RequestLoadState(const char* inPath);
+
+	///
+	/// Check that saving and loading the state is symmetric: save the state
+	/// to <inBasePath>A.state, load it, save it again to <inBasePath>B.state,
+	/// and compare both files. The result is printed to the monitor log.
+	/// Call from the UI thread, see RequestSaveState().
+	/// \return false if the monitor is busy and the check did not run.
+	///
+	Boolean RequestCheckState(const char* inBasePath);
+
+	///
+	/// Reset the machine (see TEmulator::ResetState()). Call from the UI
+	/// thread, see RequestSaveState(). A running emulator continues to run.
+	/// \return false if the monitor is busy and the machine was not reset.
+	///
+	Boolean RequestReset();
+
+	///
 	/// Print help for the available commands.
 	///
 	void PrintHelp(void);
@@ -172,14 +207,17 @@ public:
 	Boolean ExecuteHelpCommand(const char* inCommand);
 
 	///
-	/// Save the current state of the Emulator to a file.
+	/// Save the current state of the Emulator to a file, as a debug file
+	/// (with the flash) or a fast start file (flash checksum only).
+	/// \return false if the state could not be saved.
 	///
-	void SaveEmulatorState(const char* inFilename = 0L);
+	Boolean SaveEmulatorState(const char* inFilename = 0L, Boolean inFastStart = false);
 
 	///
 	/// Read the current emulator state from a file.
+	/// \return false if the state could not be loaded.
 	///
-	void LoadEmulatorState(const char* inFilename = 0L);
+	Boolean LoadEmulatorState(const char* inFilename = 0L);
 
 	///
 	/// Save the current state of the Emulator to a file.
@@ -398,11 +436,38 @@ protected:
 	TARMProcessor* mProcessor { nullptr }; ///< CPU.
 	TInterruptManager* mInterruptManager { nullptr }; ///< Interrupt manager.
 	TBufferLog* mLog { nullptr }; ///< Interface to the log.
-	Boolean mHalted { false }; ///< If the emulator is halted.
+	std::atomic<bool> mHalted { false }; ///< If the emulator is halted (written by the monitor thread, read by the UI).
 	TCondVar* mCondVar { nullptr };
 	TMutex* mMutex { nullptr };
-	ECommand mCommand { kNop }; ///< Next command for the
-	///< monitor thread.
+	std::atomic<ECommand> mCommand { kNop }; ///< Next command for the
+	///< monitor thread (written by the UI, read by the monitor thread).
+
+	/// Save or load requests from the UI while the emulator runs.
+	enum EStateRequest {
+		kStateRequestNone,
+		kStateRequestSave,
+		kStateRequestLoad,
+		kStateRequestCheck,
+		kStateRequestReset
+	};
+	std::atomic<EStateRequest> mStateRequest { kStateRequestNone }; ///< Pending request for the monitor thread.
+	std::mutex mStateRequestMutex; ///< Held while the UI queues a request, and while the monitor thread sets mHalted after running.
+	std::string mStateRequestPath; ///< File for mStateRequest, set before mStateRequest.
+	Boolean mStateRequestFastStart { false }; ///< Save a fast start file, set before mStateRequest.
+	Boolean mSaveFastStart { false }; ///< Kind of file for the "save" command, set before kSaveState.
+
+	/// Hand a save or load request to the monitor thread, or do it right away if halted.
+	Boolean RequestStateTransfer(EStateRequest inRequest, const char* inPath);
+
+	/// Save or load the state now. The emulator must not be running.
+	void DoStateTransfer(EStateRequest inRequest, const char* inPath);
+
+	/// Called by the monitor thread when the emulator stopped. Returns true if
+	/// it stopped because of a save or load request, which is now done.
+	Boolean ProcessStateRequest();
+
+	/// Save, load, save again, and compare. The emulator must not be running.
+	void CheckStateRoundTrip(const char* inBasePath);
 	char* mFilename { nullptr }; ///< Argument for next command.
 #if TARGET_UI_FLTK
 	// no signaling between monitor and log yet

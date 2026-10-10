@@ -39,6 +39,9 @@
 #include <K/Defines/KDefinitions.h>
 #include <K/Defines/UByteSex.h>
 
+#include <stdexcept>
+#include <string>
+
 ///
 /// Class for an object to write and/or read bytes.
 /// This class also handles endianness conversions transparently.
@@ -402,6 +405,64 @@ public:
 	/// prone code replication.
 
 	/// Return 1 if this stream can read from a file
+	///
+	/// Flags that tell the objects being saved or loaded what to include.
+	/// Their meaning is up to the caller.
+	///
+	KUInt32
+	TransferFlags()
+	{
+		return mTransferFlags;
+	}
+
+	void
+	TransferFlags(KUInt32 inFlags)
+	{
+		mTransferFlags = inFlags;
+	}
+
+	///
+	/// Number of bytes left to read, or -1 if the stream does not know.
+	///
+	virtual KSInt64
+	GetBytesLeft() const
+	{
+		return -1;
+	}
+
+	///
+	/// When reading, check a count or an index that was read from the stream.
+	/// A damaged or edited file must not make us allocate too much or write
+	/// past a buffer.
+	///
+	/// \param inValue	the value that was read.
+	/// \param inMax	the largest valid value.
+	/// \param inWhat	what the value is, for the error message.
+	/// \throws std::runtime_error if the value is larger than inMax.
+	///
+	void
+	CheckLimit(KUInt32 inValue, KUInt32 inMax, const char* inWhat)
+	{
+		if (IsReading() && inValue > inMax)
+			throw std::runtime_error(std::string(inWhat) + " is out of range");
+	}
+
+	///
+	/// When reading, check the size of data that follows in the stream: at
+	/// most inMax, and no more than the stream still holds. That keeps every
+	/// allocation smaller than the file.
+	///
+	/// \throws std::runtime_error if the size is too large.
+	///
+	void
+	CheckDataSize(KUInt32 inSize, KUInt32 inMax, const char* inWhat)
+	{
+		CheckLimit(inSize, inMax, inWhat);
+		KSInt64 theBytesLeft = GetBytesLeft();
+		if (IsReading() && theBytesLeft >= 0 && (KSInt64) inSize > theBytesLeft)
+			throw std::runtime_error(std::string(inWhat) + " is larger than the rest of the file");
+	}
+
 	KUInt32
 	IsReading()
 	{
@@ -436,10 +497,84 @@ public:
 	/// Transfer some bytes.
 	void Transfer(void* outBuffer, KUInt32* ioCount);
 
+	/// Return 1 if this stream sets values to their power-on state instead of
+	/// reading or writing them (see TResetStream).
+	KUInt32
+	IsResetting()
+	{
+		return (mIsResetting == 1);
+	}
+
+	/// \name Transfer with a reset value
+	/// These transfer a value, or set it to inResetValue when the stream is
+	/// resetting. The Transfer methods without a reset value keep the current
+	/// value when resetting.
+
+	void
+	TransferBoolean(Boolean& ioValue, Boolean inResetValue)
+	{
+		if (IsResetting())
+			ioValue = inResetValue;
+		else
+			TransferBoolean(ioValue);
+	}
+
+	void
+	TransferByte(KUInt8& ioValue, KUInt8 inResetValue)
+	{
+		if (IsResetting())
+			ioValue = inResetValue;
+		else
+			TransferByte(ioValue);
+	}
+
+	void
+	TransferInt32BE(KUInt32& ioValue, KUInt32 inResetValue)
+	{
+		if (IsResetting())
+			ioValue = inResetValue;
+		else
+			TransferInt32BE(ioValue);
+	}
+
+	void
+	TransferInt32BE(KSInt32& ioValue, KSInt32 inResetValue)
+	{
+		if (IsResetting())
+			ioValue = inResetValue;
+		else
+			TransferInt32BE(ioValue);
+	}
+
+	void
+	TransferInt16BE(KUInt16& ioValue, KUInt16 inResetValue)
+	{
+		if (IsResetting())
+			ioValue = inResetValue;
+		else
+			TransferInt16BE(ioValue);
+	}
+
+	/// Transfer an array of words, or fill it with inResetValue when resetting.
+	void
+	TransferInt32ArrayBE(KUInt32* ioArray, const KUInt32 inCount, KUInt32 inResetValue)
+	{
+		if (IsResetting())
+		{
+			for (KUInt32 i = 0; i < inCount; i++)
+				ioArray[i] = inResetValue;
+		} else
+		{
+			TransferInt32ArrayBE(ioArray, inCount);
+		}
+	}
+
 protected:
 	KUInt32 mVersion;
+	KUInt32 mTransferFlags { 0 };
 	KUInt32 mIsReading;
 	KUInt32 mIsWriting;
+	KUInt32 mIsResetting { 0 };
 };
 
 #endif

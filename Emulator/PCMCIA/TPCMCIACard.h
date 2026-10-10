@@ -29,6 +29,7 @@
 class TLog;
 class TEmulator;
 class TPCMCIAController;
+class TStream;
 
 ///
 /// Interface for PCMCIA cards.
@@ -72,6 +73,44 @@ public:
 	IsInserted()
 	{
 		return (mPCMCIAController != nullptr);
+	}
+
+	///
+	/// Return a tag for the kind of card. A saved card state is only loaded
+	/// into a card with the same tag.
+	///
+	virtual KUInt32 GetStateTag(void) = 0;
+
+	///
+	/// Return the path of the card's image file, or nullptr if the card has
+	/// none (network card). Used to insert the same card again for a fast
+	/// start.
+	///
+	virtual const char*
+	GetImagePath(void)
+	{
+		return nullptr;
+	}
+
+	///
+	/// Return a checksum of the card's contents, so a state file is only
+	/// loaded with the same card in the same condition. 0 if the card has no
+	/// contents (network card).
+	///
+	virtual KUInt32
+	GetContentsChecksum(void)
+	{
+		return 0;
+	}
+
+	///
+	/// Save or load the state of the card: registers and state machines, not
+	/// the contents, which are kept in the card's image file.
+	///
+	virtual void
+	TransferState(TStream* inStream)
+	{
+		(void) inStream;
 	}
 
 	///

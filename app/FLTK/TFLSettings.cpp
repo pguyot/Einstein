@@ -335,6 +335,7 @@ TFLSettings::loadPreferences()
 	Fl_Preferences newtSystem(prefs, "System");
 	{
 		newtSystem.get("FetchDateAndTime", mFetchDateAndTime, 1);
+		newtSystem.get("FastStart", mFastStart, 1);
 	}
 
 	// serial port preferences
@@ -436,6 +437,7 @@ TFLSettings::savePreferences()
 	Fl_Preferences newtSystem(prefs, "System");
 	{
 		newtSystem.set("FetchDateAndTime", mFetchDateAndTime);
+		newtSystem.set("FastStart", mFastStart);
 	}
 
 	// serial port preferences
