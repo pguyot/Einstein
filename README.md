@@ -15,7 +15,6 @@ See [Dumping The Rom](../../wiki/Dumping-The-Rom) for more information.
 
 Click here for [downloads and more information](../../wiki)
 
-Once you have Einstein up and running, refer to the
-[user manual](https://github.com/pguyot/Einstein/blob/master/Documentation/UserManual.pdf).
+To get started, read the [user guide](Documentation/UserGuide.md).
 
 [![Screenshot](https://raw.githubusercontent.com/pguyot/Einstein/master/Screenshots/Mac%202015-06-29.png)](https://raw.githubusercontent.com/pguyot/Einstein/master/Screenshots/Mac%202015-06-29.png)
