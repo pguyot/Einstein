@@ -212,29 +212,33 @@ TPtySerialPortManager::HandleDMA()
 
 		// handle transmitting DMA
 
-		if (mTxDMAIntEnable & 0x00000002)
-		{ // DMA is enabled
-			if (mTxDMADataCountdown)
-			{
-				// write a byte
-				KUInt8 data = 0;
-				mMemory->ReadBP(mTxDMAPhysicalData, data);
-				// KPrintf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
-				write(mPtyPort, &data, 1);
-				mTxDMAPhysicalData++;
-				mTxDMABytesToBufferEnd--;
-				if (mTxDMABytesToBufferEnd == 0)
+		{
+			// Suspend() holds this mutex while the emulator state is saved or loaded
+			std::lock_guard<std::mutex> theLock(mDMAMutex);
+			if (mTxDMAIntEnable & 0x00000002)
+			{ // DMA is enabled
+				if (mTxDMADataCountdown)
 				{
-					mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
-				}
-				mTxDMADataCountdown--;
-				if (mTxDMADataCountdown == 0)
-				{
-					// trigger a "send buffer empty" interrupt
-					// mDMAManager->WriteChannel2Register(1, 1, 0x00000080); // 0x80 = TxBufEmpty, 0x00000180
-					// KPrintf(":::::>> buffer is now empty\n");
-					mTxDMAEvent = 0x00000080;
-					mInterruptManager->RaiseInterrupt(0x00000100);
+					// write a byte
+					KUInt8 data = 0;
+					mMemory->ReadBP(mTxDMAPhysicalData, data);
+					// KPrintf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
+					write(mPtyPort, &data, 1);
+					mTxDMAPhysicalData++;
+					mTxDMABytesToBufferEnd--;
+					if (mTxDMABytesToBufferEnd == 0)
+					{
+						mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
+					}
+					mTxDMADataCountdown--;
+					if (mTxDMADataCountdown == 0)
+					{
+						// trigger a "send buffer empty" interrupt
+						// mDMAManager->WriteChannel2Register(1, 1, 0x00000080); // 0x80 = TxBufEmpty, 0x00000180
+						// KPrintf(":::::>> buffer is now empty\n");
+						mTxDMAEvent = 0x00000080;
+						mInterruptManager->RaiseInterrupt(0x00000100);
+					}
 				}
 			}
 		}
@@ -272,6 +276,8 @@ TPtySerialPortManager::HandleDMA()
 				// KPrintf("***** No data yet\n");
 			} else
 			{
+				// Suspend() holds this mutex while the emulator state is saved or loaded
+				std::lock_guard<std::mutex> theLock(mDMAMutex);
 				// KPrintf("----> Received %d bytes data from NCX\n", n);
 				for (int i = 0; i < n; i++)
 				{

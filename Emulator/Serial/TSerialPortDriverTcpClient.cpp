@@ -754,27 +754,6 @@ TSerialPortDriverTcpClient::GetServerPort()
 	return mPort;
 }
 
-/**
- \brief Stop DMA while the emulator state is saved or loaded.
- Waits until the worker thread has finished the transfer it is working on,
- and keeps it from starting another one until Resume() is called. The TCP
- connection stays open. Must be called from the same thread as Resume().
- */
-void
-TSerialPortDriverTcpClient::Suspend()
-{
-	mDMAMutex.lock();
-}
-
-/**
- \brief Continue DMA after Suspend().
- */
-void
-TSerialPortDriverTcpClient::Resume()
-{
-	mDMAMutex.unlock();
-}
-
 // ================================================================== //
 // You never finish a program, you just stop working on it.           //
 //  - Anonymous                                                       //

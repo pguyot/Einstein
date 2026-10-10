@@ -530,6 +530,27 @@ TBasicSerialPortManager::run(TInterruptManager* inInterruptManager,
 }
 
 // -------------------------------------------------------------------------- //
+//  * Suspend( void )
+// -------------------------------------------------------------------------- //
+// Wait until the worker thread has finished the transfer it is working on,
+// and keep it from starting another one until Resume() is called. Connections
+// stay open. Must be called from the same thread as Resume().
+void
+TBasicSerialPortManager::Suspend()
+{
+	mDMAMutex.lock();
+}
+
+// -------------------------------------------------------------------------- //
+//  * Resume( void )
+// -------------------------------------------------------------------------- //
+void
+TBasicSerialPortManager::Resume()
+{
+	mDMAMutex.unlock();
+}
+
+// -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
