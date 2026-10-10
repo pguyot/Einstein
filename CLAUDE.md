@@ -254,19 +254,33 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
    `mQueueLockCount` stayed at 1. The native `TMainPlatformDriver::Init`,
    called once per boot before `PowerOnDeviceCheck`, now resets the queue
    locks as at launch. No REX change was needed.
-4. Save the fast start file on the monitor thread instead of the UI thread
-   (Greptile): the UI is frozen during the write, about 0.1 s. Cosmetic.
-5. Debug files: a file with a valid CRC whose contents don't fit (edited by
-   hand, or a bug) can still leave a half-loaded machine. Reset and reboot
-   instead, as the fast start path does.
+4. ~~Save the fast start file on the monitor thread~~ done (`b5b9fc5e`):
+   `RequestSaveState(path, fastStart, haltAfter)`; the monitor stops, saves
+   and stays halted, the UI waits for `IsStateRequestPending()` to clear.
+5. ~~Reset after a load that fails halfway~~ done (`542301af`): RAM cleared,
+   `ResetState()`, NewtonOS boots again. Refused files still change nothing.
 6. Debug files do not save card contents, so a changed card is refused. Save
    them like the flash if that is ever needed.
 7. Fast start for the Cocoa and SDL front ends (Q3.3).
 8. Checkpoints for users (Matt's idea), replacing the hidden menu items.
-9. `PutInt32ArrayBE`/`GetInt32ArrayBE` move RAM and flash one word per
-   virtual call. Fast enough today; block-wise conversion would make saving
-   several times faster if checkpoints need it.
-10. Open questions Q4.4, Q4.5 and Q4.7 below.
+9. ~~Block-wise Int32 arrays~~ done (`5506122b`), same bytes. Less gain than
+   expected: debug file save 0.18 → 0.13 s, load 0.13 s, fast start 0.07 s
+   (debug build); the rest is checksums and file I/O.
+10. ~~Open questions~~ answered (Matt, 2026-10-11). Q4.5 and Q4.7 need no
+    change. Q4.4: findings below.
+11. **The RTC alarm interrupt is not emulated** (found 2026-10-11, older than
+    this branch). NewtonOS's `TRealTimeClock::SetAlarm` ends in
+    `SetRealTimeClockAlarm`, which writes the alarm register (0x0F181400) and
+    enables interrupt 0x4. Einstein stores the value (`mAlarmRegister`) but
+    never compares it with the clock. A real Newton uses this alarm to wake
+    from sleep (`CyclePower` checks `TRealTimeClock::SleepingCheckFire`).
+    Idea: fire once when the clock reaches the register, and save an "armed"
+    flag, so an alarm that passed while Einstein was quit fires right after a
+    fast start, as a sleeping Newton would have woken for it. *To check
+    first:* do Dates alarms work in Einstein today? A NewtonScript
+    `AddAlarm()` 1–3 minutes ahead returned its key, but never showed, awake
+    or asleep, and did not change the alarm register (stayed 0xFFFFFFFE), so
+    the test itself may be wrong.
 
 **To clarify**
 - **Q4.1** Is "snapshot only when asleep" acceptable? **A:** Yes, for fast
@@ -280,14 +294,51 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
   before anything changes. Fast start: the file is deleted and Einstein boots
   normally. Debug files: the Monitor reports it, the emulator keeps running.
 - **Q4.4** Clock jump after a restore: is the host-time patch enough?
+  **A:** I have to test that. I wonder how the original ROM handles that. I
+  doubt that the CPU registers are kept alive when the device is in the deepest
+  sleep, so after waking up, the CPU jumps to address 0 and - I assume -
+  recognizes that the RAM contents is still valid and continues with the stored
+  registers instead of cold booting. I assume that's where the real time clock
+  and the alarm are adjusted. Can we check that and do it the same way?
+  **Findings** (Claude, 2026-10-11, ROM disassembly):
+  - The guess is right for the CPU: on a StrongARM, `TVoyagerPlatform::
+    PowerOffSystem` calls `SaveCPUStateAndStopSystem` (0x00018F48). It saves
+    all banked registers, the MMU registers and some Voyager registers
+    (including the interrupt controller) at `gParamBlockFromImagePhysical`,
+    with a checksum and a valid flag, and stops. After the reset the boot code
+    checks the checksum, restores everything and returns into
+    `PowerOffSystem`.
+  - Nothing adjusts the clock, neither there nor in
+    `TVoyagerPlatform::PowerOnSystem` (it only finds the wake reason) nor in
+    `CyclePower()` (0x00192764), which loops `PowerOffSystem`/`PowerOnSystem`
+    and goes back to sleep after an RTC alarm wake-up unless
+    `TRealTimeClock::SleepingCheckFire` says an alarm is due. Time simply
+    continues because the RTC hardware keeps counting during sleep.
+  - Einstein does the same in effect: its REX platform driver replaces
+    `TVoyagerPlatform`, and `PowerOffSystem` waits in `PauseSystem` instead
+    of resetting, so no CPU save is needed. The time of day comes from the
+    host (patched `RealClockSeconds` and friends), so it is right after a
+    fast start. Tested: quit, 3.5 minutes later fast start, the Newton shows
+    the current time.
+  - The 3.6864 MHz timer is host time minus a saved delta: after a fast start
+    it has moved on by the time Einstein was quit, modulo its 19.4-minute wrap
+    (on Windows, `QueryPerformanceCounter` counts from host boot, so the jump
+    is arbitrary). Fast starts work with that so far. By the code, the timer
+    thread fires every match register that lies between the old and the new
+    value (not tested separately).
+  - What does not happen the same way: the RTC alarm (next step 11).
 - **Q4.5** Should external connections (TCP serial, network) reconnect on their
   own?
+  **A:** No. We are emulating that a person switches off their device and
+  restarts it much later, maybe even after moving the device. Serial port
+  and Network connection would be lost anyway.
 - **Q4.6** Where is the snapshot stored, and is there one per configuration?
   **A:** `FastStart.state` in the user data folder, one per installation. One
   per configuration once Multiple Configurations exist.
 - **Q4.7** Should a "cold boot" option stay available in the UI? Today: turn
   the setting off, or use the Reset menu after a fast start. Is a way to skip
   one fast start at launch needed?
+  **A:** What we currently have is sufficient.
 
 ### Hardware Reset (related to Fast start)
 
