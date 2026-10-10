@@ -468,6 +468,17 @@ public:
 	Boolean LoadState(const char* inPath, Boolean inOverwriteCards = false);
 
 	///
+	/// Why the last SaveState() or LoadState() failed, one reason per line,
+	/// for the user interface. Empty if it succeeded. Read it only after the
+	/// call returned (on the monitor thread: after the request is done).
+	///
+	const std::string&
+	GetLastStateError() const
+	{
+		return mLastStateError;
+	}
+
+	///
 	/// A PCMCIA card as recorded in a state file.
 	///
 	struct SStateCard {
@@ -643,6 +654,13 @@ private:
 
 	/// Sections of the last state file written, see GetStateSections().
 	std::vector<SStateSection> mStateSections;
+
+	/// See GetLastStateError().
+	std::string mLastStateError;
+
+	/// Print why a state file could not be saved or loaded, and add it to
+	/// mLastStateError.
+	void StateError(const char* inFormat, ...);
 
 	/// What a state file must match to be loaded: ROM, RAM size, flash, and
 	/// for each PCMCIA socket the kind of card and its contents.

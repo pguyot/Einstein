@@ -668,7 +668,8 @@ TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
 		PrintLine("Machine reset", MONITOR_LOG_INFO);
 	} else if (inRequest == kStateRequestSave)
 	{
-		if (SaveEmulatorState(inPath, mStateRequestFastStart))
+		mLastStateRequestOK = SaveEmulatorState(inPath, mStateRequestFastStart);
+		if (mLastStateRequestOK)
 		{
 			(void) ::snprintf(theLine, sizeof(theLine), "Emulator state saved to %s", inPath);
 			PrintLine(theLine, MONITOR_LOG_INFO);
@@ -679,7 +680,8 @@ TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
 		}
 	} else
 	{
-		if (LoadEmulatorState(inPath, mStateRequestOverwriteCards))
+		mLastStateRequestOK = LoadEmulatorState(inPath, mStateRequestOverwriteCards);
+		if (mLastStateRequestOK)
 		{
 			(void) ::snprintf(theLine, sizeof(theLine), "Emulator state loaded from %s", inPath);
 			PrintLine(theLine, MONITOR_LOG_INFO);

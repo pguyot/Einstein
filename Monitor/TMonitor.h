@@ -133,6 +133,17 @@ public:
 	}
 
 	///
+	/// True if the last save or load request succeeded. Read it once
+	/// IsStateRequestPending() is false; TEmulator::GetLastStateError() says
+	/// why it failed.
+	///
+	Boolean
+	LastStateRequestSucceeded() const
+	{
+		return mLastStateRequestOK;
+	}
+
+	///
 	/// Load the emulator state from a file, see RequestSaveState(). With
 	/// inOverwriteCards, a debug file also replaces the contents of PCMCIA
 	/// cards that changed since it was saved (see TEmulator::LoadState()).
@@ -472,6 +483,7 @@ protected:
 	Boolean mSaveFastStart { false }; ///< Kind of file for the "save" command, set before kSaveState.
 	Boolean mLoadOverwriteCards { false }; ///< "load overwrite": replace changed card contents, set before kLoadState.
 	Boolean mStateRequestOverwriteCards { false }; ///< Load request may replace changed card contents, set before mStateRequest.
+	std::atomic<bool> mLastStateRequestOK { true }; ///< Result of the last save or load request, see LastStateRequestSucceeded().
 
 	/// Hand a save or load request to the monitor thread, or do it right away if halted.
 	Boolean RequestStateTransfer(EStateRequest inRequest, const char* inPath, Boolean inHaltAfter = false);

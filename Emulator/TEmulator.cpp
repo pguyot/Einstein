@@ -24,6 +24,7 @@
 #include "TEmulator.h"
 
 // POSIX
+#include <cstdarg>
 #include <errno.h>
 #include <exception>
 #include <math.h>
@@ -596,11 +597,31 @@ ReadStateFile(const char* inPath, std::vector<KUInt8>& outData)
 }
 
 // -------------------------------------------------------------------------- //
+//  * StateError( const char*, ... )
+// -------------------------------------------------------------------------- //
+// Print why a state file could not be saved or loaded, and remember it for
+// the user interface (GetLastStateError()).
+void
+TEmulator::StateError(const char* inFormat, ...)
+{
+	char theLine[1024];
+	va_list theArgs;
+	va_start(theArgs, inFormat);
+	(void) ::vsnprintf(theLine, sizeof(theLine), inFormat, theArgs);
+	va_end(theArgs);
+	KPrintf("%s\n", theLine);
+	if (!mLastStateError.empty())
+		mLastStateError += "\n";
+	mLastStateError += theLine;
+}
+
+// -------------------------------------------------------------------------- //
 //  * SaveState( const char* inPath ) const
 // -------------------------------------------------------------------------- //
 Boolean
 TEmulator::SaveState(const char* inPath, EStateKind inKind)
 {
+	mLastStateError.clear();
 	// Collect the state in memory, then write it to a temporary file and rename
 	// it when everything was written, so a file with the final name is always
 	// complete.
@@ -638,13 +659,13 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 		TransferState(theStream);
 	} catch (const std::exception& e)
 	{
-		KPrintf("Could not save the emulator state to %s (%s).\n", inPath, e.what());
+		StateError("Could not save the emulator state to %s (%s).", inPath, e.what());
 		return false;
 	}
 	if (!WriteStateFile(theTempPath.c_str(), theMemoryStream.GetData()))
 	{
 		(void) ::remove(theTempPath.c_str());
-		KPrintf("Could not save the emulator state to %s (writing failed).\n", inPath);
+		StateError("Could not save the emulator state to %s (writing failed).", inPath);
 		return false;
 	}
 #if TARGET_OS_WIN32
@@ -653,7 +674,7 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 	if (::rename(theTempPath.c_str(), inPath) != 0)
 	{
 		(void) ::remove(theTempPath.c_str());
-		KPrintf("Could not save the emulator state to %s (rename failed).\n", inPath);
+		StateError("Could not save the emulator state to %s (rename failed).", inPath);
 		return false;
 	}
 	return true;
@@ -665,11 +686,12 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 Boolean
 TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 {
+	mLastStateError.clear();
 	std::vector<KUInt8> theData;
 	const char* theError = ReadStateFile(inPath, theData);
 	if (theError != nullptr)
 	{
-		KPrintf("Not loading the state from %s: %s.\n", inPath, theError);
+		StateError("Not loading the state from %s: %s.", inPath, theError);
 		return false;
 	}
 	TMemoryStream theMemoryStream(std::move(theData));
@@ -679,18 +701,18 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 	{
 		if (theStream->GetInt32BE() != 'EINI')
 		{
-			KPrintf("This is not a file created by Einstein!\n");
+			StateError("This is not a file created by Einstein!");
 			return false;
 		}
 		if (theStream->GetInt32BE() != 'SNAP')
 		{
-			KPrintf("This is not an Einstein State file!\n");
+			StateError("This is not an Einstein State file!");
 			return false;
 		}
 		theStream->Version(theStream->GetInt32BE());
 		if (theStream->Version() != kStateFileVersion)
 		{
-			KPrintf("This Einstein State file was saved by another version of Einstein.\n");
+			StateError("This Einstein State file was saved by another version of Einstein.");
 			return false;
 		}
 
@@ -698,7 +720,7 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 		KUInt32 theKind = theStream->GetInt32BE();
 		if (theKind != kFastStartState && theKind != kDebugState)
 		{
-			KPrintf("Unknown kind of Einstein State file.\n");
+			StateError("Unknown kind of Einstein State file.");
 			return false;
 		}
 		std::vector<KUInt32> theCurrent = GetStateIdentity();
@@ -726,9 +748,9 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 				KPrintf("Loading the state from %s replaces the %s.\n", inPath, kIdentityNames[i]);
 				continue;
 			}
-			KPrintf("Not loading the state from %s: the %s changed.\n", inPath, kIdentityNames[i]);
+			StateError("Not loading the state from %s: the %s changed.", inPath, kIdentityNames[i]);
 			if (theIsCardContents && theKind == kDebugState)
-				KPrintf("Loading this state would overwrite the card (Monitor: load overwrite <path>).\n");
+				StateError("Loading this state would overwrite the card (Monitor: load overwrite <path>).");
 			theMatch = false;
 		}
 		if (!theMatch)
@@ -749,7 +771,7 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 		TransferState(theStream);
 	} catch (const std::exception& e)
 	{
-		KPrintf("Could not load the emulator state from %s (%s).\n", inPath, e.what());
+		StateError("Could not load the emulator state from %s (%s).", inPath, e.what());
 		if (theLoadingStarted)
 		{
 			// The contents of the file don't fit what we expect, and part of
@@ -758,7 +780,7 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 			mMemory.GetJITObject()->InvalidateAll();
 			mMemory.ClearRAM();
 			ResetState();
-			KPrintf("The emulator was reset, NewtonOS boots again.\n");
+			StateError("The emulator was reset, NewtonOS boots again.");
 		}
 		return false;
 	}
