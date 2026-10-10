@@ -662,7 +662,7 @@ TEmulator::LoadState(const char* inPath)
 		theStream->Version(theStream->GetInt32BE());
 		if (theStream->Version() != kStateFileVersion)
 		{
-			KPrintf("This Einstein State file is not supported. Please upgarde your Einstein version.\n");
+			KPrintf("This Einstein State file was saved by another version of Einstein.\n");
 			return false;
 		}
 
