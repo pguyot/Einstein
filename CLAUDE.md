@@ -240,16 +240,12 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
    given in the session on 2026-10-10).
 
 *After merging*
-3. **NewtonScript Reboot blocks all later platform events** (found
-   2026-10-10, older than this branch). `EvalNewtonScript("Reboot();")` sends
-   the code as a platform event. The REX interrupt handler locks the event
-   queue and unlocks it when NewtonOS replies; NewtonOS reboots first, so
-   `mQueueLockCount` stays at 1. Afterwards no power button, keyboard or
-   package event reaches NewtonOS until Einstein is restarted, and a fast
-   start on quit times out. Fix idea: reset the queue locks when the REX
-   platform driver starts (a native call from `TMainPlatformDriver::New()`),
-   or unlock before the reboot. Likely related to *Event forwarding on slow
-   machines*.
+3. ~~NewtonScript Reboot blocks all later platform events~~ fixed
+   2026-10-10 (`63aaed80`, older than this branch). `Reboot()` arrives as a
+   platform event, and NewtonOS reboots before it answers, so
+   `mQueueLockCount` stayed at 1. The native `TMainPlatformDriver::Init`,
+   called once per boot before `PowerOnDeviceCheck`, now resets the queue
+   locks as at launch. No REX change was needed.
 4. Save the fast start file on the monitor thread instead of the UI thread
    (Greptile): the UI is frozen during the write, about 0.1 s. Cosmetic.
 5. Debug files: a file with a valid CRC whose contents don't fit (edited by
@@ -536,11 +532,12 @@ look: the platform event queue in `TPlatformManager` with its locks
 interrupt that tells NewtonOS about a new event. A timing-dependent lock that
 is never released would block all later events.
 
-A concrete case of such a lock (2026-10-10): after "NewtonScript Reboot",
-`mQueueLockCount` stays at 1 because NewtonOS reboots before it answers the
-event that carried `Reboot()`, and all later events wait (Fast start next
-step 3). An event whose answer gets lost on a slow machine would look the
-same. To see the state, read `mQueueBootLock`, `mQueueLockCount`,
+A concrete case of such a lock (2026-10-10, fixed in `63aaed80`): after
+"NewtonScript Reboot", `mQueueLockCount` stayed at 1 because NewtonOS reboots
+before it answers the event that carried `Reboot()`, and all later events
+waited. An event whose answer gets lost on a slow machine would look the
+same, but would not be cured by the fix, which only runs at boot. To see the
+state, read `mQueueBootLock`, `mQueueLockCount`,
 `mQueuePreLock` and `mEventQueueCCrsr`/`PCrsr` of `TPlatformManager` in a
 debugger.
 
