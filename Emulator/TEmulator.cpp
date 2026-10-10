@@ -28,6 +28,7 @@
 #include <exception>
 #include <math.h>
 #include <memory>
+#include <new>
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
@@ -85,6 +86,10 @@
 // Version 10: screen size must match and is no longer loaded.
 // Version 11: CRC32 of the file at the end.
 static const KUInt32 kStateFileVersion = 11;
+
+// Largest state file we read. Today a file holds at most 16 MB of RAM and the
+// 4 MB flash; card contents (up to 64 MB per card) may be saved one day.
+static const long kMaxStateFileSize = 256 * 1024 * 1024;
 
 // Longest PCMCIA card image path in a state file. Longer paths are saved
 // empty, so the card is not inserted again at a fast start.
@@ -540,19 +545,40 @@ ReadStateFile(const char* inPath, std::vector<KUInt8>& outData)
 	FILE* theFile = ::fopen(inPath, "rb");
 	if (theFile == nullptr)
 		return "the file could not be opened";
+	// Look at the start before allocating memory for the whole file, so a
+	// file that is not a state file is refused cheaply.
+	KUInt8 theMagic[8] = { };
+	if (::fread(theMagic, 1, sizeof(theMagic), theFile) != sizeof(theMagic)
+		|| ::memcmp(theMagic, "EINISNAP", sizeof(theMagic)) != 0)
+	{
+		::fclose(theFile);
+		return "this is not an Einstein state file";
+	}
 	long theSize = -1;
 	if (::fseek(theFile, 0, SEEK_END) == 0)
 		theSize = ::ftell(theFile);
+	if (theSize > kMaxStateFileSize)
+	{
+		::fclose(theFile);
+		return "the file is too large";
+	}
 	Boolean theReadOK = (theSize >= 4) && (::fseek(theFile, 0, SEEK_SET) == 0);
 	if (theReadOK)
 	{
-		outData.resize((size_t) theSize);
+		try
+		{
+			outData.resize((size_t) theSize);
+		} catch (const std::bad_alloc&)
+		{
+			::fclose(theFile);
+			return "there is not enough memory to read the file";
+		}
 		theReadOK = (::fread(outData.data(), 1, outData.size(), theFile) == outData.size());
 	}
 	::fclose(theFile);
 	if (!theReadOK)
 	{
-		outData.clear();
+		std::vector<KUInt8>().swap(outData);
 		return "the file is too short or could not be read";
 	}
 	size_t theDataSize = outData.size() - 4;
