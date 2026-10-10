@@ -163,6 +163,9 @@ public:
 
 	void SetExtrTcpServer(const char* inServer);
 
+	// Set the state file used by "Save State" and "Restore Last".
+	void SetStatePath(const char* inPath);
+
 	// protected:
 	Fl_Double_Window* mSettingsPanel = nullptr;
 	Fl_Double_Window* mAboutDialog = nullptr;
@@ -186,6 +189,10 @@ public:
 	// when quitting, save the state of the sleeping Newton, and continue from
 	// there on the next start (if nothing changed)
 	int mFastStart = 1;
+
+	// the state file used by "Save State" and "Restore Last": the last one
+	// saved or restored. Empty for the default file in the user data folder.
+	char* mStatePath = nullptr;
 
 	// driver for the external serial port (TSerialPorts::EDriverID), default is the TCP client
 	int mExtrDriver = 4;

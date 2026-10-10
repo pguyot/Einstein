@@ -58,12 +58,24 @@ Function {CreateApplicationWindow(int x, int y)} {open
           xywh {0 0 100 20} shortcut 0x41006f deactivate divider
         }
         MenuItem {} {
-          label Save
-          xywh {0 0 100 20} shortcut 0x410073 deactivate
+          label {Save State}
+          callback {gApp->UserActionSaveState();}
+          xywh {0 0 100 20} shortcut 0x410073
         }
         MenuItem {} {
-          label {Save As...}
-          xywh {0 0 100 20} deactivate divider
+          label {Save State As...}
+          callback {gApp->UserActionSaveStateAs();}
+          xywh {0 0 100 20}
+        }
+        MenuItem {} {
+          label {Restore Last}
+          callback {gApp->UserActionRestoreLastState();}
+          xywh {0 0 100 20}
+        }
+        MenuItem {} {
+          label {Restore From...}
+          callback {gApp->UserActionRestoreStateFrom();}
+          xywh {0 0 100 20} divider
         }
         MenuItem {} {
           label {Save Statistics}
@@ -165,16 +177,6 @@ o->show();
           label Reboot
           callback {gApp->UserActionReset(1);} selected
           xywh {30 30 31 20} hide divider
-        }
-        MenuItem {} {
-          label {Save State}
-          callback {gApp->UserActionSaveState();}
-          xywh {0 0 100 20} shortcut 0x41006b hide
-        }
-        MenuItem {} {
-          label {Load State}
-          callback {gApp->UserActionLoadState();}
-          xywh {0 0 100 20} shortcut 0x41006c hide
         }
         MenuItem {} {
           label {Check State Round Trip}

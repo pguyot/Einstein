@@ -210,6 +210,22 @@ TFLAppWindow *wAppWindow=(TFLAppWindow *)0;
 Fl_Menu_Bar *wMenubar=(Fl_Menu_Bar *)0;
 
 static void cb_Save(Fl_Menu_*, void*) {
+  gApp->UserActionSaveState();
+}
+
+static void cb_Save1(Fl_Menu_*, void*) {
+  gApp->UserActionSaveStateAs();
+}
+
+static void cb_Restore(Fl_Menu_*, void*) {
+  gApp->UserActionRestoreLastState();
+}
+
+static void cb_Restore1(Fl_Menu_*, void*) {
+  gApp->UserActionRestoreStateFrom();
+}
+
+static void cb_Save2(Fl_Menu_*, void*) {
 #ifdef JIT_ENABLE_STATISTICS
   gJITStatistics.write_all();
 #endif
@@ -241,14 +257,6 @@ static void cb_Backlight(Fl_Menu_*, void*) {
 
 static void cb_Reboot(Fl_Menu_*, void*) {
   gApp->UserActionReset(1);
-}
-
-static void cb_Save1(Fl_Menu_*, void*) {
-  gApp->UserActionSaveState();
-}
-
-static void cb_Load(Fl_Menu_*, void*) {
-  gApp->UserActionLoadState();
 }
 
 static void cb_Check(Fl_Menu_*, void*) {
@@ -299,9 +307,11 @@ Fl_Menu_Item menu_wMenubar[] = {
  {"File", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"New...", FL_COMMAND|FL_SHIFT|'n',  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Open...", FL_COMMAND|FL_SHIFT|'o',  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Save", FL_COMMAND|FL_SHIFT|'s',  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Save As...", 0,  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Save Statistics", 0,  (Fl_Callback*)cb_Save, 0, 16, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save State", FL_COMMAND|FL_SHIFT|'s',  (Fl_Callback*)cb_Save, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save State As...", 0,  (Fl_Callback*)cb_Save1, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Restore Last", 0,  (Fl_Callback*)cb_Restore, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Restore From...", 0,  (Fl_Callback*)cb_Restore1, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save Statistics", 0,  (Fl_Callback*)cb_Save2, 0, 16, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Close", FL_COMMAND|FL_SHIFT|'w',  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"", 0,  0, 0, 17, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"", 0,  0, 0, 17, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
@@ -325,8 +335,6 @@ Fl_Menu_Item menu_wMenubar[] = {
  {"Upper PCCard", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Lower PCCard", 0,  0, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Reboot", 0,  (Fl_Callback*)cb_Reboot, 0, 144, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Save State", FL_COMMAND|FL_SHIFT|'k',  (Fl_Callback*)cb_Save1, 0, 16, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Load State", FL_COMMAND|FL_SHIFT|'l',  (Fl_Callback*)cb_Load, 0, 16, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Check State Round Trip", FL_COMMAND|FL_SHIFT|'r',  (Fl_Callback*)cb_Check, 0, 144, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Reset", 0,  0, 0, 192, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"System Reboot", 0,  (Fl_Callback*)cb_System, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
@@ -834,7 +842,7 @@ TFLAppWindow* CreateApplicationWindow(int x, int y) {
     wAppWindow->when(FL_WHEN_RELEASE);
     { Fl_Menu_Bar* o = wMenubar = new Fl_Menu_Bar(0, 0, 320, 24);
       wMenubar->color(FL_LIGHT2);
-      { Fl_Menu_Item* o = &menu_wMenubar[5];
+      { Fl_Menu_Item* o = &menu_wMenubar[7];
         // avoid being classified as in include line
 (void)o;
 #ifdef JIT_ENABLE_STATISTICS

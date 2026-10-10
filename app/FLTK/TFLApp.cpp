@@ -189,7 +189,9 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 
 // C++17
 #include <chrono>
@@ -665,81 +667,180 @@ DataFilePath(const char* inName)
 }
 
 /**
- Return the path of the file used by "Save State" and "Load State".
+ Return the state file used by "Save State" and "Restore Last": the last one
+ saved or restored, or Einstein.state in the user data folder.
  */
-static std::string
-StateFilePath()
+std::string
+TFLApp::CurrentStatePath()
 {
+	if (mFLSettings->mStatePath && mFLSettings->mStatePath[0])
+		return mFLSettings->mStatePath;
 	return DataFilePath("Einstein.state");
 }
 
 /**
- User wants to save the emulator state.
- This is temporary, to test saving and loading for Fast start.
+ User wants to save the state of the emulated Newton, so they can return to
+ it later (for example before trying out a package).
  */
 void
 TFLApp::UserActionSaveState()
 {
-	if (!mMonitor)
-		return;
-	std::string path = StateFilePath();
-	if (!mMonitor->RequestSaveState(path.c_str()))
-		fl_beep();
+	SaveStateTo(CurrentStatePath());
 }
 
 /**
- User wants to load the emulator state saved by UserActionSaveState().
- This is temporary, to test saving and loading for Fast start.
+ User wants to save the state to a file of their choice.
  */
 void
-TFLApp::UserActionLoadState()
+TFLApp::UserActionSaveStateAs()
 {
-	if (!mMonitor)
+	const char* chosen = ChooseNewFile("Save State As...", "Einstein State\t*.state", CurrentStatePath().c_str());
+	if (!chosen)
 		return;
-	std::string path = StateFilePath();
+	std::string path = chosen;
+	if (fl_filename_ext(path.c_str())[0] == 0)
+		path += ".state";
+	SaveStateTo(path);
+}
+
+/**
+ User wants to return to the state that was saved or restored last.
+ */
+void
+TFLApp::UserActionRestoreLastState()
+{
+	std::string path = CurrentStatePath();
 	if (!TFileStream::Exists(path.c_str()))
 	{
-		fl_alert("No saved state found at\n%s", path.c_str());
+		fl_alert("There is no saved state yet.\n\nUse \"Save State\" first.");
+		return;
+	}
+	RestoreStateFrom(path);
+}
+
+/**
+ User wants to return to a state saved in a file of their choice.
+ */
+void
+TFLApp::UserActionRestoreStateFrom()
+{
+	const char* chosen = ChooseExistingFile("Restore From...", "Einstein State\t*.state", CurrentStatePath().c_str());
+	if (chosen)
+		RestoreStateFrom(chosen);
+}
+
+/**
+ Hand a save request to the monitor and report the result when it is done.
+ */
+void
+TFLApp::SaveStateTo(const std::string& inPath)
+{
+	if (!mMonitor || mStateAction != EStateAction::kIdle || !mMonitor->RequestSaveState(inPath.c_str()))
+	{
+		fl_beep();
+		return;
+	}
+	WaitForStateAction(EStateAction::kSave, inPath);
+}
+
+/**
+ Ask the user, then hand a load request to the monitor and report the result.
+ Restoring replaces the Newton's memory and flash, and the contents of the PC
+ Cards that the state holds.
+ */
+void
+TFLApp::RestoreStateFrom(const std::string& inPath)
+{
+	if (!mMonitor || mStateAction != EStateAction::kIdle)
+	{
+		fl_beep();
 		return;
 	}
 	std::vector<TEmulator::SStateCard> cards;
 	KUInt32 kind = 0;
-	if (!TEmulator::ReadStateCards(path.c_str(), cards, &kind))
+	if (!TEmulator::ReadStateCards(inPath.c_str(), cards, &kind))
 	{
-		fl_alert("The saved state at\n%s\nis damaged or from another version of Einstein.", path.c_str());
+		fl_alert("The saved state at\n%s\nis damaged or from another version of Einstein.", inPath.c_str());
 		return;
 	}
-	// Debug states hold the contents of the PC Cards. Cards may be shared with
-	// other emulated Newtons, so ask before a card is overwritten.
-	Boolean overwriteCards = false;
-	if (kind == TEmulator::kDebugState)
+	if (kind != TEmulator::kDebugState)
 	{
-		std::string names;
-		for (int slot = 0; slot < (int) cards.size(); slot++)
+		fl_alert("The file\n%s\nwas saved for a fast start and can't be restored.", inPath.c_str());
+		return;
+	}
+
+	// Cards may be shared with other emulated Newtons, so name them.
+	std::string cardNames;
+	for (int slot = 0; slot < (int) cards.size(); slot++)
+	{
+		TPCMCIAController* controller = mEmulator->GetMemory()->GetPCMCIAController(slot);
+		TPCMCIACard* card = controller ? controller->CurrentCard() : nullptr;
+		if (card && card->GetImagePath() && card->GetStateTag() == cards[slot].fTag)
 		{
-			TPCMCIAController* controller = mEmulator->GetMemory()->GetPCMCIAController(slot);
-			TPCMCIACard* card = controller ? controller->CurrentCard() : nullptr;
-			if (card && card->GetImagePath() && card->GetStateTag() == cards[slot].fTag)
-			{
-				if (!names.empty())
-					names += ", ";
-				names += fl_filename_name(card->GetImagePath());
-			}
-		}
-		if (!names.empty())
-		{
-			int choice = fl_choice(
-				"This state also holds the contents of the PC Card %s.\n\n"
-				"Loading it replaces what is on the card now. The card may also be used "
-				"by another emulated Newton.",
-				"Cancel", "Overwrite Card", nullptr, names.c_str());
-			if (choice != 1)
-				return;
-			overwriteCards = true;
+			if (!cardNames.empty())
+				cardNames += ", ";
+			cardNames += fl_filename_name(card->GetImagePath());
 		}
 	}
-	if (!mMonitor->RequestLoadState(path.c_str(), overwriteCards))
+
+	char savedWhen[64] = "";
+	struct stat fileInfo;
+	if (::stat(inPath.c_str(), &fileInfo) == 0)
+		(void) ::strftime(savedWhen, sizeof(savedWhen), " on %Y-%m-%d at %H:%M", ::localtime(&fileInfo.st_mtime));
+	std::string message = std::string("Restore the state saved") + savedWhen + "?\n\n"
+		+ fl_filename_name(inPath.c_str()) + "\n\n"
+		+ "The Newton returns to that moment. Its memory and its internal storage "
+		  "(flash) are replaced, so everything done since then is lost.";
+	if (!cardNames.empty())
+		message += "\n\nThe contents of the PC Card " + cardNames
+			+ " are replaced as well. The card may also be used by another emulated Newton.";
+	if (fl_choice("%s", "Cancel", "Restore", nullptr, message.c_str()) != 1)
+		return;
+
+	if (!mMonitor->RequestLoadState(inPath.c_str(), !cardNames.empty()))
+	{
 		fl_beep();
+		return;
+	}
+	WaitForStateAction(EStateAction::kRestore, inPath);
+}
+
+/**
+ Wait (without blocking the UI) until the monitor has saved or loaded.
+ */
+void
+TFLApp::WaitForStateAction(EStateAction inAction, const std::string& inPath)
+{
+	mStateAction = inAction;
+	mStateActionPath = inPath;
+	fl_cursor(FL_CURSOR_WAIT);
+	Fl::add_timeout(0.05, StateActionTimer, this);
+}
+
+/**
+ Timer: report the result of a save or restore once the monitor is done. A
+ file that was saved or restored becomes the current state file.
+ */
+void
+TFLApp::StateActionTimer(void* inData)
+{
+	TFLApp* app = (TFLApp*) inData;
+	if (app->mMonitor->IsStateRequestPending())
+	{
+		Fl::repeat_timeout(0.05, StateActionTimer, inData);
+		return;
+	}
+	fl_cursor(FL_CURSOR_DEFAULT);
+	EStateAction action = app->mStateAction;
+	app->mStateAction = EStateAction::kIdle;
+	if (app->mMonitor->LastStateRequestSucceeded())
+	{
+		app->mFLSettings->SetStatePath(app->mStateActionPath.c_str());
+		return;
+	}
+	fl_alert(action == EStateAction::kSave ? "The state could not be saved to\n%s\n\n%s"
+										   : "The state could not be restored from\n%s\n\n%s",
+		app->mStateActionPath.c_str(), app->mEmulator->GetLastStateError().c_str());
 }
 
 /**

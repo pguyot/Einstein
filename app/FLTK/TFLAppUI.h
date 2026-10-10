@@ -28,8 +28,8 @@ extern Fl_Button *wNetworkOnTool;
 extern Fl_Box *wSpacer;
 TFLAppWindow* CreateApplicationWindow(int x, int y);
 extern Fl_Menu_Item menu_wMenubar[];
-#define wPCCardSlot1 (menu_wMenubar+26)
-#define wPCCardSlot0 (menu_wMenubar+27)
+#define wPCCardSlot1 (menu_wMenubar+28)
+#define wPCCardSlot0 (menu_wMenubar+29)
 #define wMenuItemFullscreen (menu_wMenubar+41)
 #define wMenuItemMonitor (menu_wMenubar+42)
 #define wMenuItemToolkit (menu_wMenubar+43)

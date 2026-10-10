@@ -108,11 +108,17 @@ public:
 	// user wants to reset or reboot the emulator
 	void UserActionReset(int inType);
 
-	// user wants to save the emulator state (temporary, for testing Fast start)
+	// user wants to save the state of the emulated Newton to the current state file
 	void UserActionSaveState();
 
-	// user wants to load the emulator state (temporary, for testing Fast start)
-	void UserActionLoadState();
+	// user wants to save the state to a file of their choice
+	void UserActionSaveStateAs();
+
+	// user wants to return to the state saved or restored last
+	void UserActionRestoreLastState();
+
+	// user wants to return to a state saved in a file of their choice
+	void UserActionRestoreStateFrom();
 
 	// user wants to check that saving and loading is symmetric (temporary)
 	void UserActionCheckState();
@@ -239,6 +245,21 @@ private:
 		kWaitForSave
 	};
 	EFastStartSave mFastStartSave { EFastStartSave::kIdle };
+
+	// Save State and Restore: the request handed to the monitor, and its file
+	enum class EStateAction {
+		kIdle,
+		kSave,
+		kRestore
+	};
+	EStateAction mStateAction { EStateAction::kIdle };
+	std::string mStateActionPath;
+
+	std::string CurrentStatePath();
+	void SaveStateTo(const std::string& inPath);
+	void RestoreStateFrom(const std::string& inPath);
+	void WaitForStateAction(EStateAction inAction, const std::string& inPath);
+	static void StateActionTimer(void* inData);
 
 	// When the current step of saving the fast start file started, in seconds
 	double mFastStartSaveStepStart { 0.0 };

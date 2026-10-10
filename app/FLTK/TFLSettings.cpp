@@ -237,6 +237,14 @@ TFLSettings::SetExtrTcpServer(const char* inServer)
 		mExtrTcpServer = strdup(inServer);
 }
 
+void
+TFLSettings::SetStatePath(const char* inPath)
+{
+	if (mStatePath)
+		::free(mStatePath);
+	mStatePath = inPath ? strdup(inPath) : nullptr;
+}
+
 TFLSettings::~TFLSettings() = default;
 
 void
@@ -336,6 +344,7 @@ TFLSettings::loadPreferences()
 	{
 		newtSystem.get("FetchDateAndTime", mFetchDateAndTime, 1);
 		newtSystem.get("FastStart", mFastStart, 1);
+		newtSystem.get("StatePath", mStatePath, "");
 	}
 
 	// serial port preferences
@@ -438,6 +447,7 @@ TFLSettings::savePreferences()
 	{
 		newtSystem.set("FetchDateAndTime", mFetchDateAndTime);
 		newtSystem.set("FastStart", mFastStart);
+		newtSystem.set("StatePath", mStatePath ? mStatePath : "");
 	}
 
 	// serial port preferences
