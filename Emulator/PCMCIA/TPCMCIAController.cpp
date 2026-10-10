@@ -451,6 +451,19 @@ TPCMCIAController::TransferState(TStream* inStream)
 			mCard->TransferState(&theCardState);
 		}
 	}
+
+	// The contents of the card, only in debug files. TEmulator::LoadState()
+	// only gets here with the same kind of card, and only if the user agreed
+	// to overwrite contents that changed.
+	if (!inStream->IsResetting() && (inStream->TransferFlags() & TEmulator::kStateIncludesCardContents))
+	{
+		KUInt32 theContentsTag = theCardTag;
+		inStream->TransferInt32BE(theContentsTag);
+		if (inStream->IsReading() && theContentsTag != theCardTag)
+			throw std::runtime_error("the card contents were saved from a different kind of card");
+		if (mCard)
+			mCard->TransferContents(inStream);
+	}
 }
 
 // -------------------------------------------------------------------------- //

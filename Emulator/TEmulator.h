@@ -441,6 +441,11 @@ public:
 	static const KUInt32 kStateIncludesFlash = 0x00000001;
 
 	///
+	/// Transfer flag: save or load the contents of the PCMCIA cards.
+	///
+	static const KUInt32 kStateIncludesCardContents = 0x00000002;
+
+	///
 	/// Save the state to a file.
 	///
 	/// \return false if the state could not be saved.
@@ -450,14 +455,17 @@ public:
 	///
 	/// Load the state from a file. The file is only loaded if it belongs to
 	/// the same ROM, RAM size, PCMCIA cards (and flash, for fast start files).
-	/// Otherwise nothing is changed and false is returned.
+	/// Otherwise nothing is changed and false is returned. Debug files hold
+	/// the contents of the cards: if a card changed since, the file is only
+	/// loaded with inOverwriteCards, which replaces the card's contents (and
+	/// its image file).
 	///
 	/// \return false if the state could not be loaded. Damaged files are
 	/// refused before anything changes. If a file fails while it is being
 	/// loaded (its contents don't fit), RAM is cleared and the machine is
 	/// reset, so NewtonOS boots again.
 	///
-	Boolean LoadState(const char* inPath);
+	Boolean LoadState(const char* inPath, Boolean inOverwriteCards = false);
 
 	///
 	/// A PCMCIA card as recorded in a state file.
@@ -470,9 +478,10 @@ public:
 	///
 	/// Read which cards were inserted when a state file was saved, without
 	/// loading it. A fast start inserts the same cards before loading.
+	/// outKind, if given, receives the kind of file (EStateKind).
 	/// \return false if the file is damaged or not a state file of this version.
 	///
-	static Boolean ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards);
+	static Boolean ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards, KUInt32* outKind = nullptr);
 
 	///
 	/// Reset the machine like the reset button: all emulated hardware goes to

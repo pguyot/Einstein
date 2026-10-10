@@ -133,10 +133,12 @@ public:
 	}
 
 	///
-	/// Load the emulator state from a file, see RequestSaveState().
+	/// Load the emulator state from a file, see RequestSaveState(). With
+	/// inOverwriteCards, a debug file also replaces the contents of PCMCIA
+	/// cards that changed since it was saved (see TEmulator::LoadState()).
 	/// \return false if the monitor is busy and the state was not loaded.
 	///
-	Boolean RequestLoadState(const char* inPath);
+	Boolean RequestLoadState(const char* inPath, Boolean inOverwriteCards = false);
 
 	///
 	/// Check that saving and loading the state is symmetric: save the state
@@ -229,7 +231,7 @@ public:
 	/// Read the current emulator state from a file.
 	/// \return false if the state could not be loaded.
 	///
-	Boolean LoadEmulatorState(const char* inFilename = 0L);
+	Boolean LoadEmulatorState(const char* inFilename = 0L, Boolean inOverwriteCards = false);
 
 	///
 	/// Save the current state of the Emulator to a file.
@@ -468,6 +470,8 @@ protected:
 	Boolean mStateRequestFastStart { false }; ///< Save a fast start file, set before mStateRequest.
 	Boolean mStateRequestHaltAfter { false }; ///< Stay halted after mStateRequest, set before it.
 	Boolean mSaveFastStart { false }; ///< Kind of file for the "save" command, set before kSaveState.
+	Boolean mLoadOverwriteCards { false }; ///< "load overwrite": replace changed card contents, set before kLoadState.
+	Boolean mStateRequestOverwriteCards { false }; ///< Load request may replace changed card contents, set before mStateRequest.
 
 	/// Hand a save or load request to the monitor thread, or do it right away if halted.
 	Boolean RequestStateTransfer(EStateRequest inRequest, const char* inPath, Boolean inHaltAfter = false);

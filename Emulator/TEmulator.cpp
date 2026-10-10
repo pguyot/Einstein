@@ -85,11 +85,12 @@
 // Version 9: kind and image path of the inserted PCMCIA cards.
 // Version 10: screen size must match and is no longer loaded.
 // Version 11: CRC32 of the file at the end.
-static const KUInt32 kStateFileVersion = 11;
+// Version 12: debug files hold the contents of the PCMCIA cards.
+static const KUInt32 kStateFileVersion = 12;
 
-// Largest state file we read. Today a file holds at most 16 MB of RAM and the
-// 4 MB flash; card contents (up to 64 MB per card) may be saved one day.
-static const long kMaxStateFileSize = 256 * 1024 * 1024;
+// Largest state file we read: 16 MB of RAM, the 4 MB flash, and the contents
+// of two cards (ATA cards up to 128 MB each, linear cards up to 64 MB).
+static const long kMaxStateFileSize = 512 * 1024 * 1024;
 
 // Longest PCMCIA card image path in a state file. Longer paths are saved
 // empty, so the card is not inserted again at a fast start.
@@ -633,7 +634,7 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 			theStream->Write(thePath, &theLength);
 		}
 
-		theStream->TransferFlags((inKind == kDebugState) ? kStateIncludesFlash : 0);
+		theStream->TransferFlags((inKind == kDebugState) ? (kStateIncludesFlash | kStateIncludesCardContents) : 0);
 		TransferState(theStream);
 	} catch (const std::exception& e)
 	{
@@ -662,7 +663,7 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 //  * LoadState( const char* inPath ) const
 // -------------------------------------------------------------------------- //
 Boolean
-TEmulator::LoadState(const char* inPath)
+TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 {
 	std::vector<KUInt8> theData;
 	const char* theError = ReadStateFile(inPath, theData);
@@ -715,11 +716,20 @@ TEmulator::LoadState(const char* inPath)
 			// The flash is only checked for fast start files. Debug files load it.
 			if (i == 2 && theKind == kDebugState)
 				continue;
-			if (theSaved != theCurrent[i])
+			if (theSaved == theCurrent[i])
+				continue;
+			// Debug files hold the card contents too, but cards may be shared
+			// with other emulated Newtons, so only overwrite them if asked to.
+			Boolean theIsCardContents = (i >= 5) && ((i - 5) % 2 == 1);
+			if (theIsCardContents && theKind == kDebugState && inOverwriteCards)
 			{
-				KPrintf("Not loading the state from %s: the %s changed.\n", inPath, kIdentityNames[i]);
-				theMatch = false;
+				KPrintf("Loading the state from %s replaces the %s.\n", inPath, kIdentityNames[i]);
+				continue;
 			}
+			KPrintf("Not loading the state from %s: the %s changed.\n", inPath, kIdentityNames[i]);
+			if (theIsCardContents && theKind == kDebugState)
+				KPrintf("Loading this state would overwrite the card (Monitor: load overwrite <path>).\n");
+			theMatch = false;
 		}
 		if (!theMatch)
 			return false;
@@ -734,7 +744,7 @@ TEmulator::LoadState(const char* inPath)
 			theStream->Read(thePath.data(), &theLength);
 		}
 
-		theStream->TransferFlags((theKind == kDebugState) ? kStateIncludesFlash : 0);
+		theStream->TransferFlags((theKind == kDebugState) ? (kStateIncludesFlash | kStateIncludesCardContents) : 0);
 		theLoadingStarted = true;
 		TransferState(theStream);
 	} catch (const std::exception& e)
@@ -756,10 +766,10 @@ TEmulator::LoadState(const char* inPath)
 }
 
 // -------------------------------------------------------------------------- //
-//  * ReadStateCards( const char*, std::vector<SStateCard>& )
+//  * ReadStateCards( const char*, std::vector<SStateCard>&, KUInt32* )
 // -------------------------------------------------------------------------- //
 Boolean
-TEmulator::ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards)
+TEmulator::ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards, KUInt32* outKind)
 {
 	outCards.clear();
 	std::vector<KUInt8> theData;
@@ -772,7 +782,9 @@ TEmulator::ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards)
 		if (theStream->GetInt32BE() != 'EINI' || theStream->GetInt32BE() != 'SNAP'
 			|| theStream->GetInt32BE() != kStateFileVersion)
 			return false;
-		(void) theStream->GetInt32BE(); // kind of file
+		KUInt32 theKind = theStream->GetInt32BE();
+		if (outKind)
+			*outKind = theKind;
 		for (size_t i = 0; i < kStateIdentitySize; i++)
 			(void) theStream->GetInt32BE();
 		for (int socketIx = 0; socketIx < kNbSockets; socketIx++)

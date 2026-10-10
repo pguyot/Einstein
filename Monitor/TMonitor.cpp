@@ -218,7 +218,7 @@ TMonitor::Run()
 				break;
 
 			case kLoadState:
-				if (!LoadEmulatorState(mFilename))
+				if (!LoadEmulatorState(mFilename, mLoadOverwriteCards))
 					PrintLine("Loading the emulator state failed", MONITOR_LOG_ERROR);
 				break;
 		}
@@ -397,7 +397,7 @@ TMonitor::SaveEmulatorState(const char* inFilename, Boolean inFastStart)
 // LoadEmulatroState( const char * )
 // -------------------------------------------------------------------------- //
 Boolean
-TMonitor::LoadEmulatorState(const char* inFilename)
+TMonitor::LoadEmulatorState(const char* inFilename, Boolean inOverwriteCards)
 {
 	if (inFilename == 0)
 	{
@@ -406,7 +406,7 @@ TMonitor::LoadEmulatorState(const char* inFilename)
 	Boolean theResult = false;
 	if (TFileStream::Exists(inFilename))
 	{
-		theResult = mEmulator->LoadState(inFilename);
+		theResult = mEmulator->LoadState(inFilename, inOverwriteCards);
 	}
 	TScreenManager* screen = mEmulator->GetScreenManager();
 	TScreenManager::SRect rect;
@@ -586,8 +586,11 @@ TMonitor::RequestSaveState(const char* inPath, Boolean inFastStart, Boolean inHa
 // RequestLoadState( const char* )
 // -------------------------------------------------------------------------- //
 Boolean
-TMonitor::RequestLoadState(const char* inPath)
+TMonitor::RequestLoadState(const char* inPath, Boolean inOverwriteCards)
 {
+	if (mStateRequest != kStateRequestNone)
+		return false;
+	mStateRequestOverwriteCards = inOverwriteCards;
 	return RequestStateTransfer(kStateRequestLoad, inPath);
 }
 
@@ -676,7 +679,7 @@ TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
 		}
 	} else
 	{
-		if (LoadEmulatorState(inPath))
+		if (LoadEmulatorState(inPath, mStateRequestOverwriteCards))
 		{
 			(void) ::snprintf(theLine, sizeof(theLine), "Emulator state loaded from %s", inPath);
 			PrintLine(theLine, MONITOR_LOG_INFO);
@@ -884,10 +887,13 @@ TMonitor::ExecuteCommand(const char* inCommand)
 	{
 		if (mHalted)
 		{
+			// "load overwrite <path>" also replaces the contents of cards that
+			// changed since the state was saved (debug files hold them).
+			mLoadOverwriteCards = (::strncmp(inCommand, "load overwrite ", 15) == 0);
 			PrintLine("Loading emulator state", MONITOR_LOG_INFO);
 			if (!mFilename)
 				mFilename = (char*) malloc(2048);
-			strcpy(mFilename, inCommand + 5);
+			strcpy(mFilename, inCommand + (mLoadOverwriteCards ? 15 : 5));
 			mCommand = kLoadState;
 			SignalCondVar();
 		} else
@@ -1693,6 +1699,7 @@ TMonitor::PrintHelp()
 	PrintLine(" gpio <val>         raise the gpio interrupts", MONITOR_LOG_INFO);
 	PrintLine(" load|save path     load or save the emulator state", MONITOR_LOG_INFO);
 	PrintLine(" save fast path     save for a fast start (flash checksum only)", MONITOR_LOG_INFO);
+	PrintLine(" load overwrite path  load, replacing changed PCMCIA card contents", MONITOR_LOG_INFO);
 	PrintLine(" checkstate [path]  save, load, save again, compare (round trip)", MONITOR_LOG_INFO);
 	PrintLine(" snap|revert        (re)store machine state while running", MONITOR_LOG_INFO);
 	PrintLine(" help log           help with logging", MONITOR_LOG_INFO);
