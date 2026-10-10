@@ -684,6 +684,19 @@ TPlatformManager::UnlockQueueBootLock()
 }
 
 // -------------------------------------------------------------------------- //
+//  * ResetEventQueueLocks()
+// -------------------------------------------------------------------------- //
+void
+TPlatformManager::ResetEventQueueLocks()
+{
+	mMutex->Lock();
+	mQueuePreLock = false;
+	mQueueLockCount = 0;
+	mQueueBootLock = 1;
+	mMutex->Unlock();
+}
+
+// -------------------------------------------------------------------------- //
 //  * GetUserInfo( EUserInfoSel, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32

@@ -621,6 +621,9 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 			{
 				mLog->LogLine("TMainPlatformDriver::Init");
 			}
+			// NewtonOS starts, also after a reboot. Events wait until the boot
+			// is complete (PowerOnDeviceCheck).
+			mPlatformManager->ResetEventQueueLocks();
 			mProcessor->SetRegister(0, 0);
 			break;
 

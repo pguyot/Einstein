@@ -178,6 +178,19 @@ public:
 	 */
 	void UnlockQueueBootLock();
 
+	/**
+	 * Lock the event queue until the boot is complete, as at launch.
+	 *
+	 * Called when NewtonOS starts (TMainPlatformDriver::Init), also after a
+	 * reboot. Locks taken by the NewtonOS that ran before are gone: a
+	 * NewtonScript Reboot() arrives as an event, and NewtonOS reboots before
+	 * it answers, so its UnlockEventQueue() never comes. Pending events stay
+	 * in the queue and are sent when the boot is complete.
+	 *
+	 * \see UnlockQueueBootLock()
+	 */
+	void ResetEventQueueLocks();
+
 	///
 	/// Get some information about the user.
 	/// Return the number of bytes written.
