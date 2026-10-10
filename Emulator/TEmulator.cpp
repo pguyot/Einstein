@@ -81,10 +81,11 @@
 // Version 8: no ROM; kind of file (fast start or debug) and what it must match
 //            (ROM, RAM size, flash, PCMCIA cards); flash only in debug files.
 // Version 9: kind and image path of the inserted PCMCIA cards.
-static const KUInt32 kStateFileVersion = 9;
+// Version 10: screen size must match and is no longer loaded.
+static const KUInt32 kStateFileVersion = 10;
 
 // Number of values written by TEmulator::GetStateIdentity().
-static const size_t kStateIdentitySize = 3 + 2 * kNbSockets;
+static const size_t kStateIdentitySize = 5 + 2 * kNbSockets;
 
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
@@ -575,7 +576,7 @@ TEmulator::LoadState(const char* inPath)
 		}
 		std::vector<KUInt32> theCurrent = GetStateIdentity();
 		static const char* const kIdentityNames[] = {
-			"ROM", "RAM size", "flash",
+			"ROM", "RAM size", "flash", "screen width", "screen height",
 			"card in socket 0", "contents of the card in socket 0",
 			"card in socket 1", "contents of the card in socket 1"
 		};
@@ -678,6 +679,8 @@ TEmulator::GetStateIdentity()
 	theIdentity.push_back(mMemory.GetROMChecksum());
 	theIdentity.push_back(mMemory.GetRAMSize());
 	theIdentity.push_back(mMemory.GetFlashChecksum());
+	theIdentity.push_back(mScreenManager->GetPortraitWidth());
+	theIdentity.push_back(mScreenManager->GetPortraitHeight());
 	for (int socketIx = 0; socketIx < kNbSockets; socketIx++)
 	{
 		TPCMCIAController* theController = mMemory.GetPCMCIAController(socketIx);

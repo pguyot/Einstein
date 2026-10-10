@@ -1053,12 +1053,9 @@ TScreenManager::TransferState(TStream* inStream)
 {
 	KUInt32 t;
 
-	inStream->TransferInt32BE(mPortraitWidth);
-	inStream->TransferInt32BE(mPortraitHeight);
-	inStream->TransferInt32BE(mPhysicalWidth);
-	inStream->TransferInt32BE(mPhysicalHeight);
-	inStream->TransferBoolean(mFullScreen);
-	inStream->TransferBoolean(mScreenIsLandscape);
+	// The screen size, full screen and landscape mode are configuration from
+	// the front end and not saved. TEmulator::LoadState() refuses a file
+	// that was saved with a different screen size.
 	inStream->TransferBoolean(mBypassTablet);
 	inStream->TransferBoolean(mTabletIsDown, false);
 	inStream->TransferBoolean(mPenIsDown, false);

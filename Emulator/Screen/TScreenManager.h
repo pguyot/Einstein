@@ -398,6 +398,24 @@ public:
 	virtual void UpdateScreenRect(SRect* inUpdatedRect) = 0;
 
 	///
+	/// Get the screen width in portrait orientation, as configured.
+	///
+	KUInt32
+	GetPortraitWidth(void) const
+	{
+		return mPortraitWidth;
+	}
+
+	///
+	/// Get the screen height in portrait orientation, as configured.
+	///
+	KUInt32
+	GetPortraitHeight(void) const
+	{
+		return mPortraitHeight;
+	}
+
+	///
 	/// Get the screen width (from the orientation)
 	///
 	/// \return the screen width (from the current orientation)
