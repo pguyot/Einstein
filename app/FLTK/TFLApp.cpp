@@ -1604,10 +1604,8 @@ TFLApp::SaveFastStartStateTimer(void* inData)
 		case EFastStartSave::kWaitForSleep:
 			if (!app->mPlatformManager->IsPowerOn())
 			{
-				// The Newton is asleep. Stop the emulator; the monitor saves
-				// while it waits for a command.
-				app->mEmulator->Stop();
-				app->mFastStartSave = EFastStartSave::kWaitForHalt;
+				// The Newton is asleep. Let the monitor thread save it.
+				app->mFastStartSave = EFastStartSave::kSave;
 				app->mFastStartSaveStepStart = SecondsNow();
 			} else if (elapsed > 10.0)
 			{
@@ -1615,32 +1613,32 @@ TFLApp::SaveFastStartStateTimer(void* inData)
 				done = true;
 			}
 			break;
-		case EFastStartSave::kWaitForHalt:
-			if (app->mMonitor->IsHalted())
+		case EFastStartSave::kSave:
+			// The monitor thread stops the emulator, saves, and stays halted,
+			// so nothing changes after the save. It may still be busy for a
+			// moment, so try again.
+			if (app->mMonitor->RequestSaveState(FastStartFilePath().c_str(), true, true))
 			{
-				app->mFastStartSave = EFastStartSave::kSave;
+				app->mFastStartSave = EFastStartSave::kWaitForSave;
 				app->mFastStartSaveStepStart = SecondsNow();
-			} else if (elapsed > 5.0)
-			{
-				KPrintf("Fast start: the emulator did not stop, no state saved.\n");
-				done = true;
-			}
-			break;
-		case EFastStartSave::kSave: {
-			std::string path = FastStartFilePath();
-			// The monitor may still be busy for a moment, so try again.
-			if (app->mMonitor->RequestSaveState(path.c_str(), true))
-			{
-				if (!TFileStream::Exists(path.c_str()))
-					KPrintf("Fast start: could not save the state.\n");
-				done = true;
 			} else if (elapsed > 5.0)
 			{
 				KPrintf("Fast start: the monitor is busy, no state saved.\n");
 				done = true;
 			}
 			break;
-		}
+		case EFastStartSave::kWaitForSave:
+			if (app->mMonitor->IsHalted() && !app->mMonitor->IsStateRequestPending())
+			{
+				if (!TFileStream::Exists(FastStartFilePath().c_str()))
+					KPrintf("Fast start: could not save the state.\n");
+				done = true;
+			} else if (elapsed > 10.0)
+			{
+				KPrintf("Fast start: saving did not finish, quitting anyway.\n");
+				done = true;
+			}
+			break;
 		case EFastStartSave::kIdle:
 			done = true;
 			break;

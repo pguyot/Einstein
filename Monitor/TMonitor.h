@@ -114,11 +114,23 @@ public:
 	///
 	/// Save the emulator state to a file. Call this from the UI thread, while
 	/// the emulator runs or while it is halted. A running emulator is stopped,
-	/// saved, and continues to run. A fast start file holds a checksum of the
-	/// flash instead of its contents (see TEmulator::EStateKind).
+	/// saved, and continues to run, or stays halted if inHaltAfter is set.
+	/// The save is done by the monitor thread, use IsStateRequestPending() to
+	/// see when it is done. A fast start file holds a checksum of the flash
+	/// instead of its contents (see TEmulator::EStateKind).
 	/// \return false if the monitor is busy and the state was not saved.
 	///
-	Boolean RequestSaveState(const char* inPath, Boolean inFastStart = false);
+	Boolean RequestSaveState(const char* inPath, Boolean inFastStart = false, Boolean inHaltAfter = false);
+
+	///
+	/// True while a request from RequestSaveState() and friends waits for the
+	/// monitor thread or is being done.
+	///
+	Boolean
+	IsStateRequestPending() const
+	{
+		return mStateRequest != kStateRequestNone;
+	}
 
 	///
 	/// Load the emulator state from a file, see RequestSaveState().
@@ -454,10 +466,11 @@ protected:
 	std::mutex mStateRequestMutex; ///< Held while the UI queues a request, and while the monitor thread sets mHalted after running.
 	std::string mStateRequestPath; ///< File for mStateRequest, set before mStateRequest.
 	Boolean mStateRequestFastStart { false }; ///< Save a fast start file, set before mStateRequest.
+	Boolean mStateRequestHaltAfter { false }; ///< Stay halted after mStateRequest, set before it.
 	Boolean mSaveFastStart { false }; ///< Kind of file for the "save" command, set before kSaveState.
 
 	/// Hand a save or load request to the monitor thread, or do it right away if halted.
-	Boolean RequestStateTransfer(EStateRequest inRequest, const char* inPath);
+	Boolean RequestStateTransfer(EStateRequest inRequest, const char* inPath, Boolean inHaltAfter = false);
 
 	/// Save or load the state now. The emulator must not be running.
 	void DoStateTransfer(EStateRequest inRequest, const char* inPath);

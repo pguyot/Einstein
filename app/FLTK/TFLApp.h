@@ -235,8 +235,8 @@ private:
 	enum class EFastStartSave {
 		kIdle,
 		kWaitForSleep,
-		kWaitForHalt,
-		kSave
+		kSave,
+		kWaitForSave
 	};
 	EFastStartSave mFastStartSave { EFastStartSave::kIdle };
 

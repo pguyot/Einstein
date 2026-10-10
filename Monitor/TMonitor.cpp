@@ -283,10 +283,11 @@ TMonitor::RunEmulator()
 		// Read the count before the request is cleared: the stop for this
 		// request is done, but a new request after that must stop the next run.
 		KUInt32 theNextStopCount = mEmulator->GetStopCount();
+		Boolean theHaltAfterRequest = mStateRequestHaltAfter;
 		Boolean theRequestDone = ProcessStateRequest();
 		if (theRequestDone)
 			theStopCount = theNextStopCount;
-		if (theRequestDone && !mEmulator->IsBPHalted())
+		if (theRequestDone && !mEmulator->IsBPHalted() && !theHaltAfterRequest)
 		{
 			// After a load, the PC may point to a breakpoint.
 			realPC = mProcessor->GetRegister(15) - 4;
@@ -573,12 +574,12 @@ TMonitor::Stop()
 // RequestSaveState( const char* )
 // -------------------------------------------------------------------------- //
 Boolean
-TMonitor::RequestSaveState(const char* inPath, Boolean inFastStart)
+TMonitor::RequestSaveState(const char* inPath, Boolean inFastStart, Boolean inHaltAfter)
 {
 	if (mStateRequest != kStateRequestNone)
 		return false;
 	mStateRequestFastStart = inFastStart;
-	return RequestStateTransfer(kStateRequestSave, inPath);
+	return RequestStateTransfer(kStateRequestSave, inPath, inHaltAfter);
 }
 
 // -------------------------------------------------------------------------- //
@@ -609,12 +610,12 @@ TMonitor::RequestReset()
 }
 
 // -------------------------------------------------------------------------- //
-// RequestStateTransfer( EStateRequest, const char* )
+// RequestStateTransfer( EStateRequest, const char*, Boolean )
 // -------------------------------------------------------------------------- //
 // Called from the UI thread. The monitor thread holds mMutex at all times,
 // except while it waits for a command.
 Boolean
-TMonitor::RequestStateTransfer(EStateRequest inRequest, const char* inPath)
+TMonitor::RequestStateTransfer(EStateRequest inRequest, const char* inPath, Boolean inHaltAfter)
 {
 	// Only one request at a time.
 	if (mStateRequest != kStateRequestNone)
@@ -639,8 +640,10 @@ TMonitor::RequestStateTransfer(EStateRequest inRequest, const char* inPath)
 	}
 
 	// The emulator is running. Hand the request to the monitor thread and stop
-	// the emulator. RunEmulator() saves or loads, then continues to run.
+	// the emulator. RunEmulator() saves or loads, then continues to run, or
+	// stays halted if inHaltAfter is set.
 	mStateRequestPath = inPath;
+	mStateRequestHaltAfter = inHaltAfter;
 	mStateRequest = inRequest;
 	mEmulator->Stop();
 	return true;
