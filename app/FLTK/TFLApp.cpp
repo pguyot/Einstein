@@ -207,6 +207,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <FL/Fl_Shared_Image.H>
 #include <FL/Fl_Tooltip.H>
 #include <FL/Fl_Window.H>
+#include <FL/filename.H>
 #include <FL/fl_ask.H>
 #include <FL/fl_draw.H>
 #include <FL/x.H>
@@ -701,7 +702,43 @@ TFLApp::UserActionLoadState()
 		fl_alert("No saved state found at\n%s", path.c_str());
 		return;
 	}
-	if (!mMonitor->RequestLoadState(path.c_str()))
+	std::vector<TEmulator::SStateCard> cards;
+	KUInt32 kind = 0;
+	if (!TEmulator::ReadStateCards(path.c_str(), cards, &kind))
+	{
+		fl_alert("The saved state at\n%s\nis damaged or from another version of Einstein.", path.c_str());
+		return;
+	}
+	// Debug states hold the contents of the PC Cards. Cards may be shared with
+	// other emulated Newtons, so ask before a card is overwritten.
+	Boolean overwriteCards = false;
+	if (kind == TEmulator::kDebugState)
+	{
+		std::string names;
+		for (int slot = 0; slot < (int) cards.size(); slot++)
+		{
+			TPCMCIAController* controller = mEmulator->GetMemory()->GetPCMCIAController(slot);
+			TPCMCIACard* card = controller ? controller->CurrentCard() : nullptr;
+			if (card && card->GetImagePath() && card->GetStateTag() == cards[slot].fTag)
+			{
+				if (!names.empty())
+					names += ", ";
+				names += fl_filename_name(card->GetImagePath());
+			}
+		}
+		if (!names.empty())
+		{
+			int choice = fl_choice(
+				"This state also holds the contents of the PC Card %s.\n\n"
+				"Loading it replaces what is on the card now. The card may also be used "
+				"by another emulated Newton.",
+				"Cancel", "Overwrite Card", nullptr, names.c_str());
+			if (choice != 1)
+				return;
+			overwriteCards = true;
+		}
+	}
+	if (!mMonitor->RequestLoadState(path.c_str(), overwriteCards))
 		fl_beep();
 }
 
