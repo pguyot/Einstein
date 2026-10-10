@@ -114,6 +114,18 @@ public:
 	}
 
 	///
+	/// Save or load the contents of the card, for debug state files. The card
+	/// must be the same size. After loading, the contents are written to the
+	/// card's image file as well. Cards without contents (network card) do
+	/// nothing.
+	///
+	virtual void
+	TransferContents(TStream* inStream)
+	{
+		(void) inStream;
+	}
+
+	///
 	/// Get PCMCIA pins.
 	///
 	virtual KUInt32 GetVPCPins(void) = 0;

@@ -39,6 +39,7 @@
 
 #include <errno.h>
 
+#include <algorithm>
 #include <chrono>
 #include <future>
 #include <thread>
@@ -250,6 +251,35 @@ TLinearCard::TransferState(TStream* inStream)
 	inStream->TransferInt32BE(theState, kReadArray);
 	mState = (int) theState;
 	inStream->TransferByte(mStatusRegister, 0x80);
+}
+
+// -------------------------------------------------------------------------- //
+//  * TransferContents( TStream* )
+// -------------------------------------------------------------------------- //
+void
+TLinearCard::TransferContents(TStream* inStream)
+{
+	KUInt32 theCardSize = mMemoryMap ? mSize : 0;
+	KUInt32 theSize = theCardSize;
+	inStream->TransferInt32BE(theSize);
+	if (inStream->IsReading() && theSize != theCardSize)
+		throw std::runtime_error("the size of the linear card does not match");
+	inStream->CheckDataSize(theSize, theCardSize, "the linear card contents");
+	if (theSize == 0)
+		return;
+	if (inStream->IsReading())
+	{
+		// The flush thread holds the mutex while it writes pages to the image.
+		// Write every page to the image file, two seconds from now.
+		std::lock_guard<std::mutex> guard(mMutex);
+		inStream->Transfer(mMemoryMap, &theSize);
+		std::fill(mPageDirty.begin(), mPageDirty.end(), true);
+		if (!mPageFlushPromise)
+			FlushDirtyPagesLater();
+	} else
+	{
+		inStream->Transfer(mMemoryMap, &theSize);
+	}
 }
 
 // -------------------------------------------------------------------------- //

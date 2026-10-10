@@ -166,6 +166,11 @@ public:
 	void TransferState(TStream* inStream) override;
 
 	///
+	/// Save or load the contents of the card (debug state files).
+	///
+	void TransferContents(TStream* inStream) override;
+
+	///
 	/// Get PCMCIA pins.
 	///
 	KUInt32 GetVPCPins(void) override;

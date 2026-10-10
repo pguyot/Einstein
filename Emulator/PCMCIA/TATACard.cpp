@@ -308,6 +308,38 @@ TATACard::GetContentsChecksum(void)
 }
 
 // -------------------------------------------------------------------------- //
+//  * TransferContents( TStream* )
+// -------------------------------------------------------------------------- //
+void
+TATACard::TransferContents(TStream* inStream)
+{
+	KUInt32 theCardSize = (KUInt32) mData.size();
+	KUInt32 theSize = theCardSize;
+	inStream->TransferInt32BE(theSize);
+	if (inStream->IsReading() && theSize != theCardSize)
+		throw std::runtime_error("the size of the ATA card does not match");
+	inStream->CheckDataSize(theSize, theCardSize, "the ATA card contents");
+	if (theSize == 0)
+		return;
+	inStream->Transfer(mData.data(), &theSize);
+	if (inStream->IsReading())
+	{
+		// Write the restored contents to the image file as well.
+		if (!mFile || mReadOnly
+			|| fseek(mFile, 0, SEEK_SET) != 0
+			|| fwrite(mData.data(), 1, mData.size(), mFile) != mData.size()
+			|| fflush(mFile) != 0)
+		{
+			KPrintf("ATA card: the restored contents could not be written to %s.\n",
+				mFilePath ? mFilePath : "the image file");
+		} else
+		{
+			FlushImage();
+		}
+	}
+}
+
+// -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
