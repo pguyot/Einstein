@@ -287,8 +287,11 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
     changed the author part of the app symbol, so the built-in app and a copy
     installed in the flash can coexist (with the same symbol, neither
     appeared, and only a Brain Wipe brought the app back; a Hardware Reset
-    was not enough). Next version (Matt): not a separate app, but a new item
-    in the built-in Newton preferences.
+    was not enough). The package name also had to change
+    (`EinsteinPrefs:EINSTEIN`, was `EinsteinPrefs:MATTWM`, `010c1323`):
+    with the same package name, NewtonOS reported a conflict at every start.
+    Next version (Matt): not a separate app, but a new item in the built-in
+    Newton preferences.
 12. **Documentation** (Matt, 2026-10-11): write new release notes next, and
     refresh the documentation, maybe with a help page. Release notes drafted
     in `ReleaseNotes.md` and `ReleaseText.md` (version "v2026.10.x": Matt
