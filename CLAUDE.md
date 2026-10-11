@@ -299,8 +299,8 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
     Newton preferences.
 12. **Documentation** (Matt, 2026-10-11): write new release notes next, and
     refresh the documentation, maybe with a help page. Release notes drafted
-    in `ReleaseNotes.md` and `ReleaseText.md` (version "v2026.10.x": Matt
-    sets it when tagging); also added the v2026.10.6 text that was only on
+    in `ReleaseNotes.md` and `ReleaseText.md` (version 2026.10.11, tag
+    `v2026.10.11rc1`); also added the v2026.10.6 text that was only on
     GitHub. User guide: `Documentation/UserGuide.md` (Matt chose Markdown in
     the repository; `4c16c77a`), following Matt's outline in TFLApp.cpp;
     Help › User Manual opens it on GitHub (`94a12134`). The old LaTeX manual
