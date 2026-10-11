@@ -57,14 +57,12 @@ When you start Einstein, the Settings window opens.
    computer's date and time.
 5. Leave *Fast start: continue where Einstein was quit* on (see
    [section 6](#6-fast-start-saving-and-restoring)).
-6. Click **Start**.
+6. If you check **Don't show at startup**, Einstein starts the Newton right away
+   next time. You can open the Settings any time with **Window › Settings...**.
+7. Click **Start**.
 
 The Newton starts. The first start takes a little longer, while NewtonOS sets
 up the new flash.
-
-If you check **Don't show at startup**, Einstein starts the Newton right away
-next time. You can open the Settings any time with **Window › Settings...**.
-Most settings take effect when you start Einstein the next time.
 
 To quit, choose **File › Quit** or close the window.
 
@@ -80,7 +78,8 @@ Einstein users want:
 - **NewtonOS Y2K10 Fix.** NewtonOS has a bug with dates after January 5,
   2010. Choose the patch that matches your ROM (German MP2x00 or eMate 300).
   Read the warning in the window before you install a patch.
-  <!-- TODO(Matt): why is there no patch for the US MP2x00 ROM (717006)? Does Einstein fix it itself? -->
+  The US MP2x00 ROM (717006) is patched by Einstein itself, so you do not
+  need to install a patch for it.
 - **NIE, the Newton Internet Enabler**, and the **Einstein Network Card
   driver**, for networking (see [section 10](#10-networking)).
 - **Courier**, a web browser, and **ViewFrame**, a tool for programmers.
@@ -89,7 +88,8 @@ Einstein downloads these packages from the Internet and installs them on the
 Newton.
 
 <!-- TODO(Matt): the outline mentions the built-in NewtTest. What is it for? -->
-
+<!-- NewtTest is a program that tests some Newton functionality and outputs
+     some statistics, including emulation speed -->
 
 ## 4. The main window
 
@@ -198,6 +198,7 @@ The Newton has two PC Card slots. Einstein emulates three kinds of cards:
 
 - **Linear flash cards** (2 MB to 32 MB), like the Newton memory cards.
 - **ATA flash cards** (4 MB to 64 MB), like CompactFlash cards in an adapter.
+  ATA card emulation requires Paul Guyot's ATA card driver installed on the Newton.
 - **The Einstein Network Card**, for networking (see
   [section 10](#10-networking)).
 
@@ -235,6 +236,10 @@ the same time.
 
 <!-- TODO(Matt): how to make an image from a physical card ("dump physical cards") -->
 
+Einstein ATA card files use the same format as Newton's ATA cards. You can
+dump the snapshot of a physical card, mount it in Einstein (tested, working),
+and write the image back to the physical card (untested).
+
 
 ## 9. Serial port and Dock
 
@@ -243,7 +248,7 @@ back up and synchronize data ("Dock"). In Einstein, the serial port is
 connected to a program on your computer instead of a cable.
 
 To set it up, open **Einstein Prefs** on the Newton (the *Einstein* icon in
-the Extras drawer or at the end of the button bar) and tap
+the Extras drawer) and tap
 **Serial Port Driver**:
 
 - **Driver** chooses how the serial port is connected:
@@ -306,9 +311,11 @@ the Monitor when Einstein starts.
 
 - Infrared beaming between Newtons is not emulated.
 - Alarms set in Dates don't go off, and an alarm can't wake the Newton.
-- Several configurations (several emulated Newtons with their own settings)
+- Multiple configurations (several emulated Newtons with their own settings)
   are planned, but not available yet.
-- The Edit menu (Cut, Copy, Paste) doesn't work yet.
+- The Edit menu (Cut, Copy, Paste) doesn't work yet. However, moving selected
+  text to the left or right screen edge makes the text available in the host's
+  paste buffer.
 
 
 ## 13. More resources
