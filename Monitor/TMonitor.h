@@ -163,9 +163,11 @@ public:
 	///
 	/// Reset the machine (see TEmulator::ResetState()). Call from the UI
 	/// thread, see RequestSaveState(). A running emulator continues to run.
+	/// With inZAPMemory, it is a Brain Wipe: NewtonOS offers to erase the
+	/// flash when it boots.
 	/// \return false if the monitor is busy and the machine was not reset.
 	///
-	Boolean RequestReset();
+	Boolean RequestReset(Boolean inZAPMemory = false);
 
 	///
 	/// Print help for the available commands.
@@ -483,6 +485,7 @@ protected:
 	Boolean mSaveFastStart { false }; ///< Kind of file for the "save" command, set before kSaveState.
 	Boolean mLoadOverwriteCards { false }; ///< "load overwrite": replace changed card contents, set before kLoadState.
 	Boolean mStateRequestOverwriteCards { false }; ///< Load request may replace changed card contents, set before mStateRequest.
+	Boolean mStateRequestZAPMemory { false }; ///< Reset request is a Brain Wipe, set before mStateRequest.
 	std::atomic<bool> mLastStateRequestOK { true }; ///< Result of the last save or load request, see LastStateRequestSucceeded().
 
 	/// Hand a save or load request to the monitor thread, or do it right away if halted.

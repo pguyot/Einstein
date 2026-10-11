@@ -607,8 +607,11 @@ TMonitor::RequestCheckState(const char* inBasePath)
 // RequestReset( void )
 // -------------------------------------------------------------------------- //
 Boolean
-TMonitor::RequestReset()
+TMonitor::RequestReset(Boolean inZAPMemory)
 {
+	if (mStateRequest != kStateRequestNone)
+		return false;
+	mStateRequestZAPMemory = inZAPMemory;
 	return RequestStateTransfer(kStateRequestReset, "");
 }
 
@@ -664,6 +667,10 @@ TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
 		CheckStateRoundTrip(inPath);
 	} else if (inRequest == kStateRequestReset)
 	{
+		// Brain Wipe: NewtonOS offers to erase the flash when it boots. Set
+		// here, with the emulator stopped, so a refused request leaves nothing.
+		if (mStateRequestZAPMemory)
+			mEmulator->ZAPMemory(true);
 		mEmulator->ResetState();
 		PrintLine("Machine reset", MONITOR_LOG_INFO);
 	} else if (inRequest == kStateRequestSave)
