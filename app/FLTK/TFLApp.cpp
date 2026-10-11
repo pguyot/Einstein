@@ -194,6 +194,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <time.h>
 
 // C++17
+#include <algorithm>
 #include <chrono>
 #include <filesystem>
 #include <thread>
@@ -321,7 +322,6 @@ TFLApp::Run(int argc, char* argv[])
 
 	// mLog = new TStdOutLog();
 
-	int ramSize = mFLSettings->RAMSize;
 	Boolean hidemouse = (Boolean) mFLSettings->hideMouse;
 
 	KPrintf("Welcome to Einstein console.\n");
@@ -376,9 +376,18 @@ TFLApp::Run(int argc, char* argv[])
 	// MP2000: 1MB Dynamic RAM, 4MB Flash RAM
 	// MP2100: 4MB Dynamic RAM, 4MB Flash RAM
 	// eMate:  1MB Dynamic RAM, 2MB Flash RAM
+	// The RAM size is counted in 64 KB pages. The boot code's RAM test
+	// (DiagBootStub, ROM 0x00019A10) only passes if the number of pages
+	// divided by 3 leaves 1 (16, 64, 127, 253, ...), and the hardware
+	// register holds at most 255 pages.
+	int ramPages = std::clamp(mFLSettings->RAMSize, 16, 253);
+	ramPages -= (ramPages + 2) % 3;
+	if (ramPages != mFLSettings->RAMSize)
+		KPrintf("RAM size changed from %d to %d pages of 64 KB, so the ROM's RAM test passes.\n",
+			mFLSettings->RAMSize, ramPages);
 	mEmulator = new TEmulator(mLog, mROMImage, theFlashPath,
 		mSoundManager, mScreenManager, mNetworkManager,
-		ramSize << 16, printerManager);
+		ramPages << 16, printerManager);
 
 	mPlatformManager = mEmulator->GetPlatformManager();
 	printerManager->SetMemory(mEmulator->GetMemory());

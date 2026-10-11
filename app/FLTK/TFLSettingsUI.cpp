@@ -489,8 +489,8 @@ void TFLSettingsUI::cb_wFlashPathChoose(Fl_Button* o, void* v) {
 Fl_Menu_Item TFLSettingsUI::menu_wRAMSizeChoice[] = {
  {"1MB (MP2000/eMate)", 0,  0, (void*)(16), 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"4MB (MP2100)", 0,  0, (void*)(64), 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
- {"8MB", 0,  0, (void*)(128), 1, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
- {"15.9MB (maximum)", 0,  0, (void*)(255), 1, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"8MB", 0,  0, (void*)(127), 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"16MB (maximum)", 0,  0, (void*)(253), 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {0,0,0,0,0,0,0,0,0}
 };
 
@@ -2102,9 +2102,9 @@ void TFLSettingsUI::revertDialog() {
   else if (RAMSize<=64)
   	wRAMSizeChoice->value(1);
   else if (RAMSize<=128)
-  	wRAMSizeChoice->value(1);
+  	wRAMSizeChoice->value(2);
   else
-  	wRAMSizeChoice->value(1);
+  	wRAMSizeChoice->value(3);
 
   wFetchDateAndTime->value(mFetchDateAndTime);
   wFastStart->value(mFastStart);
