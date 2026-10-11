@@ -105,11 +105,13 @@ and missing states and make a fast start the default.
 
 **Status (2026-10-11):** Done and on by default in the FLTK app, on branch
 `FastWakeup`, [PR #225](https://github.com/pguyot/Einstein/pull/225) against
-pguyot/Einstein. The first review (CodeRabbit, Greptile) found missing checks
-when reading damaged state files, a crash when the screen size changes, two
-races and serial workers that were not suspended; the second review found
-three more (oversized files at launch, a refused value left behind, blocking
-serial writes under the DMA mutex). All fixed (commits below). Testing also
+pguyot/Einstein. Four review rounds (CodeRabbit, Greptile), all fixed
+(commits below): missing checks when reading damaged state files, a crash
+when the screen size changes, two races, serial workers that were not
+suspended; then oversized files at launch, a refused value left behind,
+blocking serial writes under the DMA mutex; then a failed restore that had
+already replaced flash and cards, ATA write errors, the Brain Wipe flag;
+then linear card write errors. The last review found nothing more. Testing also
 found that no platform event reached NewtonOS after a Hardware Reset or a
 NewtonScript Reboot (fixed). The investigation notes this work
 started from (bug list, missing-state table, step-by-step logs) are in the
@@ -217,6 +219,9 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
 | Review 2 | `fee76444` | Files over 256 MB or without `EINISNAP` refused before allocating |
 | Review 2 | `6f4f966c` | Values checked before they replace the current ones (breakpoints, pen positions, event and buffer sizes) |
 | Review 2 | `a5f867bd` | Non-blocking serial writes for BasiliskII and TCP; TCP connects outside the DMA mutex |
+| Review 3 | `58a1fcf3` | Storage (card contents, flash) last in the file; card size and writability checked up front (version 13) |
+| Review 3 | `1554a7ce` | Brain Wipe through the reset request |
+| Review 4 | `d5bdbbba` | Linear cards write restored contents at once and refuse read-only images |
 
 **Testing notes**
 - Tests used an lldb Python driver on a sandboxed debug build (save, load, tap,
@@ -245,10 +250,10 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
    paths ≤ 2048 bytes, linear cards ≤ 64 MB + CIS, CRC if it is fast enough);
    no lost Monitor requests (both windows reproduced with delays, then fixed);
    all serial workers suspended; checked close; the version message.
-2. ~~Push and answer the first review~~ done 2026-10-10. Push the second
-   round (`fee76444` … `a5f867bd`) and answer Greptile's three new comments.
-   Codacy reports 76 markdownlint style issues in CLAUDE.md and one generic
-   flawfinder `strlen` warning (a NUL-terminated path); not changed.
+2. ~~Push and answer the reviews~~ done 2026-10-11 (four rounds, last push
+   `d5bdbbba`). Codacy reports markdownlint style issues in the Markdown
+   files and one generic flawfinder `strlen` warning (a NUL-terminated path);
+   not changed.
 
 *After merging*
 3. ~~NewtonScript Reboot blocks all later platform events~~ fixed
