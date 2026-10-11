@@ -1271,14 +1271,19 @@ TFLApp::UserActionInstallEssentials()
 		// Y2K10
 		addInstallerGroup("NewtonOS Y2K10 Fix");
 		addInstallerText("NewtonOS has a bug in handling years past 18:48:31 on January 5, 2010. "
-						 "Einstein contains a fix for US MP2x00 MessagePads, but "
-						 "for eMates and German MP2x00 MessagePads, "
-						 "the patch below will fix all date issues until 2026.\n\n"
+						 "US MP2x00 MessagePads must be upgraded to NOS 2.1. "
+						 "German MP2x00 MessagePads and eMates must apply the Y2K10 patch. "
+						 "The patch below will fix all date issues until 2026.\n\n"
 						 "Please install this patch before installing anything else, "
 						 "as this will wipe your Newton's memory.");
 		addInstallerLink("explained by Eckhart Köppen", new StringList { ":https://40hz.org/Pages/newton/hacking/newton-year-2010-problem/" });
 		addInstallerLink("Readme file for the patch", new StringList { "MDownloads/Einstein/Essentials/y2k10/README.txt" });
 		addInstallerText("Please select the patch that matches the ROM image of your machine:");
+		addInstallerPackage("U.S. NOS 2.1 patch", new StringList { "WInstalling this patch may irreversibly erase all data\n"
+																   "on your MessagePad.\n\n"
+																   "Please proceed only if this a new device, or if your\n"
+																   "data is securely backed up!",
+													  "Uunna/apple/software/SystemPatches/english/2x00/mp717260.pkg" });
 		addInstallerPackage("German MP2x00 patch", new StringList { "WInstalling this patch may irreversibly erase all data\n"
 																	"on your MessagePad.\n\n"
 																	"Please proceed only if this a new device, or if your\n"
@@ -1299,6 +1304,15 @@ TFLApp::UserActionInstallEssentials()
 		addInstallerPackage("Apple NIE packages", new StringList { "WThis will install four packages on your Newton\nwhich may take a little while.", "Uunna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg", "Uunna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg", "Uunna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg", "Uunna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg" });
 		addInstallerPackage("Einstein Network Card driver", new StringList { "MDownloads/Einstein/Essentials/NIE/NE2K.pkg" });
 		addInstallerScript("Open Internet Setup", new StringList { "SGetRoot().|InternetSetup:NIE|:Open();" });
+
+		addInstallerText("Choose the following Internet Setup:\n"
+						 "- Generic Setup\n"
+						 "- Connect Using > Ethernet\n"
+						 "- Setup Name > Einstein\n"
+						 "- Configuration > DHCP Server\n"
+						 "- Card > PCMCIA Ethernet\n"
+						 "- Domain Name > einstein.net");
+
 		// NewtonScript: Reboot(), Sleep(), PowerOff()
 		// PlaySoundSync()
 		// ROM_alarmWakeup
