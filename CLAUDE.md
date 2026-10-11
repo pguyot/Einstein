@@ -279,6 +279,13 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
    are replaced", PC Cards named); errors show their reason
    (`TEmulator::GetLastStateError()`). Wording chosen by Claude; Matt to
    review. Not tested by hand yet: the dialogs and the file choosers.
+13. **Einstein Prefs** is built into the REx since `54927697`
+    (`Drivers/EinsteinPrefs`, precompiled package; source to follow). Matt
+    changed the author part of the app symbol, so the built-in app and a copy
+    installed in the flash can coexist (with the same symbol, neither
+    appeared, and only a Brain Wipe brought the app back; a Hardware Reset
+    was not enough). Next version (Matt): not a separate app, but a new item
+    in the built-in Newton preferences.
 12. **Documentation** (Matt, 2026-10-11): write new release notes next, and
     refresh the documentation, maybe with a help page. Release notes drafted
     in `ReleaseNotes.md` and `ReleaseText.md` (version "v2026.10.x": Matt

@@ -7,3 +7,6 @@ Newton, for example the driver of the serial port (Extras › Einstein, or the
 `EinsteinPrefs.pkg` is built into the Einstein REx (see `../Einstein.rex.src`).
 For now, only the compiled package is here. The source code (a Newton Toolkit
 project) will be added later.
+
+The next version will not be a separate app, but a new item in the built-in
+Newton preferences.
