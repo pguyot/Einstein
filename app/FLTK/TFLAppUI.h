@@ -28,11 +28,11 @@ extern Fl_Button *wNetworkOnTool;
 extern Fl_Box *wSpacer;
 TFLAppWindow* CreateApplicationWindow(int x, int y);
 extern Fl_Menu_Item menu_wMenubar[];
-#define wPCCardSlot1 (menu_wMenubar+28)
-#define wPCCardSlot0 (menu_wMenubar+29)
-#define wMenuItemFullscreen (menu_wMenubar+41)
-#define wMenuItemMonitor (menu_wMenubar+42)
-#define wMenuItemToolkit (menu_wMenubar+43)
-#define wMenuItemEssentials (menu_wMenubar+50)
-#define wMenuItemAbout (menu_wMenubar+51)
+#define wPCCardSlot1 (menu_wMenubar+29)
+#define wPCCardSlot0 (menu_wMenubar+30)
+#define wMenuItemFullscreen (menu_wMenubar+42)
+#define wMenuItemMonitor (menu_wMenubar+43)
+#define wMenuItemToolkit (menu_wMenubar+44)
+#define wMenuItemEssentials (menu_wMenubar+51)
+#define wMenuItemAbout (menu_wMenubar+52)
 #endif

@@ -1154,24 +1154,86 @@ TFLApp::UserActionPrintScreen()
 void
 TFLApp::UserActionSnapScreen()
 {
-	static std::string prev_filename;
 	const char* filename = ChooseNewFile(
 		"Save Snapshot to PNG Image File",
 		"PNG Image\t*.png",
-		prev_filename.c_str());
+		mScreenshotPath.c_str());
 	if (!filename)
 		return;
-	prev_filename = filename;
 
 	char buf[FL_PATH_MAX];
-	strncpy(buf, filename, sizeof(buf));
+	strncpy(buf, filename, sizeof(buf) - 1);
+	buf[sizeof(buf) - 1] = 0;
 	fl_filename_setext(buf, sizeof(buf), ".png");
-	int ret = mScreenManager->TakeSnapshot(buf);
+	SaveScreenshot(buf);
+}
+
+/**
+ Return the path of the screenshot after inPath: the last number in the file
+ name counts up, keeping its leading zeros ("Shot_009.png" -> "Shot_010.png").
+ A name without a number gets "_000" ("Shot.png" -> "Shot_000.png").
+ */
+static std::string
+NextScreenshotPath(const std::string& inPath)
+{
+	std::string::size_type nameStart = inPath.find_last_of("/\\");
+	nameStart = (nameStart == std::string::npos) ? 0 : nameStart + 1;
+	std::string::size_type dot = inPath.rfind('.');
+	if (dot == std::string::npos || dot < nameStart)
+		dot = inPath.size();
+	std::string stem = inPath.substr(0, dot);
+	std::string ext = inPath.substr(dot);
+
+	std::string::size_type last = stem.find_last_of("0123456789");
+	if (last == std::string::npos || last < nameStart)
+		return stem + "_000" + ext;
+	std::string::size_type first = last;
+	while (first > nameStart && isdigit((unsigned char) stem[first - 1]))
+		first--;
+
+	// Count up in the string, so any number of digits works
+	std::string number = stem.substr(first, last - first + 1);
+	int i = (int) number.size() - 1;
+	while (i >= 0 && number[i] == '9')
+		number[i--] = '0';
+	if (i < 0)
+		number.insert(0, "1");
+	else
+		number[i]++;
+	return stem.substr(0, first) + number + stem.substr(last + 1) + ext;
+}
+
+/**
+ Save a screenshot under the previous name with the next number, without
+ asking. Files that already exist are skipped. Before the first screenshot,
+ this is the same as Screenshot..., which asks for the file.
+ */
+void
+TFLApp::UserActionSnapNextScreen()
+{
+	if (mScreenshotPath.empty())
+	{
+		UserActionSnapScreen();
+		return;
+	}
+	std::string path = mScreenshotPath;
+	do
+		path = NextScreenshotPath(path);
+	while (fl_access(path.c_str(), 0) == 0);
+	SaveScreenshot(path);
+}
+
+void
+TFLApp::SaveScreenshot(const std::string& inPath)
+{
+	int ret = mScreenManager->TakeSnapshot(inPath);
 	// A more detailed error handling would be nice.
 	if (ret != 0)
 	{
-		fl_message("Error writing PNG image file\n%s", buf);
+		fl_message("Error writing PNG image file\n%s", inPath.c_str());
+		return;
 	}
+	mScreenshotPath = inPath;
 }
 
 #define BP fl_begin_polygon()

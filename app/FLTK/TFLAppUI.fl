@@ -121,7 +121,12 @@ o->show();
         MenuItem {} {
           label {Screenshot...}
           callback {gApp->UserActionSnapScreen();}
-          xywh {0 0 100 20} shortcut 0x41006a divider
+          xywh {0 0 100 20} shortcut 0x41006a
+        }
+        MenuItem {} {
+          label {Next Screenshot}
+          callback {gApp->UserActionSnapNextScreen();}
+          xywh {0 0 100 20} shortcut 0x41006b divider
         }
         MenuItem {} {
           label Quit

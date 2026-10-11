@@ -165,6 +165,9 @@ public:
 	// User wants to save a screenshot to a png file
 	void UserActionSnapScreen();
 
+	// User wants to save the next screenshot under the previous name, numbered
+	void UserActionSnapNextScreen();
+
 	// User wants to install essential software from UNNA and friends.
 	void UserActionInstallEssentials();
 
@@ -263,6 +266,10 @@ private:
 	void RestoreStateFrom(const std::string& inPath);
 	void WaitForStateAction(EStateAction inAction, const std::string& inPath);
 	static void StateActionTimer(void* inData);
+
+	// The last screenshot saved, for Next Screenshot (empty: none yet)
+	std::string mScreenshotPath;
+	void SaveScreenshot(const std::string& inPath);
 
 	// When the current step of saving the fast start file started, in seconds
 	double mFastStartSaveStepStart { 0.0 };

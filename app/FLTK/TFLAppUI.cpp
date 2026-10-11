@@ -239,6 +239,10 @@ static void cb_Screenshot(Fl_Menu_*, void*) {
   gApp->UserActionSnapScreen();
 }
 
+static void cb_Next(Fl_Menu_*, void*) {
+  gApp->UserActionSnapNextScreen();
+}
+
 static void cb_Quit(Fl_Menu_*, void*) {
   gApp->UserActionQuit();
 }
@@ -324,7 +328,8 @@ Fl_Menu_Item menu_wMenubar[] = {
  {"", 0,  0, 0, 145, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Page Setup...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Print...", FL_COMMAND|FL_SHIFT|'p',  (Fl_Callback*)cb_Print, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Screenshot...", FL_COMMAND|FL_SHIFT|'j',  (Fl_Callback*)cb_Screenshot, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Screenshot...", FL_COMMAND|FL_SHIFT|'j',  (Fl_Callback*)cb_Screenshot, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Next Screenshot", FL_COMMAND|FL_SHIFT|'k',  (Fl_Callback*)cb_Next, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Quit", FL_COMMAND|'q',  (Fl_Callback*)cb_Quit, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {"Edit", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
