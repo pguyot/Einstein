@@ -103,6 +103,7 @@ const int TMemory::kSerialNumberCRC[256] = {
 };
 
 #undef min
+#undef max // Windows headers define it as a macro
 #define min(a, b) (a) < (b) ? (a) : (b)
 
 // -------------------------------------------------------------------------- //

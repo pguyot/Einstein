@@ -58,6 +58,10 @@
 #include <algorithm>
 #include <new>
 
+// Windows headers define min and max as macros.
+#undef min
+#undef max
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //

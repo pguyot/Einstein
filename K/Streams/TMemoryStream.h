@@ -30,6 +30,10 @@
 #include <cstring>
 #include <vector>
 
+// Windows headers define min and max as macros.
+#undef min
+#undef max
+
 ///
 /// A stream in memory. Header only, so the build files of all front ends
 /// don't need to know about it.
