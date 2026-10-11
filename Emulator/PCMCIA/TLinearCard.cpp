@@ -254,6 +254,20 @@ TLinearCard::TransferState(TStream* inStream)
 }
 
 // -------------------------------------------------------------------------- //
+//  * CanWriteContents( void )
+// -------------------------------------------------------------------------- //
+// True if the image file can be opened for writing. It stays open, as the
+// flush thread would keep it open too.
+Boolean
+TLinearCard::CanWriteContents(void)
+{
+	std::lock_guard<std::mutex> guard(mMutex);
+	if (!mFile && mFilePath)
+		mFile = fopen(mFilePath, "r+b");
+	return mFile != nullptr;
+}
+
+// -------------------------------------------------------------------------- //
 //  * TransferContents( TStream* )
 // -------------------------------------------------------------------------- //
 void
@@ -274,13 +288,23 @@ TLinearCard::TransferContents(TStream* inStream)
 		inStream->Transfer(theContents.data(), &theSize);
 		if (::memcmp(theContents.data(), mMemoryMap, theSize) == 0)
 			return;
-		// The flush thread holds the mutex while it writes pages to the image.
-		// Write every page to the image file, two seconds from now.
+		// Write the image file first, like the ATA card, so memory and file
+		// never differ, and a write error fails the load
+		// (TEmulator::LoadState() checked that the file is writable, so this
+		// is a disk error). The flush thread holds the same mutex while it
+		// writes pages; afterwards no page is dirty any more.
 		std::lock_guard<std::mutex> guard(mMutex);
+		if (!mFile && mFilePath)
+			mFile = fopen(mFilePath, "r+b");
+		if (!mFile
+			|| ::fseek(mFile, (long) mImageInfo.pDataStart, SEEK_SET) != 0
+			|| ::fwrite(theContents.data(), 1, theSize, mFile) != theSize
+			|| ::fflush(mFile) != 0)
+		{
+			throw std::runtime_error("the linear card image could not be written and may be damaged");
+		}
 		::memcpy(mMemoryMap, theContents.data(), theSize);
-		std::fill(mPageDirty.begin(), mPageDirty.end(), true);
-		if (!mPageFlushPromise)
-			FlushDirtyPagesLater();
+		std::fill(mPageDirty.begin(), mPageDirty.end(), false);
 	} else
 	{
 		inStream->Transfer(mMemoryMap, &theSize);

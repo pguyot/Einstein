@@ -170,6 +170,11 @@ public:
 	}
 
 	///
+	/// Return false if the image file can't be written.
+	///
+	Boolean CanWriteContents(void) override;
+
+	///
 	/// Save or load the state of the flash command state machine.
 	///
 	void TransferState(TStream* inStream) override;
