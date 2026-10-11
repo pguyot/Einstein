@@ -769,7 +769,10 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 		if (!theMatch)
 			return false;
 		for (const char* theName : theReplaced)
+		{
+			(void) theName; // Avoid unused variable warning
 			KPrintf("Loading the state from %s replaces the %s.\n", inPath, theName);
+		}
 
 		// Skip the inserted cards, see ReadStateCards().
 		for (int socketIx = 0; socketIx < kNbSockets; socketIx++)

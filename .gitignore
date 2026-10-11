@@ -2,6 +2,7 @@
 .vs/
 .idea/
 build/
+/build-sign
 bin/
 lib/
 DerivedData/
