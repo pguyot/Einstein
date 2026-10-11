@@ -38,6 +38,8 @@ package			"obj/EinsteinNativeCalls.pkg"
 package			"PrinterDriver/printerDriver.pkg"
 // Handlers & NS runtime.
 package		"NSRuntime/Einstein NS Runtime.pkg"
+// Einstein Prefs: settings for the emulator (serial port driver) in NewtonOS.
+package				"EinsteinPrefs/EinsteinPrefs.pkg"
 // NewtTest 1.1i
 package				"packages/NewtTest11i.pkg"
 package				"packages/NTHelp10.PKG"

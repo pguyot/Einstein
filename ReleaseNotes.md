@@ -19,6 +19,9 @@ User Release Notes
    reset button of a real Newton (the memory is kept).
  - After "NewtonScript Reboot", the keyboard, the power button and package
    installation work again.
+ - Einstein Prefs, the app that sets up the serial port from inside the
+   Newton, is now built in (Extras › Einstein). You don't need to install it
+   any more.
  - Fast start and states are available in the FLTK version (macOS,
    Windows, Linux), not in the older native macOS (Cocoa) version.
 
