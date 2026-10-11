@@ -161,6 +161,15 @@ public:
 	KUInt32 GetContentsChecksum(void) override;
 
 	///
+	/// Return the size of the card's memory.
+	///
+	KUInt32
+	GetContentsSize(void) override
+	{
+		return mMemoryMap ? mSize : 0;
+	}
+
+	///
 	/// Save or load the state of the flash command state machine.
 	///
 	void TransferState(TStream* inStream) override;

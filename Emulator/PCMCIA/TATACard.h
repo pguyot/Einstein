@@ -90,6 +90,24 @@ public:
 	KUInt32 GetContentsChecksum(void) override;
 
 	///
+	/// Return the size of the image in memory.
+	///
+	KUInt32
+	GetContentsSize(void) override
+	{
+		return (KUInt32) mData.size();
+	}
+
+	///
+	/// Return false if the image file can't be written.
+	///
+	Boolean
+	CanWriteContents(void) override
+	{
+		return mFile && !mReadOnly;
+	}
+
+	///
 	/// Save or load the task file registers, the FIFO and the state.
 	///
 	void TransferState(TStream* inStream) override;

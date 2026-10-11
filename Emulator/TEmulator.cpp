@@ -87,7 +87,9 @@
 // Version 10: screen size must match and is no longer loaded.
 // Version 11: CRC32 of the file at the end.
 // Version 12: debug files hold the contents of the PCMCIA cards.
-static const KUInt32 kStateFileVersion = 12;
+// Version 13: the size of each card's contents must match; the storage (card
+//             contents, flash) comes last in the file.
+static const KUInt32 kStateFileVersion = 13;
 
 // Largest state file we read: 16 MB of RAM, the 4 MB flash, and the contents
 // of two cards (ATA cards up to 128 MB each, linear cards up to 64 MB).
@@ -98,7 +100,7 @@ static const long kMaxStateFileSize = 512 * 1024 * 1024;
 static const KUInt32 kMaxStatePathLength = 2048;
 
 // Number of values written by TEmulator::GetStateIdentity().
-static const size_t kStateIdentitySize = 5 + 2 * kNbSockets;
+static const size_t kStateIdentitySize = 5 + 3 * kNbSockets;
 
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
@@ -726,12 +728,13 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 		std::vector<KUInt32> theCurrent = GetStateIdentity();
 		static const char* const kIdentityNames[] = {
 			"ROM", "RAM size", "flash", "screen width", "screen height",
-			"card in socket 0", "contents of the card in socket 0",
-			"card in socket 1", "contents of the card in socket 1"
+			"card in socket 0", "size of the card in socket 0", "contents of the card in socket 0",
+			"card in socket 1", "size of the card in socket 1", "contents of the card in socket 1"
 		};
 		static_assert(sizeof(kIdentityNames) / sizeof(kIdentityNames[0]) == kStateIdentitySize,
 			"Update kIdentityNames when GetStateIdentity() changes");
 		Boolean theMatch = true;
+		std::vector<const char*> theReplaced; // card contents that will be overwritten
 		for (size_t i = 0; i < theCurrent.size(); i++)
 		{
 			KUInt32 theSaved = theStream->GetInt32BE();
@@ -742,10 +745,20 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 				continue;
 			// Debug files hold the card contents too, but cards may be shared
 			// with other emulated Newtons, so only overwrite them if asked to.
-			Boolean theIsCardContents = (i >= 5) && ((i - 5) % 2 == 1);
+			Boolean theIsCardContents = (i >= 5) && ((i - 5) % 3 == 2);
 			if (theIsCardContents && theKind == kDebugState && inOverwriteCards)
 			{
-				KPrintf("Loading the state from %s replaces the %s.\n", inPath, kIdentityNames[i]);
+				// Refuse now, before anything changes, if the card can't take it.
+				TPCMCIAController* theController = mMemory.GetPCMCIAController((int) ((i - 5) / 3));
+				TPCMCIACard* theCard = theController ? theController->CurrentCard() : nullptr;
+				if (theCard && !theCard->CanWriteContents())
+				{
+					StateError("Not loading the state from %s: the %s can't be replaced (the image file is read-only).",
+						inPath, kIdentityNames[i]);
+					theMatch = false;
+					continue;
+				}
+				theReplaced.push_back(kIdentityNames[i]);
 				continue;
 			}
 			StateError("Not loading the state from %s: the %s changed.", inPath, kIdentityNames[i]);
@@ -755,6 +768,8 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 		}
 		if (!theMatch)
 			return false;
+		for (const char* theName : theReplaced)
+			KPrintf("Loading the state from %s replaces the %s.\n", inPath, theName);
 
 		// Skip the inserted cards, see ReadStateCards().
 		for (int socketIx = 0; socketIx < kNbSockets; socketIx++)
@@ -860,6 +875,7 @@ TEmulator::GetStateIdentity()
 		TPCMCIAController* theController = mMemory.GetPCMCIAController(socketIx);
 		TPCMCIACard* theCard = theController ? theController->CurrentCard() : nullptr;
 		theIdentity.push_back(theCard ? theCard->GetStateTag() : 0);
+		theIdentity.push_back(theCard ? theCard->GetContentsSize() : 0);
 		theIdentity.push_back(theCard ? theCard->GetContentsChecksum() : 0);
 	}
 	return theIdentity;
@@ -891,7 +907,7 @@ TEmulator::TransferState(TStream* inStream)
 	};
 
 	// First, save the memory.
-	StartSection("memory (registers, ROM, RAM, breakpoints, MMU, flash)");
+	StartSection("memory (registers, ROM, RAM, breakpoints, MMU)");
 	mMemory.TransferState(inStream);
 
 	// Then the CPU.
@@ -935,6 +951,26 @@ TEmulator::TransferState(TStream* inStream)
 	// belong to the host thread, not to the emulated machine, and are not saved.
 	StartSection("emulator (Newton ID)");
 	inStream->TransferInt32ArrayBE(mNewtonID, 2);
+
+	// The storage comes last, only in debug files: the PC Card contents, then
+	// the flash. Everything above is loaded and checked by now, so a file
+	// that doesn't fit is refused before the user's storage is replaced. The
+	// card images come first, because only writing them can fail.
+	if (!inStream->IsResetting())
+	{
+		StartSection("storage (PC Card contents, flash)");
+		if (inStream->TransferFlags() & kStateIncludesCardContents)
+		{
+			for (int socketIx = 0; socketIx < kNbSockets; socketIx++)
+			{
+				TPCMCIAController* theController = mMemory.GetPCMCIAController(socketIx);
+				if (theController)
+					theController->TransferCardContents(inStream);
+			}
+		}
+		if (inStream->TransferFlags() & kStateIncludesFlash)
+			mMemory.TransferFlash(inStream);
+	}
 
 	// Show the screen as on or off, as the loaded (or reset) machine expects it.
 	if (inStream->IsReading() || inStream->IsResetting())

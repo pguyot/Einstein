@@ -116,12 +116,14 @@ started from (bug list, missing-state table, step-by-step logs) are in the
 history of this file: `git show d230e8a7:CLAUDE.md`.
 
 **How it works**
-- *State file* (`TEmulator::SaveState`/`LoadState`, file version 11): header
+- *State file* (`TEmulator::SaveState`/`LoadState`, file version 13): header
   (`EINI`, `SNAP`, version, kind), identity block, the inserted cards (tag and
   image path per socket), then the `TransferState` tree: memory (RAM,
   breakpoints, MMU, flash), CPU with native primitives, interrupts, DMA, serial
   DMA registers, PCMCIA controllers and cards, platform manager, screen and
-  tablet, sound. The state is collected in a `TMemoryStream` and written with
+  tablet, sound; last the storage, only in debug files (PC Card contents,
+  then flash), so a file that fails is refused before the user's storage is
+  replaced. The state is collected in a `TMemoryStream` and written with
   a CRC-32C at the end to `<path>.tmp` (every write and the close checked),
   then renamed.
 - *Reading* reads the whole file and checks its size and CRC before anything
@@ -136,8 +138,9 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
   breakpoints are removed before loading and re-applied from the loaded list.
   Saving takes about 0.1 s (fast start) and 0.2 s (debug) in a debug build.
 - *Identity check* before anything changes: ROM+REX checksum, RAM size, flash
-  checksum (fast start files only), screen size, card tag and contents
-  checksum per socket. Every mismatch is printed ("the flash changed", …). The
+  checksum (fast start files only), screen size, card tag, contents size and
+  contents checksum per socket; a read-only card whose contents would change
+  is refused too. Every mismatch is printed ("the flash changed", …). The
   screen size and the RAM size are configuration and are never loaded.
 - *One tree for save, load and reset:* a `TStream` reads, writes or resets
   (`TResetStream`). `TransferXxx(value, resetValue)` gives the power-on value;

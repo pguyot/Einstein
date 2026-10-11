@@ -198,6 +198,11 @@ public:
 	void TransferState(TStream* inStream);
 
 	///
+	/// Save or load the contents of the inserted card (debug state files).
+	///
+	void TransferCardContents(TStream* inStream);
+
+	///
 	/// Return the card in the slot or nullptr if empty.
 	///
 	TPCMCIACard*

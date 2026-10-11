@@ -269,10 +269,15 @@ TLinearCard::TransferContents(TStream* inStream)
 		return;
 	if (inStream->IsReading())
 	{
+		// Read the contents aside; if nothing changed, the image stays as it is.
+		std::vector<KUInt8> theContents(theSize);
+		inStream->Transfer(theContents.data(), &theSize);
+		if (::memcmp(theContents.data(), mMemoryMap, theSize) == 0)
+			return;
 		// The flush thread holds the mutex while it writes pages to the image.
 		// Write every page to the image file, two seconds from now.
 		std::lock_guard<std::mutex> guard(mMutex);
-		inStream->Transfer(mMemoryMap, &theSize);
+		::memcpy(mMemoryMap, theContents.data(), theSize);
 		std::fill(mPageDirty.begin(), mPageDirty.end(), true);
 		if (!mPageFlushPromise)
 			FlushDirtyPagesLater();

@@ -104,6 +104,26 @@ public:
 	}
 
 	///
+	/// Return the size of the card's contents in bytes, as saved by
+	/// TransferContents(). 0 if the card has no contents (network card).
+	///
+	virtual KUInt32
+	GetContentsSize(void)
+	{
+		return 0;
+	}
+
+	///
+	/// Return false if restored contents can't be written to the card's image
+	/// file, for example because it is read-only.
+	///
+	virtual Boolean
+	CanWriteContents(void)
+	{
+		return true;
+	}
+
+	///
 	/// Save or load the state of the card: registers and state machines, not
 	/// the contents, which are kept in the card's image file.
 	///

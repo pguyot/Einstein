@@ -3187,10 +3187,7 @@ TMemory::TransferState(TStream* inStream)
 	// The MMU
 	mMMU.TransferState(inStream);
 
-	// The flash, only in debug snapshots. Fast start snapshots check the flash
-	// with a checksum instead (see TEmulator::SaveState).
-	if (inStream->TransferFlags() & TEmulator::kStateIncludesFlash)
-		mFlash.TransferState(inStream);
+	// The flash comes last in the file, see TransferFlash().
 
 	// Invalidate the JIT cache. After loading, RAM and ROM hold different code,
 	// so all translated pages must go. After a reset,

@@ -321,22 +321,29 @@ TATACard::TransferContents(TStream* inStream)
 	inStream->CheckDataSize(theSize, theCardSize, "the ATA card contents");
 	if (theSize == 0)
 		return;
-	inStream->Transfer(mData.data(), &theSize);
-	if (inStream->IsReading())
+	if (!inStream->IsReading())
 	{
-		// Write the restored contents to the image file as well.
-		if (!mFile || mReadOnly
-			|| fseek(mFile, 0, SEEK_SET) != 0
-			|| fwrite(mData.data(), 1, mData.size(), mFile) != mData.size()
-			|| fflush(mFile) != 0)
-		{
-			KPrintf("ATA card: the restored contents could not be written to %s.\n",
-				mFilePath ? mFilePath : "the image file");
-		} else
-		{
-			FlushImage();
-		}
+		inStream->Transfer(mData.data(), &theSize);
+		return;
 	}
+
+	// Read the contents aside. If they changed, write the image file first,
+	// as WriteSectorData() does, so memory and file never differ. A write
+	// error fails the load (TEmulator::LoadState() checked that the file is
+	// writable, so this is a disk error).
+	std::vector<KUInt8> theContents(theSize);
+	inStream->Transfer(theContents.data(), &theSize);
+	if (theContents == mData)
+		return;
+	if (!mFile || mReadOnly
+		|| fseek(mFile, 0, SEEK_SET) != 0
+		|| fwrite(theContents.data(), 1, theContents.size(), mFile) != theContents.size()
+		|| fflush(mFile) != 0)
+	{
+		throw std::runtime_error("the ATA card image could not be written and may be damaged");
+	}
+	mData.swap(theContents);
+	FlushImage();
 }
 
 // -------------------------------------------------------------------------- //

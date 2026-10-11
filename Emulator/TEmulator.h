@@ -662,8 +662,8 @@ private:
 	/// mLastStateError.
 	void StateError(const char* inFormat, ...);
 
-	/// What a state file must match to be loaded: ROM, RAM size, flash, and
-	/// for each PCMCIA socket the kind of card and its contents.
+	/// What a state file must match to be loaded: ROM, RAM size, flash, screen
+	/// size, and for each PCMCIA socket the kind, size and contents of the card.
 	std::vector<KUInt32> GetStateIdentity();
 
 	/// if set, OS will offer to erase internal flash on next Reset

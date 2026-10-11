@@ -782,9 +782,21 @@ public:
 	}
 
 	///
-	/// Save or restore the state to or from a stream.
+	/// Save or restore the state to or from a stream. The flash is not part
+	/// of it, see TransferFlash().
 	///
 	void TransferState(TStream* inStream);
+
+	///
+	/// Save or load the flash, only in debug state files. Fast start files
+	/// check the flash with a checksum instead. TEmulator::TransferState()
+	/// does this last, after everything else was loaded and checked.
+	///
+	void
+	TransferFlash(TStream* inStream)
+	{
+		mFlash.TransferState(inStream);
+	}
 
 	///
 	/// Check that two addresses are very probably on the same page.
