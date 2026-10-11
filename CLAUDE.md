@@ -297,6 +297,14 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
     with the same package name, NewtonOS reported a conflict at every start.
     Next version (Matt): not a separate app, but a new item in the built-in
     Newton preferences.
+14. **Leftover "E" when an app closes** (found 2026-10-11): tapping the icon
+    of an open Extras app (for example Einstein Prefs) closes it, as NewtonOS
+    does, but the last frame of the closing animation (the app icon, an "E")
+    stays on the screen until something redraws it. Also without Fast start.
+    Check on a real Newton; if it doesn't happen there, look at the blit modes
+    in `TScreenManager`. Also: a tap on the icon of an app that is already
+    open closes it, which looks like "nothing happens" if the window is
+    hidden.
 12. **Documentation** (Matt, 2026-10-11): write new release notes next, and
     refresh the documentation, maybe with a help page. Release notes drafted
     in `ReleaseNotes.md` and `ReleaseText.md` (version 2026.10.11, tag
@@ -364,12 +372,11 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
     host (patched `RealClockSeconds` and friends), so it is right after a
     fast start. Tested: quit, 3.5 minutes later fast start, the Newton shows
     the current time.
-  - The 3.6864 MHz timer is host time minus a saved delta: after a fast start
-    it has moved on by the time Einstein was quit, modulo its 19.4-minute wrap
-    (on Windows, `QueryPerformanceCounter` counts from host boot, so the jump
-    is arbitrary). Fast starts work with that so far. By the code, the timer
-    thread fires every match register that lies between the old and the new
-    value (not tested separately).
+  - The 3.6864 MHz timer does not jump: whenever the timer thread resumes, it
+    sets `mTimerDelta = ticks - mTimer`, so the Newton timer continues where
+    it stopped, after a pause and after a fast start alike (corrected
+    2026-10-11; an earlier note here said it jumps by the time Einstein was
+    quit).
   - What does not happen the same way: the RTC alarm (next step 11).
 - **Q4.5** Should external connections (TCP serial, network) reconnect on their
   own?
