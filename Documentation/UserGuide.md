@@ -269,25 +269,20 @@ the Extras drawer) and tap
 Einstein can connect the Newton to the Internet through an emulated network
 card:
 
-0. To run **NIE**, NewtonOS must be upgraded to NOS 2.1.
-   U.S. ROMs must be upgraded to 717260. German ROMs and eMates need the y10k
-   patch installed. You can find those patches
-   under **Help › Install Essentials...**
-1. Install **NIE** and the **Einstein Network Card driver** with
+1. To run **NIE**, the U.S. ROM needs System Update 2.1 (717260); German ROMs and
+   eMates need the Y2K10 patch. Both are under **Help › Install Essentials...** .
+2. Install **NIE** and the **Einstein Network Card driver** with
    **Help › Install Essentials...**.
-2. Insert the **Einstein Network Card** into a PC Card slot via
+3. Insert the **Einstein Network Card** into a PC Card slot via
    **Platform › Upper PCCard › Einstein Network Card**
-3. Set up the connection in NewtonOS (*Internet Setup*; Install Essentials
+4. Set up the connection in NewtonOS (*Internet Setup*; Install Essentials
    has a button to open it).
    - Generic Setup
    - Connect Using > **Ethernet**
    - Setup Name > **Einstein**
    - Configuration > **DHCP Server**
    - Card > **PCMCIA Ethernet**
-   - Domain Name > **local**
-
-<!-- TODO(Matt): what to enter in Internet Setup; browser, e-mail, Network Dock -->
-
+   - Domain Name > **einstein.net**
 
 ## 11. For developers: Toolkit and Monitor
 
