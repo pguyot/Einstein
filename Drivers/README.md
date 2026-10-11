@@ -45,4 +45,5 @@ After installing GCC and the DCL tools, and setting `NCT_PROJECTS` correctly, th
   handle the calls directly natively, or will invoke the Einstein drivers via coprocessor instructions
 - NSRuntime: Helper package
 - EinsteinPortEnabler: Autopart which will initialize serial drivers when enabled via the Newton preferences app
+- EinsteinPrefs: the Einstein Prefs app (serial port driver settings), included as a precompiled package for now
 - Additional packages in the `packages` directory can be included in the REx
