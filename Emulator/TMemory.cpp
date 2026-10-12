@@ -136,6 +136,7 @@ TMemory::TMemory(
 		mLog(inLog),
 		mFlash(inLog, inFlashPath, inROMImage),
 		mROMImagePtr(inROMImage->GetPointer()),
+		mROMImage(inROMImage),
 		mRAMSize(inRAMSize),
 		mRAMEnd(TMemoryConsts::kRAMStart + inRAMSize),
 		mMMU(this),
@@ -146,6 +147,15 @@ TMemory::TMemory(
 	// Remember what ROM we run, to check that a state file belongs to it.
 	// A TROMImage always holds the full ROM and REX area.
 	mROMChecksum = GetCRC32(mROMImagePtr, TMemoryConsts::kHighROMEnd);
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetLaunchSegmentChecksums( PAddr, KUInt32, KUInt32 outChecksums[2] ) const
+// -------------------------------------------------------------------------- //
+Boolean
+TMemory::GetLaunchSegmentChecksums(PAddr inStart, KUInt32 inSize, KUInt32 outChecksums[2]) const
+{
+	return mROMImage && mROMImage->GetSegmentChecksums(inStart, inSize, outChecksums);
 }
 
 // -------------------------------------------------------------------------- //

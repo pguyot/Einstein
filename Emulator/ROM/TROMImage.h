@@ -87,6 +87,18 @@ public:
 	void ComputeChecksums(KUInt32 outChecksums[10]) const;
 
 	///
+	/// Get the checksums of one segment (the ROM or a REx) as NewtonOS
+	/// computes them, from the image as it was created (patched, but before
+	/// any breakpoint).
+	///
+	/// \param inStart	physical address of the segment
+	/// \param inSize	size of the segment in bytes
+	/// \param outChecksums	the sums of the high and the low 16 bits of each word
+	/// \return true if inStart and inSize are the ROM or one of the RExes
+	///
+	bool GetSegmentChecksums(KUInt32 inStart, KUInt32 inSize, KUInt32 outChecksums[2]) const;
+
+	///
 	/// Return the ID of the ROM as calculated by a CRC32 checksum
 	///
 	KSInt32
@@ -139,6 +151,8 @@ private:
 	///
 	struct SImageInfo {
 		KUInt32 fChecksums[10];
+		KUInt32 fSegmentStarts[5]; // the ROM, then the four RExes
+		KUInt32 fSegmentSizes[5];
 	};
 
 	struct SImage {

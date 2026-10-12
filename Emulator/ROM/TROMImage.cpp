@@ -183,6 +183,8 @@ TROMImage::DoComputeChecksums(SImage* inImage)
 
 	// Compute base checksum.
 	ComputeSegmentChecksums(thePointer, theBaseSize, &inImage->fInfo.fChecksums[0]);
+	inImage->fInfo.fSegmentStarts[0] = 0;
+	inImage->fInfo.fSegmentSizes[0] = theBaseSize;
 
 	// Compute REX checksums.
 	KUInt32 indexRexes;
@@ -192,7 +194,29 @@ TROMImage::DoComputeChecksums(SImage* inImage)
 			thePointer + theRexBases[indexRexes],
 			theRexSizes[indexRexes],
 			&inImage->fInfo.fChecksums[(2 * indexRexes) + 2]);
+		inImage->fInfo.fSegmentStarts[indexRexes + 1] = theRexBases[indexRexes];
+		inImage->fInfo.fSegmentSizes[indexRexes + 1] = theRexSizes[indexRexes];
 	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetSegmentChecksums( KUInt32, KUInt32, KUInt32 outChecksums[2] ) const
+// -------------------------------------------------------------------------- //
+bool
+TROMImage::GetSegmentChecksums(KUInt32 inStart, KUInt32 inSize, KUInt32 outChecksums[2]) const
+{
+	for (int index = 0; index < 5; index++)
+	{
+		if (mImage->fInfo.fSegmentSizes[index] != 0
+			&& mImage->fInfo.fSegmentStarts[index] == inStart
+			&& mImage->fInfo.fSegmentSizes[index] == inSize)
+		{
+			outChecksums[0] = mImage->fInfo.fChecksums[2 * index];
+			outChecksums[1] = mImage->fInfo.fChecksums[(2 * index) + 1];
+			return true;
+		}
+	}
+	return false;
 }
 
 // -------------------------------------------------------------------------- //

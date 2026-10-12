@@ -773,6 +773,15 @@ public:
 	}
 
 	///
+	/// Get the checksums NewtonOS computes for the ROM or a REx, as they were
+	/// when the ROM image was created (see TROMImage::GetSegmentChecksums()).
+	///
+	/// \return false if TMemory was created from a plain ROM buffer, or if
+	///		the range is not a segment of the image
+	///
+	Boolean GetLaunchSegmentChecksums(PAddr inStart, KUInt32 inSize, KUInt32 outChecksums[2]) const;
+
+	///
 	/// Checksum of the whole flash memory.
 	///
 	KUInt32
@@ -908,6 +917,9 @@ private:
 
 	/// 16 MB
 	KUInt8* mROMImagePtr { nullptr };
+
+	/// The ROM image, if TMemory was created from one
+	TROMImage* mROMImage { nullptr };
 
 	/// Checksum of the ROM and REX, computed by the TROMImage constructor
 	/// before any breakpoint. It stays 0 when TMemory is created from a plain

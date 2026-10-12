@@ -112,6 +112,54 @@ T_ROM_PATCH(0x0038CE70, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Debugger")
 }
 
 /*
+ NewtonOS keeps the checksums of the ROM and of every REx in the flash, and
+ erases the internal store when they change ("The internal store was erased
+ because a different ROM has been installed"). Einstein writes the checksums
+ of the patched ROM image into the flash at every launch (TFlash), so adding
+ or removing a patch is safe. But words that change while Einstein runs, for
+ example Monitor breakpoints in ROM, would change what NewtonOS computes, and
+ the next boot (Hardware Reset, NewtonScript Reboot) would erase the store.
+
+ static OSCalibrationParameters::CalculateROMREXCheckSums(
+	unsigned long inStart, unsigned long inSize, TOSCheckSum& outSum)
+ sums the high and the low 16 bits of every word of a segment. For the ROM
+ and the RExes, this returns the checksums of the image as it was created.
+ Any other range is summed as the ROM does it.
+
+ TODO: the address in the MP2100D ROM.
+ */
+T_ROM_PATCH(0x001A71B8, kROMPatchVoid, 0x0019501C, 0x001A77FC, "CalculateROMREXCheckSums")
+{
+	(void) ioUnit;
+	TMemory* theMemory = ioCPU->GetMemory();
+	KUInt32 theStart = ioCPU->GetRegister(0);
+	KUInt32 theSize = ioCPU->GetRegister(1);
+	KUInt32 theSum = ioCPU->GetRegister(2);
+	KUInt32 theChecksums[2];
+	if (!theMemory->GetLaunchSegmentChecksums(theStart, theSize, theChecksums))
+	{
+		KUInt32 highBits = 0;
+		KUInt32 lowBits = 0;
+		for (KUInt32 offset = 0; offset < (theSize & ~3U); offset += 4)
+		{
+			Boolean fault = false;
+			KUInt32 theWord = theMemory->ReadPAligned(theStart + offset, fault);
+			if (fault)
+				break;
+			lowBits += theWord & 0x0000FFFF;
+			highBits += theWord >> 16;
+		}
+		theChecksums[0] = highBits;
+		theChecksums[1] = lowBits;
+	}
+	// TOSCheckSum: the sum of the high bits, then the sum of the low bits
+	theMemory->Write(theSum, theChecksums[0]);
+	theMemory->Write(theSum + 4, theChecksums[1]);
+	ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 4);
+	return 0L;
+}
+
+/*
  * Set the time to the host time
  */
 
