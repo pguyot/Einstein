@@ -254,9 +254,14 @@ the Extras drawer) and tap
 - **Driver** chooses how the serial port is connected:
   - *Network Client* connects to a program on your computer, or on another
     computer, over TCP/IP. This is the default, and the only choice on
-    Windows.
-  - *Pseudoterminal*, *Named Pipes* and *BasiliskII* (macOS and Linux) are
-    for special setups.
+    Windows. The default port is 3679. Einstein acts as a TCP client.
+  - *Pseudoterminal* (macOS only) currently `/tmp/BBridge.Einstein`
+  - *Named Pipes* (macOS only) connects via named pipes
+    - `$(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortSend`
+      sends data from the emulated Newton to the host
+    - `$(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortRecv`
+      receives data from the host
+  - *BasiliskII* (macOS and Linux) tries to connect via `/tmp/pty.BasiliskII`
   - *None* disconnects the port.
 - **Server** and **Port** tell the Network Client where the program runs.
   The default is `127.0.0.1` (your own computer), port `3679`.
