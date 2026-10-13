@@ -51,8 +51,12 @@ When you start Einstein, the Settings window opens.
    the file.
 2. Next to *System Flash*, click **Create...** for a new flash file, or
    **Choose...** for an existing one.
-3. Choose the *System RAM*: 1 MB (like a MessagePad 2000 or an eMate 300) or
-   4 MB (like a MessagePad 2100).
+3. Choose the *System RAM*: 1 MB (like a MessagePad 2000 or an eMate 300),
+   4 MB (like a MessagePad 2100), or 8 MB or 16 MB, more than any real Newton
+   had. NewtonOS sees the extra memory, but the NewtonScript heap, where
+   applications keep their data, stays the same size. You can change the RAM
+   size later without losing the data in the flash; it takes effect at the
+   next start.
 4. Leave *Fetch date and time from host* on, so the Newton shows your
    computer's date and time.
 5. Leave *Fast start: continue where Einstein was quit* on (see
@@ -119,7 +123,12 @@ over the Newton screen. A new screen size takes effect at the next start.
 
 **File › Print...** (Cmd+Shift+P) prints the Newton screen.
 **File › Screenshot...** (Cmd+Shift+J) saves the Newton screen as a PNG
-image.
+image. **File › Next Screenshot** (Cmd+Shift+K) saves another one without
+asking, under the last name with the next number: after *Shot.png* comes
+*Shot_000.png*, after *Shot_007.png* comes *Shot_008.png*. Files that already
+exist are skipped. Before the first screenshot of a session, it asks for the
+file like **Screenshot...**, and a file chosen with **Screenshot...** starts a
+new series.
 
 
 ## 5. Installing packages
@@ -261,7 +270,9 @@ the Extras drawer) and tap
       sends data from the emulated Newton to the host
     - `$(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortRecv`
       receives data from the host
-  - *BasiliskII* (macOS and Linux) tries to connect via `/tmp/pty.BasiliskII`
+  - *BasiliskII* (macOS and Linux) tries to connect via `/tmp/pty.BasiliskII`.
+    Set the `serialb` entry in `~/.basilisk_ii_prefs`
+    to `serialb /tmp/pty.BasiliskII`
   - *None* disconnects the port.
 - **Server** and **Port** tell the Network Client where the program runs.
   The default is `127.0.0.1` (your own computer), port `3679`.
