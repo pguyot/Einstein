@@ -118,7 +118,7 @@ started from (bug list, missing-state table, step-by-step logs) are in the
 history of this file: `git show d230e8a7:CLAUDE.md`.
 
 **How it works**
-- *State file* (`TEmulator::SaveState`/`LoadState`, file version 13): header
+- *State file* (`TEmulator::SaveState`/`LoadState`, file version 14): header
   (`EINI`, `SNAP`, version, kind), identity block, the inserted cards (tag and
   image path per socket), then the `TransferState` tree: memory (RAM,
   breakpoints, MMU, flash), CPU with native primitives, interrupts, DMA, serial
@@ -141,7 +141,10 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
   Saving takes about 0.1 s (fast start) and 0.2 s (debug) in a debug build.
 - *Identity check* before anything changes: ROM+REX checksum, RAM size, flash
   checksum (fast start files only), screen size, card tag, contents size and
-  contents checksum per socket; a read-only card whose contents would change
+  contents checksum per socket, and a CRC of the Einstein version
+  (`PROJECT_VER`; fast start files only, so a new Einstein boots normally
+  even if the file format did not change, while checkpoints still load into
+  another version); a read-only card whose contents would change
   is refused too. Every mismatch is printed ("the flash changed", …). The
   screen size and the RAM size are configuration and are never loaded.
 - *One tree for save, load and reset:* a `TStream` reads, writes or resets
@@ -222,6 +225,7 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
 | Review 3 | `58a1fcf3` | Storage (card contents, flash) last in the file; card size and writability checked up front (version 13) |
 | Review 3 | `1554a7ce` | Brain Wipe through the reset request |
 | Review 4 | `d5bdbbba` | Linear cards write restored contents at once and refuse read-only images |
+| – | `6916503a` | Einstein version in the identity block, fast start files only load into the same version (version 14) |
 
 **Testing notes**
 - Tests used an lldb Python driver on a sandboxed debug build (save, load, tap,
@@ -339,8 +343,8 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
   start (decided 2026-10-08). Debug snapshots are taken while the Monitor is
   halted.
 - **Q4.2** When is a snapshot invalid? **A:** When the file version, the
-  ROM+REX, the RAM size, the screen size, the flash (fast start files) or a
-  card changed. Einstein then boots normally and prints the reason on the
+  ROM+REX, the RAM size, the screen size, the flash (fast start files), the
+  Einstein version (fast start files) or a card changed. Einstein then boots normally and prints the reason on the
   console.
 - **Q4.3** What happens with a corrupt snapshot? **A:** The CRC refuses it
   before anything changes. Fast start: the file is deleted and Einstein boots
@@ -428,6 +432,14 @@ keyboard, packages). Now every `PowerOnDeviceCheck` releases it.
 - **Q4.8** Does Hardware Reset actually lose the store? **A4.8** (test,
   2026-10-07) Not in the idle case, before and after the rewrite. Not tested
   yet: a reset during store activity, sync or active DMA.
+  **Found 2026-10-12:** a Monitor breakpoint in ROM, then a Hardware Reset
+  (or any reboot), erased the store ("The internal store was erased because
+  a different ROM has been installed"). NewtonOS keeps the ROM and REx
+  checksums in the flash; `TFlash` writes those of the patched image at
+  launch (so adding or removing patches is safe), but breakpoints change ROM
+  words later. Fixed in `21db6589`/`886da2e7`: a native patch on
+  `OSCalibrationParameters::CalculateROMREXCheckSums` returns the launch-time
+  checksums of the ROM and REx segments, on all four ROMs.
 - **Q4.9** Should Hardware Reset keep RAM like the real reset button, or is a
   reset without RAM (closer to a fresh launch) good enough? Implemented as
   "keep RAM" (Claude's default); Matt to confirm.
