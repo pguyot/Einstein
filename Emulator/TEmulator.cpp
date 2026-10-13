@@ -64,6 +64,7 @@
 #include "Platform/TPlatformManager.h"
 #include "Screen/TScreenManager.h"
 #include "Sound/TSoundManager.h"
+#include "app/Version.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -89,7 +90,9 @@
 // Version 12: debug files hold the contents of the PCMCIA cards.
 // Version 13: the size of each card's contents must match; the storage (card
 //             contents, flash) comes last in the file.
-static const KUInt32 kStateFileVersion = 13;
+// Version 14: a checksum of the Einstein version; fast start files only load
+//             into the same version.
+static const KUInt32 kStateFileVersion = 14;
 
 // Largest state file we read: 16 MB of RAM, the 4 MB flash, and the contents
 // of two cards (ATA cards up to 128 MB each, linear cards up to 64 MB).
@@ -99,8 +102,10 @@ static const long kMaxStateFileSize = 512 * 1024 * 1024;
 // empty, so the card is not inserted again at a fast start.
 static const KUInt32 kMaxStatePathLength = 2048;
 
-// Number of values written by TEmulator::GetStateIdentity().
-static const size_t kStateIdentitySize = 5 + 3 * kNbSockets;
+// Number of values written by TEmulator::GetStateIdentity(), and where the
+// Einstein version is among them (last).
+static const size_t kStateIdentitySize = 6 + 3 * kNbSockets;
+static const size_t kStateIdentityVersionIndex = kStateIdentitySize - 1;
 
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
@@ -729,7 +734,8 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 		static const char* const kIdentityNames[] = {
 			"ROM", "RAM size", "flash", "screen width", "screen height",
 			"card in socket 0", "size of the card in socket 0", "contents of the card in socket 0",
-			"card in socket 1", "size of the card in socket 1", "contents of the card in socket 1"
+			"card in socket 1", "size of the card in socket 1", "contents of the card in socket 1",
+			"Einstein version"
 		};
 		static_assert(sizeof(kIdentityNames) / sizeof(kIdentityNames[0]) == kStateIdentitySize,
 			"Update kIdentityNames when GetStateIdentity() changes");
@@ -740,6 +746,11 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 			KUInt32 theSaved = theStream->GetInt32BE();
 			// The flash is only checked for fast start files. Debug files load it.
 			if (i == 2 && theKind == kDebugState)
+				continue;
+			// A fast start continues exactly where the same Einstein stopped.
+			// Debug files (checkpoints) also load into another version, as
+			// long as the file format is the same.
+			if (i == kStateIdentityVersionIndex && theKind == kDebugState)
 				continue;
 			if (theSaved == theCurrent[i])
 				continue;
@@ -881,6 +892,7 @@ TEmulator::GetStateIdentity()
 		theIdentity.push_back(theCard ? theCard->GetContentsSize() : 0);
 		theIdentity.push_back(theCard ? theCard->GetContentsChecksum() : 0);
 	}
+	theIdentity.push_back(GetCRC32(PROJECT_VER, (KUInt32)::strlen(PROJECT_VER)));
 	return theIdentity;
 }
 
