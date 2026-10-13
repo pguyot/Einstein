@@ -125,10 +125,8 @@ T_ROM_PATCH(0x0038CE70, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Debugger")
  sums the high and the low 16 bits of every word of a segment. For the ROM
  and the RExes, this returns the checksums of the image as it was created.
  Any other range is summed as the ROM does it.
-
- TODO: the address in the MP2100D ROM.
  */
-T_ROM_PATCH(0x001A71B8, kROMPatchVoid, 0x0019501C, 0x001A77FC, "CalculateROMREXCheckSums")
+T_ROM_PATCH(0x001A71B8, 0x001A973C, 0x0019501C, 0x001A77FC, "CalculateROMREXCheckSums")
 {
 	(void) ioUnit;
 	TMemory* theMemory = ioCPU->GetMemory();
