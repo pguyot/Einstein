@@ -30,6 +30,8 @@
 #include <Windows.h>
 #include <Winsock2.h>
 #endif
+#include <atomic>
+#include <chrono>
 #include <mutex>
 #include <thread>
 
@@ -107,6 +109,34 @@ public:
 	int GetServerPort();
 
 protected:
+	using Clock = std::chrono::steady_clock;
+
+	///
+	/// Pace a stream of bytes to a fixed time per byte.
+	///
+	class TThrottle
+	{
+	public:
+		explicit TThrottle(int inMicrosecondsPerByte) :
+				mMicrosecondsPerByte(inMicrosecondsPerByte)
+		{
+		}
+
+		/// Number of bytes that may be transferred now, at most inMax.
+		KUInt32 Allowance(KUInt32 inMax);
+
+		/// Count bytes that were transferred.
+		void Consume(KUInt32 inBytes);
+
+		/// Microseconds until inBytes (or one time slice of bytes) may be
+		/// transferred, 0 if they may go now.
+		long long Delay(KUInt32 inBytes) const;
+
+	private:
+		int mMicrosecondsPerByte;
+		Clock::time_point mReadyTime {};
+	};
+
 	///
 	/// Host user interface error message
 	///
@@ -123,9 +153,9 @@ protected:
 	void HandleDMASend();
 
 	//
-	// Worker thread: true if DMA has a byte to send (takes mDMAMutex).
+	// Worker thread: number of bytes DMA has to send (takes mDMAMutex).
 	//
-	bool HasDataToSend();
+	KUInt32 PendingTxBytes();
 
 	//
 	// Worker thread: Receive data from the server.
@@ -133,12 +163,17 @@ protected:
 	void HandleDMAReceive();
 
 	///
-	/// Create a socket and try to connect it to the server.
+	/// Create a socket and start connecting it to the server.
 	///
 	bool Connect();
 
 	///
-	/// Disconnect from teh server.
+	/// Finish a connection that Connect() started.
+	///
+	void FinishConnect(bool inDone, int inError);
+
+	///
+	/// Disconnect from the server.
 	///
 	bool Disconnect();
 
@@ -151,11 +186,21 @@ protected:
 		return mIsConnected;
 	}
 
+	/// Protects mServer and mPort: the UI and the emulator thread change them
+	/// while the worker thread connects.
+	std::mutex mServerMutex;
+
 	/// Server name or IP address as a string
 	char* mServer { nullptr };
 
 	/// Server side port number
 	int mPort { 3679 };
+
+	/// Set by TriggerEvent('q'), so a quit request can't get lost.
+	std::atomic<bool> mQuitRequested { false };
+
+	/// Set by NSSetOptions() when the server changed.
+	std::atomic<bool> mReconnectRequested { false };
 
 #if TARGET_OS_WIN32
 	WSAEVENT mTcpEvent { INVALID_HANDLE_VALUE };
@@ -172,11 +217,31 @@ protected:
 	/// the thread that does all the work
 	std::thread* mWorkerThread { nullptr };
 
+	/// The members below are only used by the worker thread.
+
 	/// set to true if there is a connection to a server
 	bool mIsConnected { false };
 
+	/// set to true while a connection attempt is in progress
+	bool mIsConnecting { false };
+
+	/// the socket did not take all data; wait until it can take more
+	bool mSendBlocked { false };
+
+#if TARGET_OS_WIN32
+	/// the socket reported data or a disconnect that we did not read yet
+	bool mCanReceive { false };
+#endif
+
+	/// give up the connection attempt at this time
+	Clock::time_point mConnectDeadline {};
+
 	/// next time we allow another connection attempt
-	time_t mReconnectTimeout { 0 };
+	Clock::time_point mReconnectTime {};
+
+	/// pace sending and receiving
+	TThrottle mTxThrottle;
+	TThrottle mRxThrottle;
 };
 
 #endif

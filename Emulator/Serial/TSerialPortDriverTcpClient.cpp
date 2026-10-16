@@ -21,6 +21,13 @@
 // $Id$
 // ==============================
 
+// Throttle the emulated serial line: the time it takes to transfer one byte,
+// in microseconds. 0 transfers as fast as the host can.
+// 260 us is 38400 bps (ten bits per byte with start and stop bit), the
+// fastest speed that NewtonOS supports.
+static constexpr int kTxMicrosecondsPerByte = 80; // Newton to server
+static constexpr int kRxMicrosecondsPerByte = 80; // server to Newton
+
 #include "TSerialPortDriverTcpClient.h"
 #include "app/TPathHelper.h"
 
@@ -30,6 +37,7 @@
 #include <sys/types.h>
 
 #include <chrono>
+#include <string>
 
 #if TARGET_OS_WIN32
 #include <WinSock2.h>
@@ -51,6 +59,24 @@
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TLog.h"
 
+// While data flows, the worker thread wakes up about once per time slice and
+// transfers all bytes that the throttle allowed since its last turn in one
+// TCP packet.
+static constexpr int kTimeSliceMicroseconds = 10000;
+
+// A throttled line may catch up on this much time, so that late wake-ups
+// (the Windows timer ticks every 15.6 ms) don't lower the rate.
+static constexpr int kMaxCatchUpMicroseconds = 20000;
+
+// Largest number of bytes read from or written to the socket at once.
+static constexpr KUInt32 kMaxChunkSize = 1024;
+
+// Give up on a server that does not answer a connection attempt.
+static constexpr std::chrono::seconds kConnectTimeout { 5 };
+
+// Wait between connection attempts. Data that NewtonOS sends meanwhile is dropped.
+static constexpr std::chrono::seconds kReconnectDelay { 3 };
+
 /**
  \class TSerialPortDriverTcpClient
  \brief Emulate a serial port connection over a network as a TCP client.
@@ -65,7 +91,9 @@
  thread. The second connection is the actual socket.
 
  The pipe is created by the main thread and stays alive with the helper
- thread from a call to run() until the class is destroyed.
+ thread from a call to run() until the class is destroyed. It only wakes up
+ the worker thread and never blocks the thread that writes to it. Requests
+ that must not get lost (quit, reconnect) are atomic flags.
 
  The socket is not created until NewtonOS decides to touch the serial port. The
  socket will not disconnect from the client side, but must handle a
@@ -73,9 +101,78 @@
  client disconnect if there is no more traffic on the serial port as NewtonOS
  does send a keep-alive message regularly if the connection should be kept.
 
+ The socket never blocks, not even while connecting, so the worker thread
+ always answers a quit request quickly, and never waits for the network while
+ it holds mDMAMutex. Only the worker thread uses the socket.
+
+ Data is throttled to kTxMicrosecondsPerByte and kRxMicrosecondsPerByte, and
+ sent and received in chunks of many bytes.
+
  The class can be destroyed if the user changes settings in the preferences
  panel.
  */
+
+// -------------------------------------------------------------------------- //
+// Microseconds from now until inTime, 0 if inTime has passed.
+// -------------------------------------------------------------------------- //
+static long long
+MicrosecondsUntil(std::chrono::steady_clock::time_point inTime)
+{
+	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+	if (inTime <= now)
+		return 0;
+	return std::chrono::duration_cast<std::chrono::microseconds>(inTime - now).count() + 1;
+}
+
+/**
+ \brief Number of bytes that may be transferred now.
+ \param[in] inMax return at most this many bytes
+ \return 0 if the next byte must wait
+ */
+KUInt32
+TSerialPortDriverTcpClient::TThrottle::Allowance(KUInt32 inMax)
+{
+	if (mMicrosecondsPerByte <= 0)
+		return inMax;
+	Clock::time_point now = Clock::now();
+	if (mReadyTime > now)
+		return 0;
+	// Don't save up more than kMaxCatchUpMicroseconds while the line is idle.
+	Clock::time_point earliest = now - std::chrono::microseconds(kMaxCatchUpMicroseconds);
+	if (mReadyTime < earliest)
+		mReadyTime = earliest;
+	long long us = std::chrono::duration_cast<std::chrono::microseconds>(now - mReadyTime).count();
+	long long n = us / mMicrosecondsPerByte + 1;
+	return (n < inMax) ? (KUInt32) n : inMax;
+}
+
+/**
+ \brief Count bytes that were transferred.
+ The next byte may follow after the time that these bytes took.
+ */
+void
+TSerialPortDriverTcpClient::TThrottle::Consume(KUInt32 inBytes)
+{
+	mReadyTime += std::chrono::microseconds((long long) mMicrosecondsPerByte * inBytes);
+}
+
+/**
+ \brief Microseconds until inBytes may be transferred.
+ Waits for at most one time slice of bytes, so they go out in one packet.
+ \return 0 if they may be transferred now
+ */
+long long
+TSerialPortDriverTcpClient::TThrottle::Delay(KUInt32 inBytes) const
+{
+	if (mMicrosecondsPerByte <= 0 || inBytes == 0)
+		return 0;
+	// (no std::min/max: Windows.h defines min and max as macros)
+	long long slice = kTimeSliceMicroseconds / mMicrosecondsPerByte;
+	if (slice < 1)
+		slice = 1;
+	long long n = (inBytes < slice) ? inBytes : slice;
+	return MicrosecondsUntil(mReadyTime + std::chrono::microseconds((n - 1) * mMicrosecondsPerByte));
+}
 
 // -------------------------------------------------------------------------- //
 //  * TSerialPortDriverTcpClient()
@@ -84,7 +181,9 @@
 TSerialPortDriverTcpClient::TSerialPortDriverTcpClient(
 	TLog* inLog,
 	TSerialPorts::EPortIndex inPortIx) :
-		TBasicSerialPortManager(inLog, inPortIx)
+		TBasicSerialPortManager(inLog, inPortIx),
+		mTxThrottle(kTxMicrosecondsPerByte),
+		mRxThrottle(kRxMicrosecondsPerByte)
 {
 #if TARGET_OS_WIN32
 	WSADATA wsaData;
@@ -211,6 +310,10 @@ TSerialPortDriverTcpClient::run(TInterruptManager* inInterruptManager,
 		LogError("run: Error opening pipe", true);
 		return;
 	}
+	// Neither end blocks: the emulator thread must never wait for the worker
+	// thread, and the worker thread empties the pipe without waiting.
+	(void) fcntl(mCommandPipe[0], F_SETFL, fcntl(mCommandPipe[0], F_GETFL) | O_NONBLOCK);
+	(void) fcntl(mCommandPipe[1], F_SETFL, fcntl(mCommandPipe[1], F_GETFL) | O_NONBLOCK);
 #endif
 
 	// create the thread and let it run until we send it the quit signal
@@ -224,10 +327,13 @@ TSerialPortDriverTcpClient::run(TInterruptManager* inInterruptManager,
 
 // -------------------------------------------------------------------------- //
 // DMA or interrupts trigger a command that must be handled by a derived class.
+// 'q' quits the worker thread, any other command just wakes it up.
 // -------------------------------------------------------------------------- //
 void
 TSerialPortDriverTcpClient::TriggerEvent(KUInt8 cmd)
 {
+	if (cmd == 'q')
+		mQuitRequested = true;
 #if TARGET_OS_WIN32
 	if (mQuitEvent == INVALID_HANDLE_VALUE)
 	{
@@ -249,39 +355,50 @@ TSerialPortDriverTcpClient::TriggerEvent(KUInt8 cmd)
 		LogError("TriggerEvent: called without pipes.");
 		return;
 	}
-	::write(mCommandPipe[1], &cmd, 1);
+	// If the pipe is full, the worker thread will wake up anyway.
+	(void) ::write(mCommandPipe[1], &cmd, 1);
 #endif
 }
 
 // -------------------------------------------------------------------------- //
 // * Disconnect
-//		Disconnect from the server.
+//		Disconnect from the server, or stop a connection attempt.
 // -------------------------------------------------------------------------- //
 bool
 TSerialPortDriverTcpClient::Disconnect()
 {
 	bool wasConnected = mIsConnected;
-	if (mTcpSocket != -1)
-	{
-		time_t now;
-		time(&now);
-		mReconnectTimeout = now + 3;
 #if TARGET_OS_WIN32
+	if (mTcpSocket != INVALID_SOCKET)
+	{
 		closesocket(mTcpSocket);
+		mTcpSocket = INVALID_SOCKET;
+		mReconnectTime = Clock::now() + kReconnectDelay;
+	}
+	if (mTcpEvent != INVALID_HANDLE_VALUE)
+	{
 		WSACloseEvent(mTcpEvent);
 		mTcpEvent = INVALID_HANDLE_VALUE;
-#else
-		::close(mTcpSocket);
-#endif
-		mTcpSocket = -1;
 	}
+	mCanReceive = false;
+#else
+	if (mTcpSocket != -1)
+	{
+		::close(mTcpSocket);
+		mTcpSocket = -1;
+		mReconnectTime = Clock::now() + kReconnectDelay;
+	}
+#endif
 	mIsConnected = false;
+	mIsConnecting = false;
+	mSendBlocked = false;
 	return wasConnected;
 }
 
 // -------------------------------------------------------------------------- //
 // * Connect
-//		Create a TCP socket and try to connect to the server.
+//		Create a TCP socket and start connecting to the server. The socket
+//		does not block. FinishConnect() handles the result.
 // -------------------------------------------------------------------------- //
 bool
 TSerialPortDriverTcpClient::Connect()
@@ -289,10 +406,31 @@ TSerialPortDriverTcpClient::Connect()
 	Disconnect();
 
 	// reject reconnect request if we have not hit the timeout yet
-	time_t now;
-	time(&now);
-	if (now < mReconnectTimeout)
+	Clock::time_point now = Clock::now();
+	if (now < mReconnectTime)
 		return false;
+	mReconnectTime = now + kReconnectDelay;
+
+	// The UI and the emulator thread may change the server at any time.
+	std::string serverAddress;
+	int serverPort;
+	{
+		std::lock_guard<std::mutex> lock(mServerMutex);
+		serverAddress = mServer ? mServer : "";
+		serverPort = mPort;
+	}
+
+	// Create the address information to our server
+	struct sockaddr_in server { };
+	memset(&server, 0, sizeof(struct sockaddr_in));
+	server.sin_family = AF_INET;
+	server.sin_port = htons(static_cast<uint16_t>(serverPort));
+
+	if (inet_pton(AF_INET, serverAddress.c_str(), &server.sin_addr) <= 0)
+	{
+		LogError("Connect: Error in inet_pton", true);
+		return false;
+	}
 
 	// Create a new socket
 #if TARGET_OS_WIN32
@@ -302,6 +440,25 @@ TSerialPortDriverTcpClient::Connect()
 		LogError("Connect: can't create TCP/IP socket", true);
 		return false;
 	}
+	mTcpEvent = WSACreateEvent();
+	if (mTcpEvent == WSA_INVALID_EVENT)
+	{
+		mTcpEvent = INVALID_HANDLE_VALUE;
+		LogError("Connect: can't create TCP/IP event", true);
+		Disconnect();
+		return false;
+	}
+	// Report the connection, data, free buffer space, and a disconnect.
+	// This also makes the socket non-blocking.
+	WSAEventSelect(mTcpSocket, mTcpEvent, FD_CONNECT | FD_READ | FD_WRITE | FD_CLOSE);
+
+	int res = ::connect(mTcpSocket, (struct sockaddr*) &server, sizeof(server));
+	if (res == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
+	{
+		LogError("Connect: can't connect to TCP/IP server", true);
+		Disconnect();
+		return false;
+	}
 #else
 	mTcpSocket = ::socket(PF_INET, SOCK_STREAM, 0);
 	if (mTcpSocket == -1)
@@ -309,49 +466,61 @@ TSerialPortDriverTcpClient::Connect()
 		LogError("Connect: error creating socket", true);
 		return false;
 	}
-#endif
+	// The worker sends while it holds mDMAMutex, so a send must never wait for
+	// the server to read, and it must not wait for a slow connect either.
+	(void) fcntl(mTcpSocket, F_SETFL, fcntl(mTcpSocket, F_GETFL) | O_NONBLOCK);
 
-	// Create the address information to our server
-	struct sockaddr_in server { };
-	memset(&server, 0, sizeof(struct sockaddr_in));
-	server.sin_family = AF_INET;
-	server.sin_port = htons(static_cast<uint16_t>(mPort));
-
-	if (inet_pton(AF_INET, mServer, &server.sin_addr) <= 0)
-	{
-		LogError("Connect: Error in inet_pton", true);
-		Disconnect();
-		return false;
-	}
-
-#if TARGET_OS_WIN32
-	int res = WSAConnect(mTcpSocket, (struct sockaddr*) &server, sizeof(server), NULL, NULL, NULL, NULL);
-	if (res == SOCKET_ERROR)
-	{
-		LogError("Connect: can't connect to TCP/IP server", true);
-		Disconnect();
-		return false;
-	}
-	mTcpEvent = WSACreateEvent();
-	WSAEventSelect(mTcpSocket, mTcpEvent, FD_READ | FD_CLOSE);
-#else
-	// Try to connect to the server
-	int err = ::connect(mTcpSocket, (struct sockaddr*) &server, sizeof(server));
-	if (err == -1)
+	int res = ::connect(mTcpSocket, (struct sockaddr*) &server, sizeof(server));
+	if (res == -1 && errno != EINPROGRESS)
 	{
 		LogError("Connect: can't connect to server", true);
 		Disconnect();
 		return false;
 	}
-	// The worker sends while it holds mDMAMutex, so a send must never wait for
-	// the server to read. (WSAEventSelect() does the same on Windows.)
-	(void) fcntl(mTcpSocket, F_SETFL, fcntl(mTcpSocket, F_GETFL) | O_NONBLOCK);
 #endif
 
-	mIsConnected = true;
-	TriggerEvent('c');
-
+	if (res == 0)
+	{
+		mIsConnected = true;
+	} else
+	{
+		mIsConnecting = true;
+		mConnectDeadline = now + kConnectTimeout;
+	}
 	return true;
+}
+
+// -------------------------------------------------------------------------- //
+// * FinishConnect
+//		inDone is true when the socket reported the end of the connection
+//		attempt, with inError set to a system error code if it failed.
+//		Otherwise, give up after kConnectTimeout.
+// -------------------------------------------------------------------------- //
+void
+TSerialPortDriverTcpClient::FinishConnect(bool inDone, int inError)
+{
+	if (!inDone)
+	{
+		if (Clock::now() >= mConnectDeadline)
+		{
+			LogError("Connect: the server does not answer");
+			Disconnect();
+		}
+		return;
+	}
+	if (inError != 0)
+	{
+#if TARGET_OS_WIN32
+		WSASetLastError(inError);
+#else
+		errno = inError;
+#endif
+		LogError("Connect: can't connect to server", true);
+		Disconnect();
+		return;
+	}
+	mIsConnecting = false;
+	mIsConnected = true;
 }
 
 static void
@@ -368,222 +537,306 @@ sigpipe_handler(int unused)
  read and writes data via the TCP socket. It can also trigger interrupts when
  buffers empty, fill, or overflow.
 
+ The loop waits for a command, the socket, or the throttle, whatever comes
+ first. It never waits while it holds mDMAMutex.
+
  Disconnect, stop the loop, and exit the thread by calling TriggerEvent('q').
  */
 void
 TSerialPortDriverTcpClient::HandleDMA()
 {
 #if TARGET_OS_WIN32
-	// thread loops and handles pipe, port, and DMA
-	DWORD timeout = 0;
 	for (;;)
 	{
-		bool needTimer = false;
-
-		if (mTxDMAIntEnable & 0x00000002)
-		{ // DMA is enabled
-			if (mTxDMADataCountdown)
-			{
-				needTimer = true;
-				timeout = 1;
-			}
-		}
-
-		// if there is still (or already) data in the receive buffer, just trigger the message
-		//  - this should happen automatically, but we had situation where it didn't, so just make sure
-		if (mTcpEvent != INVALID_HANDLE_VALUE)
+		// Decide how long to wait. mTcpEvent reports the connection, new
+		// data, and free buffer space after a blocked send.
+		long long timeout = -1; // microseconds, -1 waits for an event
+		auto waitAtMost = [&timeout](long long us) {
+			if (timeout < 0 || us < timeout)
+				timeout = us;
+		};
+		if (mIsConnecting)
 		{
-			u_long nAvailable = 0;
-			ioctlsocket(mTcpSocket, FIONREAD, &nAvailable);
-			if (nAvailable > 0)
-				WSASetEvent(mTcpEvent);
+			waitAtMost(MicrosecondsUntil(mConnectDeadline));
+		} else
+		{
+			KUInt32 pending = PendingTxBytes();
+			if (pending && !(mIsConnected && mSendBlocked))
+				waitAtMost(mTxThrottle.Delay(pending));
+			if (mIsConnected && mCanReceive)
+				waitAtMost(mRxThrottle.Delay(1));
 		}
 
-		int nEvent = (mTcpEvent == INVALID_HANDLE_VALUE) ? 2 : 3;
-		HANDLE watchFDs[] = { mQuitEvent, mOtherEvent, mTcpEvent };
-		DWORD ret = WSAWaitForMultipleEvents(nEvent, watchFDs, FALSE, needTimer ? timeout : WSA_INFINITE, FALSE);
+		HANDLE watchEvents[] = { mQuitEvent, mOtherEvent, mTcpEvent };
+		DWORD nEvents = (mTcpEvent == INVALID_HANDLE_VALUE) ? 2 : 3;
+		DWORD ms = (timeout < 0) ? WSA_INFINITE : (DWORD) ((timeout + 999) / 1000);
+		DWORD ret = WSAWaitForMultipleEvents(nEvents, watchEvents, FALSE, ms, FALSE);
 		if (ret == WSA_WAIT_FAILED)
 		{
-			LogError("HandleDMA: TCP/IP scoket wait failed", true);
+			LogError("HandleDMA: TCP/IP socket wait failed", true);
 			continue;
 		}
 
-		// Connecting may take a while, so don't hold the mutex for it.
-		if (!IsConnected() && HasDataToSend())
-			Connect();
-
-		{
-			// Suspend() holds this mutex while the emulator state is saved or loaded
-			std::lock_guard<std::mutex> lock(mDMAMutex);
-
-			// handle receiving DMA
-			if (ret == WSA_WAIT_EVENT_0 + 2)
-			{
-				if (IsConnected())
-				{
-					HandleDMAReceive();
-				}
-				WSAResetEvent(mTcpEvent);
-			}
-
-			// handle transmitting DMA
-			HandleDMASend(); // timer resolution is too coarse, so send up to 4 bytes now
-			HandleDMASend();
-			HandleDMASend();
-			HandleDMASend();
-		}
-
-		// handle commands from mQuitEvent
-		if (ret == WSA_WAIT_EVENT_0)
+		// Commands from other threads. The event only wakes us up, the flags
+		// tell us what to do. Reset it first, so no new command gets lost.
+		WSAResetEvent(mOtherEvent);
+		if (mQuitRequested)
 		{
 			Disconnect();
-			WSAResetEvent(mQuitEvent);
 			break;
 		}
-		if (ret == WSA_WAIT_EVENT_0 + 1)
+		if (mReconnectRequested.exchange(false))
 		{
-			WSAResetEvent(mOtherEvent);
-			// just break the wait
+			Disconnect();
+			mReconnectTime = {}; // connect to the new server right away
 		}
+
+		// Collect the network events, which also resets mTcpEvent. FD_READ is
+		// reported again after the next recv() if there is more data.
+		bool connectDone = false;
+		int connectError = 0;
+		if (mTcpEvent != INVALID_HANDLE_VALUE)
+		{
+			WSANETWORKEVENTS networkEvents {};
+			if (WSAEnumNetworkEvents(mTcpSocket, mTcpEvent, &networkEvents) == 0)
+			{
+				if (networkEvents.lNetworkEvents & FD_CONNECT)
+				{
+					connectDone = true;
+					connectError = networkEvents.iErrorCode[FD_CONNECT_BIT];
+				}
+				if (networkEvents.lNetworkEvents & (FD_READ | FD_CLOSE))
+					mCanReceive = true;
+				if (networkEvents.lNetworkEvents & FD_WRITE)
+					mSendBlocked = false;
+			}
+		}
+
+		// Connect when NewtonOS has data to send.
+		if (mIsConnecting)
+			FinishConnect(connectDone, connectError);
+		else if (!IsConnected() && PendingTxBytes())
+			Connect();
+
+		if (IsConnected() && mCanReceive)
+			HandleDMAReceive();
+		HandleDMASend();
 	}
+	WSAResetEvent(mQuitEvent);
 #else
 	static struct sigaction action { };
 	action.sa_handler = sigpipe_handler;
 	sigaction(SIGPIPE, &action, nullptr);
 
-	// thread loops and handles pipe, port, and DMA
-	struct timeval timeout { };
 	for (;;)
 	{
-		bool needTimer = false;
-		fd_set watchFDs;
-
-		FD_ZERO(&watchFDs);
-		FD_SET(mCommandPipe[0], &watchFDs);
-		if (IsConnected())
-			FD_SET(mTcpSocket, &watchFDs);
-
-		if (mTxDMAIntEnable & 0x00000002)
-		{ // DMA is enabled
-			if (mTxDMADataCountdown)
+		// Decide what to wait for, and how long.
+		long long timeout = -1; // microseconds, -1 waits for an event
+		auto waitAtMost = [&timeout](long long us) {
+			if (timeout < 0 || us < timeout)
+				timeout = us;
+		};
+		int tcpSocket = mTcpSocket;
+		bool watchRead = false;
+		bool watchWrite = false;
+		if (mIsConnecting)
+		{
+			// the socket becomes writable when connect() has finished
+			watchWrite = true;
+			waitAtMost(MicrosecondsUntil(mConnectDeadline));
+		} else
+		{
+			KUInt32 pending = PendingTxBytes();
+			if (IsConnected() && mSendBlocked)
+				watchWrite = true;
+			else if (pending)
+				waitAtMost(mTxThrottle.Delay(pending));
+			if (IsConnected())
 			{
-				needTimer = true;
-				timeout.tv_sec = 0;
-				timeout.tv_usec = 260; // one byte at 38400bps serial port speed
+				// Leave new data in the socket until the throttle allows it.
+				long long rxDelay = mRxThrottle.Delay(1);
+				if (rxDelay == 0)
+					watchRead = true;
+				else
+					waitAtMost(rxDelay);
 			}
 		}
 
-		int ret = select(FD_SETSIZE, &watchFDs, 0L, 0L, needTimer ? &timeout : 0L);
+		fd_set readFDs;
+		fd_set writeFDs;
+		FD_ZERO(&readFDs);
+		FD_ZERO(&writeFDs);
+		FD_SET(mCommandPipe[0], &readFDs);
+		int maxFD = mCommandPipe[0];
+		if (watchRead)
+			FD_SET(tcpSocket, &readFDs);
+		if (watchWrite)
+			FD_SET(tcpSocket, &writeFDs);
+		if ((watchRead || watchWrite) && tcpSocket > maxFD)
+			maxFD = tcpSocket;
+
+		struct timeval tv { };
+		if (timeout >= 0)
+		{
+			tv.tv_sec = (time_t) (timeout / 1000000);
+			tv.tv_usec = (suseconds_t) (timeout % 1000000);
+		}
+		int ret = select(maxFD + 1, &readFDs, &writeFDs, nullptr, (timeout >= 0) ? &tv : nullptr);
 		if (ret == -1)
 		{
-			LogError("HandleDMA: error waiting for sockets", true);
+			if (errno != EINTR)
+				LogError("HandleDMA: error waiting for sockets", true);
 			continue;
 		}
+		bool canRead = watchRead && FD_ISSET(tcpSocket, &readFDs);
+		bool canWrite = watchWrite && FD_ISSET(tcpSocket, &writeFDs);
 
-		// Connecting may take a while, so don't hold the mutex for it.
-		if (!IsConnected() && HasDataToSend())
-			Connect();
-
+		// Commands from other threads. The pipe only wakes us up, the flags
+		// tell us what to do. Empty the pipe first, so no new command gets lost.
+		if (FD_ISSET(mCommandPipe[0], &readFDs))
 		{
-			// Suspend() holds this mutex while the emulator state is saved or loaded
-			std::lock_guard<std::mutex> lock(mDMAMutex);
-
-			// handle receiving DMA
-			if (IsConnected() && FD_ISSET(mTcpSocket, &watchFDs))
-				HandleDMAReceive();
-
-			// handle transmitting DMA
-			HandleDMASend();
-		}
-
-		// handle commands from the command pipe
-		if (FD_ISSET(mCommandPipe[0], &watchFDs))
-		{
-			KUInt8 cmd = 'e';
-			::read(mCommandPipe[0], &cmd, 1);
-			switch (cmd)
+			KUInt8 commands[64];
+			while (::read(mCommandPipe[0], commands, sizeof(commands)) > 0)
 			{
-				case 'q': // quit this thread
-					Disconnect();
-					return;
-				case 'c':
-					// connect, continue, cycle, just any event but quit
-					break;
-				default:
-					LogError("HandleDMA: Error reading pipe", true);
-					break;
 			}
 		}
+		if (mQuitRequested)
+		{
+			Disconnect();
+			return;
+		}
+		if (mReconnectRequested.exchange(false))
+		{
+			Disconnect();
+			mReconnectTime = {}; // connect to the new server right away
+			canRead = false;
+			canWrite = false;
+		}
+
+		// Connect when NewtonOS has data to send.
+		if (mIsConnecting)
+		{
+			int error = 0;
+			if (canWrite)
+			{
+				socklen_t len = sizeof(error);
+				if (getsockopt(mTcpSocket, SOL_SOCKET, SO_ERROR, &error, &len) == -1)
+					error = errno;
+			}
+			FinishConnect(canWrite, error);
+		} else if (!IsConnected() && PendingTxBytes())
+		{
+			Connect();
+		} else if (canWrite)
+		{
+			mSendBlocked = false;
+		}
+
+		if (IsConnected() && canRead)
+			HandleDMAReceive();
+		HandleDMASend();
 	}
 #endif
 }
 
 /**
- \brief Worker thread: true if DMA has a byte to send.
+ \brief Worker thread: number of bytes DMA has to send.
  Takes mDMAMutex, so call it without holding the mutex.
  */
-bool
-TSerialPortDriverTcpClient::HasDataToSend()
+KUInt32
+TSerialPortDriverTcpClient::PendingTxBytes()
 {
 	std::lock_guard<std::mutex> lock(mDMAMutex);
-	return (mTxDMAIntEnable & 0x00000002) && mTxDMADataCountdown;
+	return (mTxDMAIntEnable & 0x00000002) ? mTxDMADataCountdown : 0;
 }
 
 /**
  \brief Worker thread: Send data pending in memory to the server.
 
- Send a single byte. We are throtteling data transfor to match a
- maximum of 38400bps which is the maximum that NewtonSO can handle.
+ Send as many bytes as the throttle allows in one packet. Without a connection
+ to the server, the bytes are dropped at the same rate.
  */
 void
 TSerialPortDriverTcpClient::HandleDMASend()
 {
-	if (mTxDMAIntEnable & 0x00000002)
-	{ // DMA is enabled
-		if (mTxDMADataCountdown)
-		{
-			// write a byte
-			KUInt8 data = 0;
-			mMemory->ReadBP(mTxDMAPhysicalData, data);
-			// The worker thread connects before it calls us (see HandleDMA()).
-			// TODO: if we can't get a connection at this point, should we flush the entire buffer?
-			if (IsConnected())
-			{
-				// The socket does not block. If the server does not read, keep
-				// the byte and send it again in the next round.
+	// Wait until the connection is made, or the socket can take more data.
+	if (mIsConnecting || (IsConnected() && mSendBlocked))
+		return;
+
+	// Suspend() holds this mutex while the emulator state is saved or loaded
+	std::lock_guard<std::mutex> lock(mDMAMutex);
+
+	if (!(mTxDMAIntEnable & 0x00000002) || !mTxDMADataCountdown)
+		return; // DMA is disabled or has nothing to send
+	KUInt32 n = mTxThrottle.Allowance((mTxDMADataCountdown < kMaxChunkSize) ? mTxDMADataCountdown : kMaxChunkSize);
+	if (n == 0)
+		return;
+
+	// Collect the bytes from the circular DMA buffer.
+	KUInt8 buf[kMaxChunkSize];
+	KUInt32 address = mTxDMAPhysicalData;
+	KUInt32 bytesToBufferEnd = mTxDMABytesToBufferEnd;
+	for (KUInt32 i = 0; i < n; i++)
+	{
+		mMemory->ReadBP(address, buf[i]);
+		address++;
+		if (--bytesToBufferEnd == 0)
+			address = mTxDMAPhysicalBufferStart;
+	}
+
+	KUInt32 nSent = n; // without a connection, the bytes are dropped
+	if (IsConnected())
+	{
+		// The socket does not block. If it takes only some of the bytes, the
+		// rest is sent in the next round. If it takes none, wait until it can.
 #if TARGET_OS_WIN32
-				WSABUF buf = { 1, (CHAR*) &data };
-				DWORD nSent = 0;
-				if (WSASend(mTcpSocket, &buf, 1, &nSent, 0, nullptr, nullptr) != 0)
-				{
-					if (WSAGetLastError() == WSAEWOULDBLOCK)
-						return;
-					// FIXME: WSAGetLastError()==10053: connection aborted by host
-					LogError("HandleDMASend: Can't write to TCP/IP socket!", true);
-				}
-#else
-				if (::write(mTcpSocket, &data, 1) == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
-					return;
-#endif
-				// KPrintf("Sending 0x%02x\n", data);
-			} else
-			{
-				// KPrintf("Sending to null 0x%02x\n", data);
-			}
-			mTxDMAPhysicalData++;
-			mTxDMABytesToBufferEnd--;
-			if (mTxDMABytesToBufferEnd == 0)
-			{
-				mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
-			}
-			mTxDMADataCountdown--;
-			if (mTxDMADataCountdown == 0)
-			{
-				// trigger a "send buffer empty" interrupt
-				mTxDMAEvent = 0x00000080;
-				mInterruptManager->RaiseInterrupt(0x00000100);
-			}
+		WSABUF abuf = { n, (CHAR*) buf };
+		DWORD nWritten = 0;
+		if (WSASend(mTcpSocket, &abuf, 1, &nWritten, 0, nullptr, nullptr) == 0)
+		{
+			nSent = (KUInt32) nWritten;
+		} else if (WSAGetLastError() == WSAEWOULDBLOCK)
+		{
+			mSendBlocked = true; // FD_WRITE tells us when it can take more
+			return;
+		} else
+		{
+			LogError("HandleDMASend: Can't write to TCP/IP socket", true);
+			Disconnect();
 		}
+#else
+		ssize_t nWritten = ::write(mTcpSocket, buf, n);
+		if (nWritten >= 0)
+		{
+			nSent = (KUInt32) nWritten;
+		} else if (errno == EAGAIN || errno == EWOULDBLOCK)
+		{
+			mSendBlocked = true; // select() tells us when it can take more
+			return;
+		} else if (errno == EINTR)
+		{
+			return;
+		} else
+		{
+			LogError("HandleDMASend: Can't write to TCP/IP socket", true);
+			Disconnect();
+		}
+#endif
+	}
+	mTxThrottle.Consume(nSent);
+
+	for (KUInt32 i = 0; i < nSent; i++)
+	{
+		mTxDMAPhysicalData++;
+		if (--mTxDMABytesToBufferEnd == 0)
+			mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
+	}
+	mTxDMADataCountdown -= nSent;
+	if (mTxDMADataCountdown == 0)
+	{
+		// trigger a "send buffer empty" interrupt
+		mTxDMAEvent = 0x00000080;
+		mInterruptManager->RaiseInterrupt(0x00000100);
 	}
 }
 
@@ -592,59 +845,72 @@ TSerialPortDriverTcpClient::HandleDMASend()
 
  The worker thread was notified of an event from the receiving socket.
  If the server closed the connection, close if from the client side as well.
- If the server sent data, copy as much as possible to the Newton DMA buffer
- and notify NewtonOS by raising an interrupt.
+ If the server sent data, copy as many bytes as the throttle allows to the
+ Newton DMA buffer and notify NewtonOS by raising an interrupt. The rest
+ stays in the socket until the next round.
  */
 void
 TSerialPortDriverTcpClient::HandleDMAReceive()
 {
-	KUInt8 buf[1026];
+	KUInt32 nAllowed = mRxThrottle.Allowance(kMaxChunkSize);
+	if (nAllowed == 0)
+		return;
+
+	KUInt8 buf[kMaxChunkSize];
 #if TARGET_OS_WIN32
-	DWORD nRequested = 32;
 	DWORD nReceived = 0;
 	DWORD flags = 0;
-	WSABUF abuf = { nRequested, (CHAR*) buf };
-	// FIXME: WSABUF abuf = { 1024, (CHAR*)buf };
-	int ret = WSARecv(mTcpSocket, &abuf, 1, &nReceived, &flags, nullptr, nullptr);
-	int n = (ret == 0) ? nReceived : -1;
+	WSABUF abuf = { nAllowed, (CHAR*) buf };
+	int n = -1;
+	if (WSARecv(mTcpSocket, &abuf, 1, &nReceived, &flags, nullptr, nullptr) == 0)
+	{
+		n = (int) nReceived;
+	} else if (WSAGetLastError() == WSAEWOULDBLOCK)
+	{
+		mCanReceive = false; // wait for the next FD_READ
+		return;
+	}
 #else
-	int n = (int) ::read(mTcpSocket, buf, 1024);
-	if (n == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+	int n = (int) ::read(mTcpSocket, buf, nAllowed);
+	if (n == -1 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR))
 		return; // nothing to read after all (the socket does not block)
 #endif
 	if (n == -1)
 	{
 		LogError("HandleDMAReceive: TCP/IP socket receive failed", true);
 		Disconnect();
-	} else if (n == 0)
+		return;
+	}
+	if (n == 0)
 	{
 		LogError("HandleDMAReceive: Server side disconnect.");
 		Disconnect();
-	} else
-	{
-		// delay up to 1/10th of a second, so that we do not overwhelm the Newton
-		std::this_thread::sleep_for(std::chrono::microseconds(n * 100));
-		for (int i = 0; i < n; i++)
-		{
-			KUInt8 data = buf[i];
-			// KPrintf("Received 0x%02x\n", data);
-			mMemory->WriteBP(mRxDMAPhysicalData, data);
-			mRxDMAPhysicalData++;
-			mRxDMABytesToBufferEnd--;
-			if (mRxDMABytesToBufferEnd == 0)
-			{
-				mRxDMAPhysicalData = mRxDMAPhysicalBufferStart;
-			}
-			mRxDMADataCountdown--;
-			if (mRxDMADataCountdown == 0)
-			{
-				// buffer overflow?
-				LogError("HandleDMAReceive: DMA Overflow on Receive?");
-			}
-		}
-		mRxDMAEvent = 0x00000040;
-		mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
+		return;
 	}
+	mRxThrottle.Consume((KUInt32) n);
+
+	// Suspend() holds this mutex while the emulator state is saved or loaded
+	std::lock_guard<std::mutex> lock(mDMAMutex);
+	for (int i = 0; i < n; i++)
+	{
+		KUInt8 data = buf[i];
+		// KPrintf("Received 0x%02x\n", data);
+		mMemory->WriteBP(mRxDMAPhysicalData, data);
+		mRxDMAPhysicalData++;
+		mRxDMABytesToBufferEnd--;
+		if (mRxDMABytesToBufferEnd == 0)
+		{
+			mRxDMAPhysicalData = mRxDMAPhysicalBufferStart;
+		}
+		mRxDMADataCountdown--;
+		if (mRxDMADataCountdown == 0)
+		{
+			// buffer overflow?
+			LogError("HandleDMAReceive: DMA Overflow on Receive?");
+		}
+	}
+	mRxDMAEvent = 0x00000040;
+	mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
 }
 
 /**
@@ -660,9 +926,14 @@ void
 TSerialPortDriverTcpClient::NSGetOptions(TNewt::RefArg frame)
 {
 	using namespace TNewt;
+	std::string server;
 	char buf[32];
-	snprintf(buf, 30, "%d", mPort);
-	SetFrameSlot(frame, RefVar(MakeSymbol("tcpServer")), RefVar(MakeString(mServer)));
+	{
+		std::lock_guard<std::mutex> lock(mServerMutex);
+		server = mServer ? mServer : "";
+		snprintf(buf, 30, "%d", mPort);
+	}
+	SetFrameSlot(frame, RefVar(MakeSymbol("tcpServer")), RefVar(MakeString(server.c_str())));
 	SetFrameSlot(frame, RefVar(MakeSymbol("tcpPort")), RefVar(MakeString(buf)));
 }
 
@@ -706,44 +977,52 @@ TSerialPortDriverTcpClient::NSSetOptions(TNewt::RefArg inFrame)
 		setPort = true;
 	}
 
-	// KPrintf("INFO: TSerialPortDriverTcpClient::NSSetOptions: (\"%s\", %d)\n", mServer, mPort);
-	if (setServer)
 	{
-		if (strcmp(mServer, server) != 0)
+		// The worker thread reads the server and port when it connects.
+		std::lock_guard<std::mutex> lock(mServerMutex);
+		// KPrintf("INFO: TSerialPortDriverTcpClient::NSSetOptions: (\"%s\", %d)\n", mServer, mPort);
+		if (setServer)
 		{
-			if (mServer)
-				::free(mServer);
-			mServer = strdup(server);
-			mustReconnect = true;
+			if (strcmp(mServer, server) != 0)
+			{
+				if (mServer)
+					::free(mServer);
+				mServer = strdup(server);
+				mustReconnect = true;
+			}
+			// KPrintf("INFO:             Setting server to \"%s\".\n", server);
 		}
-		// KPrintf("INFO:             Setting server to \"%s\".\n", server);
-	}
-	if (setPort)
-	{
-		if (mPort != port)
+		if (setPort)
 		{
-			mPort = port;
-			mustReconnect = true;
+			if (mPort != port)
+			{
+				mPort = port;
+				mustReconnect = true;
+			}
+			// KPrintf("INFO:             Setting port to %d.\n", port);
 		}
-		// KPrintf("INFO:             Setting port to %d.\n", port);
 	}
 
 	if (mustReconnect)
 	{
-		Disconnect(); // force the server to reconnect
+		// We are on the emulator thread, but only the worker thread may touch
+		// the socket. Ask it to disconnect, it reconnects when there is data.
+		mReconnectRequested = true;
+		TriggerEvent('r');
 		// KPrintf("INFO: TSerialPortDriverTcpClient::NSSetOptions: must reconnect\n");
 	}
 }
 
 /**
  \brief Change the server address.
- Set a new server name. This will not disconnect or reconnect. To disconnect
- and reconnect to the new server, call TSerialPortDriverTcpClient::Disconnect().
+ Set a new server name. This will not disconnect or reconnect. The next
+ connection goes to the new server.
  \param[in] inAddress new server address as a string.
  */
 void
 TSerialPortDriverTcpClient::SetServerAddress(const char* inAddress)
 {
+	std::lock_guard<std::mutex> lock(mServerMutex);
 	if (mServer)
 		::free(mServer);
 	mServer = strdup(inAddress);
@@ -751,13 +1030,14 @@ TSerialPortDriverTcpClient::SetServerAddress(const char* inAddress)
 
 /**
  \brief Change the server port.
- Set a new server port. This will not disconnect or reconnect. To disconnect
- and reconnect to the new port, call TSerialPortDriverTcpClient::Disconnect().
+ Set a new server port. This will not disconnect or reconnect. The next
+ connection goes to the new port.
  \param[in] inPort new server port number.
  */
 void
 TSerialPortDriverTcpClient::SetServerPort(int inPort)
 {
+	std::lock_guard<std::mutex> lock(mServerMutex);
 	mPort = inPort;
 }
 
@@ -770,6 +1050,7 @@ TSerialPortDriverTcpClient::SetServerPort(int inPort)
 char*
 TSerialPortDriverTcpClient::GetServerAddressDup()
 {
+	std::lock_guard<std::mutex> lock(mServerMutex);
 	return strdup(mServer);
 }
 
@@ -781,6 +1062,7 @@ TSerialPortDriverTcpClient::GetServerAddressDup()
 int
 TSerialPortDriverTcpClient::GetServerPort()
 {
+	std::lock_guard<std::mutex> lock(mServerMutex);
 	return mPort;
 }
 
