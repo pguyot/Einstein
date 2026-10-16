@@ -25,8 +25,8 @@
 // in microseconds. 0 transfers as fast as the host can.
 // 260 us is 38400 bps (ten bits per byte with start and stop bit), the
 // fastest speed that NewtonOS supports.
-static constexpr int kTxMicrosecondsPerByte = 80; // Newton to server
-static constexpr int kRxMicrosecondsPerByte = 80; // server to Newton
+static constexpr int kTxMicrosecondsPerByte = 90; // Newton to server
+static constexpr int kRxMicrosecondsPerByte = 90; // server to Newton
 
 #include "TSerialPortDriverTcpClient.h"
 #include "app/TPathHelper.h"
