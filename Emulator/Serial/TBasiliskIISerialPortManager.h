@@ -26,6 +26,7 @@
 
 #include "TBasicSerialPortManager.h"
 
+#include <atomic>
 #include <pthread.h>
 
 class TLog;
@@ -111,6 +112,16 @@ protected:
 	}
 
 	///
+	/// Worker thread: send data pending in memory to BasiliskII.
+	///
+	void HandleDMASend();
+
+	///
+	/// Worker thread: receive data or a control code from BasiliskII.
+	///
+	void HandleDMAReceive();
+
+	///
 	/// Open a PTY that is linked to /tmp/pty.BasiliskII
 	///
 	bool OpenPTY();
@@ -123,8 +134,26 @@ protected:
 	/// communication between emulator and DMA thread
 	int mPipe[2] { -1, -1 };
 
-	/// set if DMA thread is active
+	/// set if the DMA thread was started; the destructor joins it
 	bool mDMAIsRunning { false };
+
+	/// Set by TriggerEvent(kSerCmd_StopThread), so a quit request can't get lost.
+	std::atomic<bool> mQuitRequested { false };
+
+	/// The members below are only used by the worker thread.
+
+	/// the PTY did not take all data; wait until it can take more
+	bool mSendBlocked { false };
+
+	/// open the PTY again at this time after closing it
+	Clock::time_point mReopenTime {};
+
+	/// read again at this time after a read error
+	Clock::time_point mReadRetryTime {};
+
+	/// pace sending and receiving
+	TThrottle mTxThrottle;
+	TThrottle mRxThrottle;
 
 	/// Worker thread
 	pthread_t mDMAThread { 0 };

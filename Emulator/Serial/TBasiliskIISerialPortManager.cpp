@@ -21,6 +21,13 @@
 // $Id$
 // ==============================
 
+// Throttle the emulated serial line: the time it takes to transfer one byte,
+// in microseconds. 0 transfers as fast as the host can.
+// 260 us is 38400 bps (ten bits per byte with start and stop bit), the
+// fastest speed that NewtonOS supports.
+static constexpr int kTxMicrosecondsPerByte = 90; // Newton to BasiliskII
+static constexpr int kRxMicrosecondsPerByte = 90; // BasiliskII to Newton
+
 #include "TBasiliskIISerialPortManager.h"
 #include "app/TPathHelper.h"
 
@@ -50,6 +57,19 @@
 
 const char* TBasiliskIISerialPortManager::kBasiliskPipe = "/tmp/pty.BasiliskII";
 
+// Largest number of bytes read from or written to the PTY at once.
+static constexpr KUInt32 kMaxChunkSize = 1024;
+
+// After closing the PTY to get BasiliskII out of its endless loop, wait this
+// long before opening it again.
+static constexpr std::chrono::milliseconds kReopenDelay { 500 };
+
+// If the PTY can't be opened again, try again after this time.
+static constexpr std::chrono::seconds kOpenRetryDelay { 5 };
+
+// After a read error, wait this long before reading again.
+static constexpr std::chrono::milliseconds kReadErrorDelay { 100 };
+
 // -------------------------------------------------------------------------- //
 //  * TBasiliskIISerialPortManager()
 //
@@ -71,27 +91,33 @@ const char* TBasiliskIISerialPortManager::kBasiliskPipe = "/tmp/pty.BasiliskII";
 TBasiliskIISerialPortManager::TBasiliskIISerialPortManager(
 	TLog* inLog,
 	TSerialPorts::EPortIndex inPortIx) :
-		TBasicSerialPortManager(inLog, inPortIx)
+		TBasicSerialPortManager(inLog, inPortIx),
+		mTxThrottle(kTxMicrosecondsPerByte),
+		mRxThrottle(kRxMicrosecondsPerByte)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TBasiliskIISerialPortManager( void )
-//		Don't worry about releasing  resources. All drivers will live
-//		throughout the run time of the app.
+//		The driver is deleted when the user selects another driver.
 // -------------------------------------------------------------------------- //
 TBasiliskIISerialPortManager::~TBasiliskIISerialPortManager()
 {
-	void* threadStatus;
-
 	// always shut down the thread properly, so we clean up the filesystem after ourselves.
-	TriggerEvent(kSerCmd_StopThread);
-	pthread_join(mDMAThread, &threadStatus);
-	// clean up the symlink
-	unlink(kBasiliskPipe);
+	if (mDMAIsRunning)
+	{
+		void* threadStatus;
+		TriggerEvent(kSerCmd_StopThread);
+		pthread_join(mDMAThread, &threadStatus);
+		mDMAIsRunning = false;
+	}
+	// the thread closes the PTY, but it may not have started
+	ClosePTY();
 
-	if (pBasiliskRemoteName)
-		::free(pBasiliskRemoteName);
+	if (mPipe[0] != -1)
+		close(mPipe[0]);
+	if (mPipe[1] != -1)
+		close(mPipe[1]);
 }
 
 // -------------------------------------------------------------------------- //
@@ -111,13 +137,18 @@ TBasiliskIISerialPortManager::run(TInterruptManager* inInterruptManager,
 
 // -------------------------------------------------------------------------- //
 // DMA or interrupts were triggered
+// kSerCmd_StopThread quits the worker thread, any other command just wakes
+// it up.
 // -------------------------------------------------------------------------- //
 void
 TBasiliskIISerialPortManager::TriggerEvent(KUInt8 cmd)
 {
+	if (cmd == kSerCmd_StopThread)
+		mQuitRequested = true;
 	if (mPipe[1] != -1)
 	{
-		write(mPipe[1], &cmd, 1);
+		// If the pipe is full, the worker thread will wake up anyway.
+		(void) write(mPipe[1], &cmd, 1);
 	}
 }
 
@@ -253,6 +284,8 @@ TBasiliskIISerialPortManager::ClosePTY()
 		::free(pBasiliskRemoteName);
 		pBasiliskRemoteName = nullptr;
 	}
+
+	mSendBlocked = false;
 }
 
 // -------------------------------------------------------------------------- //
@@ -275,6 +308,7 @@ TBasiliskIISerialPortManager::RunDMA()
 	if (!hasPty)
 	{
 		KPrintf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pseudo terminal %s.\n", kBasiliskPipe);
+		ClosePTY();
 		return;
 	}
 
@@ -285,14 +319,19 @@ TBasiliskIISerialPortManager::RunDMA()
 		KPrintf("***** TBasiliskIISerialPortManager::RunDMA: Error opening pipe - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
+	// Neither end blocks: the emulator thread must never wait for the worker
+	// thread, and the worker thread empties the pipe without waiting.
+	(void) fcntl(mPipe[0], F_SETFL, fcntl(mPipe[0], F_GETFL) | O_NONBLOCK);
+	(void) fcntl(mPipe[1], F_SETFL, fcntl(mPipe[1], F_GETFL) | O_NONBLOCK);
 
-	// create the actual thread and let it run forever
+	// create the actual thread and let it run until the driver is deleted
 	int ptErr = ::pthread_create(&mDMAThread, nullptr, &SHandleDMA, this);
-	if (ptErr == -1)
+	if (ptErr != 0)
 	{
-		KPrintf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pthread - %s (%d).\n", strerror(errno), errno);
+		KPrintf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pthread - %s (%d).\n", strerror(ptErr), ptErr);
 		return;
 	}
+	mDMAIsRunning = true;
 }
 
 // -------------------------------------------------------------------------- //
@@ -300,189 +339,269 @@ TBasiliskIISerialPortManager::RunDMA()
 //		This endless loop watches DMA registers as they are changed by the
 //		OS, and read and writes data via the outside communication ports.
 //		It can also trigger interrupts when buffers empty, fill, or overflow.
+//
+//		The loop waits for a command, the PTY, or the throttle, whatever comes
+//		first. It never sleeps, and never waits while it holds mDMAMutex.
 // -------------------------------------------------------------------------- //
 int
 TBasiliskIISerialPortManager::HandleDMA()
 {
-	bool shutdownThread = false;
 	pComState = kStateInit;
-	static int maxFD = -1;
-
-	if (pBasiliskLocalFD > maxFD)
-		maxFD = pBasiliskLocalFD;
-	if (pBasiliskRemoteFD > maxFD)
-		maxFD = pBasiliskRemoteFD;
-	if (mPipe[0] > maxFD)
-		maxFD = mPipe[0];
 
 	// thread loops and handles pipe, port, and DMA
-	fd_set readSet;
-	struct timeval timeout;
-
-	while (!shutdownThread)
+	for (;;)
 	{
-		bool needTimer = false;
+		// Decide what to wait for, and how long.
+		long long timeout = -1; // microseconds, -1 waits for an event
+		auto waitAtMost = [&timeout](long long us) {
+			if (timeout < 0 || us < timeout)
+				timeout = us;
+		};
+		int ptyFD = pBasiliskLocalFD;
+		bool watchRead = false;
+		bool watchWrite = false;
+		if (ptyFD == -1)
+		{
+			// The PTY was closed to help BasiliskII. Open it again later.
+			waitAtMost(MicrosecondsUntil(mReopenTime));
+		} else
+		{
+			// Leave new data in the PTY until the throttle allows it.
+			long long rxDelay = mRxThrottle.Delay(1);
+			long long retryDelay = MicrosecondsUntil(mReadRetryTime);
+			if (retryDelay > rxDelay)
+				rxDelay = retryDelay;
+			if (rxDelay == 0)
+				watchRead = true;
+			else
+				waitAtMost(rxDelay);
+		}
+		KUInt32 pending = PendingTxBytes();
+		if (ptyFD != -1 && mSendBlocked)
+			watchWrite = true;
+		else if (pending)
+			waitAtMost(mTxThrottle.Delay(pending));
 
-		if (mTxDMAIntEnable & 0x00000002)
-		{ // DMA is enabled
-			if (mTxDMADataCountdown)
+		fd_set readFDs;
+		fd_set writeFDs;
+		FD_ZERO(&readFDs);
+		FD_ZERO(&writeFDs);
+		FD_SET(mPipe[0], &readFDs);
+		int maxFD = mPipe[0];
+		if (watchRead)
+			FD_SET(ptyFD, &readFDs);
+		if (watchWrite)
+			FD_SET(ptyFD, &writeFDs);
+		if ((watchRead || watchWrite) && ptyFD > maxFD)
+			maxFD = ptyFD;
+
+		struct timeval tv { };
+		if (timeout >= 0)
+		{
+			tv.tv_sec = (time_t) (timeout / 1000000);
+			tv.tv_usec = (suseconds_t) (timeout % 1000000);
+		}
+		int ret = select(maxFD + 1, &readFDs, &writeFDs, nullptr, (timeout >= 0) ? &tv : nullptr);
+		if (ret == -1)
+		{
+			if (errno != EINTR)
+				KPrintf("***** TBasiliskIISerialPortManager::HandleDMA: select failed - %s (%d).\n", strerror(errno), errno);
+			continue;
+		}
+		bool canRead = watchRead && FD_ISSET(ptyFD, &readFDs);
+		bool canWrite = watchWrite && FD_ISSET(ptyFD, &writeFDs);
+
+		// Commands from other threads. The pipe only wakes us up, the flag
+		// tells us to quit. Empty the pipe first, so no new command gets lost.
+		if (FD_ISSET(mPipe[0], &readFDs))
+		{
+			KUInt8 commands[64];
+			while (read(mPipe[0], commands, sizeof(commands)) > 0)
 			{
-				needTimer = true;
 			}
 		}
+		if (mQuitRequested)
+			break;
 
-		// wait for the next event
-		FD_ZERO(&readSet);
-		FD_SET(mPipe[0], &readSet);
-		FD_SET(pBasiliskLocalFD, &readSet);
-		if (needTimer)
+		// Open the PTY again after it was closed.
+		if (pBasiliskLocalFD == -1 && MicrosecondsUntil(mReopenTime) == 0)
 		{
-			timeout.tv_sec = 0;
-			timeout.tv_usec = 260; // one byte at 38400bps serial port speed
-		}
-		/*int s =*/select(maxFD + 1, &readSet, 0L, 0L, needTimer ? &timeout : 0L);
-
-		// handle transmitting DMA
-
-		{
-			// Suspend() holds this mutex while the emulator state is saved or loaded
-			std::lock_guard<std::mutex> theLock(mDMAMutex);
-			if (mTxDMAIntEnable & 0x00000002)
-			{ // DMA is enabled
-				if (mTxDMADataCountdown)
-				{
-					// write a byte
-					KUInt8 data = 0;
-					mMemory->ReadBP(mTxDMAPhysicalData, data);
-					// If BasiliskII does not read, keep the byte and send it again
-					// in the next round. Other errors drop the byte, as before.
-					bool theOutputIsFull = (write(pBasiliskLocalFD, &data, 1) == -1)
-						&& (errno == EAGAIN || errno == EWOULDBLOCK);
-					if (!theOutputIsFull)
-					{
-						mTxDMAPhysicalData++;
-						mTxDMABytesToBufferEnd--;
-						if (mTxDMABytesToBufferEnd == 0)
-						{
-							mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
-						}
-						mTxDMADataCountdown--;
-						if (mTxDMADataCountdown == 0)
-						{
-							// trigger a "send buffer empty" interrupt
-							mTxDMAEvent = 0x00000080;
-							mInterruptManager->RaiseInterrupt(0x00000100);
-						}
-					}
-				}
-			}
-		}
-
-		// handle receiving DMA
-
-		if (FD_ISSET(pBasiliskLocalFD, &readSet))
-		{
-			// read bytes that come in through the serial port
-			KUInt8 buf[1026];
-			int n = -1;
-			usleep(100000); // 1/10th of a second
-			n = (int) read(pBasiliskLocalFD, buf, 1024);
-			if (n <= 0)
+			if (OpenPTY())
 			{
-				usleep(100000); // 1/10th of a second
-			} else if (n == 1)
-			{
-				const uint8_t FLUSHRW = TIOCPKT_FLUSHREAD | TIOCPKT_FLUSHWRITE;
-				uint8_t c = buf[0];
-				switch (pComState)
-				{
-					case kStateInit:
-						// Initial state. Wait for Basilisk to open and setup its COM port
-						if ((c & TIOCPKT_NOSTOP) == TIOCPKT_NOSTOP)
-							pComState = kStateOpen;
-						break;
-					case kStateOpen:
-						// The port is open. Wait for Basilisk to flush the COM port after initialising
-						if ((c & FLUSHRW) == FLUSHRW)
-							pComState = kStateFlushRW;
-						break;
-					case kStateFlushRW:
-						// wait for a second flushing of the COM port. This indicates to us that Basilisk
-						// is very likely trying to close the port, but may be deadloking. Help Basilisk
-						// out by closing and reopening the pipe.
-						if ((c & FLUSHRW) == FLUSHRW)
-						{
-							ClosePTY();
-							usleep(500000); // half a second
-							OpenPTY();
-							pComState = kStateInit;
-						}
-						break;
-				}
-				// handle control command in buf[0]
-				//				KPrintf("BasiliskII sent control code (%d):", pComState);
-				//				if (c&TIOCPKT_FLUSHREAD) puts("     - TIOCPKT_FLUSHREAD");
-				//				if (c&TIOCPKT_FLUSHWRITE) puts("     - TIOCPKT_FLUSHWRITE");
-				//				if (c&TIOCPKT_STOP) puts("     - TIOCPKT_STOP");
-				//				if (c&TIOCPKT_START) puts("     - TIOCPKT_START");
-				//				if (c&TIOCPKT_DOSTOP) puts("     - TIOCPKT_DOSTOP");
-				//				if (c&TIOCPKT_NOSTOP) puts("     - TIOCPKT_NOSTOP");
+				pComState = kStateInit;
 			} else
 			{
-				// Suspend() holds this mutex while the emulator state is saved or loaded
-				std::lock_guard<std::mutex> theLock(mDMAMutex);
-				// handle incomming data (ignore buf[0]!)
-				for (int i = 1; i < n; i++)
-				{
-					KUInt8 data = buf[i];
-					mMemory->WriteBP(mRxDMAPhysicalData, data);
-					mRxDMAPhysicalData++;
-					mRxDMABytesToBufferEnd--;
-					if (mRxDMABytesToBufferEnd == 0)
-					{ // or mRxDMADataCountdown?
-						mRxDMAPhysicalData = mRxDMAPhysicalBufferStart;
-					}
-					mRxDMADataCountdown--;
-					if (mRxDMADataCountdown == 0)
-					{
-						// buffer overflow?
-					}
-				}
-				mRxDMAEvent = 0x00000040;
-				mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
+				ClosePTY();
+				mReopenTime = Clock::now() + kOpenRetryDelay;
 			}
 		}
 
-		// handle commands from the pipe
-		if (FD_ISSET(mPipe[0], &readSet))
-		{
-			// read and interprete command from the pipe
-			// - control register changed (start or stop DMA?)
-			KUInt8 cmd;
-			int nAvail;
-			int err = ioctl(mPipe[0], FIONREAD, &nAvail);
-			if (err != -1)
-			{
-				for (int i = 0; i < nAvail; i++)
-				{
-					int n = (int) read(mPipe[0], &cmd, 1);
-					if (n == -1)
-					{
-						KPrintf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
-					} else if (n)
-					{
-						if (cmd == 'Q')
-						{
-							shutdownThread = true;
-						}
-					}
-				}
-			}
-		}
+		if (canWrite)
+			mSendBlocked = false;
+		if (canRead)
+			HandleDMAReceive();
+		HandleDMASend();
 	}
 	ClosePTY();
-	mDMAIsRunning = false;
 	return 0;
+}
+
+// -------------------------------------------------------------------------- //
+//  * HandleDMASend()
+//		Send as many bytes as the throttle allows in one write. While the PTY
+//		is closed, the bytes are dropped at the same rate.
+// -------------------------------------------------------------------------- //
+void
+TBasiliskIISerialPortManager::HandleDMASend()
+{
+	// Wait until the PTY can take more data.
+	if (pBasiliskLocalFD != -1 && mSendBlocked)
+		return;
+
+	// Suspend() holds this mutex while the emulator state is saved or loaded
+	std::lock_guard<std::mutex> theLock(mDMAMutex);
+
+	if (!(mTxDMAIntEnable & 0x00000002) || !mTxDMADataCountdown)
+		return; // DMA is disabled or has nothing to send
+	KUInt32 n = mTxThrottle.Allowance((mTxDMADataCountdown < kMaxChunkSize) ? mTxDMADataCountdown : kMaxChunkSize);
+	if (n == 0)
+		return;
+
+	// Collect the bytes from the circular DMA buffer.
+	KUInt8 buf[kMaxChunkSize];
+	KUInt32 address = mTxDMAPhysicalData;
+	KUInt32 bytesToBufferEnd = mTxDMABytesToBufferEnd;
+	for (KUInt32 i = 0; i < n; i++)
+	{
+		mMemory->ReadBP(address, buf[i]);
+		address++;
+		if (--bytesToBufferEnd == 0)
+			address = mTxDMAPhysicalBufferStart;
+	}
+
+	KUInt32 nSent = n; // without a PTY, the bytes are dropped
+	if (pBasiliskLocalFD != -1)
+	{
+		// The PTY does not block. If it takes only some of the bytes, the
+		// rest is sent in the next round. If it takes none, wait until it
+		// can. Other errors drop the bytes, as before.
+		ssize_t nWritten = write(pBasiliskLocalFD, buf, n);
+		if (nWritten >= 0)
+		{
+			nSent = (KUInt32) nWritten;
+		} else if (errno == EAGAIN || errno == EWOULDBLOCK)
+		{
+			mSendBlocked = true; // select() tells us when it can take more
+			return;
+		} else if (errno == EINTR)
+		{
+			return;
+		}
+	}
+	mTxThrottle.Consume(nSent);
+
+	for (KUInt32 i = 0; i < nSent; i++)
+	{
+		mTxDMAPhysicalData++;
+		if (--mTxDMABytesToBufferEnd == 0)
+			mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
+	}
+	mTxDMADataCountdown -= nSent;
+	if (mTxDMADataCountdown == 0)
+	{
+		// trigger a "send buffer empty" interrupt
+		mTxDMAEvent = 0x00000080;
+		mInterruptManager->RaiseInterrupt(0x00000100);
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * HandleDMAReceive()
+//		The PTY is in packet mode (TIOCPKT): every read returns either a
+//		single control code, or a 0 followed by data. Copy as many data
+//		bytes as the throttle allows to the Newton DMA buffer, and leave the
+//		rest in the PTY until the next round.
+// -------------------------------------------------------------------------- //
+void
+TBasiliskIISerialPortManager::HandleDMAReceive()
+{
+	KUInt32 nAllowed = mRxThrottle.Allowance(kMaxChunkSize);
+	if (nAllowed == 0)
+		return;
+
+	// read bytes that come in through the serial port, plus the packet header
+	KUInt8 buf[kMaxChunkSize + 1];
+	int n = (int) read(pBasiliskLocalFD, buf, nAllowed + 1);
+	if (n == -1 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR))
+		return; // nothing to read after all (the PTY does not block)
+	if (n <= 0)
+	{
+		// don't spin on a broken PTY
+		mReadRetryTime = Clock::now() + kReadErrorDelay;
+		return;
+	}
+
+	if (n == 1)
+	{
+		const uint8_t FLUSHRW = TIOCPKT_FLUSHREAD | TIOCPKT_FLUSHWRITE;
+		uint8_t c = buf[0];
+		switch (pComState)
+		{
+			case kStateInit:
+				// Initial state. Wait for Basilisk to open and setup its COM port
+				if ((c & TIOCPKT_NOSTOP) == TIOCPKT_NOSTOP)
+					pComState = kStateOpen;
+				break;
+			case kStateOpen:
+				// The port is open. Wait for Basilisk to flush the COM port after initialising
+				if ((c & FLUSHRW) == FLUSHRW)
+					pComState = kStateFlushRW;
+				break;
+			case kStateFlushRW:
+				// wait for a second flushing of the COM port. This indicates to us that Basilisk
+				// is very likely trying to close the port, but may be deadloking. Help Basilisk
+				// out by closing and reopening the pipe. HandleDMA() opens it again.
+				if ((c & FLUSHRW) == FLUSHRW)
+				{
+					ClosePTY();
+					mReopenTime = Clock::now() + kReopenDelay;
+				}
+				break;
+		}
+		// handle control command in buf[0]
+		//				KPrintf("BasiliskII sent control code (%d):", pComState);
+		//				if (c&TIOCPKT_FLUSHREAD) puts("     - TIOCPKT_FLUSHREAD");
+		//				if (c&TIOCPKT_FLUSHWRITE) puts("     - TIOCPKT_FLUSHWRITE");
+		//				if (c&TIOCPKT_STOP) puts("     - TIOCPKT_STOP");
+		//				if (c&TIOCPKT_START) puts("     - TIOCPKT_START");
+		//				if (c&TIOCPKT_DOSTOP) puts("     - TIOCPKT_DOSTOP");
+		//				if (c&TIOCPKT_NOSTOP) puts("     - TIOCPKT_NOSTOP");
+		return;
+	}
+
+	mRxThrottle.Consume((KUInt32) (n - 1));
+
+	// Suspend() holds this mutex while the emulator state is saved or loaded
+	std::lock_guard<std::mutex> theLock(mDMAMutex);
+	// handle incomming data (ignore buf[0]!)
+	for (int i = 1; i < n; i++)
+	{
+		KUInt8 data = buf[i];
+		mMemory->WriteBP(mRxDMAPhysicalData, data);
+		mRxDMAPhysicalData++;
+		mRxDMABytesToBufferEnd--;
+		if (mRxDMABytesToBufferEnd == 0)
+		{ // or mRxDMADataCountdown?
+			mRxDMAPhysicalData = mRxDMAPhysicalBufferStart;
+		}
+		mRxDMADataCountdown--;
+		if (mRxDMADataCountdown == 0)
+		{
+			// buffer overflow?
+		}
+	}
+	mRxDMAEvent = 0x00000040;
+	mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
 }
 
 // ================================================================== //

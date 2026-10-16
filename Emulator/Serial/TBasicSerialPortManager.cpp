@@ -550,6 +550,88 @@ TBasicSerialPortManager::Resume()
 	mDMAMutex.unlock();
 }
 
+// While data flows, a throttled worker thread wakes up about once per time
+// slice and transfers all bytes that the throttle allowed since its last turn
+// in one chunk.
+static constexpr int kTimeSliceMicroseconds = 10000;
+
+// A throttled line may catch up on this much time, so that late wake-ups
+// (the Windows timer ticks every 15.6 ms) don't lower the rate.
+static constexpr int kMaxCatchUpMicroseconds = 20000;
+
+/**
+ \brief Number of bytes that may be transferred now.
+ \param[in] inMax return at most this many bytes
+ \return 0 if the next byte must wait
+ */
+KUInt32
+TBasicSerialPortManager::TThrottle::Allowance(KUInt32 inMax)
+{
+	if (mMicrosecondsPerByte <= 0)
+		return inMax;
+	Clock::time_point now = Clock::now();
+	if (mReadyTime > now)
+		return 0;
+	// Don't save up more than kMaxCatchUpMicroseconds while the line is idle.
+	Clock::time_point earliest = now - std::chrono::microseconds(kMaxCatchUpMicroseconds);
+	if (mReadyTime < earliest)
+		mReadyTime = earliest;
+	long long us = std::chrono::duration_cast<std::chrono::microseconds>(now - mReadyTime).count();
+	long long n = us / mMicrosecondsPerByte + 1;
+	return (n < inMax) ? (KUInt32) n : inMax;
+}
+
+/**
+ \brief Count bytes that were transferred.
+ The next byte may follow after the time that these bytes took.
+ */
+void
+TBasicSerialPortManager::TThrottle::Consume(KUInt32 inBytes)
+{
+	mReadyTime += std::chrono::microseconds((long long) mMicrosecondsPerByte * inBytes);
+}
+
+/**
+ \brief Microseconds until inBytes may be transferred.
+ Waits for at most one time slice of bytes, so they go out in one chunk.
+ \return 0 if they may be transferred now
+ */
+long long
+TBasicSerialPortManager::TThrottle::Delay(KUInt32 inBytes) const
+{
+	if (mMicrosecondsPerByte <= 0 || inBytes == 0)
+		return 0;
+	// (no std::min/max: Windows.h defines min and max as macros)
+	long long slice = kTimeSliceMicroseconds / mMicrosecondsPerByte;
+	if (slice < 1)
+		slice = 1;
+	long long n = (inBytes < slice) ? inBytes : slice;
+	return MicrosecondsUntil(mReadyTime + std::chrono::microseconds((n - 1) * mMicrosecondsPerByte));
+}
+
+// -------------------------------------------------------------------------- //
+//  * MicrosecondsUntil( Clock::time_point )
+// -------------------------------------------------------------------------- //
+long long
+TBasicSerialPortManager::MicrosecondsUntil(Clock::time_point inTime)
+{
+	Clock::time_point now = Clock::now();
+	if (inTime <= now)
+		return 0;
+	return std::chrono::duration_cast<std::chrono::microseconds>(inTime - now).count() + 1;
+}
+
+/**
+ \brief Worker thread: number of bytes DMA has to send.
+ Takes mDMAMutex, so call it without holding the mutex.
+ */
+KUInt32
+TBasicSerialPortManager::PendingTxBytes()
+{
+	std::lock_guard<std::mutex> lock(mDMAMutex);
+	return (mTxDMAIntEnable & 0x00000002) ? mTxDMADataCountdown : 0;
+}
+
 // -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //

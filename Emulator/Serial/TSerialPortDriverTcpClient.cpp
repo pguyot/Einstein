@@ -59,15 +59,6 @@ static constexpr int kRxMicrosecondsPerByte = 90; // server to Newton
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TLog.h"
 
-// While data flows, the worker thread wakes up about once per time slice and
-// transfers all bytes that the throttle allowed since its last turn in one
-// TCP packet.
-static constexpr int kTimeSliceMicroseconds = 10000;
-
-// A throttled line may catch up on this much time, so that late wake-ups
-// (the Windows timer ticks every 15.6 ms) don't lower the rate.
-static constexpr int kMaxCatchUpMicroseconds = 20000;
-
 // Largest number of bytes read from or written to the socket at once.
 static constexpr KUInt32 kMaxChunkSize = 1024;
 
@@ -111,68 +102,6 @@ static constexpr std::chrono::seconds kReconnectDelay { 3 };
  The class can be destroyed if the user changes settings in the preferences
  panel.
  */
-
-// -------------------------------------------------------------------------- //
-// Microseconds from now until inTime, 0 if inTime has passed.
-// -------------------------------------------------------------------------- //
-static long long
-MicrosecondsUntil(std::chrono::steady_clock::time_point inTime)
-{
-	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-	if (inTime <= now)
-		return 0;
-	return std::chrono::duration_cast<std::chrono::microseconds>(inTime - now).count() + 1;
-}
-
-/**
- \brief Number of bytes that may be transferred now.
- \param[in] inMax return at most this many bytes
- \return 0 if the next byte must wait
- */
-KUInt32
-TSerialPortDriverTcpClient::TThrottle::Allowance(KUInt32 inMax)
-{
-	if (mMicrosecondsPerByte <= 0)
-		return inMax;
-	Clock::time_point now = Clock::now();
-	if (mReadyTime > now)
-		return 0;
-	// Don't save up more than kMaxCatchUpMicroseconds while the line is idle.
-	Clock::time_point earliest = now - std::chrono::microseconds(kMaxCatchUpMicroseconds);
-	if (mReadyTime < earliest)
-		mReadyTime = earliest;
-	long long us = std::chrono::duration_cast<std::chrono::microseconds>(now - mReadyTime).count();
-	long long n = us / mMicrosecondsPerByte + 1;
-	return (n < inMax) ? (KUInt32) n : inMax;
-}
-
-/**
- \brief Count bytes that were transferred.
- The next byte may follow after the time that these bytes took.
- */
-void
-TSerialPortDriverTcpClient::TThrottle::Consume(KUInt32 inBytes)
-{
-	mReadyTime += std::chrono::microseconds((long long) mMicrosecondsPerByte * inBytes);
-}
-
-/**
- \brief Microseconds until inBytes may be transferred.
- Waits for at most one time slice of bytes, so they go out in one packet.
- \return 0 if they may be transferred now
- */
-long long
-TSerialPortDriverTcpClient::TThrottle::Delay(KUInt32 inBytes) const
-{
-	if (mMicrosecondsPerByte <= 0 || inBytes == 0)
-		return 0;
-	// (no std::min/max: Windows.h defines min and max as macros)
-	long long slice = kTimeSliceMicroseconds / mMicrosecondsPerByte;
-	if (slice < 1)
-		slice = 1;
-	long long n = (inBytes < slice) ? inBytes : slice;
-	return MicrosecondsUntil(mReadyTime + std::chrono::microseconds((n - 1) * mMicrosecondsPerByte));
-}
 
 // -------------------------------------------------------------------------- //
 //  * TSerialPortDriverTcpClient()
@@ -737,17 +666,6 @@ TSerialPortDriverTcpClient::HandleDMA()
 		HandleDMASend();
 	}
 #endif
-}
-
-/**
- \brief Worker thread: number of bytes DMA has to send.
- Takes mDMAMutex, so call it without holding the mutex.
- */
-KUInt32
-TSerialPortDriverTcpClient::PendingTxBytes()
-{
-	std::lock_guard<std::mutex> lock(mDMAMutex);
-	return (mTxDMAIntEnable & 0x00000002) ? mTxDMADataCountdown : 0;
 }
 
 /**

@@ -26,6 +26,7 @@
 
 #include "TBasicSerialPortManager.h"
 
+#include <atomic>
 #include <pthread.h>
 #include <string>
 
@@ -86,6 +87,16 @@ protected:
 	void HandleDMA();
 
 	///
+	/// Worker thread: send data pending in memory to the sending pipe.
+	///
+	void HandleDMASend();
+
+	///
+	/// Worker thread: receive data from the receiving pipe.
+	///
+	void HandleDMAReceive();
+
+	///
 	/// PThread hook.
 	///
 	static void*
@@ -114,8 +125,26 @@ protected:
 	/// named pipe or serial port
 	int mRxPort { -1 };
 
-	/// set if DMA thread is active
+	/// set if the DMA thread was started; the destructor joins it
 	bool mDMAIsRunning { false };
+
+	/// Set by TriggerEvent('q'), so a quit request can't get lost.
+	std::atomic<bool> mQuitRequested { false };
+
+	/// The members below are only used by the worker thread.
+
+	/// the port did not take all data; wait until it can take more
+	bool mSendBlocked { false };
+
+	/// read again at this time after a read error
+	Clock::time_point mReadRetryTime {};
+
+	/// a read error was reported; don't report it again until a read works
+	bool mReadErrorReported { false };
+
+	/// pace sending and receiving
+	TThrottle mTxThrottle;
+	TThrottle mRxThrottle;
 
 	pthread_t mDMAThread { 0 };
 

@@ -109,34 +109,6 @@ public:
 	int GetServerPort();
 
 protected:
-	using Clock = std::chrono::steady_clock;
-
-	///
-	/// Pace a stream of bytes to a fixed time per byte.
-	///
-	class TThrottle
-	{
-	public:
-		explicit TThrottle(int inMicrosecondsPerByte) :
-				mMicrosecondsPerByte(inMicrosecondsPerByte)
-		{
-		}
-
-		/// Number of bytes that may be transferred now, at most inMax.
-		KUInt32 Allowance(KUInt32 inMax);
-
-		/// Count bytes that were transferred.
-		void Consume(KUInt32 inBytes);
-
-		/// Microseconds until inBytes (or one time slice of bytes) may be
-		/// transferred, 0 if they may go now.
-		long long Delay(KUInt32 inBytes) const;
-
-	private:
-		int mMicrosecondsPerByte;
-		Clock::time_point mReadyTime {};
-	};
-
 	///
 	/// Host user interface error message
 	///
@@ -151,11 +123,6 @@ protected:
 	// Worker thread: Send data pending in memory to the server.
 	//
 	void HandleDMASend();
-
-	//
-	// Worker thread: number of bytes DMA has to send (takes mDMAMutex).
-	//
-	KUInt32 PendingTxBytes();
 
 	//
 	// Worker thread: Receive data from the server.
