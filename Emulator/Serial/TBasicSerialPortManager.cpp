@@ -632,6 +632,21 @@ TBasicSerialPortManager::PendingTxBytes()
 	return (mTxDMAIntEnable & 0x00000002) ? mTxDMADataCountdown : 0;
 }
 
+/**
+ \brief Worker thread: number of bytes receive DMA can take now.
+ A host sends faster than a serial line (a TCP server writes a whole MNP frame
+ at once), and writing past the DMA count overwrote bytes NewtonOS had not
+ read yet: broken frames, which the Newton asked for again and again. A real
+ line can't overrun the DMA, so the bytes wait at the host's end instead.
+ Takes mDMAMutex, so call it without holding the mutex.
+ */
+KUInt32
+TBasicSerialPortManager::RxDMARoom()
+{
+	std::lock_guard<std::mutex> lock(mDMAMutex);
+	return mRxDMADataCountdown;
+}
+
 // -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
@@ -863,6 +878,8 @@ TBasicSerialPortManager::WriteRxDMARegister(KUInt32 inBank, KUInt32 inRegister, 
 			case 4: // TSerialDMAEngine::StartRxDMA buffer max count
 				// KPrintf("----- 'extr' serial Rx DMA, set data count %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				mRxDMADataCountdown = inValue;
+				// room to receive again: the worker thread reads what waits
+				TriggerEvent(kSerCmd_RxCtrlChanged);
 				break;
 			case 5: // Size: TSerialDMAEngine::StartRxDMA writes the bytes to end of buffer
 				// KPrintf("----- 'extr' serial Rx DMA, set bytes to end of buffer %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);

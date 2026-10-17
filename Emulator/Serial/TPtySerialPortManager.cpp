@@ -231,15 +231,19 @@ TPtySerialPortManager::HandleDMA()
 		bool watchRead = false;
 		bool watchWrite = false;
 
-		// Leave new data in the port until the throttle allows it.
-		long long rxDelay = mRxThrottle.Delay(1);
-		long long retryDelay = MicrosecondsUntil(mReadRetryTime);
-		if (retryDelay > rxDelay)
-			rxDelay = retryDelay;
-		if (rxDelay == 0)
-			watchRead = true;
-		else
-			waitAtMost(rxDelay);
+		// Leave new data in the port until the throttle allows it, and while
+		// receive DMA has no room (NewtonOS wakes us when it has).
+		if (RxDMARoom() > 0)
+		{
+			long long rxDelay = mRxThrottle.Delay(1);
+			long long retryDelay = MicrosecondsUntil(mReadRetryTime);
+			if (retryDelay > rxDelay)
+				rxDelay = retryDelay;
+			if (rxDelay == 0)
+				watchRead = true;
+			else
+				waitAtMost(rxDelay);
+		}
 
 		KUInt32 pending = PendingTxBytes();
 		if (mSendBlocked)
@@ -375,7 +379,11 @@ TPtySerialPortManager::HandleDMASend()
 void
 TPtySerialPortManager::HandleDMAReceive()
 {
-	KUInt32 nAllowed = mRxThrottle.Allowance(kMaxChunkSize);
+	// no more than receive DMA can take; the rest waits at the host's end
+	KUInt32 room = RxDMARoom();
+	if (room == 0)
+		return;
+	KUInt32 nAllowed = mRxThrottle.Allowance((room < kMaxChunkSize) ? room : kMaxChunkSize);
 	if (nAllowed == 0)
 		return;
 

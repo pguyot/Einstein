@@ -492,7 +492,8 @@ TSerialPortDriverTcpClient::HandleDMA()
 			KUInt32 pending = PendingTxBytes();
 			if (pending && !(mIsConnected && mSendBlocked))
 				waitAtMost(mTxThrottle.Delay(pending));
-			if (mIsConnected && mCanReceive)
+			// (without room in receive DMA, NewtonOS wakes us when there is)
+			if (mIsConnected && mCanReceive && RxDMARoom() > 0)
 				waitAtMost(mRxThrottle.Delay(1));
 		}
 
@@ -580,9 +581,10 @@ TSerialPortDriverTcpClient::HandleDMA()
 				watchWrite = true;
 			else if (pending)
 				waitAtMost(mTxThrottle.Delay(pending));
-			if (IsConnected())
+			// Leave new data in the socket until the throttle allows it, and
+			// while receive DMA has no room (NewtonOS wakes us when it has).
+			if (IsConnected() && RxDMARoom() > 0)
 			{
-				// Leave new data in the socket until the throttle allows it.
 				long long rxDelay = mRxThrottle.Delay(1);
 				if (rxDelay == 0)
 					watchRead = true;
@@ -770,7 +772,11 @@ TSerialPortDriverTcpClient::HandleDMASend()
 void
 TSerialPortDriverTcpClient::HandleDMAReceive()
 {
-	KUInt32 nAllowed = mRxThrottle.Allowance(kMaxChunkSize);
+	// no more than receive DMA can take; the rest waits at the host's end
+	KUInt32 room = RxDMARoom();
+	if (room == 0)
+		return;
+	KUInt32 nAllowed = mRxThrottle.Allowance((room < kMaxChunkSize) ? room : kMaxChunkSize);
 	if (nAllowed == 0)
 		return;
 

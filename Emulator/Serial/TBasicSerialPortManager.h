@@ -43,6 +43,7 @@ class TBasicSerialPortManager : public TSerialPortDriver
 {
 public:
 	const KUInt8 kSerCmd_TxCtrlChanged = 'c';
+	const KUInt8 kSerCmd_RxCtrlChanged = 'r';
 	const KUInt8 kSerCmd_StopThread = 'Q';
 
 	///
@@ -155,6 +156,15 @@ protected:
 	/// Worker thread: number of bytes DMA has to send (takes mDMAMutex).
 	///
 	KUInt32 PendingTxBytes();
+
+	///
+	/// Worker thread: number of bytes receive DMA can take now (takes
+	/// mDMAMutex). Read no more than that, so the bytes wait in the host's
+	/// socket, pipe, or PTY instead of overwriting data NewtonOS has not
+	/// read yet; 0 until NewtonOS starts receive DMA again, which wakes the
+	/// worker thread with kSerCmd_RxCtrlChanged.
+	///
+	KUInt32 RxDMARoom();
 
 	///
 	/// Read receiving DMA register.
