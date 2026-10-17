@@ -142,15 +142,8 @@ public:
 	};
 
 	enum {
-#ifdef WIN32
-		kEpochInNewtonBase = 2082844800 + 24 * 60 * 60 * 150 + 60 * 60
-	///< Number of seconds between
-	///< 1/1/1970 and 1/1/1904.
-	///< The MSWindows time is 150 days off.
-#else
 		kEpochInNewtonBase = 2082844800 ///< Number of seconds between
 										///< 1/1/1970 and 1/1/1904.
-#endif
 	};
 
 	///
@@ -272,6 +265,15 @@ public:
 	/// \return the value of the calendar register.
 	///
 	KUInt32 GetRealTimeClock(void) const;
+
+	///
+	/// Host local time in seconds since 1/1/1904, the time base of the
+	/// Newton clock. The RTC and the patched RealClockSeconds() both use it,
+	/// so alarms that NewtonOS sets in local time match the RTC.
+	///
+	/// \return the current host local time in Newton's base.
+	///
+	static KUInt32 GetHostLocalTime(void);
 
 	///
 	/// Selector on the real time clock.
@@ -513,14 +515,6 @@ private:
 	///
 	static KUInt32 GetTimeInTicks(void);
 
-	///
-	/// Get the a calendar delta such that the current RTC is the current
-	/// time in Newton's base.
-	///
-	/// \return a suitable calendar delta.
-	///
-	static KUInt32 GetSyncedCalendarDelta(void);
-
 	/// \name Variables
 
 	/// Interface for logging.
@@ -571,7 +565,8 @@ private:
 	/// GPIO interrupt enable register (0x0F18C400)
 	KUInt32 mGPIOCtrlReg { 0 };
 
-	/// Delta with the RTC (seconds), newton = host - delta.
+	/// Delta with the RTC (seconds), newton = host local time - delta.
+	/// 0 unless NewtonOS writes the calendar register.
 	KSInt32 mCalendarDelta { 0 };
 
 	/// Alarm match register (seconds).

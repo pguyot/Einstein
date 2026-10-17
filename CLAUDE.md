@@ -677,6 +677,31 @@ Linux x64/ARM64, macOS and Windows, by hand or via `workflow_call` from another
 workflow (e.g. release.yml). The Cocoa workflow (macos.yml) still runs the
 Xcode project's own tests.
 
+## Time base (Y2K25) and the 2040 limit
+
+Found 2026-10-17: the Newton did not go to sleep (Windows first, every
+platform affected). The Y2K10 patch counted NewtonScript seconds from 2008,
+which wrapped on 2025-01-04 (30-bit integers). `SetSysAlarm()` alarms landed
+in 1993, fired at once and were set again every few ms; `CyclePower()` found
+the alarm message on `gNewtPort` and cancelled the sleep. Fixed: base moved to
+2024 (good until 2041-01-04), and the 150-day Windows offset in the RTC is
+gone. Details, ROM addresses, how to patch the other ROMs and physical
+Newtons, and the plan for 2040: `Documentation/NewtonTime.md`.
+
+Open:
+- The time patches exist for the US ROM only; MP2100 D, eMate 300 and Watson
+  have no Y2K10 fix at all.
+- `AdjustRealTimeClock` resets the RTC to 1996 at every boot, so alarms never
+  fire in Einstein. A native patch there should work in Einstein (JIT patches
+  are active from the first instruction), not on physical Newtons.
+- 2040-02-06: the 32-bit seconds since 1904 overflow (RTC, `RealClock()`,
+  `Time()`). Idea: run the clock 28 years behind (same calendar).
+- Ctrl-Q forwards a Ctrl key-down to NewtonOS before the quit presses power;
+  a key event in that window can cancel the sleep too. On the Mac, any key
+  (also modifiers) wakes the emulator.
+- `THostInfo::GetHostTimeZone()` on Windows multiplies seconds by 3600, and
+  the sign differs between platforms.
+
 ## fixups
 
 Serial port settings:

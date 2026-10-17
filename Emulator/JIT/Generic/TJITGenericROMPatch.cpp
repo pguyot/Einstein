@@ -28,6 +28,7 @@
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/TDMAManager.h"
 #include "Emulator/TEmulator.h"
+#include "Emulator/TInterruptManager.h"
 #include "Emulator/ROM/TROMImage.h"
 #include "Emulator/Screen/TScreenManager.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
@@ -158,28 +159,14 @@ T_ROM_PATCH(0x001A71B8, 0x001A973C, 0x0019501C, 0x001A77FC, "CalculateROMREXChec
 }
 
 /*
- * Set the time to the host time
+ * Set the time to the host time. The RTC uses the same local time, so the
+ * alarms that NewtonOS sets in local time fire when the RTC reaches them.
  */
-
-static const KUInt32 delta1904to1970 = 2082844800;
 
 T_ROM_PATCH(0x00255578, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "RealClockSeconds")
 {
 	(void) ioUnit;
-	time_t t = time(NULL);
-	struct tm gm;
-	struct tm local;
-#if TARGET_OS_WIN32
-	gmtime_s(&gm, &t);
-	gm.tm_isdst = -1;
-	localtime_s(&local, &t);
-#else
-	gmtime_r(&t, &gm);
-	gm.tm_isdst = -1;
-	localtime_r(&t, &local);
-#endif
-	double tzoffset = difftime(mktime(&local), mktime(&gm));
-	ioCPU->SetRegister(0, t + tzoffset + delta1904to1970);
+	ioCPU->SetRegister(0, TInterruptManager::GetHostLocalTime());
 	ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 4);
 	return 0L;
 }
@@ -189,15 +176,18 @@ T_ROM_PATCH(0x00255578, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "RealClockS
  * The low level NewtonOS clock will continue to run with seconds since
  * 1904-01-01T00:00:00. The NewtonScript functions which have been using a time
  * base of 1993-01-01T00:00:00 will however be patched so that they will use a
- * new time base of 2008-01-01T00:00:00. The patches will add or substract the
+ * new time base of 2024-01-01T00:00:00. The patches will add or substract the
  * delta between the time bases.
  *
- * The base year will need to be updated in 2026.
+ * NewtonScript integers have 30 bits, so seconds from the time base wrap
+ * after 2^29 seconds (17 years). The time base was 2008-01-01 until 2026; in
+ * 2025, alarms set in seconds wrapped to 1993, fired at once, and kept the
+ * Newton from going to sleep. The base year will need to be updated in 2040.
  */
 
-/* Delta from 2008-01-01T00:00:00 to 1993-01-01T00:00:00 */
+/* Delta from 2024-01-01T00:00:00 to 1993-01-01T00:00:00 (11322 days) */
 
-static const KUInt32 safeIntervalDeltaSeconds = 473299200;
+static const KUInt32 safeIntervalDeltaSeconds = 978220800;
 
 /*
  * Adjust seconds values returned to NS layer into safe interval
@@ -220,8 +210,8 @@ T_ROM_PATCH(0x0008A8A8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "FDateFromS
 	return ioUnit;
 }
 
-static const KUInt32 newTimeBaseMinutes = 218799360; /* 2008/1/1 in minutes from 1904/1/1 as NS integer */
-static const KUInt32 newTimeBaseSeconds = 3281990400; /* 2008/1/1 in seconds from 1904/1/1 as NS integer */
+static const KUInt32 newTimeBaseMinutes = 252460800; /* 2024/1/1 in minutes from 1904/1/1 as NS integer (43830 days) */
+static const KUInt32 newTimeBaseSeconds = 3786912000; /* 2024/1/1 in seconds from 1904/1/1 as NS integer */
 
 TJITGenericPatch timeBase1(0x420750, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
 	newTimeBaseMinutes, "Time base (1/4)");

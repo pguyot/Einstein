@@ -56,8 +56,7 @@
 // -------------------------------------------------------------------------- //
 TInterruptManager::TInterruptManager(TLog* inLog, TARMProcessor* inProcessor) :
 		mLog(inLog),
-		mProcessor(inProcessor),
-		mCalendarDelta(GetSyncedCalendarDelta())
+		mProcessor(inProcessor)
 {
 	// Start the thread.
 	Init();
@@ -72,7 +71,6 @@ TInterruptManager::TInterruptManager(
 	KUInt32 inTimer) :
 		mLog(inLog),
 		mProcessor(inProcessor),
-		mCalendarDelta(GetSyncedCalendarDelta()),
 		mTimer(inTimer)
 {
 	// Start the thread.
@@ -258,9 +256,7 @@ TInterruptManager::RaiseInterrupt(KUInt32 inIntMask)
 KUInt32
 TInterruptManager::GetRealTimeClock(void) const
 {
-	time_t now = time(NULL);
-
-	return (KUInt32) (now - mCalendarDelta);
+	return (KUInt32) (GetHostLocalTime() - mCalendarDelta);
 }
 
 // -------------------------------------------------------------------------- //
@@ -276,7 +272,7 @@ TInterruptManager::SetRealTimeClock(KUInt32 inValue)
 	// newton = host - delta
 	// delta = host - newton
 	//  KPrintf("mCalendarDelta was %i\n", (int) mCalendarDelta);
-	mCalendarDelta = (KSInt32) (time(NULL) - inValue);
+	mCalendarDelta = (KSInt32) (GetHostLocalTime() - inValue);
 	//  KPrintf("mCalendarDelta now is %i\n", (int) mCalendarDelta);
 
 	// Signal the condition variable to wake the timer thread.
@@ -1107,13 +1103,26 @@ TInterruptManager::GetNextTimer(
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetSyncedCalendarDelta( void )
+//  * GetHostLocalTime( void )
 // -------------------------------------------------------------------------- //
 KUInt32
-TInterruptManager::GetSyncedCalendarDelta(void)
+TInterruptManager::GetHostLocalTime(void)
 {
-	// Currently, we just suppose the epoch is January, 1st, 1970.
-	return (KUInt32) (-kEpochInNewtonBase);
+	time_t t = time(NULL);
+	struct tm gm;
+	struct tm local;
+#if TARGET_OS_WIN32
+	gmtime_s(&gm, &t);
+	gm.tm_isdst = -1;
+	localtime_s(&local, &t);
+#else
+	gmtime_r(&t, &gm);
+	gm.tm_isdst = -1;
+	localtime_r(&t, &local);
+#endif
+	// The offset of local time from UTC, including daylight saving time.
+	double tzoffset = difftime(mktime(&local), mktime(&gm));
+	return (KUInt32) (t + (time_t) tzoffset + kEpochInNewtonBase);
 }
 
 // -------------------------------------------------------------------------- //
