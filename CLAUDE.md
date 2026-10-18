@@ -117,6 +117,15 @@ NewtonScript Reboot (fixed). The investigation notes this work
 started from (bug list, missing-state table, step-by-step logs) are in the
 history of this file: `git show d230e8a7:CLAUDE.md`.
 
+**Open: a rotated screen (Matt, 2026-10-18).** When the emulated NewtonOS
+rotates the screen, a fast start doesn't remember the rotation and starts
+un-rotated: the screen shows the image's lines interleaved. Not unexpected:
+Einstein has code for rotating the screen, but the FLTK app has no setting
+for it, and it was never tested. To do: keep the rotation in the state file
+(the screen's part of `TransferState`), restore it before the first frame,
+and give the FLTK app what rotation needs (window size, tablet
+coordinates), then test it with a rotated NewtonOS.
+
 **How it works**
 - *State file* (`TEmulator::SaveState`/`LoadState`, file version 14): header
   (`EINI`, `SNAP`, version, kind), identity block, the inserted cards (tag and
@@ -602,6 +611,14 @@ medium.
   - the flash file, which has no lock;
   - the fast start file (`FastStart.state` in the user data folder);
   - the Newton ID.
+- Seen with Newton Connection (Matt, 2026-10-18): switching one installation
+  between a MessagePad 2000 setup and an eMate 300 setup keeps the one Newton
+  ID, so the desktop takes both for the same device. Newton Connection then
+  backs up both into one file (`0000-4E65-7774-6F6E.newtondevice`), soups of
+  the two mixed; the eMate's clock read 1996 (its NewtonOS not patched for
+  the date bug), the MessagePad's 2026, so even the backup times of the
+  soups mix. Each configuration needs its own Newton ID (Q9.4: yes), as
+  well as its own flash file and fast start file.
 
 **To clarify**
 - **Q9.1** Does "simultaneously" mean several windows of one app, or is one
