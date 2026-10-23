@@ -15,7 +15,7 @@ can be answered inline.
 | Fast start                    | L–XL                                      | low        | Sleep mode, Multithreading, Drivers | done, PR #225 in review |
 | Multithreading and atomics    | M to start, L to fix                      | medium     | –                              | started, 5 race groups deferred |
 | Driver implementation         | L                                         | medium     | Multithreading                 | open |
-| Multiple Configurations       | M–L (≈7 days), +3–5 days for parallel processes | medium | –                         | planned, paused for the screen rotation |
+| Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | planned, next |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
 | Fix CI testing                | –                                         | –          | –                              | done |
@@ -737,7 +737,8 @@ medium.
   preferences keys and file locations, so an older Einstein still launches
   it.
 - **Q9.6** FLTK only for now (as for Fast start, Q3.3).
-- Switching to another machine relaunches the process; no in-process
+- ~~Switching to another machine relaunches the process~~ Superseded: play
+  starts the other machine in a new process (round 2 below). No in-process
   restart of the emulator.
 - Port paths that two processes would share (`/tmp/einstein-*.pty`,
   `/tmp/BBridge.Einstein`, `/tmp/pty.BasiliskII`, TCP ports): the first
@@ -748,58 +749,84 @@ medium.
   and Linux, if FLTK can do it; `Fl_Window::icon()` covers window icons on
   Windows and X11, macOS probably needs `[NSApp setApplicationIconImage:]`).
 
-**Plan** (Claude, 2026-10-23)
+**Decisions, round 2** (Matt, 2026-10-23, after a UTM screenshot)
+- Layout like UTM: the machine list on the left (icon, name in bold, one
+  line of description, a play button per row, a context menu per row, "+"
+  to add), the existing tabs on the right for the selected machine.
+- Start-up: the Settings window with the list; play starts the machine in
+  this process and closes the window. With "Don't show at startup", the
+  last used machine starts at once. In a running Einstein, play on another
+  machine starts it in a new process (own window and Dock icon).
+- The first machine in the list is always also stored in the old global
+  preference keys, so an older Einstein launches it (downgrade). When the
+  first machine is moved or deleted, the new first one is copied there.
+  So no machine is special: any machine can be deleted, at least one stays.
+- The sidebar is collapsible, with a [<<] button at the bottom left under
+  the tabs; the choice is remembered.
+- Icons are chosen automatically from the ROM: MessagePad and eMate for
+  now, as SVG (Matt can draw them if needed).
+- Context menu: Start, Duplicate, Rename, Show in Finder, Delete (asks:
+  only the entry, or the files too). No presets: the ROM sets the
+  rotation; a new machine gets 4 MB RAM and 4 MB flash.
+- The list shows machines that run in other processes; it can't stop them.
+  The button must go back to play when that process quits.
+- A PC Card image is locked while inserted; another machine can't insert
+  it and names the machine that has it. The network card needs no lock.
+- If the Settings are open in another process, a message says so. A pipe
+  or broadcast to bring that window forward can come later.
+- IPC: lock files for now (below). Sockets (`AF_UNIX`, all three
+  platforms) only when messages between processes are needed: bring a
+  window forward, quit, a setting changed (about 1–2 days).
+
+**Plan** (Claude, 2026-10-23, revised)
 
 *Today:* `TFLApp::Run()` creates exactly one emulator per process. The
 preferences are one flat group, opened in `TFLSettings::loadPreferences()`
 and in `DataFilePath()` (TFLApp.cpp, the paths of `FastStart.state` and
 `Einstein.state`). The Newton ID is the constant `0x4E65 77746F6E`
 ("Newton", TEmulator.cpp:74); FLTK never calls `TEmulator::SetNewtonID()`.
+The user-mode network has a fixed MAC (`58:b0:35:77:d7:22`,
+TUsermodeNetwork.cpp), private to each process, so no collision; a TAP
+network would need one per machine (could come from the Newton ID).
 
 *Storage:*
 ```
 <user data>/Machines/<uuid>/
     Machine.prefs       per-machine settings, Newton ID, window position
+    Machine.lock        held by the process that runs the machine
     internal.flash
     FastStart.state
     Einstein.state      (default checkpoint)
+<user data>/Settings.lock   held while a Settings window is open
 ```
 The main preferences hold the machine list (order, last used, sidebar open)
-and the shared settings. The default machine keeps the old keys, its files
-where they are today, and its Newton ID `4E65-77746F6E`, so existing
-backups in Newton Connection and NCX still match it. New and duplicated
-machines get a random 48-bit Newton ID.
+and the shared settings, plus the first machine's settings in the old keys.
+The migrated machine keeps its files where they are today (the paths are
+stored) and its Newton ID `4E65-77746F6E`, so existing backups in Newton
+Connection and NCX still match it. New and duplicated machines get a random
+48-bit Newton ID.
 
-*UI:* a [<<] button at the bottom left of the Settings dialog. Closed,
-Einstein behaves as today. Open, the window grows about 180 px to the left:
-a machine list (`Fl_Hold_Browser`) with + / − / duplicate, and a name field.
-Selecting a machine loads its values into the tabs. "Start" launches the
-selected machine; while one runs, a different selected machine gets
-"Start", which puts the running Newton to sleep, saves its fast start file
-and relaunches Einstein with `--machine <uuid>`. Delete asks whether to
-remove only the entry or the files too. The machine name goes into the
-window and Monitor titles. Optional: presets (MP2100, eMate 300, Watson)
-for screen size, rotation and RAM.
+*Locks:* `flock()` (macOS, Linux) or `LockFileEx()` (Windows); the OS
+releases a lock when its process ends, also after a crash. The list tries
+each machine's lock about once a second (`Fl::add_timeout`, non-blocking)
+to show which machines run. A machine that runs in another process is
+read-only in the Settings ("running in another window"), because it writes
+its settings at quit (Matt, 2026-10-23). No IPC for now; file locks are
+enough. Any machine can be deleted, at least one stays.
 
 *Steps:*
 
 | Step | What | Days |
 |---|---|---|
 | 1 | Split `TFLSettings` into app settings and `TFLMachineSettings` | 1 |
-| 2 | Machine folders, machine list, the default machine in the old keys | 1 |
-| 3 | Per-machine paths (flash, fast start, checkpoint), Newton ID via `SetNewtonID()` | 0.5 |
-| 4 | Sidebar: list, add / delete / duplicate / rename, load and save the fields | 2 |
-| 5 | `--machine <uuid>`, switching by relaunch (check the macOS bundle; `_execv` on Windows starts a new process) | 1–1.5 |
-| 6 | Tests (old Einstein on the new preferences, switching, fast start per machine), user guide | 1 |
+| 2 | Machine folders, machine list, the first machine mirrored in the old keys | 1 |
+| 3 | Per-machine paths (flash, fast start, checkpoint), Newton ID via `SetNewtonID()`, `--machine <uuid>` | 1 |
+| 4 | Locks: machine lock, Settings lock, PC Card image lock | 1 |
+| 5 | The list: rows with icon, name, description, play button; context menu; [<<] | 2 |
+| 6 | Start a machine in a new process (macOS bundle, Windows, Linux); machine name in window and Monitor titles | 1–1.5 |
+| 7 | Tests (old Einstein on the new preferences, two machines at once, fast start per machine), user guide | 1 |
 
-*Parallel machines* (separate processes, +3–5 days): "Start in a new
-window" spawns a process instead of relaunching; a lock per machine folder
-so one machine can't run twice; the Settings lock across processes; check
-where the NE2000 MAC address comes from (two cards on one network need
-different ones). One process with several emulators would be XL (4–8
-weeks, low confidence): the `TNewt` statics (236 uses in 9 emulator files),
-`gApp` (138 uses), `TFLApp` owning one emulator, window, Monitor and menu
-bar, static locals in the emulator. Not planned.
+About 8–9 days. `--machine` also makes scripted tests easier.
 
 ## IR emulation via UDP broadcasting
 
