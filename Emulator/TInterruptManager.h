@@ -268,12 +268,28 @@ public:
 
 	///
 	/// Host local time in seconds since 1/1/1904, the time base of the
-	/// Newton clock. The RTC and the patched RealClockSeconds() both use it,
-	/// so alarms that NewtonOS sets in local time match the RTC.
+	/// Newton clock. The patched RealClockSeconds() returns it, so NewtonOS
+	/// shows the host's time.
 	///
 	/// \return the current host local time in Newton's base.
 	///
 	static KUInt32 GetHostLocalTime(void);
+
+	///
+	/// Host time in UTC, in seconds since 1/1/1904. The RTC counts UTC, as on
+	/// a real Newton: NewtonOS adds GMTOffset() and DaylightSavingsOffset()
+	/// to get the local time, and subtracts them from an alarm's local time
+	/// (SetSysAlarm).
+	///
+	static KUInt32 GetHostUTCTime(void);
+
+	///
+	/// The host's time zone in seconds east of UTC: the standard offset and
+	/// the daylight saving offset in effect now. The patched GMTOffset() and
+	/// DaylightSavingsOffset() return them instead of the Newton's home city,
+	/// so all of NewtonOS's time conversions agree with the host.
+	///
+	static void GetHostTimeZone(KSInt32& outGMTOffset, KSInt32& outDSTOffset);
 
 	///
 	/// Selector on the real time clock.
@@ -565,12 +581,33 @@ private:
 	/// GPIO interrupt enable register (0x0F18C400)
 	KUInt32 mGPIOCtrlReg { 0 };
 
-	/// Delta with the RTC (seconds), newton = host local time - delta.
+	/// Delta with the RTC (seconds), newton = host UTC - delta.
 	/// 0 unless NewtonOS writes the calendar register.
 	KSInt32 mCalendarDelta { 0 };
 
 	/// Alarm match register (seconds).
 	KUInt32 mAlarmRegister { 0 };
+
+	/// The RTC alarm interrupt fires once when the RTC reaches the alarm
+	/// register. Writing a time in the future arms it; NewtonOS also writes
+	/// times that have passed and handles those itself, as on the hardware,
+	/// which only raises the interrupt when the counter reaches the register.
+	/// Not saved: loading a state arms it, so an alarm that passed while
+	/// Einstein was quit fires right away, as a sleeping Newton would have
+	/// woken for it.
+	Boolean mAlarmArmed { false };
+
+	/// The timer thread checks the RTC against the armed alarm when
+	/// mAlarmCheckTicks host ticks (at most a minute) have passed since
+	/// mAlarmArmTicks, so it does not read the clock at every turn.
+	KUInt32 mAlarmArmTicks { 0 };
+	KUInt32 mAlarmCheckTicks { 0 };
+
+	///
+	/// Arm the RTC alarm if the register is after the RTC, or always if
+	/// inEvenIfPassed. The caller holds mMutex.
+	///
+	void ArmAlarm(Boolean inEvenIfPassed);
 
 	/// Delta with the timer (ticks), newton = host - delta.
 	KUInt32 mTimerDelta { 0 };

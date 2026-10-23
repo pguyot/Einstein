@@ -256,7 +256,7 @@ TInterruptManager::RaiseInterrupt(KUInt32 inIntMask)
 KUInt32
 TInterruptManager::GetRealTimeClock(void) const
 {
-	return (KUInt32) (GetHostLocalTime() - mCalendarDelta);
+	return (KUInt32) (GetHostUTCTime() - mCalendarDelta);
 }
 
 // -------------------------------------------------------------------------- //
@@ -272,7 +272,7 @@ TInterruptManager::SetRealTimeClock(KUInt32 inValue)
 	// newton = host - delta
 	// delta = host - newton
 	//  KPrintf("mCalendarDelta was %i\n", (int) mCalendarDelta);
-	mCalendarDelta = (KSInt32) (GetHostLocalTime() - inValue);
+	mCalendarDelta = (KSInt32) (GetHostUTCTime() - inValue);
 	//  KPrintf("mCalendarDelta now is %i\n", (int) mCalendarDelta);
 
 	// Signal the condition variable to wake the timer thread.
@@ -293,15 +293,36 @@ TInterruptManager::SetAlarm(KUInt32 inValue)
 	// Here the timer is waiting (since we have the mutex).
 
 	mAlarmRegister = inValue;
+	ArmAlarm(false);
 
-	if (mIntCtrlReg & kRTCAlarmIntMask)
-	{
-		// Signal the condition variable to wake the timer thread.
-		mTimerCondVar->Signal();
-	}
+	// Signal the condition variable to wake the timer thread, which raises
+	// the alarm interrupt when the RTC reaches the register.
+	mTimerCondVar->Signal();
 
 	// Release the mutex, so the timer thread will get it back.
 	mMutex->Unlock();
+}
+
+// -------------------------------------------------------------------------- //
+//  * ArmAlarm( Boolean )
+// -------------------------------------------------------------------------- //
+void
+TInterruptManager::ArmAlarm(Boolean inEvenIfPassed)
+{
+	KUInt32 now = GetRealTimeClock();
+	mAlarmArmTicks = GetTimeInTicks();
+	if (mAlarmRegister > now)
+	{
+		KUInt32 seconds = mAlarmRegister - now;
+		if (seconds > 60)
+			seconds = 60;
+		mAlarmArmed = true;
+		mAlarmCheckTicks = seconds * 3686400;
+	} else
+	{
+		mAlarmArmed = inEvenIfPassed;
+		mAlarmCheckTicks = 0;
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -537,6 +558,11 @@ TInterruptManager::Run(void)
 		mTimerDelta = theDelta; // mTimer = ticks - delta
 								// newton = host - delta
 								// host = newton + delta
+
+		// The alarm check counts host ticks, which wrap after 19 minutes;
+		// the timer may have been stopped longer.
+		if (mAlarmArmed)
+			ArmAlarm(true);
 		KUInt32 newTicks = ticks;
 		KUInt32 nextMatch;
 
@@ -1052,6 +1078,42 @@ TInterruptManager::FireTimersAndFindNext(
 		}
 	}
 
+	// The RTC alarm: raise the interrupt once when the RTC reaches the alarm
+	// register. The RTC is only read when the alarm seems due (or a minute
+	// has passed), so most turns cost a subtraction. While NewtonOS runs,
+	// its timers wake this thread often enough; only while the emulator
+	// waits for an interrupt (idle or asleep) must the alarm wake it, and
+	// only then is it a timer, because a timed wait costs more than a plain
+	// one.
+	if (mAlarmArmed && ((KUInt32) (inNewTicks - mAlarmArmTicks) >= mAlarmCheckTicks))
+	{
+		if (GetRealTimeClock() >= mAlarmRegister)
+		{
+			intRaised |= kRTCAlarmIntMask;
+			mAlarmArmed = false;
+			// A sleeping Newton wakes up for the interrupts in the wake-up
+			// mask (0x0F184800), not for those in the interrupt mask. Resume
+			// the processor if it waits in PowerOffSystem.
+			if (mWaiting.load() && (mIntEDReg3 & kRTCAlarmIntMask))
+				mEmulatorCondVar->Signal();
+		} else
+		{
+			ArmAlarm(true); // not yet: check again later
+		}
+	}
+	if (mAlarmArmed && mWaiting.load())
+	{
+		ticksValue = mAlarmArmTicks + mAlarmCheckTicks;
+		if (hasNextTimer)
+		{
+			nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
+		} else
+		{
+			nextTicksValue = ticksValue;
+			hasNextTimer = true;
+		}
+	}
+
 	*outNextMatch = nextTicksValue;
 	mIntRaised = intRaised;
 
@@ -1103,26 +1165,60 @@ TInterruptManager::GetNextTimer(
 }
 
 // -------------------------------------------------------------------------- //
+//  * HostUTCOffset( time_t, Boolean* )
+//		Offset of the host's local time from UTC at the time inTime, in
+//		seconds, including daylight saving time. outIsDST tells whether
+//		daylight saving time is in effect (may be null).
+// -------------------------------------------------------------------------- //
+static KSInt32
+HostUTCOffset(time_t inTime, Boolean* outIsDST)
+{
+	struct tm gm;
+	struct tm local;
+#if TARGET_OS_WIN32
+	gmtime_s(&gm, &inTime);
+	gm.tm_isdst = -1;
+	localtime_s(&local, &inTime);
+#else
+	gmtime_r(&inTime, &gm);
+	gm.tm_isdst = -1;
+	localtime_r(&inTime, &local);
+#endif
+	if (outIsDST)
+		*outIsDST = (local.tm_isdst > 0);
+	return (KSInt32) difftime(mktime(&local), mktime(&gm));
+}
+
+// -------------------------------------------------------------------------- //
 //  * GetHostLocalTime( void )
 // -------------------------------------------------------------------------- //
 KUInt32
 TInterruptManager::GetHostLocalTime(void)
 {
 	time_t t = time(NULL);
-	struct tm gm;
-	struct tm local;
-#if TARGET_OS_WIN32
-	gmtime_s(&gm, &t);
-	gm.tm_isdst = -1;
-	localtime_s(&local, &t);
-#else
-	gmtime_r(&t, &gm);
-	gm.tm_isdst = -1;
-	localtime_r(&t, &local);
-#endif
-	// The offset of local time from UTC, including daylight saving time.
-	double tzoffset = difftime(mktime(&local), mktime(&gm));
-	return (KUInt32) (t + (time_t) tzoffset + kEpochInNewtonBase);
+	return (KUInt32) (t + HostUTCOffset(t, nullptr) + kEpochInNewtonBase);
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * GetHostUTCTime( void )
+// -------------------------------------------------------------------------- //
+KUInt32
+TInterruptManager::GetHostUTCTime(void)
+{
+	return (KUInt32) (time(NULL) + kEpochInNewtonBase);
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetHostTimeZone( KSInt32&, KSInt32& )
+// -------------------------------------------------------------------------- //
+void
+TInterruptManager::GetHostTimeZone(KSInt32& outGMTOffset, KSInt32& outDSTOffset)
+{
+	Boolean isDST = false;
+	KSInt32 theOffset = HostUTCOffset(time(NULL), &isDST);
+	outDSTOffset = isDST ? 3600 : 0;
+	outGMTOffset = theOffset - outDSTOffset;
 }
 
 // -------------------------------------------------------------------------- //
@@ -1160,6 +1256,12 @@ TInterruptManager::TransferState(TStream* inStream)
 	inStream->TransferInt32BE(mCalendarDelta);
 
 	inStream->TransferInt32BE(mAlarmRegister, 0);
+	if (inStream->IsReading() || inStream->IsResetting())
+	{
+		mAlarmArmed = false;
+		if (mAlarmRegister != 0)
+			ArmAlarm(true);
+	}
 	inStream->TransferInt32BE(mTimerDelta);
 	inStream->TransferInt32BE(mTimer);
 	inStream->TransferInt32ArrayBE(

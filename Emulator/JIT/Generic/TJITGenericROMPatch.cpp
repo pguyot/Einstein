@@ -161,9 +161,41 @@ T_ROM_PATCH(0x001A71B8, 0x001A973C, 0x0019501C, 0x001A77FC, "CalculateROMREXChec
 }
 
 /*
- * Set the time to the host time. The RTC uses the same local time, so the
- * alarms that NewtonOS sets in local time fire when the RTC reaches them.
+ * Set the time to the host time. The RTC counts UTC, as on a real Newton.
+ * NewtonOS converts between the RTC and local time with GMTOffset() and
+ * DaylightSavingsOffset() (RealClockSeconds, SetRealClockSeconds and
+ * SetSysAlarm are their only callers). Those read the Newton's home city
+ * and daylight saving preferences; they return the host's time zone
+ * instead, so alarms match the RTC whatever city the Newton is set to.
  */
+
+T_ROM_PATCH(0x002554C0, 0x00253578, 0x0023575C, 0x002520B0, "GMTOffset")
+{
+	(void) ioUnit;
+	KSInt32 theGMTOffset, theDSTOffset;
+	TInterruptManager::GetHostTimeZone(theGMTOffset, theDSTOffset);
+	ioCPU->SetRegister(0, (KUInt32) theGMTOffset);
+	ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 4);
+	return 0L;
+}
+
+/*
+ * SetRealClockSeconds(local seconds) writes the RTC when the user sets the
+ * time. The time comes from the host, and a changed RTC would put alarms
+ * off, so it does nothing (as SetTimeInSeconds, "Ignore setting time").
+ */
+TJITGenericPatch ignoreSetRealClock(0x002555B8, 0x00253670, 0x00235854, 0x002521A8,
+	0xe1a0f00e, "Ignore SetRealClockSeconds"); // mov pc, lr
+
+T_ROM_PATCH(0x0025551C, 0x002535D4, 0x002357B8, 0x0025210C, "DaylightSavingsOffset")
+{
+	(void) ioUnit;
+	KSInt32 theGMTOffset, theDSTOffset;
+	TInterruptManager::GetHostTimeZone(theGMTOffset, theDSTOffset);
+	ioCPU->SetRegister(0, (KUInt32) theDSTOffset);
+	ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 4);
+	return 0L;
+}
 
 T_ROM_PATCH(0x00255578, 0x00253630, 0x00235814, 0x00252168, "RealClockSeconds")
 {
@@ -229,6 +261,17 @@ TJITGenericPatch timeBase4(0x0030F088, 0x002E9D74, 0x002A2838, 0x0030E608,
 	newTimeBaseSeconds, "Time base (4/4)");
 TJITGenericPatch ignoreSettingTime(0x0008A20C, 0x0008B458, 0x00086A44, 0x0008A73C,
 	0xe1a0f00e, "Ignore setting time"); // mov pc, lr
+
+/*
+ * AdjustRealTimeClock runs once per boot. It resets the RTC to 1996-07-08 if
+ * the RTC is before that date or after 2010-01-01. Einstein's RTC runs on
+ * host time, so it was reset to 1996 at every boot, and alarms set for
+ * today were 30 years in the future. Keep the lower bound, drop the upper
+ * one: the instruction after the "too early" branch returns. The RTC then
+ * runs on host time (UTC) until its 32-bit seconds overflow in February 2040.
+ */
+TJITGenericPatch adjustRealTimeClock(0x00045314, 0x00045BE4, 0x00044BA8, 0x00045320,
+	0xe1a0f00e, "AdjustRealTimeClock upper bound"); // mov pc, lr
 
 // Disable the Schlumberger signature verification for Watson ROMs.
 TJITGenericPatch watsonSig1(kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, 0x007F3284,
