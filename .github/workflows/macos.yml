@@ -22,15 +22,16 @@ jobs:
 
     # Runs a single command using the runners shell
     - name: Build
-      run: xcodebuild build -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein
+      # The project signs with Matt's team, which the CI runner doesn't have.
+      run: xcodebuild build -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein CODE_SIGNING_ALLOWED=NO
 
     # All automated tests are available as part of the EinsteinTest target
     - name: Run Xcode tests
-      run: xcodebuild test -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein
+      run: xcodebuild test -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein CODE_SIGNING_ALLOWED=NO
 
     - name: Archive
       run: |
-        xcodebuild -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein -archivePath Einstein.xcarchive archive
+        xcodebuild -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein -archivePath Einstein.xcarchive archive CODE_SIGNING_ALLOWED=NO
         mkdir -p artifacts
         tar czf artifacts/Einstein.app.tgz -C Einstein.xcarchive/Products/Applications/ Einstein.app
     - uses: actions/upload-artifact@v4
