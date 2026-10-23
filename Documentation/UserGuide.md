@@ -68,7 +68,9 @@ When you start Einstein, the Settings window opens.
 The Newton starts. The first start takes a little longer, while NewtonOS sets
 up the new flash.
 
-To quit, choose **File › Quit** or close the window.
+To quit, choose **File › Quit** or close the window. Einstein first puts the
+Newton to sleep, so apps save what you are editing; this can take a few
+seconds.
 
 In this guide, *Cmd* means the Command key on macOS and the Ctrl key on
 Windows and Linux. For example, **Window › Settings...** is Cmd+Shift+U.
@@ -101,10 +103,10 @@ The main window shows the Newton screen. Below the menu bar is a toolbar.
 
 - **The pen** is your mouse: click to tap, drag to write or draw.
 - **The keyboard**: what you type on your computer goes to the Newton.
-- **Power** (toolbar, or **Platform › Power Button**) puts the Newton to
-  sleep or wakes it up, like the power switch of a real Newton.
-- **Backlight** (toolbar, or **Platform › Backlight**) switches the screen
-  light on or off.
+- **Power** (toolbar, **Platform › Power Button**, or F12) puts the Newton
+  to sleep or wakes it up, like the power switch of a real Newton.
+- **Backlight** (toolbar, **Platform › Backlight**, or F11) switches the
+  screen light on or off.
 - **PCCards** shows the PC Card menu of the upper slot when you click its
   upper half, and of the lower slot when you click its lower half (see
   [section 8](#8-pc-cards)).
@@ -118,8 +120,14 @@ The **Window** menu changes the window:
 
 In the **User Interface** tab of the Settings, you can choose the screen size
 of the Newton in pixels, a scale for the window (100% to 200%), whether the
-menu bar and the toolbar are shown, and whether the mouse pointer is hidden
-over the Newton screen. A new screen size takes effect at the next start.
+menu bar, the toolbar and the eMate's Special Keys are shown, and whether the
+mouse pointer is hidden over the Newton screen. A new screen size takes
+effect at the next start.
+
+The screen size is the size at the start: 320 x 480 (portrait) for a
+MessagePad, 480 x 320 (landscape) for an eMate. When you rotate the screen in
+NewtonOS, the window turns with it, and Einstein starts in the same rotation
+next time.
 
 **File › Print...** (Cmd+Shift+P) prints the Newton screen.
 **File › Screenshot...** (Cmd+Shift+J) saves the Newton screen as a PNG
@@ -129,6 +137,17 @@ asking, under the last name with the next number: after *Shot.png* comes
 exist are skipped. Before the first screenshot of a session, it asks for the
 file like **Screenshot...**, and a file chosen with **Screenshot...** starts a
 new series.
+
+### eMate Special Keys
+
+With an eMate 300 ROM, a row of buttons under the screen stands for the
+Special Keys above the eMate's keyboard: **close**, **extras**, **dock**,
+**send**, **receive**, **scroll** up, **overview**, **scroll** down,
+**undo**, **find**, **assist**, **light** and **power**. On your keyboard,
+Esc is close, F1 to F10 are the keys from extras to assist, F11 is light and
+F12 is power. Turn the row off with *Special Keys (eMate)* in the
+**User Interface** tab of the Settings. The MessagePad ROMs don't know these
+keys, so the setting is grayed out for them.
 
 
 ## 5. Installing packages

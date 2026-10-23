@@ -24,6 +24,24 @@ User Release Notes
  - Fast start: a new version of Einstein starts the Newton normally instead
    of continuing a state that an older version saved. Saved states (File ›
    Save State) still load into a new version.
+ - Quitting always puts the Newton to sleep first, also with Fast start
+   off, so apps save what you are editing. Before, a quit could lose the
+   last changes in an open note. (Works on the eMate still saves a document
+   only when you leave it, for example with Overview.)
+ - Screen rotation: when you rotate the Newton's screen, Einstein starts in
+   the same rotation next time. After a fast start or when restoring a saved
+   state, a rotated screen no longer shows garbled lines.
+ - eMate 300: the eMate starts in landscape. The screen size in the
+   Settings is the size at the start: 320 x 480 for a MessagePad, 480 x 320
+   for an eMate; both give an eMate the same screen.
+ - eMate 300: the Special Keys (close, extras, dock, send, receive, scroll,
+   overview, undo, find, assist, light, power) appear as a row of buttons
+   under the screen. Turn them off with "Special Keys (eMate)" in the User
+   Interface tab of the Settings. On your keyboard, Esc and F1 to F10 do
+   the same.
+ - F11 switches the backlight on or off, F12 presses the power button.
+ - The German MessagePad, eMate 300 and Watson ROMs no longer ask to
+   calibrate the screen.
 
 Developer Release Notes
 -----------------------
