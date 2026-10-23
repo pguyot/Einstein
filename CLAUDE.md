@@ -15,7 +15,7 @@ can be answered inline.
 | Fast start                    | L–XL                                      | low        | Sleep mode, Multithreading, Drivers | done, PR #225 in review |
 | Multithreading and atomics    | M to start, L to fix                      | medium     | –                              | started, 5 race groups deferred |
 | Driver implementation         | L                                         | medium     | Multithreading                 | open |
-| Multiple Configurations       | M as separate processes, XL in one process | medium    | –                              | open |
+| Multiple Configurations       | M–L (≈7 days), +3–5 days for parallel processes | medium | –                         | planned, paused for the screen rotation |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
 | Fix CI testing                | –                                         | –          | –                              | done |
@@ -77,9 +77,9 @@ happens if we exit the app? Does the emulation close gracefully?
 - With Fast start on (the default), quitting the FLTK app puts the Newton to
   sleep first, waits up to 10 s, and saves the state (see Fast start). RAM
   survives, so the next launch continues instead of rebooting.
-- With Fast start off, or when the Newton does not fall asleep in time, quit
-  still just stops the CPU (`TFLApp::QuitNow`). It does not check whether
-  NewtonOS is awake or asleep.
+- Every quit puts the Newton to sleep first (since 2026-10-23, also with
+  Fast start off). Only when the Newton does not fall asleep in 10 s, quit
+  just stops the CPU (`TFLApp::QuitNow`).
 - Flash is a memory-mapped file that is synced on write and erase. If Einstein
   quits in the middle of a store operation, the store can be left inconsistent.
   Waiting for sleep makes that unlikely, but only with Fast start on.
@@ -90,7 +90,24 @@ happens if we exit the app? Does the emulation close gracefully?
 - **Q3.1** On quit: put the Newton to sleep first and wait until it is asleep?
   How long until we force the quit? What if NewtonOS shows a dialog or hangs?
   **A** (partly): with Fast start on, sleep first, 10 s timeout, then quit
-  without a state file. Open: also sleep first with Fast start off?
+  without a state file. Also with Fast start off (2026-10-23): Matt found
+  that a quit without sleep loses edits on the MP2x00 too, not only on the
+  eMate, so every quit sleeps first; only the state file depends on the
+  setting.
+  **eMate** (Matt, 2026-10-23): with Fast start off, changes made on an
+  eMate are lost after quitting, and it sometimes asks to calibrate the
+  screen. Findings (Claude): `TFlashStore::Sleep` and `Idle` are empty in
+  the MP2x00 ROM, so the store writes flash at once, and the flash file is
+  a shared memory map that survives a quit. More likely, apps keep edited
+  entries in memory and save them at sleep or when they close, so a quit
+  without sleep loses them, on a MessagePad too (Matt: yes, the MP2x00
+  loses them as well). Fixed: sleep first on every quit, the state file
+  only with Fast start on (`TFLApp::StartSavingFastStartState`). The
+  calibration question is skipped on the German, eMate and Watson ROMs too
+  now (`CheckTabletCalibration`, German 0x00142E4C, eMate 0x00133760,
+  Watson 0x00141D1C, found by matching the instruction words).
+  Matt, after the fix: text in Notes survives sleep and a restart, text in
+  Works does not; pressing Overview twice saves it. Not important for now.
 - **Q3.2** Should closing the window mean sleep instead of quit?
 - **Q3.3** Should FLTK, Cocoa and SDL behave the same?
 - **Q3.4** How do we test that the store survives a quit? For example, quit
@@ -125,6 +142,81 @@ for it, and it was never tested. To do: keep the rotation in the state file
 (the screen's part of `TransferState`), restore it before the first frame,
 and give the FLTK app what rotation needs (window size, tablet
 coordinates), then test it with a rotated NewtonOS.
+
+Matt, 2026-10-23: users rotate the screen with a NewtonOS menu, and Einstein
+must keep that wish: every later start of that machine (fast start or not)
+comes up in the same rotation. The default rotation for an eMate is
+landscape.
+
+*Findings* (Claude, 2026-10-23):
+- The rotation *is* in the state file (`mScreenOrientation`,
+  `mTabletOrientation` in `TScreenManager::TransferState`), but loading sets
+  the value without calling `ScreenOrientationChanged()`. The FLTK window and
+  its RGB buffer stay portrait (320 wide) while `UpdateScreenRect()` copies
+  rows of `GetScreenWidth()` (480): the interleaved lines. "Restore From..."
+  a landscape checkpoint while portrait has the same bug.
+- A normal boot only works by luck: `TNotebook::InitToolbox` (0x00146B28)
+  reads the user preference `screenOrientation` and calls
+  `SetOrientation()` (0x00202B3C), which reaches Einstein as display driver
+  `SetFeature(4)` and resizes the window after the boot started in portrait.
+  Without that preference (new or wiped store) NewtonOS takes
+  `GetGrafInfo(4)` = display driver `GetFeature(4)` = Einstein's
+  `mScreenOrientation`, which is always `kOrientation_AppleBottom` (2) at
+  launch.
+- `GetScreenInfo` already reports the size from the orientation, so starting
+  the emulator in landscape gives NewtonOS a landscape screen from the first
+  instruction.
+- Orientation values (TCocoaScreenGlue.mm): 0 AppleTop (portrait), 1
+  AppleRight (landscape, the eMate's normal), 2 AppleBottom (portrait flip,
+  the MP2x00's normal), 3 AppleLeft (landscape flip).
+- `TFLScreenManager::ScreenOrientationChanged()` frees and reallocates the
+  RGB buffer on the emulator thread while the UI thread may draw it (no
+  lock), and passes the new size through `static` variables.
+- The FLTK app ignores `TabletOrientationChanged()`; windowed pen
+  coordinates seem to work today, not checked in all four rotations.
+
+*Plan* (proposed):
+1. After loading a state, call `ScreenOrientationChanged()` if the loaded
+   rotation differs from the current one. Fixes fast start and Restore From.
+2. Remember the rotation in the preferences (`Screen/Orientation`, per
+   machine once machines exist), updated whenever NewtonOS rotates, saved at
+   quit.
+3. Launch in the remembered rotation: `TScreenManager` starts with it,
+   `InitScreen()` opens the window with width and height swapped, the RGB
+   buffer and `mScreenWasLandscape` match. A store with its own
+   `screenOrientation` preference still wins, as on a real Newton.
+4. eMate: without a remembered rotation, an eMate ROM starts in landscape
+   (1). Matt: today an eMate ends in chaos with 320x480 and with 480x320
+   alike. Proposed: the Settings show "MP2x00: 320 x 480 (portrait)" and
+   "eMate 300: 480 x 320 (landscape)" under the size fields; a size wider
+   than high means "start in landscape", and Einstein keeps the portrait
+   size internally (`TScreenManager`, the state file's identity check), so
+   both entries give an eMate the same screen. Test first what the eMate
+   ROM does with `GetFeature(4)` = 1.
+5. Resize the RGB buffer under `Fl::lock()`, without the `static` size
+   variables.
+6. Test: rotate, quit, fast start; the same with fast start off; restore a
+   landscape checkpoint while portrait; a new eMate flash; taps in all four
+   rotations.
+
+Decisions (Matt, 2026-10-23): remember the rotation silently, no setting;
+a fresh eMate starts in landscape; explain the screen size per model under
+the size fields.
+
+Tested (Matt, 2026-10-23): step 1 works, a rotated MP2x00 fast-starts
+rotated. The eMate ROM started portrait and rotated to landscape itself
+before booting. Steps 2–4 are in the code (untested): `Screen/Orientation`
+and `Screen/OrientationROM` are saved at quit, the next start with the same
+ROM uses them (`TFLApp::InitScreen()`, `TFLScreenManager` takes the
+orientation); otherwise an eMate ROM or a size wider than high starts in
+landscape (AppleRight), with the portrait size given to NewtonOS. Matt:
+"everything else about rotation works well". Then: the size hint under the
+fields ("MessagePad: 320 x 480 (portrait)", "eMate 300: 480 x 320
+(landscape)"; the checkboxes below moved down 30 px), and step 5:
+`TFLScreenManager::ScreenOrientationChanged()` replaces the image buffer
+under `Fl::lock()` and hands the new widget size to the UI thread in
+members instead of `static` variables. Still to test: the hint's layout,
+taps in all four rotations.
 
 **How it works**
 - *State file* (`TEmulator::SaveState`/`LoadState`, file version 14): header
@@ -620,18 +712,88 @@ medium.
   soups mix. Each configuration needs its own Newton ID (Q9.4: yes), as
   well as its own flash file and fast start file.
 
-**To clarify**
-- **Q9.1** Does "simultaneously" mean several windows of one app, or is one
-  process per configuration fine?
-- **Q9.2** What belongs to a configuration? ROM, REX, flash file, RAM size,
-  machine model; screen size, serial settings, PCMCIA cards; window position;
-  the snapshot.
-- **Q9.3** How does the user pick one: a launcher window, a menu,
-  `--config <name>` on the command line?
-- **Q9.4** Does each instance need a unique Newton ID? (Probably, for Dock and
-  beaming.)
-- **Q9.5** Migration: the current settings become a "Default" configuration?
-- **Q9.6** FLTK only, or Cocoa and SDL as well?
+**Decisions** (Matt, 2026-10-23)
+- **Q9.1** Machines run as separate processes, one per machine. Several
+  machines may run at the same time, each with its own Dock icon and menu
+  bar ("that's actually pretty great"). No several emulators in one process.
+- **Q9.2** One configuration per machine (no separate "MessagePad" and "User
+  Interface" configurations; the disabled placeholder widgets on the
+  MessagePad tab go away). Per machine: ROM, built-in REx, flash, RAM, screen
+  size, scale, rotation, full screen, window position, fast start on/off,
+  state path, serial driver and TCP server, cards kept in a slot, Newton ID.
+  Shared: "don't show at startup", menubar and toolbar, the Resources tab,
+  the list of known PC Cards (only the slot assignment is per machine).
+- **Q9.3** A machine list in the Settings dialog (below), and
+  `--machine <uuid>` on the command line.
+- **Q9.4** Yes, each machine gets its own Newton ID.
+- **Q9.5** Yes. Storage: one folder per machine, with a fallback for the
+  default machine: the first machine in the list stays in the old
+  preferences keys and file locations, so an older Einstein still launches
+  it.
+- **Q9.6** FLTK only for now (as for Fast start, Q3.3).
+- Switching to another machine relaunches the process; no in-process
+  restart of the emulator.
+- Port paths that two processes would share (`/tmp/einstein-*.pty`,
+  `/tmp/BBridge.Einstein`, `/tmp/pty.BasiliskII`, TCP ports): the first
+  process wins, the other one can't open it.
+- Only one Settings window may be open at a time, also across processes.
+  That also protects the preferences from being written by two processes.
+- Nice to have: a custom Dock icon per machine (and the equivalent on Windows
+  and Linux, if FLTK can do it; `Fl_Window::icon()` covers window icons on
+  Windows and X11, macOS probably needs `[NSApp setApplicationIconImage:]`).
+
+**Plan** (Claude, 2026-10-23)
+
+*Today:* `TFLApp::Run()` creates exactly one emulator per process. The
+preferences are one flat group, opened in `TFLSettings::loadPreferences()`
+and in `DataFilePath()` (TFLApp.cpp, the paths of `FastStart.state` and
+`Einstein.state`). The Newton ID is the constant `0x4E65 77746F6E`
+("Newton", TEmulator.cpp:74); FLTK never calls `TEmulator::SetNewtonID()`.
+
+*Storage:*
+```
+<user data>/Machines/<uuid>/
+    Machine.prefs       per-machine settings, Newton ID, window position
+    internal.flash
+    FastStart.state
+    Einstein.state      (default checkpoint)
+```
+The main preferences hold the machine list (order, last used, sidebar open)
+and the shared settings. The default machine keeps the old keys, its files
+where they are today, and its Newton ID `4E65-77746F6E`, so existing
+backups in Newton Connection and NCX still match it. New and duplicated
+machines get a random 48-bit Newton ID.
+
+*UI:* a [<<] button at the bottom left of the Settings dialog. Closed,
+Einstein behaves as today. Open, the window grows about 180 px to the left:
+a machine list (`Fl_Hold_Browser`) with + / − / duplicate, and a name field.
+Selecting a machine loads its values into the tabs. "Start" launches the
+selected machine; while one runs, a different selected machine gets
+"Start", which puts the running Newton to sleep, saves its fast start file
+and relaunches Einstein with `--machine <uuid>`. Delete asks whether to
+remove only the entry or the files too. The machine name goes into the
+window and Monitor titles. Optional: presets (MP2100, eMate 300, Watson)
+for screen size, rotation and RAM.
+
+*Steps:*
+
+| Step | What | Days |
+|---|---|---|
+| 1 | Split `TFLSettings` into app settings and `TFLMachineSettings` | 1 |
+| 2 | Machine folders, machine list, the default machine in the old keys | 1 |
+| 3 | Per-machine paths (flash, fast start, checkpoint), Newton ID via `SetNewtonID()` | 0.5 |
+| 4 | Sidebar: list, add / delete / duplicate / rename, load and save the fields | 2 |
+| 5 | `--machine <uuid>`, switching by relaunch (check the macOS bundle; `_execv` on Windows starts a new process) | 1–1.5 |
+| 6 | Tests (old Einstein on the new preferences, switching, fast start per machine), user guide | 1 |
+
+*Parallel machines* (separate processes, +3–5 days): "Start in a new
+window" spawns a process instead of relaunching; a lock per machine folder
+so one machine can't run twice; the Settings lock across processes; check
+where the NE2000 MAC address comes from (two cards on one network need
+different ones). One process with several emulators would be XL (4–8
+weeks, low confidence): the `TNewt` statics (236 uses in 9 emulator files),
+`gApp` (138 uses), `TFLApp` owning one emulator, window, Monitor and menu
+bar, static locals in the emulator. Not planned.
 
 ## IR emulation via UDP broadcasting
 
@@ -660,6 +822,39 @@ emulators can beam data between them.
   opt-in only?
 - **Q10.5** Should a real Newton be reachable through a host IR adapter?
   (Probably out of scope.)
+
+## eMate special keys bar
+
+(Matt, 2026-10-23.) The eMate 300 has 13 special keys above its keyboard, in
+five groups: close, extras | dock, send, receive | scroll up, overview,
+scroll down | undo, find, assist | light, power. Like the Toolbar, a "Keys"
+option in the Settings (Show: Menubar, Toolbar, Keys) shows this bar under
+the Newton screen. Look: dark green keys, darker green separators between
+the groups, white icons and labels (scan: `~/dev/Newton/eMate Special
+Keys.jpg`). Einstein maps most of them to Esc and the function keys of the
+host keyboard.
+
+Key codes (Matt, 2026-10-23): Esc close, F1 extras, F2 dock, F3 send, F4
+receive, F5 scroll up, F6 overview, F7 scroll down, F8 undo, F9 find, F10
+assist. Light and power are no keys for NewtonOS: the host's F11 and F12
+become `UserActionToggleBacklight()` and `UserActionTogglePower()` (today
+they are passed on as key codes 0x67 and 0x6F). The bar is clickable and
+resizes with the window above it.
+
+*Plan* (proposed):
+1. ~~Find out which key code each special key sends.~~ Above. Check whether
+   the MP2x00 ROM understands them too.
+2. A widget `TFLEMateKeys` (one `Fl_Group`, keys drawn by hand, not 13
+   fluid buttons): it scales with the window width (about 22 px per key at
+   320 px, 33 px at 480 px), draws the icons as small built-in SVGs
+   (`Fl_SVG_Image`, FLTK 1.4.5 has it) and sends `KeyDown`/`KeyUp` to the
+   screen manager on press and release.
+3. Layout: the bar is a fixed height below the screen; `InitScreen()`,
+   `ResizeFromNewton()` (rotation), full screen and the window size range
+   take it into account, as they do for the toolbar.
+4. Setting `Screen/ShowKeys` (per machine once machines exist), checked in
+   the Settings next to Menubar and Toolbar; on by default for a fresh
+   eMate ROM?
 
 ## Event forwarding on slow machines
 
