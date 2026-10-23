@@ -241,6 +241,7 @@ public:
   void revertDialog();
   void applyDialog();
   void updateSpecialKeysCheckbox();
+  void updateEditable();
   void runningMode();
 private:
   void close_window_cb(Fl_Widget*, void *user);

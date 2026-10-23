@@ -2252,6 +2252,29 @@ void TFLSettingsUI::updateSpecialKeysCheckbox() {
   }
 }
 
+/**
+ A machine that runs in another Einstein is read-only: it saves its settings
+ when it quits. The shared settings (PC Cards, Resources) stay editable.
+*/
+void TFLSettingsUI::updateEditable() {
+  bool editable = !IsRunningElsewhere(mEditMachine);
+  Fl_Widget* machineWidgets[] = { wROMName, wROMPathChoose, wFlashName, wFlashPathCreate,
+    wFlashPathChoose, wRAMSizeChoice, wFastStart, wWidth, wHeight, wScale };
+  for (Fl_Widget* w : machineWidgets) {
+    if (editable) w->activate(); else w->deactivate();
+  }
+  if (editable) {
+    updateSpecialKeysCheckbox();
+    wRestartWarning->label("Setting changes apply only after a  restart");
+    if (mRunningMode) wRestartWarning->show(); else wRestartWarning->hide();
+  } else {
+    wShowSpecialKeys->deactivate();
+    wRestartWarning->label("Runs in another Einstein window, so it can't be changed");
+    wRestartWarning->show();
+  }
+  mSettingsPanel->redraw();
+}
+
 void TFLSettingsUI::runningMode() {
   wRestartWarning->show();
   wQuit->hide();

@@ -114,22 +114,51 @@ public:
 		mPlay->clear_visible_focus();
 		mPlay->callback([](Fl_Widget* w, void*) {
 			auto* row = (TFLMachineRow*) w->parent();
-			row->mList->GetSettings()->StartMachine(row->mMachine);
+			if (!row->mRunning)
+				row->mList->GetSettings()->StartMachine(row->mMachine);
 		});
 		end();
+		mRunning = inList->GetSettings()->IsRunning(inMachine);
 		SetSelected(inMachine == inList->GetSettings()->mEditMachine);
+	}
+
+	// A running machine has a green dot instead of the play button. It goes
+	// back to play when that Einstein quits.
+	void
+	SetRunning(bool inRunning)
+	{
+		mRunning = inRunning;
+		SetSelected(mSelected);
+	}
+
+	bool
+	IsRunning() const
+	{
+		return mRunning;
 	}
 
 	// Colors of a selected row (like the selection in a browser) or not.
 	void
 	SetSelected(bool inSelected)
 	{
+		mSelected = inSelected;
 		color(inSelected ? FL_SELECTION_COLOR : mList->color());
 		Fl_Color textColor = inSelected ? fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR) : FL_FOREGROUND_COLOR;
 		mName->labelcolor(textColor);
 		mDescription->labelcolor(textColor);
-		mPlay->color(inSelected ? FL_WHITE : FL_BLACK);
-		mPlay->labelcolor(inSelected ? FL_SELECTION_COLOR : FL_WHITE);
+		if (mRunning)
+		{
+			mPlay->color(fl_rgb_color(60, 170, 90));
+			mPlay->label("");
+			bool here = (mMachine == mList->GetSettings()->mMachine) && !mList->GetSettings()->IsRunningElsewhere(mMachine);
+			mPlay->tooltip(here ? "Runs in this Einstein window" : "Runs in another Einstein window");
+		} else
+		{
+			mPlay->color(inSelected ? FL_WHITE : FL_BLACK);
+			mPlay->labelcolor(inSelected ? FL_SELECTION_COLOR : FL_WHITE);
+			mPlay->label("@>");
+			mPlay->tooltip("Start this machine");
+		}
 		redraw();
 	}
 
@@ -173,6 +202,8 @@ private:
 	Fl_Box* mName { nullptr };
 	Fl_Box* mDescription { nullptr };
 	Fl_Button* mPlay { nullptr };
+	bool mSelected { false };
+	bool mRunning { false };
 };
 
 TFLMachineList::TFLMachineList(int x, int y, int w, int h, TFLSettings* inSettings) :
@@ -207,10 +238,34 @@ TFLMachineList::TFLMachineList(int x, int y, int w, int h, TFLSettings* inSettin
 	mScroll->end();
 	resizable(mScroll);
 	end();
+	Fl::add_timeout(1.0, WatchRunning, this);
+}
+
+void
+TFLMachineList::WatchRunning(void* inList)
+{
+	auto* list = (TFLMachineList*) inList;
+	if (list->visible_r())
+	{
+		for (int i = 0; i < list->mPack->children(); i++)
+		{
+			auto* row = (TFLMachineRow*) list->mPack->child(i);
+			bool running = list->mSettings->IsRunning(row->GetMachine());
+			if (running == row->IsRunning())
+				continue;
+			row->SetRunning(running);
+			if (!running)
+				list->mSettings->MachineStopped(row->GetMachine());
+			else if (row->GetMachine() == list->mSettings->mEditMachine)
+				list->mSettings->updateEditable();
+		}
+	}
+	Fl::repeat_timeout(1.0, WatchRunning, inList);
 }
 
 TFLMachineList::~TFLMachineList()
 {
+	Fl::remove_timeout(WatchRunning, this);
 	delete mMessagePadIcon;
 	delete mEMateIcon;
 }

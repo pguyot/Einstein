@@ -484,6 +484,7 @@ TFLSettings::ShowSettingsPanelModal()
 {
 	if (!LockSettings(mSettingsLock, mUserDataPath))
 		return false;
+	updateEditable();
 	mSettingsPanel->show();
 	while (mSettingsPanel->visible())
 		Fl::wait();
@@ -497,7 +498,10 @@ TFLSettings::ShowSettingsPanel()
 	if (!LockSettings(mSettingsLock, mUserDataPath))
 		return;
 	mRunningMode = true;
+	RefreshMachines();
 	runningMode();
+	revertDialog();
+	updateEditable();
 	mSettingsPanel->show();
 	// Release the lock when the window closes (any of its buttons hides it).
 	Fl::add_timeout(0.5, SettingsLockTimer, this);
@@ -654,6 +658,73 @@ TFLSettings::IsRunningElsewhere(const TFLMachineSettings* inMachine) const
 	if (inMachine == mMachine)
 		return false;
 	return TFLFileLock::IsHeldElsewhere(inMachine->GetFolder() + "Machine.lock");
+}
+
+bool
+TFLSettings::IsRunning(const TFLMachineSettings* inMachine) const
+{
+	return (mRunningMode && inMachine == mMachine) || IsRunningElsewhere(inMachine);
+}
+
+void
+TFLSettings::MachineStopped(TFLMachineSettings* inMachine)
+{
+	inMachine->LoadFromFolder(appPath);
+	if (inMachine == mEditMachine)
+	{
+		revertDialog();
+		updateEditable();
+	}
+}
+
+/**
+ Read the machine list again from the preferences: another Einstein's Settings
+ may have added, removed or moved machines since this one started, and
+ machines that ran there saved their settings. Machines we know are reused,
+ the one that runs here is not read again.
+ */
+void
+TFLSettings::RefreshMachines()
+{
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	Fl_Preferences machines(prefs, "Machines");
+	char* theOrder = nullptr;
+	machines.get("Order", theOrder, "");
+	std::vector<TFLMachineSettings*> theList;
+	for (char* uuid = strtok(theOrder, " "); uuid; uuid = strtok(nullptr, " "))
+	{
+		TFLMachineSettings* machine = nullptr;
+		for (auto*& known : mMachines)
+		{
+			if (known && strcmp(known->GetUUID(), uuid) == 0)
+			{
+				machine = known;
+				known = nullptr; // taken
+				break;
+			}
+		}
+		if (!machine)
+			machine = new TFLMachineSettings(uuid, mUserDataPath.c_str());
+		if (machine != mMachine)
+			machine->LoadFromFolder(appPath);
+		theList.push_back(machine);
+	}
+	::free(theOrder);
+	// Machines that are gone from the list, except the one that runs here.
+	for (auto* known : mMachines)
+	{
+		if (!known)
+			continue;
+		if (known == mMachine)
+			theList.push_back(known);
+		else
+			delete known;
+	}
+	mMachines = theList;
+	if (std::find(mMachines.begin(), mMachines.end(), mEditMachine) == mMachines.end())
+		mEditMachine = mMachine;
+	if (mMachineList)
+		mMachineList->Update();
 }
 
 /**
@@ -1183,6 +1254,7 @@ TFLSettings::SelectMachine(TFLMachineSettings* inMachine)
 	applyDialog();
 	mEditMachine = inMachine;
 	revertDialog();
+	updateEditable();
 	mMachineList->UpdateSelection();
 	mSettingsPanel->redraw();
 }
@@ -1191,6 +1263,11 @@ void
 TFLSettings::StartMachine(TFLMachineSettings* inMachine)
 {
 	SelectMachine(inMachine);
+	if (IsRunningElsewhere(inMachine))
+	{
+		fl_alert("\"%s\" already runs in another Einstein window.", inMachine->GetName());
+		return;
+	}
 	if (!mRunningMode)
 	{
 		// Einstein just started: run it here, like the Start button.

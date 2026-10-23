@@ -72,6 +72,9 @@ public:
 private:
 	void ShowMenu(TFLMachineSettings* inMachine);
 
+	// Once a second: show which machines run (their lock files).
+	static void WatchRunning(void* inList);
+
 	TFLSettings* mSettings { nullptr };
 	TFLMachineSettings* mMenuMachine { nullptr };
 	Fl_Scroll* mScroll { nullptr };

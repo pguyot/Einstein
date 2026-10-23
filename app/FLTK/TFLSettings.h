@@ -268,6 +268,7 @@ public:
 	virtual Fl_Double_Window* createAboutDialog() = 0;
 	virtual void revertDialog() = 0;
 	virtual void applyDialog() = 0;
+	virtual void updateEditable() = 0;
 	virtual void runningMode() = 0;
 	virtual void HandlePopupMenu() = 0;
 
@@ -299,6 +300,17 @@ public:
 
 	// Is this machine running in another Einstein process?
 	bool IsRunningElsewhere(const TFLMachineSettings* inMachine) const;
+
+	// Is this machine running, here or in another Einstein?
+	bool IsRunning(const TFLMachineSettings* inMachine) const;
+
+	// A machine stopped running in another Einstein, which saved it: read it
+	// again.
+	void MachineStopped(TFLMachineSettings* inMachine);
+
+	// Read the machine list again, which another Einstein may have changed.
+	// The machine that runs here stays as it is.
+	void RefreshMachines();
 
 	// The machine list on the left of the Settings window, see
 	// TFLMachineList and TFLSettings.cpp.
