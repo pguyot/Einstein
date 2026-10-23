@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0405
+version 1.0400
 use_FL_COMMAND
 header_name {.h}
 code_name {.cpp}
@@ -73,7 +73,7 @@ decl {\#include <FL/Fl.H>} {private local
 decl {\#include <FL/fl_draw.H>} {private local
 }
 
-declblock {\#if TARGET_OS_MAC} {open public map 3 after {\#endif}
+declblock {\#if TARGET_OS_MAC} {open public after {\#endif}
 } {
   decl {\#include <FL/Fl_Sys_Menu_Bar.H>} {public global
   }
@@ -405,7 +405,7 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open
           xywh {10 35 430 375}
         } {
           Fl_Group {} {open
@@ -430,7 +430,7 @@ wAbout = nullptr;} {}
             }
           }
           Fl_Group {} {open
-            xywh {22 90 408 77} box FLAT_BOX labelsize 12 align 5
+            xywh {22 90 408 87} box FLAT_BOX labelsize 12 align 5
           } {
             Fl_Input wROMName {
               label {Newton ROM: }
@@ -448,12 +448,12 @@ if (name) {
             }
             Fl_Box wROMPath {
               label {/here/goes/the/path/and/filename/of/the/ROM}
-              xywh {120 115 310 15} labelsize 11 align 212
+              xywh {120 115 310 27} labelsize 11 align 212
             }
             Fl_Box wROMDetails {
               label {ROM file found
 Enjoy Einstein}
-              xywh {120 132 310 35} labelsize 12 align 212
+              xywh {120 142 310 35} labelsize 12 align 212
             }
             Fl_Button wROMPathChoose {
               label {Choose...}
@@ -472,7 +472,7 @@ Einstein does not include any ROMs.} xywh {355 95 75 20} labelsize 12
             }
           }
           Fl_Group {} {open
-            xywh {22 179 408 46} box FLAT_BOX labelsize 12 align 5
+            xywh {22 189 408 48} box FLAT_BOX labelsize 12 align 5
           } {
             Fl_Input wFlashName {
               label {System Flash: }
@@ -485,11 +485,11 @@ if (name) {
   strncat(buf, wFlashName->value(), FL_PATH_MAX);
   wFlashPath->copy_label(buf);
 }}
-              xywh {120 180 160 20} color 54 labelsize 13 textsize 12
+              xywh {120 190 160 20} color 54 labelsize 13 textsize 12
             }
             Fl_Box wFlashPath {
               label {/here/goes/the/path/and/filename/of/the/FlashFile}
-              xywh {120 200 310 15} labelsize 11 align 212
+              xywh {120 210 310 27} labelsize 11 align 212
             }
             Fl_Button wFlashPathCreate {
               label {Create...}
@@ -502,7 +502,7 @@ if (filename) {
     wFlashName->value(fl_filename_name(filename));
     wFlashPath->copy_label(filename);
 }}
-              tooltip {Create a new Flash RAM image file.} xywh {280 180 75 20} labelsize 12
+              tooltip {Create a new Flash RAM image file.} xywh {280 190 75 20} labelsize 12
             }
             Fl_Button wFlashPathChoose {
               label {Choose...}
@@ -515,15 +515,15 @@ if (filename) {
     wFlashName->value(fl_filename_name(filename));
     wFlashPath->copy_label(filename);
 }}
-              tooltip {Select an existing Flash RAM image file.} xywh {355 180 75 20} labelsize 12
+              tooltip {Select an existing Flash RAM image file.} xywh {355 190 75 20} labelsize 12
             }
           }
           Fl_Group {} {open
-            xywh {22 230 408 20} box FLAT_BOX labelsize 12 align 5
+            xywh {22 240 408 21} box FLAT_BOX labelsize 12 align 5
           } {
             Fl_Choice wRAMSizeChoice {
               label {System RAM: } open
-              tooltip {select the system memory size (heap)} xywh {120 230 180 20} down_box BORDER_BOX labelsize 13 textsize 12
+              tooltip {select the system memory size (heap)} xywh {120 241 180 20} down_box BORDER_BOX labelsize 13 textsize 12
             } {
               MenuItem {} {
                 label {1MB (MP2000/eMate)}
@@ -547,31 +547,18 @@ if (filename) {
               }
             }
           }
-          Fl_Choice {} {
-            label {User Interface: } open
-            xywh {120 270 180 20} down_box BORDER_BOX deactivate
-          } {
-            MenuItem {} {
-              label MP2x00
-              xywh {0 0 100 20}
-            }
-            MenuItem {} {
-              label {eMate 300}
-              xywh {0 0 100 20}
-            }
-          }
           Fl_Box wRestartWarning {
             label {Setting changes apply only after a  restart}
             xywh {30 378 386 20} box FLAT_BOX labelfont 1 labelsize 12 align 16 hide
           }
           Fl_Check_Button wFetchDateAndTime {
-            label {Fetch date and time from host}
-            xywh {120 300 196 20} down_box DOWN_BOX labelsize 13
+            label {Fetch date and time from host} selected
+            xywh {120 273 196 20} down_box DOWN_BOX labelsize 13
           }
           Fl_Check_Button wFastStart {
-            label {Fast start: continue where Einstein was quit}
+            label {Fast start: continue where Einstein was quit} selected
             tooltip {When quitting, Einstein lets the Newton fall asleep and saves its state.
-The next start continues from there, if nothing changed in the meantime.} xywh {120 325 290 20} down_box DOWN_BOX labelsize 13
+The next start continues from there, if nothing changed in the meantime.} xywh {120 298 290 20} down_box DOWN_BOX labelsize 13
           }
         }
         Fl_Group {} {
@@ -591,34 +578,39 @@ Original screen size is 320x480} xywh {120 90 80 20} type Int color 54 labelsize
               tooltip {Screen height in pixels,
 Original screen size is 320x480} xywh {215 90 80 20} type Int color 54 labelsize 12 textsize 12
             }
+            Fl_Box {} {
+              label {MessagePad: 320 x 480 (portrait)
+eMate 300: 480 x 320 (landscape)}
+              xywh {120 112 290 28} labelsize 11 align 21
+            }
             Fl_Check_Button wFullScreen {
               label {Full screen}
-              xywh {120 120 308 20} down_box DOWN_BOX labelsize 13 deactivate
+              xywh {120 150 308 20} down_box DOWN_BOX labelsize 13 deactivate
             }
             Fl_Check_Button wHideMouse {
               label {Hide mouse pointer}
               tooltip {Hide mouse pointer over MessagePad screen
-Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX labelsize 13
+Used on pen or touch screen devices.} xywh {120 175 208 20} down_box DOWN_BOX labelsize 13
             }
             Fl_Check_Button wLaunchMonitorAtBoot {
               label {Launch Monitor at Boot}
-              xywh {120 170 196 20} down_box DOWN_BOX labelsize 13
+              xywh {120 200 196 20} down_box DOWN_BOX labelsize 13
             }
             Fl_Check_Button wBreakAtROMBoot {
               label {Break at ROMBoot}
-              xywh {145 195 196 20} down_box DOWN_BOX labelsize 13 deactivate
+              xywh {145 225 196 20} down_box DOWN_BOX labelsize 13 deactivate
             }
             Fl_Check_Button wShowMenubar {
               label Menubar
-              xywh {120 220 196 20} down_box DOWN_BOX labelsize 13
+              xywh {120 250 196 20} down_box DOWN_BOX labelsize 13
             }
             Fl_Check_Button wShowToolbar {
               label Toolbar
-              xywh {120 245 196 20} down_box DOWN_BOX labelsize 13
+              xywh {120 275 196 20} down_box DOWN_BOX labelsize 13
             }
             Fl_Box {} {
               label {Show:}
-              xywh {20 220 94 20} labelsize 13 align 24
+              xywh {20 250 94 20} labelsize 13 align 24
             }
             Fl_Box {} {
               label {add screen scale}
@@ -1624,7 +1616,7 @@ if (choice && choice->callback()) {
     choice->callback_(RMB, choice->user_data_);
 }} {}
   }
-  declblock {\#if TARGET_OS_MAC} {open public map 3 after {\#endif}
+  declblock {\#if TARGET_OS_MAC} {open public after {\#endif}
   } {
     decl {Fl_Sys_Menu_Bar *wSysMenubar = nullptr;} {public local
     }
