@@ -32,6 +32,7 @@
 
 class Fl_Double_Window;
 class Fl_Preferences;
+class TFLFileLock;
 class TFLApp;
 class TPCMCIACard;
 
@@ -260,8 +261,18 @@ public:
 	virtual void HandlePopupMenu() = 0;
 
 	void ShowAboutDialog();
-	void ShowSettingsPanelModal();
+
+	// Show the Settings and wait until they close. Only one Settings window
+	// may be open, in all Einstein processes together.
+	// \return false if the Settings are open in another Einstein
+	bool ShowSettingsPanelModal();
+
+	// Show the Settings while a machine runs (see ShowSettingsPanelModal()).
 	void ShowSettingsPanel();
+
+	// Releases the Settings lock once the window that ShowSettingsPanel()
+	// opened is closed.
+	static void SettingsLockTimer(void* inSettings);
 	void setAppPath(const char* AppPath);
 	void loadPreferences();
 	void savePreferences();
@@ -269,6 +280,14 @@ public:
 	// The machine list in the preferences, see TFLSettings.cpp
 	void LoadMachines(Fl_Preferences& inPrefs);
 	void SaveMachines(Fl_Preferences& inPrefs);
+
+	// Save only the machine that runs (when it quits, or when NewtonOS
+	// changed its settings), not the list or the shared settings, which
+	// only the Settings window changes. See TFLSettings.cpp.
+	void SaveRunningMachine();
+
+	// Is this machine running in another Einstein process?
+	bool IsRunningElsewhere(const TFLMachineSettings* inMachine) const;
 
 	const char* GetROMDetails(const char* inFilename);
 
@@ -290,6 +309,10 @@ public:
 
 	// Einstein's folder for user data, ending in a slash
 	std::string mUserDataPath;
+
+	// held while the Settings window is open (Settings.lock in the user data
+	// folder), see ShowSettingsPanelModal()
+	TFLFileLock* mSettingsLock = nullptr;
 
 	// All machines, in the order of the list. The first one is also stored
 	// in the old preference keys, so an older Einstein launches it.

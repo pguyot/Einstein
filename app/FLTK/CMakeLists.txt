@@ -18,6 +18,8 @@ list ( APPEND app_sources
 	app/FLTK/TFLSpecialKeys.h
 	app/FLTK/TFLAppWindow.cpp
 	app/FLTK/TFLAppWindow.h
+	app/FLTK/TFLFileLock.cpp
+	app/FLTK/TFLFileLock.h
 	app/FLTK/TFLTabs.cpp
 	app/FLTK/TFLTabs.h
 )

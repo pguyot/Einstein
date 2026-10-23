@@ -59,6 +59,7 @@ class Fl_Widget;
 class TFLApp;
 class TFLSettingsUI;
 class TFLSpecialKeys;
+class TFLFileLock;
 
 extern TFLApp* gApp;
 
@@ -317,6 +318,8 @@ private:
 	Fl_Widget* mNewtonScreen = nullptr;
 	// the eMate's Special Keys under the screen, null if not shown
 	TFLSpecialKeys* mSpecialKeys = nullptr;
+	// held while this Einstein runs its machine (Machine.lock in its folder)
+	TFLFileLock* mMachineLock = nullptr;
 	int mWindowedX = 150;
 	int mWindowedY = 150;
 	int mWindowedWidth = 320;

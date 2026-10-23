@@ -820,8 +820,8 @@ enough. Any machine can be deleted, at least one stays.
 |---|---|---|
 | 1 | ~~Split `TFLSettings` into app settings and `TFLMachineSettings`~~ done, `d6b4d459`; Matt tested it, also with an older Einstein | 1 |
 | 2 | ~~Machine folders, machine list, the first machine mirrored in the old keys~~ done, `4d6d08ae`, tested by Matt ( `LoadMachines()`, `SaveMachines()`; the first machine is also read from the old keys, so changes made by an older Einstein win) | 1 |
-| 3 | Per-machine paths (flash, fast start, checkpoint), Newton ID via `SetNewtonID()`, `--machine <uuid>` (in the code, untested: `FastStart.state`, `Einstein.state` and `EinsteinCheck` in the machine's folder; `System/NewtonID` as 16 hex digits, the migrated machine keeps `00004E6577746F6E`; `--machine` takes the UUID or the name and skips the Settings) | 1 |
-| 4 | Locks: machine lock, Settings lock, PC Card image lock | 1 |
+| 3 | ~~Per-machine paths (flash, fast start, checkpoint), Newton ID via `SetNewtonID()`, `--machine <uuid>`~~ done, `0dd9352a`, tested by Matt ( `FastStart.state`, `Einstein.state` and `EinsteinCheck` in the machine's folder; `System/NewtonID` as 16 hex digits, the migrated machine keeps `00004E6577746F6E`; `--machine` takes the UUID or the name and skips the Settings) | 1 |
+| 4 | Locks: machine lock, Settings lock, PC Card image lock (4a–c in the code, untested: `TFLFileLock`, `Machine.lock` per machine folder, `Settings.lock` in the user data folder; a quitting Einstein saves only its machine, `SaveRunningMachine()`; the Settings skip machines that run elsewhere. 4d, the PC Card locks and the slot assignment per machine, next) | 1 |
 | 5 | The list: rows with icon, name, description, play button; context menu; [<<] | 2 |
 | 6 | Start a machine in a new process (macOS bundle, Windows, Linux); machine name in window and Monitor titles | 1–1.5 |
 | 7 | Tests (old Einstein on the new preferences, two machines at once, fast start per machine), user guide | 1 |

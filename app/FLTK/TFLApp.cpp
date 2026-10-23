@@ -234,6 +234,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TROMImage.h"
+#include "app/FLTK/TFLFileLock.h"
 #include "app/FLTK/TFLSpecialKeys.h"
 #include "Emulator/Screen/TFLScreenManager.h"
 #include "Emulator/Serial/TSerialPortDriver.h"
@@ -358,8 +359,10 @@ TFLApp::Run(int argc, char* argv[])
 
 	for (Boolean firstAttempt = true;; firstAttempt = false)
 	{
+		// The Settings are open in another Einstein: start the machine there.
 		if (!firstAttempt || !(mFLSettings->dontShow || startAtOnce))
-			mFLSettings->ShowSettingsPanelModal();
+			if (!mFLSettings->ShowSettingsPanelModal())
+				::exit(0);
 		strncpy(theROMImagePath, mFLSettings->mMachine->ROMPath, FL_PATH_MAX);
 		mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, mFLSettings->mMachine->mUseBuiltinRex);
 		if (!mROMImage)
@@ -368,7 +371,21 @@ TFLApp::Run(int argc, char* argv[])
 			continue;
 		}
 		if (mROMImage->GetErrorCode() == TROMImage::kNoError)
-			break;
+		{
+			// A machine runs in one Einstein only: two would write the same
+			// flash. The lock is released when this Einstein ends.
+			mFLSettings->mMachine->CreateFolder();
+			mMachineLock = new TFLFileLock(mFLSettings->mMachine->GetFolder() + "Machine.lock");
+			if (mMachineLock->TryLock())
+				break;
+			delete mMachineLock;
+			mMachineLock = nullptr;
+			fl_alert("\"%s\" already runs in another Einstein window.", mFLSettings->mMachine->GetName());
+			if (startAtOnce)
+				::exit(1);
+			delete mROMImage;
+			continue;
+		}
 		switch (mROMImage->GetErrorCode())
 		{
 			case TROMImage::kErrorLoadingROMFile:
@@ -387,9 +404,6 @@ TFLApp::Run(int argc, char* argv[])
 		delete mROMImage;
 		// go back to showing the settings panel
 	}
-
-	// The machine's folder holds its fast start and state files.
-	mFLSettings->mMachine->CreateFolder();
 
 	const char* theFlashPath = strdup(mFLSettings->mMachine->FlashPath);
 	//    std::filesystem::path flashPath( theFlashPath );
@@ -504,7 +518,7 @@ TFLApp::Run(int argc, char* argv[])
 	// Start in the same orientation next time.
 	mFLSettings->mMachine->mScreenOrientation = mScreenManager->GetScreenOrientation();
 	mFLSettings->mMachine->mScreenOrientationROM = mROMImage->GetROMId();
-	mFLSettings->savePreferences();
+	mFLSettings->SaveRunningMachine();
 
 	// wait for the emulator to finish before we leave the house, too and lock the doors
 	emulatorThread->join();
@@ -1749,7 +1763,7 @@ TFLApp::InitSerialPorts()
 				settings->mMachine->mExtrTcpPort = s->tcpPort;
 				::free(s->tcpServer);
 			}
-			settings->savePreferences();
+			settings->SaveRunningMachine();
 			delete s;
 		},
 			s);

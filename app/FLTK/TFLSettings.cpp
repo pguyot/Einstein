@@ -50,6 +50,7 @@
 #include "Emulator/PCMCIA/TNE2000Card.h"
 #include "Emulator/ROM/TROMImage.h"
 #include "app/FLTK/TFLApp.h"
+#include "app/FLTK/TFLFileLock.h"
 
 // MARK: - PC Card Settings
 
@@ -442,21 +443,53 @@ TFLSettings::~TFLSettings()
 {
 	for (auto* machine : mMachines)
 		delete machine;
+	delete mSettingsLock;
 }
 
-void
+// Get the lock that allows one Settings window in all Einstein processes, or
+// tell the user that another Einstein has it.
+static bool
+LockSettings(TFLFileLock*& ioLock, const std::string& inUserDataPath)
+{
+	if (!ioLock)
+		ioLock = new TFLFileLock(inUserDataPath + "Settings.lock");
+	if (ioLock->TryLock())
+		return true;
+	fl_alert("The Settings are open in another Einstein window.");
+	return false;
+}
+
+bool
 TFLSettings::ShowSettingsPanelModal()
 {
+	if (!LockSettings(mSettingsLock, mUserDataPath))
+		return false;
 	mSettingsPanel->show();
 	while (mSettingsPanel->visible())
 		Fl::wait();
+	mSettingsLock->Unlock();
+	return true;
 }
 
 void
 TFLSettings::ShowSettingsPanel()
 {
+	if (!LockSettings(mSettingsLock, mUserDataPath))
+		return;
 	runningMode();
 	mSettingsPanel->show();
+	// Release the lock when the window closes (any of its buttons hides it).
+	Fl::add_timeout(0.5, SettingsLockTimer, this);
+}
+
+void
+TFLSettings::SettingsLockTimer(void* inSettings)
+{
+	auto* settings = (TFLSettings*) inSettings;
+	if (settings->mSettingsPanel->visible())
+		Fl::repeat_timeout(0.5, SettingsLockTimer, inSettings);
+	else
+		settings->mSettingsLock->Unlock();
 }
 
 void
@@ -528,6 +561,9 @@ TFLSettings::LoadMachines(Fl_Preferences& inPrefs)
 			machine->SetStatePath(theOldState.c_str());
 		}
 		mMachines.push_back(machine);
+		// Save the list now: a quitting Einstein only saves its own machine.
+		mMachine = machine;
+		SaveMachines(inPrefs);
 	} else
 	{
 		// The first machine is also in the old keys, and an older Einstein may
@@ -551,14 +587,53 @@ TFLSettings::SaveMachines(Fl_Preferences& inPrefs)
 		if (!theOrder.empty())
 			theOrder += " ";
 		theOrder += machine->GetUUID();
-		machine->SaveToFolder();
+		// A machine that runs in another Einstein saves itself when it quits,
+		// and our copy may be older.
+		if (!IsRunningElsewhere(machine))
+			machine->SaveToFolder();
 	}
 	Fl_Preferences machines(inPrefs, "Machines");
 	machines.set("Order", theOrder.c_str());
 	machines.set("LastUsed", mMachine ? mMachine->GetUUID() : "");
 
-	if (!mMachines.empty())
+	if (!mMachines.empty() && !IsRunningElsewhere(mMachines[0]))
 		mMachines[0]->Save(inPrefs);
+}
+
+/**
+ Is this machine running in another Einstein process?
+ */
+bool
+TFLSettings::IsRunningElsewhere(const TFLMachineSettings* inMachine) const
+{
+	// Our own lock also counts as "elsewhere" for the lock file, so leave out
+	// the machine that this process runs.
+	if (inMachine == mMachine)
+		return false;
+	return TFLFileLock::IsHeldElsewhere(inMachine->GetFolder() + "Machine.lock");
+}
+
+/**
+ Save the machine that runs: its own file, and the old keys if it is the first
+ machine in the list. The list is read from the file, because the Settings
+ of another Einstein may have changed it since this one started.
+ */
+void
+TFLSettings::SaveRunningMachine()
+{
+	if (!mMachine)
+		return;
+	mMachine->SaveToFolder();
+
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	Fl_Preferences machines(prefs, "Machines");
+	char* theOrder = nullptr;
+	machines.get("Order", theOrder, "");
+	const char* theFirst = strtok(theOrder, " ");
+	if (theFirst && strcmp(theFirst, mMachine->GetUUID()) == 0)
+		mMachine->Save(prefs);
+	machines.set("LastUsed", mMachine->GetUUID());
+	::free(theOrder);
 }
 
 void
