@@ -982,8 +982,43 @@ To do before Multiple Configurations, after the time patches (Matt,
 
 Serial port settings:
 
-Switching back to TCP resets the address: Einstein builds a brand-new TCP driver, which starts at 127.0.0.1:3679. The panel only sends the new driver ID, so that default replaces your saved server and port. Getting your last address back would mean changing TSerialPorts::ReplaceDriver to apply the saved values to a new TCP driver
+Status (Matt, 2026-10-23): all three fixed. Matt set kSerialDriverMax to 4
+and removed the unused kTcpServerSerialDriverTag in the Einstein Prefs
+source; tested on macOS: port and TCP server stay the same across driver
+changes and reboots.
 
-- AppConstants.f says kTcpServerSerialDriverTag := 5, but in the emulator 5 means kDirectDriver (TSerialPorts.h:59-66).
+- ~~Switching back to TCP resets the address~~ Fixed 2026-10-23:
+  `TSerialPorts` keeps the TCP server and port per port
+  (`SetTcpClientSettings()`): FLTK passes the saved settings before the
+  drivers start, and `ReplaceDriver()` keeps those of a TCP driver it
+  replaces. A new TCP client driver starts with them instead of
+  127.0.0.1:3679.
+- AppConstants.f says kTcpServerSerialDriverTag := 5, but in the emulator 5
+  means kDirectDriver (TSerialPorts.h:59-66). Probably copied from the Cocoa
+  app, where tag 5 is a TCP *server* that was never implemented and the
+  client is 4 (`app/TCocoaUserDefaults.h`); switching to TCP works, so
+  Einstein Prefs must send 4. To do in the Einstein Prefs source (Matt):
+  check where the constant is used, then remove it or rename it.
+- kSerialDriverMax is 5, but GetSerialPortDriverNames only returned 5 names
+  (0–4). Einstein side fixed 2026-10-23 (untested): a sixth name, "Host
+  Serial Port", for kDirectDriver (assert in the constructor), and
+  `NSSetDriverAndOptions()` refuses drivers that are not in
+  `ValidDriversByPort` for the platform (for example Pipes on Windows, or
+  5); the current driver keeps running. Einstein Prefs could still offer
+  the drivers from `GetSerialPortDriverList(port)` (the valid IDs for the
+  platform) instead of 0 to kSerialDriverMax.
 
-- kSerialDriverMax is 5, but GetSerialPortDriverNames only returns 5 names (indices 0–4). Picking driver 5 would read past the end of the list.
+Later (Matt, 2026-10-23):
+- The PTY and Pipes drivers need their own settings, like the TCP client's
+  server and port (today: hard-coded `/tmp/BBridge.Einstein` for the PTY,
+  fixed pipe names). Also per machine, see Multiple Configurations.
+- The BasiliskII driver should show the path it uses on the current
+  platform (`/tmp/pty.BasiliskII`).
+
+Next (Matt, 2026-10-23): **Einstein Prefs as a Preferences item.** Instead
+of its own app in Extras, Einstein Prefs becomes an entry in the Newton's
+built-in Preferences (NewtonOS 2.x `RegPrefs(sym, template)` in an
+install script, `UnRegPrefs(sym)` in the remove script; the ROM has the
+`prefsRegistry`). See *Next steps to wrap up state snapshots*, item 13. Matt plans to build the
+package with `newtc` instead of NEWT/0 (closer to the original NTK, with
+source level debugging); not started yet.

@@ -29,6 +29,8 @@ User Release Notes
    the speed of a fast serial line.
  - Switching to another serial driver in the Settings or in Einstein Prefs
    now stops the old driver cleanly.
+ - Switching the serial port back to the Network Client keeps your server
+   address and port; before, it went back to 127.0.0.1:3679.
  - Fast start: a new version of Einstein starts the Newton normally instead
    of continuing a state that an older version saved. Saved states (File ›
    Save State) still load into a new version.
