@@ -72,6 +72,11 @@ To quit, choose **File › Quit** or close the window. Einstein first puts the
 Newton to sleep, so apps save what you are editing; this can take a few
 seconds.
 
+You can go back to an older version of Einstein: it starts the Newton with the
+same settings. It only shows the settings it knows, though, and when you click
+**Start** or **Save** there, the newer ones go back to what its dialog showed.
+For example, a version before 2026.10.13 shows 8 MB of RAM as 4 MB.
+
 In this guide, *Cmd* means the Command key on macOS and the Ctrl key on
 Windows and Linux. For example, **Window › Settings...** is Cmd+Shift+U.
 

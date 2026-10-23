@@ -31,7 +31,9 @@
 #include <FL/fl_ask.H>
 
 #if TARGET_OS_WIN32
+#include <direct.h>
 #else
+#include <sys/stat.h>
 #include <unistd.h>
 #endif
 #include <algorithm>
@@ -225,6 +227,24 @@ TFLPCCardSettings::SetImagePath(const char* inImagePath)
 
 // MARK: - Machine Settings
 
+// Create a folder if it does not exist yet (its parent must exist).
+// std::filesystem would need macOS 10.15.
+static void
+MakeFolder(const std::string& inPath)
+{
+#if TARGET_OS_WIN32
+	(void) _mkdir(inPath.c_str());
+#else
+	(void) mkdir(inPath.c_str(), 0755);
+#endif
+}
+
+TFLMachineSettings::TFLMachineSettings(const char* inUUID, const char* inUserDataPath) :
+		mUUID(inUUID),
+		mFolder(std::string(inUserDataPath) + "Machines/" + inUUID + "/")
+{
+}
+
 TFLMachineSettings::~TFLMachineSettings()
 {
 	::free(ROMPath);
@@ -346,6 +366,30 @@ TFLMachineSettings::Save(Fl_Preferences& inPrefs) const
 }
 
 void
+TFLMachineSettings::LoadFromFolder(const char* inAppPath)
+{
+	std::string theFile = mFolder + "Machine.prefs";
+	Fl_Preferences prefs(theFile.c_str(), "robowerk.com", nullptr, Fl_Preferences::C_LOCALE);
+	char* theName = nullptr;
+	prefs.get("Name", theName, "Newton");
+	mName = theName;
+	::free(theName);
+	// New files go into the machine's folder.
+	Load(prefs, inAppPath, mFolder.c_str());
+}
+
+void
+TFLMachineSettings::SaveToFolder() const
+{
+	MakeFolder(mFolder.substr(0, mFolder.size() - mUUID.size() - 2)); // .../Machines
+	MakeFolder(mFolder.substr(0, mFolder.size() - 1));
+	std::string theFile = mFolder + "Machine.prefs";
+	Fl_Preferences prefs(theFile.c_str(), "robowerk.com", nullptr, Fl_Preferences::C_LOCALE);
+	prefs.set("Name", mName.c_str());
+	Save(prefs);
+}
+
+void
 TFLMachineSettings::SetExtrTcpServer(const char* inServer)
 {
 	if (mExtrTcpServer)
@@ -365,14 +409,12 @@ TFLMachineSettings::SetStatePath(const char* inPath)
 
 // MARK: - Application Settings
 
-TFLSettings::TFLSettings() :
-		mMachine(new TFLMachineSettings())
-{
-}
+TFLSettings::TFLSettings() = default;
 
 TFLSettings::~TFLSettings()
 {
-	delete mMachine;
+	for (auto* machine : mMachines)
+		delete machine;
 }
 
 void
@@ -407,6 +449,82 @@ TFLSettings::setAppPath(const char* AppPath)
 		*end = 0;
 }
 
+/**
+ Read the list of machines and their settings.
+
+ The group Machines holds the UUIDs in the order of the list (Order, separated
+ by spaces) and the machine that ran last (LastUsed). Each machine has its own
+ folder with a Machine.prefs. The first start of this version finds no list
+ and makes one machine from the settings in the old keys, which keeps its
+ flash and state files where they are. The first machine is always also
+ read from the old keys, where an older Einstein may have changed it.
+ */
+void
+TFLSettings::LoadMachines(Fl_Preferences& inPrefs)
+{
+	for (auto* machine : mMachines)
+		delete machine;
+	mMachines.clear();
+	mMachine = nullptr;
+
+	Fl_Preferences machines(inPrefs, "Machines");
+	char* theOrder = nullptr;
+	char* theLastUsed = nullptr;
+	machines.get("Order", theOrder, "");
+	machines.get("LastUsed", theLastUsed, "");
+
+	// strtok() changes the string, so work on our own copy
+	for (char* uuid = strtok(theOrder, " "); uuid; uuid = strtok(nullptr, " "))
+	{
+		auto* machine = new TFLMachineSettings(uuid, mUserDataPath.c_str());
+		machine->LoadFromFolder(appPath);
+		mMachines.push_back(machine);
+		if (strcmp(uuid, theLastUsed) == 0)
+			mMachine = machine;
+	}
+	::free(theOrder);
+	::free(theLastUsed);
+
+	if (mMachines.empty())
+	{
+		// First start with machines: the settings so far become the first one.
+		auto* machine = new TFLMachineSettings(Fl_Preferences::newUUID(), mUserDataPath.c_str());
+		machine->Load(inPrefs, appPath, mUserDataPath.c_str());
+		machine->SetName("Newton");
+		mMachines.push_back(machine);
+	} else
+	{
+		// The first machine is also in the old keys, and an older Einstein may
+		// have changed them since. Its changes win.
+		mMachines[0]->Load(inPrefs, appPath, mMachines[0]->GetFolder().c_str());
+	}
+	if (!mMachine)
+		mMachine = mMachines[0];
+}
+
+/**
+ Write the list of machines and the settings of each one. The first machine
+ also goes into the old keys, so an older Einstein launches it.
+ */
+void
+TFLSettings::SaveMachines(Fl_Preferences& inPrefs)
+{
+	std::string theOrder;
+	for (auto* machine : mMachines)
+	{
+		if (!theOrder.empty())
+			theOrder += " ";
+		theOrder += machine->GetUUID();
+		machine->SaveToFolder();
+	}
+	Fl_Preferences machines(inPrefs, "Machines");
+	machines.set("Order", theOrder.c_str());
+	machines.set("LastUsed", mMachine ? mMachine->GetUUID() : "");
+
+	if (!mMachines.empty())
+		mMachines[0]->Save(inPrefs);
+}
+
 void
 TFLSettings::loadPreferences()
 {
@@ -417,10 +535,11 @@ TFLSettings::loadPreferences()
 	// general preferences
 	prefs.get("dontShow", dontShow, 0);
 
-	// the machine (for now the only one, in the same groups as before)
+	// the machines, see LoadMachines()
 	buf[0] = 0;
 	prefs.getUserdataPath(buf, FL_PATH_MAX - 15);
-	mMachine->Load(prefs, appPath, buf);
+	mUserDataPath = buf;
+	LoadMachines(prefs);
 
 	// screen preferences
 	Fl_Preferences screen(prefs, "Screen");
@@ -487,8 +606,8 @@ TFLSettings::savePreferences()
 	// general preferences
 	prefs.set("dontShow", dontShow);
 
-	// the machine (for now the only one, in the same groups as before)
-	mMachine->Save(prefs);
+	// the machines, see SaveMachines()
+	SaveMachines(prefs);
 
 	// screen preferences
 	Fl_Preferences screen(prefs, "Screen");

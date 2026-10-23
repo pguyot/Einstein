@@ -818,8 +818,8 @@ enough. Any machine can be deleted, at least one stays.
 
 | Step | What | Days |
 |---|---|---|
-| 1 | Split `TFLSettings` into app settings and `TFLMachineSettings` | 1 |
-| 2 | Machine folders, machine list, the first machine mirrored in the old keys | 1 |
+| 1 | ~~Split `TFLSettings` into app settings and `TFLMachineSettings`~~ done, `d6b4d459`; Matt tested it, also with an older Einstein | 1 |
+| 2 | Machine folders, machine list, the first machine mirrored in the old keys (in the code, untested: `LoadMachines()`, `SaveMachines()`; the first machine is also read from the old keys, so changes made by an older Einstein win) | 1 |
 | 3 | Per-machine paths (flash, fast start, checkpoint), Newton ID via `SetNewtonID()`, `--machine <uuid>` | 1 |
 | 4 | Locks: machine lock, Settings lock, PC Card image lock | 1 |
 | 5 | The list: rows with icon, name, description, play button; context menu; [<<] | 2 |

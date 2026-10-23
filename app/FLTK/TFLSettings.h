@@ -27,6 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 #include <sys/types.h>
+#include <string>
 #include <vector>
 
 class Fl_Double_Window;
@@ -140,8 +141,40 @@ private:
 class TFLMachineSettings
 {
 public:
-	TFLMachineSettings() = default;
+	// A machine with this UUID, in <inUserDataPath>Machines/<inUUID>/.
+	TFLMachineSettings(const char* inUUID, const char* inUserDataPath);
 	~TFLMachineSettings();
+
+	// Read or write the machine's own file, Machine.prefs in its folder:
+	// its name, and the same groups as Load() and Save(). Saving creates the
+	// folder if needed.
+	void LoadFromFolder(const char* inAppPath);
+	void SaveToFolder() const;
+
+	// The folder of this machine, ending in a slash.
+	const std::string&
+	GetFolder() const
+	{
+		return mFolder;
+	}
+
+	const char*
+	GetUUID() const
+	{
+		return mUUID.c_str();
+	}
+
+	const char*
+	GetName() const
+	{
+		return mName.c_str();
+	}
+
+	void
+	SetName(const char* inName)
+	{
+		mName = inName ? inName : "";
+	}
 
 	// Read the settings from the ROM, Flash, Screen, Memory, System and Serial
 	// groups below inPrefs. inAppPath and inUserDataPath end in a slash; they
@@ -198,6 +231,10 @@ public:
 private:
 	TFLMachineSettings(const TFLMachineSettings&) = delete;
 	TFLMachineSettings& operator=(const TFLMachineSettings&) = delete;
+
+	std::string mUUID;
+	std::string mName;
+	std::string mFolder;
 };
 
 class TFLSettings
@@ -218,6 +255,10 @@ public:
 	void loadPreferences();
 	void savePreferences();
 
+	// The machine list in the preferences, see TFLSettings.cpp
+	void LoadMachines(Fl_Preferences& inPrefs);
+	void SaveMachines(Fl_Preferences& inPrefs);
+
 	const char* GetROMDetails(const char* inFilename);
 
 	TFLPCCardSettings* addLinearPCCard(const char* inName, const char* inImageFilename);
@@ -236,7 +277,14 @@ public:
 	Fl_Double_Window* mAboutDialog = nullptr;
 	char* appPath = nullptr;
 
-	// the machine that this Einstein runs (one for now)
+	// Einstein's folder for user data, ending in a slash
+	std::string mUserDataPath;
+
+	// All machines, in the order of the list. The first one is also stored
+	// in the old preference keys, so an older Einstein launches it.
+	std::vector<TFLMachineSettings*> mMachines;
+
+	// The machine that this Einstein runs, one of mMachines.
 	TFLMachineSettings* mMachine = nullptr;
 
 	int hideMouse;
