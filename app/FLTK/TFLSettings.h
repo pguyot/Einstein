@@ -130,6 +130,76 @@ private:
 	CardType mType = CardType::kUndefined;
 };
 
+/**
+ * \brief The settings of one emulated machine.
+ *
+ * Everything that belongs to one Newton: its ROM and flash, the RAM, the
+ * screen, where its window was, fast start and the state file, and the
+ * serial port. The settings that all machines share are in TFLSettings.
+ */
+class TFLMachineSettings
+{
+public:
+	TFLMachineSettings() = default;
+	~TFLMachineSettings();
+
+	// Read the settings from the ROM, Flash, Screen, Memory, System and Serial
+	// groups below inPrefs. inAppPath and inUserDataPath end in a slash; they
+	// give the default ROM and flash files.
+	void Load(Fl_Preferences& inPrefs, const char* inAppPath, const char* inUserDataPath);
+
+	// Write the settings to the same groups below inPrefs.
+	void Save(Fl_Preferences& inPrefs) const;
+
+	void SetExtrTcpServer(const char* inServer);
+
+	// Set the state file used by "Save State" and "Restore Last".
+	void SetStatePath(const char* inPath);
+
+	char* ROMPath = nullptr;
+	char* FlashPath = nullptr;
+	int screenWidth = 320;
+	int screenHeight = 480;
+	int screenScale = 100;
+	int fullScreen = 0;
+	int RAMSize = 64;
+
+	// if this is set, use the Einstein.rex within the app, otherwise load an external fiie
+	int mUseBuiltinRex = true;
+
+	// show the eMate's Special Keys under the screen (eMate ROMs only)
+	int mShowSpecialKeys = 1;
+
+	// when quitting, save the state of the sleeping Newton, and continue from
+	// there on the next start (if nothing changed)
+	int mFastStart = 1;
+
+	// the state file used by "Save State" and "Restore Last": the last one
+	// saved or restored. Empty for the default file in the user data folder.
+	char* mStatePath = nullptr;
+
+	// driver for the external serial port (TSerialPorts::EDriverID), default is the TCP client
+	int mExtrDriver = 4;
+
+	// server address and port used if the external serial port driver is the TCP client
+	char* mExtrTcpServer = nullptr;
+	int mExtrTcpPort = 3679;
+
+	// some initial position for our application screen
+	int mAppWindowPosX = 150;
+	int mAppWindowPosY = 150;
+
+	// the screen orientation (TScreenManager::EOrientation) when Einstein was
+	// last quit, and the ROM (TROMImage::GetROMId()) that it belongs to. The
+	// next start uses it only with the same ROM. -1 if not known.
+	int mScreenOrientation = -1;
+	int mScreenOrientationROM = -1;
+
+private:
+	TFLMachineSettings(const TFLMachineSettings&) = delete;
+	TFLMachineSettings& operator=(const TFLMachineSettings&) = delete;
+};
+
 class TFLSettings
 {
 public:
@@ -161,29 +231,18 @@ public:
 	int CardToIndex(TPCMCIACard* inCard);
 	int GetCardKeptInSlot(int inSlot);
 
-	void SetExtrTcpServer(const char* inServer);
-
-	// Set the state file used by "Save State" and "Restore Last".
-	void SetStatePath(const char* inPath);
-
 	// protected:
 	Fl_Double_Window* mSettingsPanel = nullptr;
 	Fl_Double_Window* mAboutDialog = nullptr;
 	char* appPath = nullptr;
-	char* ROMPath = nullptr;
-	char* FlashPath = nullptr;
-	int screenWidth;
-	int screenHeight;
-	int screenScale = 100;
+
+	// the machine that this Einstein runs (one for now)
+	TFLMachineSettings* mMachine = nullptr;
+
 	int hideMouse;
-	int fullScreen;
-	int RAMSize;
 	int dontShow;
 	int mShowMenubar = 1;
 	int mShowToolbar = 1;
-
-	// show the eMate's Special Keys under the screen (eMate ROMs only)
-	int mShowSpecialKeys = 1;
 
 	// the Settings dialog: the ROM that is chosen there
 	// (TROMImage::GetROMId(), -1 if none), and the Special Keys checkbox
@@ -194,39 +253,11 @@ public:
 	int mLaunchMonitorAtBoot = 0;
 	int mBreakAtROMBoot = 0;
 
-	// when quitting, save the state of the sleeping Newton, and continue from
-	// there on the next start (if nothing changed)
-	int mFastStart = 1;
-
-	// the state file used by "Save State" and "Restore Last": the last one
-	// saved or restored. Empty for the default file in the user data folder.
-	char* mStatePath = nullptr;
-
-	// driver for the external serial port (TSerialPorts::EDriverID), default is the TCP client
-	int mExtrDriver = 4;
-
-	// server address and port used if the external serial port driver is the TCP client
-	char* mExtrTcpServer = nullptr;
-	int mExtrTcpPort = 3679;
-
-	// some initial position for our application screen
-	int mAppWindowPosX = 150;
-	int mAppWindowPosY = 150;
-
 	// user can drag the corners of the emulator window to stretch the Newton screen
 	int mAllowScreenResize = true;
 
 	// user can go into fullscreen mode and back to windowed mode
 	int mAllowFullscreen = true;
-
-	// the screen orientation (TScreenManager::EOrientation) when Einstein was
-	// last quit, and the ROM (TROMImage::GetROMId()) that it belongs to. The
-	// next start uses it only with the same ROM. -1 if not known.
-	int mScreenOrientation = -1;
-	int mScreenOrientationROM = -1;
-
-	// if this is set, use the Einstein.rex within the app, otherwise load an external fiie
-	int mUseBuiltinRex = true;
 
 	// path to the unna archive, local or online
 	char* mUnnaPath = nullptr;

@@ -2096,39 +2096,39 @@ void TFLSettingsUI::revertDialog() {
 
   // ---- MessagePad
 
-  wROMName->value(fl_filename_name(ROMPath));
-  wROMPath->copy_label(ROMPath);
+  wROMName->value(fl_filename_name(mMachine->ROMPath));
+  wROMPath->copy_label(mMachine->ROMPath);
   wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
 
-  wFlashName->value(fl_filename_name(FlashPath));
-  wFlashPath->copy_label(FlashPath);
+  wFlashName->value(fl_filename_name(mMachine->FlashPath));
+  wFlashPath->copy_label(mMachine->FlashPath);
 
-  if (RAMSize<=16)
+  if (mMachine->RAMSize<=16)
   	wRAMSizeChoice->value(0);
-  else if (RAMSize<=64)
+  else if (mMachine->RAMSize<=64)
   	wRAMSizeChoice->value(1);
-  else if (RAMSize<=128)
+  else if (mMachine->RAMSize<=128)
   	wRAMSizeChoice->value(2);
   else
   	wRAMSizeChoice->value(3);
 
-  wFastStart->value(mFastStart);
+  wFastStart->value(mMachine->mFastStart);
 
   // ---- User Interface
 
-  snprintf(buf, 31, "%d", screenWidth);
+  snprintf(buf, 31, "%d", mMachine->screenWidth);
   wWidth->value(buf);
-  snprintf(buf, 31, "%d", screenHeight);
+  snprintf(buf, 31, "%d", mMachine->screenHeight);
   wHeight->value(buf);
-  snprintf(buf, 31, "%d", screenScale);
+  snprintf(buf, 31, "%d", mMachine->screenScale);
   wScale->value(buf);
-  wFullScreen->value(fullScreen);
+  wFullScreen->value(mMachine->fullScreen);
   wHideMouse->value(hideMouse);
   wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
   wBreakAtROMBoot->value(mBreakAtROMBoot);
   wShowMenubar->value(mShowMenubar);
   wShowToolbar->value(mShowToolbar);
-  mDialogShowSpecialKeys = mShowSpecialKeys;
+  mDialogShowSpecialKeys = mMachine->mShowSpecialKeys;
   updateSpecialKeysCheckbox();
 
   // ---- PC Cards
@@ -2161,33 +2161,33 @@ void TFLSettingsUI::revertDialog() {
 void TFLSettingsUI::applyDialog() {
   // ---- MessagePad
 
-  free(ROMPath);
-  ROMPath = strdup(wROMPath->label());
+  free(mMachine->ROMPath);
+  mMachine->ROMPath = strdup(wROMPath->label());
 
-  free(FlashPath);
-  FlashPath = strdup(wFlashPath->label());
+  free(mMachine->FlashPath);
+  mMachine->FlashPath = strdup(wFlashPath->label());
 
-  mFastStart = wFastStart->value();
+  mMachine->mFastStart = wFastStart->value();
 
   const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
   if (m)
-  	RAMSize = (int)m->argument();
+  	mMachine->RAMSize = (int)m->argument();
 
   // ---- User Interface
 
-  screenWidth = atoi(wWidth->value());
-  screenHeight = atoi(wHeight->value());
-  screenScale = atoi(wScale->value());
-  if (screenScale<=10)
-  	screenScale = 100;
-  fullScreen = wFullScreen->value();
+  mMachine->screenWidth = atoi(wWidth->value());
+  mMachine->screenHeight = atoi(wHeight->value());
+  mMachine->screenScale = atoi(wScale->value());
+  if (mMachine->screenScale<=10)
+  	mMachine->screenScale = 100;
+  mMachine->fullScreen = wFullScreen->value();
   hideMouse = wHideMouse->value();
   mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();
   mBreakAtROMBoot = wBreakAtROMBoot->value();
   mShowMenubar = wShowMenubar->value();
   mShowToolbar = wShowToolbar->value();
   if (wShowSpecialKeys->active())
-  	mShowSpecialKeys = wShowSpecialKeys->value();
+  	mMachine->mShowSpecialKeys = wShowSpecialKeys->value();
 
   // ---- PC Cards
 

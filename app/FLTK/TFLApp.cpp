@@ -334,8 +334,8 @@ TFLApp::Run(int argc, char* argv[])
 	{
 		if (!firstAttempt || !mFLSettings->dontShow)
 			mFLSettings->ShowSettingsPanelModal();
-		strncpy(theROMImagePath, mFLSettings->ROMPath, FL_PATH_MAX);
-		mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, mFLSettings->mUseBuiltinRex);
+		strncpy(theROMImagePath, mFLSettings->mMachine->ROMPath, FL_PATH_MAX);
+		mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, mFLSettings->mMachine->mUseBuiltinRex);
 		if (!mROMImage)
 		{
 			fl_alert("Can't load ROM image.\nFile format not supported.");
@@ -362,7 +362,7 @@ TFLApp::Run(int argc, char* argv[])
 		// go back to showing the settings panel
 	}
 
-	const char* theFlashPath = strdup(mFLSettings->FlashPath);
+	const char* theFlashPath = strdup(mFLSettings->mMachine->FlashPath);
 	//    std::filesystem::path flashPath( theFlashPath );
 	//    mPresentEssentialsInstaller = !std::filesystem::exists(flashPath);
 
@@ -381,11 +381,11 @@ TFLApp::Run(int argc, char* argv[])
 	// (DiagBootStub, ROM 0x00019A10) only passes if the number of pages
 	// divided by 3 leaves 1 (16, 64, 127, 253, ...), and the hardware
 	// register holds at most 255 pages.
-	int ramPages = std::clamp(mFLSettings->RAMSize, 16, 253);
+	int ramPages = std::clamp(mFLSettings->mMachine->RAMSize, 16, 253);
 	ramPages -= (ramPages + 2) % 3;
-	if (ramPages != mFLSettings->RAMSize)
+	if (ramPages != mFLSettings->mMachine->RAMSize)
 		KPrintf("RAM size changed from %d to %d pages of 64 KB, so the ROM's RAM test passes.\n",
-			mFLSettings->RAMSize, ramPages);
+			mFLSettings->mMachine->RAMSize, ramPages);
 	mEmulator = new TEmulator(mLog, mROMImage, theFlashPath,
 		mSoundManager, mScreenManager, mNetworkManager,
 		ramPages << 16, printerManager);
@@ -461,16 +461,16 @@ TFLApp::Run(int argc, char* argv[])
 	// This is a good time to save preferences that might have changed while running
 	if (wAppWindow->fullscreen_active())
 	{
-		mFLSettings->mAppWindowPosX = mWindowedX;
-		mFLSettings->mAppWindowPosY = mWindowedY;
+		mFLSettings->mMachine->mAppWindowPosX = mWindowedX;
+		mFLSettings->mMachine->mAppWindowPosY = mWindowedY;
 	} else
 	{
-		mFLSettings->mAppWindowPosX = wAppWindow->x();
-		mFLSettings->mAppWindowPosY = wAppWindow->y();
+		mFLSettings->mMachine->mAppWindowPosX = wAppWindow->x();
+		mFLSettings->mMachine->mAppWindowPosY = wAppWindow->y();
 	}
 	// Start in the same orientation next time.
-	mFLSettings->mScreenOrientation = mScreenManager->GetScreenOrientation();
-	mFLSettings->mScreenOrientationROM = mROMImage->GetROMId();
+	mFLSettings->mMachine->mScreenOrientation = mScreenManager->GetScreenOrientation();
+	mFLSettings->mMachine->mScreenOrientationROM = mROMImage->GetROMId();
 	mFLSettings->savePreferences();
 
 	// wait for the emulator to finish before we leave the house, too and lock the doors
@@ -687,8 +687,8 @@ DataFilePath(const char* inName)
 std::string
 TFLApp::CurrentStatePath()
 {
-	if (mFLSettings->mStatePath && mFLSettings->mStatePath[0])
-		return mFLSettings->mStatePath;
+	if (mFLSettings->mMachine->mStatePath && mFLSettings->mMachine->mStatePath[0])
+		return mFLSettings->mMachine->mStatePath;
 	return DataFilePath("Einstein.state");
 }
 
@@ -849,7 +849,7 @@ TFLApp::StateActionTimer(void* inData)
 	app->mStateAction = EStateAction::kIdle;
 	if (app->mMonitor->LastStateRequestSucceeded())
 	{
-		app->mFLSettings->SetStatePath(app->mStateActionPath.c_str());
+		app->mFLSettings->mMachine->SetStatePath(app->mStateActionPath.c_str());
 		return;
 	}
 	fl_alert(action == EStateAction::kSave ? "The state could not be saved to\n%s\n\n%s"
@@ -957,8 +957,8 @@ TFLApp::UserActionOriginalScreenSize()
 			y += wMenubar->h();
 		if (wToolbar->visible())
 			y += wToolbar->h();
-		w = (int) (mScreenManager->GetScreenWidth() * mFLSettings->screenScale / 100.0);
-		h = y + (int) (mScreenManager->GetScreenHeight() * mFLSettings->screenScale / 100.0);
+		w = (int) (mScreenManager->GetScreenWidth() * mFLSettings->mMachine->screenScale / 100.0);
+		h = y + (int) (mScreenManager->GetScreenHeight() * mFLSettings->mMachine->screenScale / 100.0);
 		if (mSpecialKeys)
 			h += mSpecialKeys->h();
 		wAppWindow->size(w, h);
@@ -1562,8 +1562,8 @@ TFLApp::InitScreen()
 	// The size in the Settings is the screen as it starts: 320 x 480 for a
 	// MessagePad, 480 x 320 for an eMate. NewtonOS gets the portrait size and
 	// a landscape orientation for a screen that is wider than high.
-	int portraitWidth = mFLSettings->screenWidth;
-	int portraitHeight = mFLSettings->screenHeight;
+	int portraitWidth = mFLSettings->mMachine->screenWidth;
+	int portraitHeight = mFLSettings->mMachine->screenHeight;
 	bool startInLandscape = (portraitWidth > portraitHeight);
 	if (startInLandscape)
 		std::swap(portraitWidth, portraitHeight);
@@ -1574,20 +1574,20 @@ TFLApp::InitScreen()
 	TScreenManager::EOrientation orientation = TScreenManager::kOrientation_Default;
 	if (startInLandscape || (mROMImage->GetROMId() == TROMImage::kEMate300ROM))
 		orientation = TScreenManager::kOrientation_AppleRight;
-	if ((mFLSettings->mScreenOrientationROM == mROMImage->GetROMId())
-		&& (mFLSettings->mScreenOrientation >= TScreenManager::kOrientation_AppleTop)
-		&& (mFLSettings->mScreenOrientation <= TScreenManager::kOrientation_AppleLeft))
-		orientation = (TScreenManager::EOrientation) mFLSettings->mScreenOrientation;
+	if ((mFLSettings->mMachine->mScreenOrientationROM == mROMImage->GetROMId())
+		&& (mFLSettings->mMachine->mScreenOrientation >= TScreenManager::kOrientation_AppleTop)
+		&& (mFLSettings->mMachine->mScreenOrientation <= TScreenManager::kOrientation_AppleLeft))
+		orientation = (TScreenManager::EOrientation) mFLSettings->mMachine->mScreenOrientation;
 	int screenWidth = portraitWidth;
 	int screenHeight = portraitHeight;
 	if (orientation & TScreenManager::kOrientation_LandscapeBit)
 		std::swap(screenWidth, screenHeight);
-	int windowWidth = (int) (screenWidth * (mFLSettings->screenScale / 100.0));
-	int windowHeight = (int) (screenHeight * (mFLSettings->screenScale / 100.0));
+	int windowWidth = (int) (screenWidth * (mFLSettings->mMachine->screenScale / 100.0));
+	int windowHeight = (int) (screenHeight * (mFLSettings->mMachine->screenScale / 100.0));
 
 	Fl_Group::current(nullptr);
-	wAppWindow = CreateApplicationWindow(mFLSettings->mAppWindowPosX,
-		mFLSettings->mAppWindowPosY);
+	wAppWindow = CreateApplicationWindow(mFLSettings->mMachine->mAppWindowPosX,
+		mFLSettings->mMachine->mAppWindowPosY);
 
 	// -- calculate the height of the screen
 	int emulatorScreenY = 0;
@@ -1622,8 +1622,8 @@ TFLApp::InitScreen()
 
 	// the eMate's Special Keys go under the screen
 	int specialKeysHeight = 0;
-	if (mFLSettings->mShowSpecialKeys && (mROMImage->GetROMId() == TROMImage::kEMate300ROM))
-		specialKeysHeight = TFLSpecialKeys::PreferredHeight(mFLSettings->screenScale);
+	if (mFLSettings->mMachine->mShowSpecialKeys && (mROMImage->GetROMId() == TROMImage::kEMate300ROM))
+		specialKeysHeight = TFLSpecialKeys::PreferredHeight(mFLSettings->mMachine->screenScale);
 
 	wAppWindow->size(windowWidth, windowHeight + emulatorScreenY + specialKeysHeight);
 	if (windowWidth > screenWidth)
@@ -1662,10 +1662,10 @@ TFLApp::InitSerialPorts()
 	// or whenever the user switches to it later (Einstein Prefs only sends the
 	// driver then).
 	mEmulator->SerialPorts.SetTcpClientSettings(TSerialPorts::kExtr,
-		mFLSettings->mExtrTcpServer, mFLSettings->mExtrTcpPort);
+		mFLSettings->mMachine->mExtrTcpServer, mFLSettings->mMachine->mExtrTcpPort);
 
 	// Basic initialization of all serial ports
-	mEmulator->SerialPorts.Initialize((TSerialPorts::EDriverID) mFLSettings->mExtrDriver,
+	mEmulator->SerialPorts.Initialize((TSerialPorts::EDriverID) mFLSettings->mMachine->mExtrDriver,
 		TSerialPorts::kNullDriver,
 		TSerialPorts::kNullDriver,
 		TSerialPorts::kNullDriver);
@@ -1694,12 +1694,12 @@ TFLApp::InitSerialPorts()
 		Fl::awake([](void* data) {
 			auto* s = (SerialSettings*) data;
 			TFLSettings* settings = gApp->GetSettings();
-			settings->mExtrDriver = s->driver;
+			settings->mMachine->mExtrDriver = s->driver;
 			if (s->tcpServer)
 			{
 				// keep the last TCP settings if another driver was selected
-				settings->SetExtrTcpServer(s->tcpServer);
-				settings->mExtrTcpPort = s->tcpPort;
+				settings->mMachine->SetExtrTcpServer(s->tcpServer);
+				settings->mMachine->mExtrTcpPort = s->tcpPort;
 				::free(s->tcpServer);
 			}
 			settings->savePreferences();
@@ -1795,7 +1795,7 @@ TFLApp::LoadFastStartState()
 	std::string path = FastStartFilePath();
 	if (!TFileStream::Exists(path.c_str()))
 		return kFastStartNone;
-	if (!mFLSettings->mFastStart)
+	if (!mFLSettings->mMachine->mFastStart)
 	{
 		(void) ::remove(path.c_str());
 		return kFastStartNone;
@@ -1884,7 +1884,7 @@ TFLApp::SaveFastStartStateTimer(void* inData)
 		case EFastStartSave::kWaitForSleep:
 			if (!app->mPlatformManager->IsPowerOn())
 			{
-				if (app->mFLSettings->mFastStart)
+				if (app->mFLSettings->mMachine->mFastStart)
 				{
 					// The Newton is asleep. Let the monitor thread save it.
 					app->mFastStartSave = EFastStartSave::kSave;

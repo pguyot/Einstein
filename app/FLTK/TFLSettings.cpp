@@ -223,12 +223,130 @@ TFLPCCardSettings::SetImagePath(const char* inImagePath)
 		mImagePath = strdup(inImagePath);
 }
 
-// MARK: - Application Settings
+// MARK: - Machine Settings
 
-TFLSettings::TFLSettings() = default;
+TFLMachineSettings::~TFLMachineSettings()
+{
+	::free(ROMPath);
+	::free(FlashPath);
+	::free(mStatePath);
+	::free(mExtrTcpServer);
+}
 
 void
-TFLSettings::SetExtrTcpServer(const char* inServer)
+TFLMachineSettings::Load(Fl_Preferences& inPrefs, const char* inAppPath, const char* inUserDataPath)
+{
+	char buf[FL_PATH_MAX];
+
+	// ROM Preferences
+	Fl_Preferences rom(inPrefs, "ROM");
+	{
+		snprintf(buf, sizeof(buf), "%s717006", inAppPath);
+		::free(ROMPath);
+		rom.get("path", ROMPath, buf);
+		rom.get("builtInRex", mUseBuiltinRex, true);
+	}
+
+	// Flash Preferences
+	Fl_Preferences flash(inPrefs, "Flash");
+	{
+		snprintf(buf, sizeof(buf), "%sinternal.flash", inUserDataPath);
+		::free(FlashPath);
+		flash.get("path", FlashPath, buf);
+	}
+
+	// screen preferences
+	Fl_Preferences screen(inPrefs, "Screen");
+	{
+		screen.get("width", screenWidth, 320);
+		screen.get("height", screenHeight, 480);
+		screen.get("scale", screenScale, 100);
+		screen.get("fullScreen", fullScreen, 0);
+		screen.get("AppWindowPosX", mAppWindowPosX, 150);
+		screen.get("AppWindowPosY", mAppWindowPosY, 150);
+		screen.get("Orientation", mScreenOrientation, -1);
+		screen.get("OrientationROM", mScreenOrientationROM, -1);
+		screen.get("ShowSpecialKeys", mShowSpecialKeys, 1);
+	}
+
+	// Memory preferences
+	Fl_Preferences memory(inPrefs, "Memory");
+	{
+		memory.get("RAMSize", RAMSize, 64);
+	}
+
+	// system preferences
+	Fl_Preferences newtSystem(inPrefs, "System");
+	{
+		newtSystem.get("FastStart", mFastStart, 1);
+		::free(mStatePath);
+		newtSystem.get("StatePath", mStatePath, "");
+	}
+
+	// serial port preferences
+	Fl_Preferences serial(inPrefs, "Serial");
+	{
+		serial.get("ExtrDriver", mExtrDriver, 4); // TSerialPorts::kTcpClientDriver
+		::free(mExtrTcpServer);
+		serial.get("ExtrTcpServer", mExtrTcpServer, "127.0.0.1");
+		serial.get("ExtrTcpPort", mExtrTcpPort, 3679);
+	}
+}
+
+void
+TFLMachineSettings::Save(Fl_Preferences& inPrefs) const
+{
+	// ROM Preferences
+	Fl_Preferences rom(inPrefs, "ROM");
+	{
+		rom.set("path", ROMPath);
+		rom.set("builtInRex", mUseBuiltinRex);
+	}
+
+	// Flash Preferences
+	Fl_Preferences flash(inPrefs, "Flash");
+	{
+		flash.set("path", FlashPath);
+	}
+
+	// screen preferences
+	Fl_Preferences screen(inPrefs, "Screen");
+	{
+		screen.set("width", screenWidth);
+		screen.set("height", screenHeight);
+		screen.set("scale", screenScale);
+		screen.set("fullScreen", fullScreen);
+		screen.set("AppWindowPosX", mAppWindowPosX);
+		screen.set("AppWindowPosY", mAppWindowPosY);
+		screen.set("Orientation", mScreenOrientation);
+		screen.set("OrientationROM", mScreenOrientationROM);
+		screen.set("ShowSpecialKeys", mShowSpecialKeys);
+	}
+
+	// Memory preferences
+	Fl_Preferences memory(inPrefs, "Memory");
+	{
+		memory.set("RAMSize", RAMSize);
+	}
+
+	// system preferences
+	Fl_Preferences newtSystem(inPrefs, "System");
+	{
+		newtSystem.set("FastStart", mFastStart);
+		newtSystem.set("StatePath", mStatePath ? mStatePath : "");
+	}
+
+	// serial port preferences
+	Fl_Preferences serial(inPrefs, "Serial");
+	{
+		serial.set("ExtrDriver", mExtrDriver);
+		serial.set("ExtrTcpServer", mExtrTcpServer ? mExtrTcpServer : "");
+		serial.set("ExtrTcpPort", mExtrTcpPort);
+	}
+}
+
+void
+TFLMachineSettings::SetExtrTcpServer(const char* inServer)
 {
 	if (mExtrTcpServer)
 		::free(mExtrTcpServer);
@@ -238,14 +356,24 @@ TFLSettings::SetExtrTcpServer(const char* inServer)
 }
 
 void
-TFLSettings::SetStatePath(const char* inPath)
+TFLMachineSettings::SetStatePath(const char* inPath)
 {
 	if (mStatePath)
 		::free(mStatePath);
 	mStatePath = inPath ? strdup(inPath) : nullptr;
 }
 
-TFLSettings::~TFLSettings() = default;
+// MARK: - Application Settings
+
+TFLSettings::TFLSettings() :
+		mMachine(new TFLMachineSettings())
+{
+}
+
+TFLSettings::~TFLSettings()
+{
+	delete mMachine;
+}
 
 void
 TFLSettings::ShowSettingsPanelModal()
@@ -289,40 +417,17 @@ TFLSettings::loadPreferences()
 	// general preferences
 	prefs.get("dontShow", dontShow, 0);
 
-	// ROM Preferences
-	Fl_Preferences rom(prefs, "ROM");
-	{
-		buf[0] = 0;
-		strncat(buf, appPath, sizeof(buf) - 1);
-		strncat(buf, "717006", sizeof(buf) - 1);
-		rom.get("path", ROMPath, buf);
-		rom.get("builtInRex", mUseBuiltinRex, true);
-	}
-
-	// Flash Preferences
-	Fl_Preferences flash(prefs, "Flash");
-	{
-		buf[0] = 0;
-		prefs.getUserdataPath(buf, FL_PATH_MAX - 15);
-		strncat(buf, "internal.flash", sizeof(buf) - 1);
-		flash.get("path", FlashPath, buf);
-	}
+	// the machine (for now the only one, in the same groups as before)
+	buf[0] = 0;
+	prefs.getUserdataPath(buf, FL_PATH_MAX - 15);
+	mMachine->Load(prefs, appPath, buf);
 
 	// screen preferences
 	Fl_Preferences screen(prefs, "Screen");
 	{
-		screen.get("width", screenWidth, 320);
-		screen.get("height", screenHeight, 480);
-		screen.get("scale", screenScale, 100);
-		screen.get("fullScreen", fullScreen, 0);
 		screen.get("hideMouse", hideMouse, 0);
-
-		screen.get("AppWindowPosX", mAppWindowPosX, 150);
-		screen.get("AppWindowPosY", mAppWindowPosY, 150);
 		screen.get("AllowScreenResize", mAllowScreenResize, true);
 		screen.get("AllowFullscreen", mAllowFullscreen, true);
-		screen.get("Orientation", mScreenOrientation, -1);
-		screen.get("OrientationROM", mScreenOrientationROM, -1);
 
 		screen.get("LaunchMonitorAtBoot", mLaunchMonitorAtBoot, 0);
 		screen.get("BreakAtROMBoot", mBreakAtROMBoot, 0);
@@ -333,28 +438,6 @@ TFLSettings::loadPreferences()
 		screen.get("ShowMenubar", mShowMenubar, 1);
 #endif
 		screen.get("ShowToolbar", mShowToolbar, 1);
-		screen.get("ShowSpecialKeys", mShowSpecialKeys, 1);
-	}
-
-	// Memory preferences
-	Fl_Preferences memory(prefs, "Memory");
-	{
-		memory.get("RAMSize", RAMSize, 64);
-	}
-
-	// system preferences
-	Fl_Preferences newtSystem(prefs, "System");
-	{
-		newtSystem.get("FastStart", mFastStart, 1);
-		newtSystem.get("StatePath", mStatePath, "");
-	}
-
-	// serial port preferences
-	Fl_Preferences serial(prefs, "Serial");
-	{
-		serial.get("ExtrDriver", mExtrDriver, 4); // TSerialPorts::kTcpClientDriver
-		serial.get("ExtrTcpServer", mExtrTcpServer, "127.0.0.1");
-		serial.get("ExtrTcpPort", mExtrTcpPort, 3679);
 	}
 
 	// --- PCMCIA Card settings
@@ -404,62 +487,21 @@ TFLSettings::savePreferences()
 	// general preferences
 	prefs.set("dontShow", dontShow);
 
-	// ROM Preferences
-	Fl_Preferences rom(prefs, "ROM");
-	{
-		rom.set("path", ROMPath);
-		rom.set("builtInRex", mUseBuiltinRex);
-	}
-
-	// Flash Preferences
-	Fl_Preferences flash(prefs, "Flash");
-	{
-		flash.set("path", FlashPath);
-	}
+	// the machine (for now the only one, in the same groups as before)
+	mMachine->Save(prefs);
 
 	// screen preferences
 	Fl_Preferences screen(prefs, "Screen");
 	{
-		screen.set("width", screenWidth);
-		screen.set("height", screenHeight);
-		screen.set("scale", screenScale);
-		screen.set("fullScreen", fullScreen);
 		screen.set("hideMouse", hideMouse);
-
-		screen.set("AppWindowPosX", mAppWindowPosX);
-		screen.set("AppWindowPosY", mAppWindowPosY);
 		screen.set("AllowScreenResize", mAllowScreenResize);
 		screen.set("AllowFullscreen", mAllowFullscreen);
-		screen.set("Orientation", mScreenOrientation);
-		screen.set("OrientationROM", mScreenOrientationROM);
 
 		screen.set("LaunchMonitorAtBoot", mLaunchMonitorAtBoot);
 		screen.set("BreakAtROMBoot", mBreakAtROMBoot);
 
 		screen.set("ShowMenubar", mShowMenubar);
 		screen.set("ShowToolbar", mShowToolbar);
-		screen.set("ShowSpecialKeys", mShowSpecialKeys);
-	}
-
-	// Memory preferences
-	Fl_Preferences memory(prefs, "Memory");
-	{
-		memory.set("RAMSize", RAMSize);
-	}
-
-	// system preferences
-	Fl_Preferences newtSystem(prefs, "System");
-	{
-		newtSystem.set("FastStart", mFastStart);
-		newtSystem.set("StatePath", mStatePath ? mStatePath : "");
-	}
-
-	// serial port preferences
-	Fl_Preferences serial(prefs, "Serial");
-	{
-		serial.set("ExtrDriver", mExtrDriver);
-		serial.set("ExtrTcpServer", mExtrTcpServer);
-		serial.set("ExtrTcpPort", mExtrTcpPort);
 	}
 
 	// --- PCMCIA Card settings
