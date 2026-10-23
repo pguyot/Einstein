@@ -137,6 +137,8 @@ FetchContent_Declare(
   GIT_REPOSITORY  https://github.com/fltk/fltk
   GIT_TAG         release-1.4.5
   GIT_SHALLOW     TRUE
+  # rint() is defined twice with the static C runtime on Windows ARM64
+  PATCH_COMMAND   ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake/PatchFLTKMath.cmake
 )
 
 FetchContent_Declare(
