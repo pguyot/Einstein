@@ -1,4 +1,36 @@
 
+Binary Release v2026.10.23
+==========================
+
+User Release Notes
+------------------
+ - The Newton goes to sleep again. Since January 2025, alarms that NewtonOS
+   sets for itself were set to a date in 1993, went off at once, and woke
+   the Newton every time it tried to sleep. Einstein now counts the
+   NewtonScript time from 2024, which is good until January 2041.
+   The fix is for the U.S. MessagePad 2000/2100 ROM.
+ - Windows: the Newton's clock is no longer off by 150 days and one hour.
+ - Serial port: connections over TCP (for example to NCX or Newton
+   Connection), named pipes, pseudo terminals and BasiliskII are much more
+   reliable. Data that arrived faster than NewtonOS could read it
+   overwrote earlier bytes, so the Newton asked for the same data again and
+   again; NCX backups stopped halfway. Einstein now passes data on at about
+   the speed of a fast serial line.
+ - Switching to another serial driver in the Settings or in Einstein Prefs
+   now stops the old driver cleanly.
+ - Fast start: a new version of Einstein starts the Newton normally instead
+   of continuing a state that an older version saved. Saved states (File ›
+   Save State) still load into a new version.
+
+Developer Release Notes
+-----------------------
+ - `Documentation/NewtonTime.md` describes how NewtonOS keeps the time,
+   the ROM addresses of the time patches, how to patch other ROMs and
+   physical Newtons, and the 2040 limit of the 32-bit clock.
+ - The TCP client socket never blocks, also not while connecting, so a quit
+   or a driver change is answered at once. A server that does not answer is
+   given up after 5 seconds, and Einstein tries again after 3 seconds.
+
 Binary Release v2026.10.13
 ==========================
 
