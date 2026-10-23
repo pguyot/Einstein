@@ -45,12 +45,18 @@ class THostInfo
 {
 public:
 	///
-	/// Accessor on the unique instance.
+	/// Accessor on the unique instance, created at the first call.
+	///
+	/// Creating it reads the user's card from the address book, and macOS
+	/// asks the user for access to the contacts. As a global, this ran before
+	/// main() at every launch, and on a machine without a user (CI), the test
+	/// program waited for the answer forever.
 	///
 	static const THostInfo*
 	GetHostInfo(void)
 	{
-		return kHostInfo;
+		static const THostInfo* sHostInfo = new THostInfo();
+		return sHostInfo;
 	}
 
 	///
@@ -69,11 +75,6 @@ public:
 	int GetHostTimeZone(void) const;
 
 private:
-	///
-	/// Instance unique.
-	///
-	static const THostInfo* kHostInfo;
-
 	///
 	/// Default constructor.
 	///
