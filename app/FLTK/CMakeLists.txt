@@ -20,6 +20,8 @@ list ( APPEND app_sources
 	app/FLTK/TFLAppWindow.h
 	app/FLTK/TFLFileLock.cpp
 	app/FLTK/TFLFileLock.h
+	app/FLTK/TFLMachineList.cpp
+	app/FLTK/TFLMachineList.h
 	app/FLTK/TFLTabs.cpp
 	app/FLTK/TFLTabs.h
 )

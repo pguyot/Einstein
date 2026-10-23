@@ -32,7 +32,9 @@
 
 class Fl_Double_Window;
 class Fl_Preferences;
+class Fl_Widget;
 class TFLFileLock;
+class TFLMachineList;
 class TFLApp;
 class TPCMCIACard;
 
@@ -235,6 +237,10 @@ public:
 	int mScreenOrientation = -1;
 	int mScreenOrientationROM = -1;
 
+	// The ROM it ran last or that the Settings found (TROMImage::GetROMId(),
+	// -1 if not known), for the icon and the description in the list.
+	int mROMId = -1;
+
 	// The cards that this machine keeps in its slots: their UUIDs in the
 	// card list (TFLPCCardSettings::GetUUID()), empty for none.
 	std::string mKeepInSlot[2];
@@ -261,6 +267,7 @@ public:
 	virtual Fl_Double_Window* CreateSettingsPanel() = 0;
 	virtual Fl_Double_Window* createAboutDialog() = 0;
 	virtual void revertDialog() = 0;
+	virtual void applyDialog() = 0;
 	virtual void runningMode() = 0;
 	virtual void HandlePopupMenu() = 0;
 
@@ -292,6 +299,23 @@ public:
 
 	// Is this machine running in another Einstein process?
 	bool IsRunningElsewhere(const TFLMachineSettings* inMachine) const;
+
+	// The machine list on the left of the Settings window, see
+	// TFLMachineList and TFLSettings.cpp.
+	void CreateMachineList(Fl_Widget* inSidebarButton);
+	void ToggleSidebar();
+	void ShowSidebar(bool inOpen);
+
+	// The actions of the machine list. Changes to the list are saved at once;
+	// changes in the tabs wait for Save or Start.
+	void SelectMachine(TFLMachineSettings* inMachine);
+	void StartMachine(TFLMachineSettings* inMachine);
+	void NewMachine();
+	void DuplicateMachine(TFLMachineSettings* inMachine);
+	void RenameMachine(TFLMachineSettings* inMachine);
+	void ShowMachineFolder(TFLMachineSettings* inMachine);
+	void MoveMachine(TFLMachineSettings* inMachine, int inDelta);
+	void DeleteMachine(TFLMachineSettings* inMachine);
 
 	const char* GetROMDetails(const char* inFilename);
 
@@ -329,12 +353,26 @@ public:
 	// held while a card is inserted into a slot (Cards/<uuid>.lock)
 	TFLFileLock* mCardLock[2] = { nullptr, nullptr };
 
+	// the machine list, its button, and whether it is open: 1 or 0 as the
+	// user chose, -1 if not chosen yet (open if there is more than one machine)
+	TFLMachineList* mMachineList = nullptr;
+	Fl_Widget* mSidebarButton = nullptr;
+	int mSidebarOpen = -1;
+	bool mSidebarShown = false;
+
+	// the Settings window was opened while a machine runs in this Einstein
+	bool mRunningMode = false;
+
 	// All machines, in the order of the list. The first one is also stored
 	// in the old preference keys, so an older Einstein launches it.
 	std::vector<TFLMachineSettings*> mMachines;
 
 	// The machine that this Einstein runs, one of mMachines.
 	TFLMachineSettings* mMachine = nullptr;
+
+	// The machine that the Settings dialog shows and changes, one of
+	// mMachines (the one selected in the list).
+	TFLMachineSettings* mEditMachine = nullptr;
 
 	int hideMouse;
 	int dontShow;

@@ -343,6 +343,7 @@ TFLApp::Run(int argc, char* argv[])
 			if (sRequestedMachine == machine->GetUUID() || sRequestedMachine == machine->GetName())
 			{
 				mFLSettings->mMachine = machine;
+				mFLSettings->mEditMachine = machine;
 				startAtOnce = true;
 				break;
 			}
@@ -363,6 +364,8 @@ TFLApp::Run(int argc, char* argv[])
 		if (!firstAttempt || !(mFLSettings->dontShow || startAtOnce))
 			if (!mFLSettings->ShowSettingsPanelModal())
 				::exit(0);
+		// Run the machine that is selected in the Settings.
+		mFLSettings->mMachine = mFLSettings->mEditMachine;
 		strncpy(theROMImagePath, mFLSettings->mMachine->ROMPath, FL_PATH_MAX);
 		mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, mFLSettings->mMachine->mUseBuiltinRex);
 		if (!mROMImage)
@@ -377,7 +380,11 @@ TFLApp::Run(int argc, char* argv[])
 			mFLSettings->mMachine->CreateFolder();
 			mMachineLock = new TFLFileLock(mFLSettings->mMachine->GetFolder() + "Machine.lock");
 			if (mMachineLock->TryLock())
+			{
+				// for the icon and the description in the machine list
+				mFLSettings->mMachine->mROMId = mROMImage->GetROMId();
 				break;
+			}
 			delete mMachineLock;
 			mMachineLock = nullptr;
 			fl_alert("\"%s\" already runs in another Einstein window.", mFLSettings->mMachine->GetName());

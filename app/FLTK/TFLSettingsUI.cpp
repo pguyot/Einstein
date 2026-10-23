@@ -921,6 +921,13 @@ void TFLSettingsUI::cb_wDevObjDumpPathChoose(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wDevObjDumpPathChoose_i(o,v);
 }
 
+void TFLSettingsUI::cb_wSidebarButton_i(Fl_Button*, void*) {
+  ToggleSidebar();
+}
+void TFLSettingsUI::cb_wSidebarButton(Fl_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->user_data()))->cb_wSidebarButton_i(o,v);
+}
+
 void TFLSettingsUI::cb_wQuit_i(Fl_Button*, void*) {
   exit(0);
 }
@@ -1620,6 +1627,7 @@ void TFLSettingsUI::cb_Close(Fl_Button* o, void* v) {
 TFLSettingsUI::TFLSettingsUI() {
   // create the setting dialog so we have it available for the user
   mSettingsPanel = CreateSettingsPanel();
+  CreateMachineList(wSidebarButton);
   wAbout = nullptr;
 }
 
@@ -1974,7 +1982,12 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));
       o->end();
     } // TFLTabs* o
-    { wDontShow = new Fl_Check_Button(24, 422, 140, 21, "Don\'t show at startup");
+    { wSidebarButton = new Fl_Button(14, 422, 26, 21, "@<<");
+      wSidebarButton->tooltip("Show or hide the list of machines");
+      wSidebarButton->labelsize(11);
+      wSidebarButton->callback((Fl_Callback*)cb_wSidebarButton);
+    } // Fl_Button* wSidebarButton
+    { wDontShow = new Fl_Check_Button(48, 422, 140, 21, "Don\'t show at startup");
       wDontShow->down_box(FL_DOWN_BOX);
       wDontShow->labelsize(12);
     } // Fl_Check_Button* wDontShow
@@ -2096,39 +2109,40 @@ void TFLSettingsUI::revertDialog() {
 
   // ---- MessagePad
 
-  wROMName->value(fl_filename_name(mMachine->ROMPath));
-  wROMPath->copy_label(mMachine->ROMPath);
+  wROMName->value(fl_filename_name(mEditMachine->ROMPath));
+  wROMPath->copy_label(mEditMachine->ROMPath);
   wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
+  mEditMachine->mROMId = mDialogROMId;
 
-  wFlashName->value(fl_filename_name(mMachine->FlashPath));
-  wFlashPath->copy_label(mMachine->FlashPath);
+  wFlashName->value(fl_filename_name(mEditMachine->FlashPath));
+  wFlashPath->copy_label(mEditMachine->FlashPath);
 
-  if (mMachine->RAMSize<=16)
+  if (mEditMachine->RAMSize<=16)
   	wRAMSizeChoice->value(0);
-  else if (mMachine->RAMSize<=64)
+  else if (mEditMachine->RAMSize<=64)
   	wRAMSizeChoice->value(1);
-  else if (mMachine->RAMSize<=128)
+  else if (mEditMachine->RAMSize<=128)
   	wRAMSizeChoice->value(2);
   else
   	wRAMSizeChoice->value(3);
 
-  wFastStart->value(mMachine->mFastStart);
+  wFastStart->value(mEditMachine->mFastStart);
 
   // ---- User Interface
 
-  snprintf(buf, 31, "%d", mMachine->screenWidth);
+  snprintf(buf, 31, "%d", mEditMachine->screenWidth);
   wWidth->value(buf);
-  snprintf(buf, 31, "%d", mMachine->screenHeight);
+  snprintf(buf, 31, "%d", mEditMachine->screenHeight);
   wHeight->value(buf);
-  snprintf(buf, 31, "%d", mMachine->screenScale);
+  snprintf(buf, 31, "%d", mEditMachine->screenScale);
   wScale->value(buf);
-  wFullScreen->value(mMachine->fullScreen);
+  wFullScreen->value(mEditMachine->fullScreen);
   wHideMouse->value(hideMouse);
   wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
   wBreakAtROMBoot->value(mBreakAtROMBoot);
   wShowMenubar->value(mShowMenubar);
   wShowToolbar->value(mShowToolbar);
-  mDialogShowSpecialKeys = mMachine->mShowSpecialKeys;
+  mDialogShowSpecialKeys = mEditMachine->mShowSpecialKeys;
   updateSpecialKeysCheckbox();
 
   // ---- PC Cards
@@ -2161,33 +2175,35 @@ void TFLSettingsUI::revertDialog() {
 void TFLSettingsUI::applyDialog() {
   // ---- MessagePad
 
-  free(mMachine->ROMPath);
-  mMachine->ROMPath = strdup(wROMPath->label());
+  mEditMachine->mROMId = mDialogROMId;
 
-  free(mMachine->FlashPath);
-  mMachine->FlashPath = strdup(wFlashPath->label());
+  free(mEditMachine->ROMPath);
+  mEditMachine->ROMPath = strdup(wROMPath->label());
 
-  mMachine->mFastStart = wFastStart->value();
+  free(mEditMachine->FlashPath);
+  mEditMachine->FlashPath = strdup(wFlashPath->label());
+
+  mEditMachine->mFastStart = wFastStart->value();
 
   const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
   if (m)
-  	mMachine->RAMSize = (int)m->argument();
+  	mEditMachine->RAMSize = (int)m->argument();
 
   // ---- User Interface
 
-  mMachine->screenWidth = atoi(wWidth->value());
-  mMachine->screenHeight = atoi(wHeight->value());
-  mMachine->screenScale = atoi(wScale->value());
-  if (mMachine->screenScale<=10)
-  	mMachine->screenScale = 100;
-  mMachine->fullScreen = wFullScreen->value();
+  mEditMachine->screenWidth = atoi(wWidth->value());
+  mEditMachine->screenHeight = atoi(wHeight->value());
+  mEditMachine->screenScale = atoi(wScale->value());
+  if (mEditMachine->screenScale<=10)
+  	mEditMachine->screenScale = 100;
+  mEditMachine->fullScreen = wFullScreen->value();
   hideMouse = wHideMouse->value();
   mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();
   mBreakAtROMBoot = wBreakAtROMBoot->value();
   mShowMenubar = wShowMenubar->value();
   mShowToolbar = wShowToolbar->value();
   if (wShowSpecialKeys->active())
-  	mMachine->mShowSpecialKeys = wShowSpecialKeys->value();
+  	mEditMachine->mShowSpecialKeys = wShowSpecialKeys->value();
 
   // ---- PC Cards
 

@@ -211,6 +211,11 @@ private:
   inline void cb_wDevObjDumpPathChoose_i(Fl_Button*, void*);
   static void cb_wDevObjDumpPathChoose(Fl_Button*, void*);
 public:
+  Fl_Button *wSidebarButton;
+private:
+  inline void cb_wSidebarButton_i(Fl_Button*, void*);
+  static void cb_wSidebarButton(Fl_Button*, void*);
+public:
   Fl_Check_Button *wDontShow;
   Fl_Button *wQuit;
 private:

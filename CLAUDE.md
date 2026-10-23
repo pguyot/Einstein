@@ -822,11 +822,22 @@ enough. Any machine can be deleted, at least one stays.
 | 2 | ~~Machine folders, machine list, the first machine mirrored in the old keys~~ done, `4d6d08ae`, tested by Matt ( `LoadMachines()`, `SaveMachines()`; the first machine is also read from the old keys, so changes made by an older Einstein win) | 1 |
 | 3 | ~~Per-machine paths (flash, fast start, checkpoint), Newton ID via `SetNewtonID()`, `--machine <uuid>`~~ done, `0dd9352a`, tested by Matt ( `FastStart.state`, `Einstein.state` and `EinsteinCheck` in the machine's folder; `System/NewtonID` as 16 hex digits, the migrated machine keeps `00004E6577746F6E`; `--machine` takes the UUID or the name and skips the Settings) | 1 |
 | 4 | Locks: machine lock, Settings lock, PC Card image lock (4a–c in the code, untested: `TFLFileLock`, `Machine.lock` per machine folder, `Settings.lock` in the user data folder; a quitting Einstein saves only its machine, `SaveRunningMachine()`; the Settings skip machines that run elsewhere. 4a–c tested by Matt, `a8b2a7ea`, except the Settings lock across two Einsteins. 4d in the code, untested: `Cards/<card uuid>.lock` with the machine's name while a card is inserted, not for the network card; the slots per machine in `PCMCIA/KeepInSlot0/1` of the machine file; the first machine's slots also in each card's old `keepInSlot`, written and read like the old keys) | 1 |
-| 5 | The list: rows with icon, name, description, play button; context menu; [<<] | 2 |
+| 5 | The list: rows with icon, name, description, play button; context menu; [<<] (5a–c done, tested by Matt: the dialog edits `mEditMachine`; `TFLMachineList`, an `Fl_Scroll` with an `Fl_Pack` of row groups (Matt's suggestion); list changes are saved at once, tab changes with Save or Start; `ROM/ID` per machine for the icon and description. 5d, the running state and read-only machines, next) | 2 |
 | 6 | Start a machine in a new process (macOS bundle, Windows, Linux); machine name in window and Monitor titles | 1–1.5 |
 | 7 | Tests (old Einstein on the new preferences, two machines at once, fast start per machine), user guide | 1 |
 
 About 8–9 days. `--machine` also makes scripted tests easier.
+
+*Later* (Matt, 2026-10-24, after testing 5a–c):
+- The same flash file must not be used by two machines (idea: lock the
+  flash file at launch, like the PC Card images, and warn in the Settings
+  when two machines point to the same file).
+- A machine's default flash file is in its folder, next to its settings,
+  so a machine is self-contained in one directory; an external file stays
+  possible. Open: move the flash of the machine made from the old settings
+  into its folder too (an older Einstein would follow the new path, since
+  the first machine's path is mirrored into the old keys).
+- A GUI element to go back to the default flash file of a machine.
 
 ## IR emulation via UDP broadcasting
 

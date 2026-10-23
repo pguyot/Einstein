@@ -51,6 +51,7 @@
 #include "Emulator/ROM/TROMImage.h"
 #include "app/FLTK/TFLApp.h"
 #include "app/FLTK/TFLFileLock.h"
+#include "app/FLTK/TFLMachineList.h"
 
 // MARK: - PC Card Settings
 
@@ -268,6 +269,7 @@ TFLMachineSettings::Load(Fl_Preferences& inPrefs, const char* inAppPath, const c
 		::free(ROMPath);
 		rom.get("path", ROMPath, buf);
 		rom.get("builtInRex", mUseBuiltinRex, true);
+		rom.get("ID", mROMId, mROMId);
 	}
 
 	// Flash Preferences
@@ -342,6 +344,7 @@ TFLMachineSettings::Save(Fl_Preferences& inPrefs) const
 	{
 		rom.set("path", ROMPath);
 		rom.set("builtInRex", mUseBuiltinRex);
+		rom.set("ID", mROMId);
 	}
 
 	// Flash Preferences
@@ -493,6 +496,7 @@ TFLSettings::ShowSettingsPanel()
 {
 	if (!LockSettings(mSettingsLock, mUserDataPath))
 		return;
+	mRunningMode = true;
 	runningMode();
 	mSettingsPanel->show();
 	// Release the lock when the window closes (any of its buttons hides it).
@@ -604,6 +608,13 @@ TFLSettings::LoadMachines(Fl_Preferences& inPrefs)
 	}
 	if (!mMachine)
 		mMachine = mMachines[0];
+	mEditMachine = mMachine;
+
+	if (mMachineList)
+		mMachineList->Update();
+	Fl_Preferences theMachines(inPrefs, "Machines");
+	theMachines.get("SidebarOpen", mSidebarOpen, -1);
+	ShowSidebar(mSidebarOpen == 1 || (mSidebarOpen == -1 && mMachines.size() > 1));
 }
 
 /**
@@ -1050,4 +1061,306 @@ TFLSettings::UnlockCard(int inSlot)
 {
 	delete mCardLock[inSlot];
 	mCardLock[inSlot] = nullptr;
+}
+
+// MARK: - Machine List
+
+// Write the order of the machines at once, and the first machine into the old
+// keys (it may have changed).
+static void
+SaveMachineOrder(TFLSettings* inSettings)
+{
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	std::string theOrder;
+	for (auto* machine : inSettings->mMachines)
+	{
+		if (!theOrder.empty())
+			theOrder += " ";
+		theOrder += machine->GetUUID();
+	}
+	Fl_Preferences machines(prefs, "Machines");
+	machines.set("Order", theOrder.c_str());
+	if (!inSettings->mMachines.empty() && !inSettings->IsRunningElsewhere(inSettings->mMachines[0]))
+		inSettings->mMachines[0]->Save(prefs);
+}
+
+// A name that no machine has yet: "Newton", "Newton 2", ...
+static std::string
+UniqueName(TFLSettings* inSettings, const std::string& inBase)
+{
+	for (int n = 1;; n++)
+	{
+		std::string theName = (n == 1) ? inBase : inBase + " " + std::to_string(n);
+		bool taken = false;
+		for (auto* machine : inSettings->mMachines)
+			taken = taken || (theName == machine->GetName());
+		if (!taken)
+			return theName;
+	}
+}
+
+// Copy a file. \return false if it can't be read or written.
+static bool
+CopyFile(const char* inFrom, const char* inTo)
+{
+	FILE* theFrom = fopen(inFrom, "rb");
+	if (!theFrom)
+		return false;
+	FILE* theTo = fopen(inTo, "wb");
+	if (!theTo)
+	{
+		fclose(theFrom);
+		return false;
+	}
+	char buf[65536];
+	size_t n;
+	bool ok = true;
+	while ((n = fread(buf, 1, sizeof(buf), theFrom)) > 0)
+		ok = ok && (fwrite(buf, 1, n, theTo) == n);
+	fclose(theFrom);
+	ok = (fclose(theTo) == 0) && ok;
+	return ok;
+}
+
+void
+TFLSettings::CreateMachineList(Fl_Widget* inSidebarButton)
+{
+	mSidebarButton = inSidebarButton;
+	mSettingsPanel->begin();
+	mMachineList = new TFLMachineList(0, 0, TFLMachineList::kWidth, mSettingsPanel->h(), this);
+	mSettingsPanel->end();
+	mMachineList->hide();
+	if (mSidebarButton)
+		mSidebarButton->label("@>>");
+}
+
+/**
+ Open or close the machine list. Opening widens the window by the width of the
+ list and moves everything else to the right.
+ */
+void
+TFLSettings::ShowSidebar(bool inOpen)
+{
+	if (!mMachineList || inOpen == mSidebarShown)
+		return;
+	int dx = inOpen ? TFLMachineList::kWidth : -TFLMachineList::kWidth;
+	for (int i = 0; i < mSettingsPanel->children(); i++)
+	{
+		Fl_Widget* child = mSettingsPanel->child(i);
+		if (child != mMachineList)
+			child->position(child->x() + dx, child->y());
+	}
+	mSettingsPanel->size(mSettingsPanel->w() + dx, mSettingsPanel->h());
+	if (inOpen)
+		mMachineList->show();
+	else
+		mMachineList->hide();
+	if (mSidebarButton)
+		mSidebarButton->label(inOpen ? "@<<" : "@>>");
+	mSidebarShown = inOpen;
+	mSettingsPanel->redraw();
+}
+
+void
+TFLSettings::ToggleSidebar()
+{
+	ShowSidebar(!mSidebarShown);
+	mSidebarOpen = mSidebarShown ? 1 : 0;
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	Fl_Preferences machines(prefs, "Machines");
+	machines.set("SidebarOpen", mSidebarOpen);
+}
+
+/**
+ Show another machine in the tabs. What was changed for the previous one stays
+ in memory until Save or Start.
+ */
+void
+TFLSettings::SelectMachine(TFLMachineSettings* inMachine)
+{
+	if (inMachine == mEditMachine)
+		return;
+	applyDialog();
+	mEditMachine = inMachine;
+	revertDialog();
+	mMachineList->UpdateSelection();
+	mSettingsPanel->redraw();
+}
+
+void
+TFLSettings::StartMachine(TFLMachineSettings* inMachine)
+{
+	SelectMachine(inMachine);
+	if (!mRunningMode)
+	{
+		// Einstein just started: run it here, like the Start button.
+		applyDialog();
+		savePreferences();
+		mSettingsPanel->hide();
+	} else if (inMachine != mMachine)
+	{
+		// TODO: start it in a new Einstein (step 6 of Multiple Configurations)
+		fl_alert("Starting a second machine follows soon.");
+	}
+}
+
+/**
+ Add a machine like the selected one: the same ROM, but its own flash, 4 MB of
+ RAM and a new Newton ID.
+ */
+void
+TFLSettings::NewMachine()
+{
+	auto* machine = new TFLMachineSettings(Fl_Preferences::newUUID(), mUserDataPath.c_str());
+	machine->SetName(UniqueName(this, "Newton").c_str());
+	machine->ROMPath = strdup(mEditMachine->ROMPath ? mEditMachine->ROMPath : "");
+	machine->mUseBuiltinRex = mEditMachine->mUseBuiltinRex;
+	machine->mROMId = mEditMachine->mROMId;
+	machine->FlashPath = strdup((machine->GetFolder() + "internal.flash").c_str());
+	machine->RAMSize = 64;
+	machine->SetStatePath("");
+	machine->SetExtrTcpServer("127.0.0.1");
+	machine->MakeRandomNewtonID();
+	machine->SaveToFolder();
+	mMachines.push_back(machine);
+	SaveMachineOrder(this);
+	mMachineList->Update();
+	SelectMachine(machine);
+}
+
+void
+TFLSettings::DuplicateMachine(TFLMachineSettings* inMachine)
+{
+	if (IsRunningElsewhere(inMachine) || (mRunningMode && inMachine == mMachine))
+	{
+		fl_alert("Quit \"%s\" first, so that its internal storage is complete.", inMachine->GetName());
+		return;
+	}
+	applyDialog();
+	auto* machine = new TFLMachineSettings(Fl_Preferences::newUUID(), mUserDataPath.c_str());
+	// All settings, through preferences in memory.
+	Fl_Preferences theCopy((Fl_Preferences*) nullptr, "duplicate");
+	inMachine->Save(theCopy);
+	machine->Load(theCopy, appPath, machine->GetFolder().c_str());
+	machine->SetName(UniqueName(this, std::string(inMachine->GetName()) + " copy").c_str());
+	machine->MakeRandomNewtonID();
+	machine->SetStatePath("");
+	machine->mKeepInSlot[0].clear(); // a card can only be in one machine at a time
+	machine->mKeepInSlot[1].clear();
+	// Its own copy of the internal storage.
+	machine->CreateFolder();
+	std::string theFlash = machine->GetFolder() + "internal.flash";
+	if (inMachine->FlashPath && !CopyFile(inMachine->FlashPath, theFlash.c_str()))
+		fl_alert("The internal storage of \"%s\" could not be copied.\nThe copy starts with an empty one.",
+			inMachine->GetName());
+	::free(machine->FlashPath);
+	machine->FlashPath = strdup(theFlash.c_str());
+	machine->SaveToFolder();
+	// Right after the original.
+	auto it = std::find(mMachines.begin(), mMachines.end(), inMachine);
+	mMachines.insert(it == mMachines.end() ? it : it + 1, machine);
+	SaveMachineOrder(this);
+	mMachineList->Update();
+	SelectMachine(machine);
+}
+
+void
+TFLSettings::RenameMachine(TFLMachineSettings* inMachine)
+{
+	if (IsRunningElsewhere(inMachine))
+	{
+		fl_alert("\"%s\" runs in another Einstein window.", inMachine->GetName());
+		return;
+	}
+	const char* theName = fl_input("Name of the machine:", inMachine->GetName());
+	if (!theName || !*theName)
+		return;
+	inMachine->SetName(theName);
+	inMachine->SaveToFolder();
+	mMachineList->Update();
+}
+
+void
+TFLSettings::ShowMachineFolder(TFLMachineSettings* inMachine)
+{
+	inMachine->CreateFolder();
+	std::string theURI = "file://" + inMachine->GetFolder();
+	fl_open_uri(theURI.c_str());
+}
+
+void
+TFLSettings::MoveMachine(TFLMachineSettings* inMachine, int inDelta)
+{
+	auto it = std::find(mMachines.begin(), mMachines.end(), inMachine);
+	if (it == mMachines.end())
+		return;
+	long ix = it - mMachines.begin();
+	long to = ix + inDelta;
+	if (to < 0 || to >= (long) mMachines.size())
+		return;
+	std::swap(mMachines[ix], mMachines[to]);
+	// The first machine is the one an older Einstein launches.
+	SaveMachineOrder(this);
+	mMachineList->Update();
+}
+
+// Delete the files in a machine's folder and the folder. Only machine folders.
+static void
+DeleteMachineFolder(const std::string& inUserDataPath, const std::string& inFolder)
+{
+	std::string theMachines = inUserDataPath + "Machines/";
+	if (inFolder.compare(0, theMachines.size(), theMachines) != 0 || inFolder.size() <= theMachines.size())
+		return;
+	dirent** theFiles = nullptr;
+	int n = fl_filename_list(inFolder.c_str(), &theFiles);
+	for (int i = 0; i < n; i++)
+	{
+		const char* name = theFiles[i]->d_name;
+		if (strcmp(name, ".") != 0 && strcmp(name, "..") != 0 && strcmp(name, "./") != 0 && strcmp(name, "../") != 0)
+			(void) ::remove((inFolder + name).c_str());
+	}
+	if (theFiles)
+		fl_filename_free_list(&theFiles, n);
+	(void) ::remove(inFolder.substr(0, inFolder.size() - 1).c_str());
+}
+
+void
+TFLSettings::DeleteMachine(TFLMachineSettings* inMachine)
+{
+	if (mMachines.size() <= 1)
+	{
+		fl_alert("\"%s\" is the only machine, so it can't be deleted.", inMachine->GetName());
+		return;
+	}
+	if (IsRunningElsewhere(inMachine) || (mRunningMode && inMachine == mMachine))
+	{
+		fl_alert("\"%s\" is running. Quit it first.", inMachine->GetName());
+		return;
+	}
+	int theChoice = fl_choice(
+		"Delete \"%s\"?\n\n"
+		"Delete Files Too also deletes its folder, with its internal storage "
+		"(flash) and saved states. Files outside its folder stay, for example "
+		"a flash file from an older Einstein.",
+		"Cancel", "Delete Entry Only", "Delete Files Too", inMachine->GetName());
+	if (theChoice == 0)
+		return;
+
+	auto it = std::find(mMachines.begin(), mMachines.end(), inMachine);
+	long ix = it - mMachines.begin();
+	mMachines.erase(it);
+	if (theChoice == 2)
+		DeleteMachineFolder(mUserDataPath, inMachine->GetFolder());
+	TFLMachineSettings* theNext = mMachines[ix < (long) mMachines.size() ? ix : mMachines.size() - 1];
+	if (mMachine == inMachine)
+		mMachine = theNext;
+	if (mEditMachine == inMachine)
+	{
+		mEditMachine = theNext;
+		revertDialog();
+	}
+	delete inMachine;
+	SaveMachineOrder(this);
+	mMachineList->Update();
+	mSettingsPanel->redraw();
 }
