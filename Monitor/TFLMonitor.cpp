@@ -923,7 +923,7 @@ TFLMonitor::Show()
 		monWindow.get("w", mw, initial_mw);
 		monWindow.get("h", mh, initial_mh);
 		// ---- create the monitor window
-		mwWindow = new TFLMonitorWindow(mx, my, mw, mh, "Einstein Monitor");
+		mwWindow = new TFLMonitorWindow(mx, my, mw, mh, mWindowTitle.c_str());
 		// ---- terminal window for all text output
 		mwTerminal = new TFLTerminal(0, 0, mwWindow->w(), mwWindow->h() - 2 * ch);
 		mwTerminal->box(FL_DOWN_BOX);
@@ -1064,3 +1064,11 @@ TFLMonitor::Hide()
 //		Fl::unlock();
 //	}
 // }
+
+void
+TFLMonitor::SetWindowTitle(const std::string& inTitle)
+{
+	mWindowTitle = inTitle;
+	if (mwWindow)
+		mwWindow->label(mWindowTitle.c_str());
+}

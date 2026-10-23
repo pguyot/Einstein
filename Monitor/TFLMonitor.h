@@ -25,6 +25,8 @@
 #define T_FL_MONITOR_H
 
 #include <K/Defines/KDefinitions.h>
+
+#include <string>
 #include "Monitor/TMonitor.h"
 
 class TFLTerminal;
@@ -65,6 +67,11 @@ public:
 	void Hide() override;
 
 	///
+	/// The title of the Monitor window, for example with the machine's name.
+	///
+	void SetWindowTitle(const std::string& inTitle);
+
+	///
 	/// Output a line.
 	///
 	//	void PrintLine(const char* inLine, int type) override;
@@ -85,6 +92,7 @@ private:
 	void DrawScreenRunning(void);
 
 	Fl_Window* mwWindow = nullptr;
+	std::string mWindowTitle { "Einstein Monitor" };
 	TFLTerminal* mwTerminal = nullptr;
 	Fl_Button* mwPause = nullptr;
 	Fl_Button* mwRun = nullptr;

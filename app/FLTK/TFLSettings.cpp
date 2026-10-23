@@ -1276,8 +1276,11 @@ TFLSettings::StartMachine(TFLMachineSettings* inMachine)
 		mSettingsPanel->hide();
 	} else if (inMachine != mMachine)
 	{
-		// TODO: start it in a new Einstein (step 6 of Multiple Configurations)
-		fl_alert("Starting a second machine follows soon.");
+		// A machine runs here already: start another Einstein for this one.
+		// It reads the settings from the file, so save them first.
+		applyDialog();
+		savePreferences();
+		gApp->LaunchMachine(inMachine->GetUUID());
 	}
 }
 

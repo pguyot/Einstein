@@ -78,7 +78,8 @@ TFLFileLock::TryLock()
 	}
 	mHandle = theFile;
 #else
-	int theFile = open(mPath.c_str(), O_RDWR | O_CREAT, 0644);
+	// O_CLOEXEC: an Einstein started by this one must not hold the lock too.
+	int theFile = open(mPath.c_str(), O_RDWR | O_CREAT | O_CLOEXEC, 0644);
 	if (theFile == -1)
 		return false;
 	if (flock(theFile, LOCK_EX | LOCK_NB) != 0)
@@ -128,7 +129,7 @@ TFLFileLock::IsHeldElsewhere(const std::string& inPath)
 	CloseHandle(theFile);
 	return isHeld;
 #else
-	int theFile = open(inPath.c_str(), O_RDWR);
+	int theFile = open(inPath.c_str(), O_RDWR | O_CLOEXEC);
 	if (theFile == -1)
 		return false; // no lock file, nobody holds it
 	bool isHeld = (flock(theFile, LOCK_EX | LOCK_NB) != 0);

@@ -218,6 +218,17 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <FL/Fl_Sys_Menu_Bar.H>
 #endif
 
+// starting another Einstein, see TFLApp::LaunchMachine()
+#if TARGET_OS_WIN32
+#include <windows.h>
+#else
+#include <sys/wait.h>
+#include <unistd.h>
+#endif
+#if TARGET_OS_MAC
+#include <mach-o/dyld.h>
+#endif
+
 // Einstein
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
@@ -551,6 +562,93 @@ TFLApp::UserActionQuit()
 		return;
 
 	QuitNow();
+}
+
+/**
+ The path of this program, to start it again.
+ */
+static std::string
+ExecutablePath()
+{
+#if TARGET_OS_MAC
+	char buf[FL_PATH_MAX];
+	uint32_t size = sizeof(buf);
+	if (_NSGetExecutablePath(buf, &size) != 0)
+		return std::string();
+	char resolved[FL_PATH_MAX];
+	return realpath(buf, resolved) ? std::string(resolved) : std::string(buf);
+#elif TARGET_OS_WIN32
+	wchar_t buf[MAX_PATH];
+	DWORD n = GetModuleFileNameW(nullptr, buf, MAX_PATH);
+	char utf8[FL_PATH_MAX];
+	fl_utf8fromwc(utf8, sizeof(utf8), buf, n);
+	return std::string(utf8);
+#else
+	char buf[FL_PATH_MAX];
+	ssize_t n = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+	if (n <= 0)
+		return std::string();
+	buf[n] = 0;
+	return std::string(buf);
+#endif
+}
+
+/**
+ Start another Einstein that runs this machine. Each machine runs in its own
+ process, with its own window and Dock icon. The new Einstein does not depend
+ on this one: it keeps running when this one quits.
+ */
+void
+TFLApp::LaunchMachine(const char* inUUID)
+{
+	std::string theProgram = ExecutablePath();
+	if (theProgram.empty())
+	{
+		fl_alert("Einstein can't find its own program file to start another machine.");
+		return;
+	}
+#if TARGET_OS_WIN32
+	std::string theCommand = "\"" + theProgram + "\" --machine " + inUUID;
+	wchar_t wideCommand[FL_PATH_MAX * 2];
+	fl_utf8towc(theCommand.c_str(), (unsigned) theCommand.size(), wideCommand, FL_PATH_MAX * 2);
+	STARTUPINFOW startup;
+	ZeroMemory(&startup, sizeof(startup));
+	startup.cb = sizeof(startup);
+	PROCESS_INFORMATION process;
+	// No inherited handles: the new Einstein must not hold our locks.
+	if (!CreateProcessW(nullptr, wideCommand, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startup, &process))
+	{
+		fl_alert("Another Einstein could not be started.");
+		return;
+	}
+	CloseHandle(process.hThread);
+	CloseHandle(process.hProcess);
+#else
+	// Fork twice, so the new Einstein is not our child: it keeps running when
+	// we quit, and leaves no zombie. Between fork() and exec, only call
+	// functions that are safe there (we have threads).
+	const char* program = theProgram.c_str();
+	int maxFile = getdtablesize();
+	pid_t child = fork();
+	if (child == 0)
+	{
+		if (fork() == 0)
+		{
+			// Our files (locks, sockets, the flash) are not the new Einstein's.
+			for (int fd = 3; fd < maxFile; fd++)
+				close(fd);
+			execl(program, program, "--machine", inUUID, (char*) nullptr);
+			_exit(127);
+		}
+		_exit(0);
+	}
+	if (child < 0)
+	{
+		fl_alert("Another Einstein could not be started.");
+		return;
+	}
+	(void) waitpid(child, nullptr, 0);
+#endif
 }
 
 /**
@@ -1663,6 +1761,8 @@ TFLApp::InitScreen()
 	Fl_Group::current(nullptr);
 	wAppWindow = CreateApplicationWindow(mFLSettings->mMachine->mAppWindowPosX,
 		mFLSettings->mMachine->mAppWindowPosY);
+	// Several machines may run at once: the window shows which one this is.
+	wAppWindow->copy_label(mFLSettings->mMachine->GetName());
 
 	// -- calculate the height of the screen
 	int emulatorScreenY = 0;
@@ -2041,7 +2141,9 @@ TFLApp::InitMonitor(const char* theROMImagePath)
 	mSymbolList = new TSymbolList(theSymbolListOrMonitorRcPath);
 
 	fl_filename_setext(theSymbolListOrMonitorRcPath, FL_PATH_MAX, ".monitorrc");
-	mMonitor = new TFLMonitor(mMonitorLog, mEmulator, mSymbolList, theSymbolListOrMonitorRcPath);
+	TFLMonitor* theMonitor = new TFLMonitor(mMonitorLog, mEmulator, mSymbolList, theSymbolListOrMonitorRcPath);
+	theMonitor->SetWindowTitle(std::string("Einstein Monitor \xE2\x80\x93 ") + mFLSettings->mMachine->GetName());
+	mMonitor = theMonitor;
 
 	KPrintf("Booting... (Monitor enabled)\n");
 }

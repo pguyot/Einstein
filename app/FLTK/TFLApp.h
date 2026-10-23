@@ -242,6 +242,12 @@ private:
 	// Close all windows, which ends Fl::run()
 	void QuitNow();
 
+public:
+	// Start another Einstein that runs this machine (one machine per process).
+	void LaunchMachine(const char* inUUID);
+
+private:
+
 	// Find the card in the card list that was saved in a state file, -1 if none
 	long FindCardForState(KUInt32 inTag, const std::string& inImagePath);
 
