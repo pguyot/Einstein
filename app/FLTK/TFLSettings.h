@@ -193,7 +193,6 @@ public:
 
 	int mLaunchMonitorAtBoot = 0;
 	int mBreakAtROMBoot = 0;
-	int mFetchDateAndTime = 1;
 
 	// when quitting, save the state of the sleeping Newton, and continue from
 	// there on the next start (if nothing changed)

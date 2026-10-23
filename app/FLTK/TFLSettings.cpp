@@ -345,7 +345,6 @@ TFLSettings::loadPreferences()
 	// system preferences
 	Fl_Preferences newtSystem(prefs, "System");
 	{
-		newtSystem.get("FetchDateAndTime", mFetchDateAndTime, 1);
 		newtSystem.get("FastStart", mFastStart, 1);
 		newtSystem.get("StatePath", mStatePath, "");
 	}
@@ -451,7 +450,6 @@ TFLSettings::savePreferences()
 	// system preferences
 	Fl_Preferences newtSystem(prefs, "System");
 	{
-		newtSystem.set("FetchDateAndTime", mFetchDateAndTime);
 		newtSystem.set("FastStart", mFastStart);
 		newtSystem.set("StatePath", mStatePath ? mStatePath : "");
 	}

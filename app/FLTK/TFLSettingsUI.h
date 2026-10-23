@@ -117,7 +117,6 @@ public:
   Fl_Choice *wRAMSizeChoice;
   static Fl_Menu_Item menu_wRAMSizeChoice[];
   Fl_Box *wRestartWarning;
-  Fl_Check_Button *wFetchDateAndTime;
   Fl_Check_Button *wFastStart;
   Fl_Int_Input *wWidth;
   Fl_Int_Input *wHeight;
