@@ -50,6 +50,8 @@
 // K
 #include <K/Defines/UByteSex.h>
 
+#include "Emulator/TInterruptManager.h"
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -204,34 +206,13 @@ THostInfo::GetUserInfo(EUserInfoSel inSelector) const
 int
 THostInfo::GetHostTimeZone(void) const
 {
-#if TARGET_OS_OPENSTEP
-	// MacOS X:
-	// gettimeofday won't work because the information is kept outside
-	// the kernel.
-	// So I'll use CFTimeZone.
-	CFTimeZoneRef theTZ = CFTimeZoneCopyDefault();
-	CFTimeInterval theDelta = CFTimeZoneGetSecondsFromGMT(
-		theTZ, CFAbsoluteTimeGetCurrent());
-	CFRelease(theTZ);
-	return (int) theDelta;
-#elif TARGET_OS_WIN32
-	// Timezone is returned in hours.
-	long seconds = 0;
-	_get_timezone(&seconds);
-	return seconds * 3600;
-#else
-	// Use gettimeofday.
-	// Cygwin crashes if we give NULL for first parameter.
-	struct timeval theTime;
-	struct timezone theTZ;
-	if (::gettimeofday(&theTime, &theTZ) == 0)
-	{
-		return theTZ.tz_minuteswest * 60;
-	} else
-	{
-		return 0;
-	}
-#endif
+	// The standard offset, as in the 'gmt slot of the Newton's cities (the
+	// Setup patch in the NS Runtime picks the home city with it). It used to
+	// include daylight saving time on macOS, and had the opposite sign on
+	// Linux and Windows (and was multiplied by 3600 on Windows).
+	KSInt32 theGMTOffset, theDSTOffset;
+	TInterruptManager::GetHostTimeZone(theGMTOffset, theDSTOffset);
+	return (int) theGMTOffset;
 }
 
 // -------------------------------------------------------------------------- //

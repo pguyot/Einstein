@@ -63,7 +63,8 @@ public:
 	///
 	/// Accessor on the timezone.
 	///
-	/// \return the delta with GMT in seconds.
+	/// \return the host's standard offset from GMT in seconds, east positive,
+	///	without daylight saving time.
 	///
 	int GetHostTimeZone(void) const;
 
