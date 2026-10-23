@@ -50,9 +50,23 @@ User Release Notes
  - F11 switches the backlight on or off, F12 presses the power button.
  - The German MessagePad, eMate 300 and Watson ROMs no longer ask to
    calibrate the screen.
+ - Alarms work: alarms and timers go off on time, also while the Newton
+   sleeps, which wakes it up. An alarm that came due while Einstein was
+   quit shows up at the next start.
+ - The Newton always uses your computer's time zone, whatever home city
+   is set in Time Zones.
 
 Developer Release Notes
 -----------------------
+ - The emulated real-time clock counts UTC, as on a real Newton, and no
+   longer goes back to 1996 at every boot (all four ROMs). `GMTOffset()` and
+   `DaylightSavingsOffset()` return the host's time zone, and setting the
+   time in NewtonOS no longer changes the clock. Before, the clock ran on
+   local time, so alarms were off by the home city's offset and could fire
+   in an endless loop.
+ - The RTC alarm interrupt is emulated: it fires once when the clock
+   reaches the alarm register, and wakes a sleeping Newton if the wake-up
+   mask (0x0F184800) allows it.
  - `Documentation/NewtonTime.md` describes how NewtonOS keeps the time,
    the ROM addresses of the time patches, how to patch other ROMs and
    physical Newtons, and the 2040 limit of the 32-bit clock.

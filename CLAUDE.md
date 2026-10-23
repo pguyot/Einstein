@@ -429,7 +429,17 @@ follows with Multiple Configurations.
    (debug build); the rest is checksums and file I/O.
 10. ~~Open questions~~ answered (Matt, 2026-10-11). Q4.5 and Q4.7 need no
     change. Q4.4: findings below.
-11. **The RTC alarm interrupt is not emulated** (found 2026-10-11, older than
+11. ~~**The RTC alarm interrupt**~~ Done 2026-10-23, tested by Matt.
+    `TInterruptManager::FireTimersAndFindNext()` raises 0x4 once when the
+    RTC reaches the alarm register. It is armed by a write of a future
+    time (NewtonOS also writes past times and fires those itself), and
+    after loading a state (not saved). The timer thread checks the clock
+    when the alarm is due by its tick count, at most a minute apart; it
+    only waits with a timeout for the alarm while the emulator waits for an
+    interrupt (a timed wait on every turn made the emulation slow), and it
+    resumes a sleeping Newton if the alarm bit is in the wake-up mask
+    (0x0F184800). Needed the RTC in UTC first (see *Time base*).
+    **Was not emulated** (found 2026-10-11, older than
     this branch). NewtonOS's `TRealTimeClock::SetAlarm` ends in
     `SetRealTimeClockAlarm`, which writes the alarm register (0x0F181400) and
     enables interrupt 0x4. Einstein stores the value (`mAlarmRegister`) but
@@ -931,13 +941,31 @@ Open:
   updates contain none of it. Install Essentials now offers 717260, 747260
   and 737246; there is no French 2x00 update (UNNA, checked on the MIT
   mirror `web.mit.edu/unna`; www.unna.org was down on 2026-10-23 for a PHP
-  security fix). Idea,
-  not done: warn at launch if the flash holds a Y2K10 package (search the
-  flash file for "74J185", "73J186", "71J059"; check first with a flash
-  that has one).
-- `AdjustRealTimeClock` resets the RTC to 1996 at every boot, so alarms never
-  fire in Einstein. A native patch there should work in Einstein (JIT patches
-  are active from the first instruction), not on physical Newtons.
+  security fix). No warning at launch about a Y2K10 package in the flash
+  (Matt, 2026-10-23: users who play around don't care and should not be
+  bothered by dialogs; may change after complaints).
+- ~~`AdjustRealTimeClock` resets the RTC to 1996 at every boot.~~ Patched on
+  all four ROMs (2026-10-23, untested): the upper bound (2010) is gone, so
+  the RTC keeps host local time; before 1996 it is still reset. Matt: an
+  alarm 1 minute ahead, quit, restart later: the expired alarm popped up.
+  But with an alarm pending, quit ran into the 10 s timeout instead of
+  sleeping, and the emulation got slow. Cause (2026-10-23): NewtonOS keeps
+  the RTC and alarms in UTC (`SetSysAlarm` subtracts `GMTOffset()` and
+  `DaylightSavingsOffset()`, the home city), Einstein's RTC counted host
+  local time. Matt's Newton is set to Tokyo, the host to Berlin, so alarms
+  landed 9 hours early, fired at once and were set again in a loop. Fixed
+  (option 1, Matt): the RTC counts host UTC, `GMTOffset()` and
+  `DaylightSavingsOffset()` return the host's time zone on all four ROMs,
+  `SetRealClockSeconds()` is ignored. The RTC alarm interrupt is emulated
+  too (Fast start, next step 11). Matt tested it: alarms on time, waking
+  from sleep, sleep with a timer pending, normal speed.
+- Time Zones' "Second City" goes back to Tokyo after every reboot, even
+  after closing the app; it survives a fast start (Matt, 2026-10-23).
+  Probably NewtonOS keeps it in memory only; would show on a real Newton
+  after a reset. Not looked into.
+- The setting "Fetch date and time from host" (`System/FetchDateAndTime`)
+  was saved but not used anywhere; the time always comes from the host.
+  Removed (Matt, 2026-10-23); old preference files keep the unused key.
 - 2040-02-06: the 32-bit seconds since 1904 overflow (RTC, `RealClock()`,
   `Time()`). Idea: run the clock 28 years behind (same calendar).
 - Ctrl-Q forwards a Ctrl key-down to NewtonOS before the quit presses power;

@@ -57,13 +57,13 @@ When you start Einstein, the Settings window opens.
    applications keep their data, stays the same size. You can change the RAM
    size later without losing the data in the flash; it takes effect at the
    next start.
-4. Leave *Fetch date and time from host* on, so the Newton shows your
-   computer's date and time.
-5. Leave *Fast start: continue where Einstein was quit* on (see
+4. Leave *Fast start: continue where Einstein was quit* on (see
    [section 6](#6-fast-start-saving-and-restoring)).
-6. If you check **Don't show at startup**, Einstein starts the Newton right away
+5. If you check **Don't show at startup**, Einstein starts the Newton right away
    next time. You can open the Settings any time with **Window › Settings...**.
-7. Click **Start**.
+6. Click **Start**.
+
+The Newton always shows your computer's date and time.
 
 The Newton starts. The first start takes a little longer, while NewtonOS sets
 up the new flash.
@@ -353,7 +353,6 @@ the Monitor when Einstein starts.
 ## 12. What Einstein can't do yet
 
 - Infrared beaming between Newtons is not emulated.
-- Alarms set in Dates don't go off, and an alarm can't wake the Newton.
 - Multiple configurations (several emulated Newtons with their own settings)
   are planned, but not available yet.
 - The Edit menu (Cut, Copy, Paste) doesn't work yet. However, moving selected

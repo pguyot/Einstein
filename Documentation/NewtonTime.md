@@ -62,11 +62,35 @@ software only.
 ```
 
 So after every boot the RTC of a NewtonOS 2.1 device runs from July 1996.
-Einstein does not patch this yet (on any ROM), so its RTC runs from 1996
-after every boot too. The time that NewtonOS *shows* is right anyway, because Einstein patches
-`RealClockSeconds()` (below). A consequence: alarms are compared with the
-1996-based RTC, so alarms set for today lie 30 years in the future and never
-fire in Einstein.
+Until October 2026, Einstein's RTC did too. The time that NewtonOS *shows*
+was right anyway, because Einstein patches `RealClockSeconds()` (below), but
+alarms are compared with the RTC, so alarms set for today lay 30 years in the
+future.
+
+Since October 2026, Einstein patches the upper bound away on all four ROMs:
+the instruction at `0x00045314` (after the "too early" branch) becomes
+`mov pc, lr`. A value before 1996 is still reset; anything later is kept.
+Einstein's RTC counts host time (UTC, see *The counter holds UTC*), so it now
+runs on host time until the 32-bit seconds overflow in February 2040. Alarms that are due fire when
+NewtonOS sets them. Einstein also raises the RTC alarm interrupt
+(`0x00000004`) once when the RTC reaches the alarm register, so alarms go off
+on time and wake a sleeping Newton (`CyclePower()`, `SleepingCheckFire`).
+
+### The counter holds UTC
+
+`RealClockSeconds()` adds `GMTOffset()` and `DaylightSavingsOffset()` to the
+RTC, and `SetRealClockSeconds()` and `SetSysAlarm()` subtract them, so the RTC
+holds UTC and alarms are kept in UTC. These are the only three callers of the
+two functions. `GMTOffset()` (`0x002554C0`) returns the `gmt` slot of the
+`location` preference (the home city), `DaylightSavingsOffset()`
+(`0x0025551C`) the `daylightSavings` preference, both in seconds.
+
+Until October 2026, Einstein's RTC counted host *local* time, so alarms were
+off by the home city's offset from UTC. With the Newton set to Tokyo (UTC+9),
+an alarm one minute ahead landed nine hours in the past, the kernel fired it
+at once, NewtonOS set it again, and the Newton got slow and no longer went
+to sleep. Now the RTC counts UTC, and both functions return the host's time
+zone, whatever city the Newton is set to.
 
 ### From the counter to NewtonScript
 
@@ -152,6 +176,9 @@ ROMs* below). The US ROM:
 | Address | Original | Patch | Name |
 |---|---|---|---|
 | `0x00255578` | `RealClockSeconds()` | replaced: returns host local time in seconds since 1904 (`TInterruptManager::GetHostLocalTime()`) | `RealClockSeconds` |
+| `0x002554C0` | `GMTOffset()` | replaced: the host's standard offset from UTC (`GetHostTimeZone()`) | `GMTOffset` |
+| `0x0025551C` | `DaylightSavingsOffset()` | replaced: the host's daylight saving offset now | `DaylightSavingsOffset` |
+| `0x002555B8` | `SetRealClockSeconds()` | `mov pc, lr`: the RTC keeps host UTC | `Ignore SetRealClockSeconds` |
 | `0x00089B80` | `mov r0, r0, lsl #2` | `r0 = (r0 - 978220800) << 2` | `FTimeInSeconds` |
 | `0x0008A8A8` | `mov r0, r13` | `r1 += 978220800; r0 = r13` | `FDateFromSeconds` |
 | `0x0008A20C` | `mov r12, r13` | `mov pc, lr`: `SetTimeInSeconds()` does nothing, the time comes from the host | `Ignore setting time` |
@@ -190,6 +217,9 @@ start of the function in all four ROMs).
 | Patch | US 717006 | German 747129 | eMate 300 | Watson |
 |---|---|---|---|---|
 | `RealClockSeconds` | `0x00255578` | `0x00253630` | `0x00235814` | `0x00252168` |
+| `GMTOffset` | `0x002554C0` | `0x00253578` | `0x0023575C` | `0x002520B0` |
+| `DaylightSavingsOffset` | `0x0025551C` | `0x002535D4` | `0x002357B8` | `0x0025210C` |
+| `Ignore SetRealClockSeconds` | `0x002555B8` | `0x00253670` | `0x00235854` | `0x002521A8` |
 | `FTimeInSeconds` | `0x00089B80` | `0x0008ADCC` | `0x000863B8` | `0x0008A0B0` |
 | `FDateFromSeconds` | `0x0008A8A8` | `0x0008BAF4` | `0x000870E0` | `0x0008ADD8` |
 | `Ignore setting time` | `0x0008A20C` | `0x0008B458` | `0x00086A44` | `0x0008A73C` |
@@ -197,7 +227,8 @@ start of the function in all four ROMs).
 | `Time base (2/4)` | `0x00420798` | `0x0043CE50` | `0x003B6020` | `0x004433CC` |
 | `Time base (3/4)` | `0x004DCA14` | `0x004F7E68` | `0x0047FE3C` | `0x004F3C08` |
 | `Time base (4/4)` | `0x0030F088` | `0x002E9D74` | `0x002A2838` | `0x0030E608` |
-| `AdjustRealTimeClock` (not patched) | `0x000452FC` | `0x00045BCC` | `0x00044B90` | `0x00045308` |
+| `AdjustRealTimeClock` (start) | `0x000452FC` | `0x00045BCC` | `0x00044B90` | `0x00045308` |
+| `AdjustRealTimeClock upper bound` (start + `0x18`) | `0x00045314` | `0x00045BE4` | `0x00044BA8` | `0x00045320` |
 | `FSetSysAlarm` | `0x0030EEEC` | `0x002E9BD8` | `0x002A269C` | `0x0030E46C` |
 
 The recipe, for another ROM:
