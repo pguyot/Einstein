@@ -72,9 +72,12 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
 
 elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
 
-	# allow to build with multithreading libraries with VisualC
-	#	cmake_policy( SET CMP0091 NEW )
-	#	set( CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" )
+	# Link the C and C++ runtime statically (/MT), so Einstein.exe runs without
+	# the Visual C++ Redistributable. An older msvcp140.dll on the user's machine
+	# crashes a program built with a newer Visual Studio. FLTK sets its own
+	# runtime, so it is told the same below (FLTK_MSVC_RUNTIME_DLL).
+	set( CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" )
+	set( FLTK_MSVC_RUNTIME_DLL OFF )
 
 elseif ( ANDROID )
 

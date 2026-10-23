@@ -14,8 +14,8 @@ FetchContent_Declare (
 	URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
 )
 
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set( gtest_force_shared_crt ON CACHE BOOL "" FORCE )
+# For Windows: the runtime is linked statically (/MT), like Einstein
+set( gtest_force_shared_crt OFF CACHE BOOL "" FORCE )
 
 # Check if population has already been performed
 FetchContent_GetProperties(googletest)

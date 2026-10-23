@@ -10,6 +10,9 @@ User Release Notes
    NewtonScript time from 2024, which is good until January 2041.
    The fix is for the U.S. MessagePad 2000/2100 ROM.
  - Windows: the Newton's clock is no longer off by 150 days and one hour.
+ - Windows: Einstein.exe no longer needs the Visual C++ Redistributable.
+   With an older version of it installed, Einstein could crash while the
+   Newton was booting.
  - Serial port: connections over TCP (for example to NCX or Newton
    Connection), named pipes, pseudo terminals and BasiliskII are much more
    reliable. Data that arrived faster than NewtonOS could read it
