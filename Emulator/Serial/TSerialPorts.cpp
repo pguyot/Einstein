@@ -67,6 +67,7 @@
 // POSIX
 #include <cassert>
 #include <csignal>
+#include <cstdlib>
 #include <cstring>
 #include <sys/types.h>
 
@@ -101,6 +102,7 @@
 TSerialPorts::TSerialPorts(TEmulator* inEmulator, TLog* inLog) :
 		mLog(inLog), mEmulator(inEmulator)
 {
+	assert(DriverNames.size() == kNDriverID); // one name for every driver
 }
 
 /**
@@ -170,6 +172,16 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 
 	if (currentDriver)
 	{
+#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
+		// Keep the server of a TCP client, for when the user switches back.
+		if (currentDriver->GetID() == kTcpClientDriver)
+		{
+			auto* tcp = (TSerialPortDriverTcpClient*) currentDriver;
+			char* server = tcp->GetServerAddressDup();
+			SetTcpClientSettings(inPort, server, tcp->GetServerPort());
+			::free(server);
+		}
+#endif
 		delete currentDriver;
 		mDriver[inPort] = nullptr;
 	}
@@ -190,9 +202,16 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 			break;
 #endif
 #if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
-		case kTcpClientDriver:
-			currentDriver = new TSerialPortDriverTcpClient(mLog, inPort);
+		case kTcpClientDriver: {
+			auto* tcp = new TSerialPortDriverTcpClient(mLog, inPort);
+			if (mTcpPort[inPort] != 0)
+			{
+				tcp->SetServerAddress(mTcpServer[inPort].c_str());
+				tcp->SetServerPort(mTcpPort[inPort]);
+			}
+			currentDriver = tcp;
 			break;
+		}
 #endif
 		default:
 			currentDriver = new TBasicSerialPortManager(mLog, inPort);
@@ -208,6 +227,34 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 		mEmulator->GetMemory());
 
 	return currentDriver;
+}
+
+/**
+ Set the server and port that a new TCP client driver on this port uses.
+
+ The driver that runs on the port now is not changed.
+ */
+void
+TSerialPorts::SetTcpClientSettings(EPortIndex inPort, const char* inServer, int inServerPort)
+{
+	mTcpServer[inPort] = inServer ? inServer : "";
+	mTcpPort[inPort] = inServerPort;
+}
+
+/**
+ Is this driver available for this port on this platform?
+ */
+bool
+TSerialPorts::IsValidDriver(EPortIndex inPort, EDriverID inDriverId)
+{
+	if (inPort < 0 || inPort >= kNPortIndex)
+		return false;
+	for (EDriverID* d = ValidDriversByPort[inPort]; (int) *d != -1; d++)
+	{
+		if (*d == inDriverId)
+			return true;
+	}
+	return false;
 }
 
 /**
@@ -348,9 +395,11 @@ TSerialPorts::SetDriver(KUInt32 inLocation, EDriverID inDriver, std::string inCo
 
 KUInt32 TSerialPorts::NDrivers = kNDriverID;
 
+// One name for every EDriverID. kDirectDriver (a host serial device) is only
+// used through SetDriver(), not offered for the four ports (ValidDrivers).
 std::vector<const char*> TSerialPorts::DriverNames = /* NOLINT */
 	{
-		"None", "Named Pipes", "Pseudoterminal", "BasiliskII", "Network Client"
+		"None", "Named Pipes", "Pseudoterminal", "BasiliskII", "Network Client", "Host Serial Port"
 	};
 
 KUInt32 TSerialPorts::NPorts = kNPortIndex;
@@ -513,6 +562,17 @@ TSerialPorts::NSSetDriverAndOptions(TNewt::RefArg arg)
 	NewtRef fDriver = GetFrameSlotRef(frame, MakeSymbol("Driver"));
 	if (RefIsInt(fDriver))
 		driverId = (EDriverID) RefToInt(fDriver);
+
+	// Refuse drivers that are not offered for this port on this platform
+	// (for example Pipes on Windows); the current driver keeps running.
+	if (portIndex != -1 && driverId != -1 && !IsValidDriver((EPortIndex) portIndex, (EDriverID) driverId))
+	{
+		if (mLog)
+			mLog->FLogLine("ERROR: serial driver %d is not available for port %d\n", driverId, portIndex);
+		else
+			KPrintf("ERROR: serial driver %d is not available for port %d\n", driverId, portIndex);
+		return kNewtRefNIL;
+	}
 
 	if (portIndex != -1 && driverId != -1)
 	{

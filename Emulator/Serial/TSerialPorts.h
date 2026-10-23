@@ -29,6 +29,7 @@
 #include "Emulator/Platform/TNewt.h"
 
 #include <functional>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -106,6 +107,12 @@ public:
 	// Replace an existing driver with a new driver
 	TSerialPortDriver* ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
 
+	// Set the server and port that a new TCP client driver on this port uses
+	void SetTcpClientSettings(EPortIndex inPort, const char* inServer, int inServerPort);
+
+	// Is this driver available for this port on this platform?
+	static bool IsValidDriver(EPortIndex inPort, EDriverID inDriverId);
+
 	// Save or load the emulated hardware state of the four serial ports
 	void TransferState(TStream* inStream);
 
@@ -157,6 +164,12 @@ private:
 
 	/// Settings for each host port driver, e.g. path name for a PTY, or serial port file name
 	std::map<KUInt32, std::pair<EDriverID, std::string>> mHostPortSettings;
+
+	/// Server and port for a new TCP client driver on each port: the app's
+	/// settings, or those of the last TCP client driver on the port. A port of
+	/// 0 means none, and the driver starts with its defaults.
+	std::string mTcpServer[4];
+	int mTcpPort[4] { 0, 0, 0, 0 };
 };
 
 #endif

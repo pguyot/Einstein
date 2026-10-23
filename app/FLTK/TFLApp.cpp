@@ -1658,22 +1658,17 @@ TFLApp::InitScreen()
 void
 TFLApp::InitSerialPorts()
 {
+	// The server address and port for the TCP client on the external port, now
+	// or whenever the user switches to it later (Einstein Prefs only sends the
+	// driver then).
+	mEmulator->SerialPorts.SetTcpClientSettings(TSerialPorts::kExtr,
+		mFLSettings->mExtrTcpServer, mFLSettings->mExtrTcpPort);
+
 	// Basic initialization of all serial ports
 	mEmulator->SerialPorts.Initialize((TSerialPorts::EDriverID) mFLSettings->mExtrDriver,
 		TSerialPorts::kNullDriver,
 		TSerialPorts::kNullDriver,
 		TSerialPorts::kNullDriver);
-
-	// Restore the server address and port if the external port uses the TCP client.
-	// The driver connects only when data is sent, so it's safe to set them after run().
-	TSerialPortDriver* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
-	if (extr && extr->GetID() == TSerialPorts::kTcpClientDriver)
-	{
-		TSerialPortDriverTcpClient* tcp = (TSerialPortDriverTcpClient*) extr;
-		if (mFLSettings->mExtrTcpServer)
-			tcp->SetServerAddress(mFLSettings->mExtrTcpServer);
-		tcp->SetServerPort(mFLSettings->mExtrTcpPort);
-	}
 
 	// This is called from the emulator thread when an application on the emulated
 	// Newton changes the serial port settings. Collect the new settings here and
