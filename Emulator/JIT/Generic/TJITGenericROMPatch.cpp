@@ -165,7 +165,7 @@ T_ROM_PATCH(0x001A71B8, 0x001A973C, 0x0019501C, 0x001A77FC, "CalculateROMREXChec
  * alarms that NewtonOS sets in local time fire when the RTC reaches them.
  */
 
-T_ROM_PATCH(0x00255578, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "RealClockSeconds")
+T_ROM_PATCH(0x00255578, 0x00253630, 0x00235814, 0x00252168, "RealClockSeconds")
 {
 	(void) ioUnit;
 	ioCPU->SetRegister(0, TInterruptManager::GetHostLocalTime());
@@ -174,6 +174,10 @@ T_ROM_PATCH(0x00255578, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "RealClockS
 }
 
 /* Patches for the 2010 problem:
+ *
+ * The addresses for the German, eMate and Watson ROMs were found by matching
+ * the instruction words of the US ROM (branch offsets ignored), and the data
+ * words by value; each has exactly one match per ROM.
  *
  * The low level NewtonOS clock will continue to run with seconds since
  * 1904-01-01T00:00:00. The NewtonScript functions which have been using a time
@@ -195,7 +199,7 @@ static const KUInt32 safeIntervalDeltaSeconds = 978220800;
  * Adjust seconds values returned to NS layer into safe interval
  */
 
-T_ROM_PATCH(0x00089B80, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "FTimeInSeconds")
+T_ROM_PATCH(0x00089B80, 0x0008ADCC, 0x000863B8, 0x0008A0B0, "FTimeInSeconds")
 {
 	ioCPU->SetRegister(0, (ioCPU->GetRegister(0) - safeIntervalDeltaSeconds) << 2);
 	return ioUnit;
@@ -205,7 +209,7 @@ T_ROM_PATCH(0x00089B80, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "FTimeInSec
  * Fix date from seconds returned to NS layer
  */
 
-T_ROM_PATCH(0x0008A8A8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "FDateFromSeconds")
+T_ROM_PATCH(0x0008A8A8, 0x0008BAF4, 0x000870E0, 0x0008ADD8, "FDateFromSeconds")
 {
 	ioCPU->SetRegister(1, ioCPU->GetRegister(1) + safeIntervalDeltaSeconds);
 	ioCPU->SetRegister(0, ioCPU->GetRegister(13));
@@ -215,15 +219,15 @@ T_ROM_PATCH(0x0008A8A8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "FDateFromS
 static const KUInt32 newTimeBaseMinutes = 252460800; /* 2024/1/1 in minutes from 1904/1/1 as NS integer (43830 days) */
 static const KUInt32 newTimeBaseSeconds = 3786912000; /* 2024/1/1 in seconds from 1904/1/1 as NS integer */
 
-TJITGenericPatch timeBase1(0x420750, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+TJITGenericPatch timeBase1(0x00420750, 0x0043CE08, 0x003B5FD8, 0x00443384,
 	newTimeBaseMinutes, "Time base (1/4)");
-TJITGenericPatch timeBase2(0x420798, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+TJITGenericPatch timeBase2(0x00420798, 0x0043CE50, 0x003B6020, 0x004433CC,
 	newTimeBaseMinutes, "Time base (2/4)");
-TJITGenericPatch timeBase3(0x4dca14, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+TJITGenericPatch timeBase3(0x004DCA14, 0x004F7E68, 0x0047FE3C, 0x004F3C08,
 	newTimeBaseMinutes, "Time base (3/4)");
-TJITGenericPatch timeBase4(0x30F088, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+TJITGenericPatch timeBase4(0x0030F088, 0x002E9D74, 0x002A2838, 0x0030E608,
 	newTimeBaseSeconds, "Time base (4/4)");
-TJITGenericPatch ignoreSettingTime(0x0008A20C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+TJITGenericPatch ignoreSettingTime(0x0008A20C, 0x0008B458, 0x00086A44, 0x0008A73C,
 	0xe1a0f00e, "Ignore setting time"); // mov pc, lr
 
 // Disable the Schlumberger signature verification for Watson ROMs.
