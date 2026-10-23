@@ -1143,13 +1143,20 @@ TFLApp::UserActionPCCard(int inSlot, long inIndex)
 	{
 		// Remove the current PC card from the slot.
 		ret = mPlatformManager->InsertPCCard(inSlot, nullptr);
+		mFLSettings->UnlockCard(inSlot);
 		mFLSettings->KeepPCCardInSlot(inSlot, -1);
 	} else
 	{
-		// Insert the selected PC card into the slot.
-		TPCMCIACard* card = GetSettings()->mCardList[inIndex]->GetCard();
-		if (card && !card->IsInserted())
+		// Insert the selected PC card into the slot, unless another Einstein
+		// has its image (LockCard() tells the user).
+		TFLPCCardSettings* settings = GetSettings()->mCardList[inIndex];
+		TPCMCIACard* card = settings->GetCard();
+		if (card && !card->IsInserted() && mFLSettings->LockCard(inSlot, settings))
+		{
 			ret = mPlatformManager->InsertPCCard(inSlot, card);
+			if (ret != 0)
+				mFLSettings->UnlockCard(inSlot);
+		}
 	}
 
 	mFLSettings->updateMenus();

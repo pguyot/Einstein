@@ -322,6 +322,16 @@ TFLMachineSettings::Load(Fl_Preferences& inPrefs, const char* inAppPath, const c
 		serial.get("ExtrTcpServer", mExtrTcpServer, "127.0.0.1");
 		serial.get("ExtrTcpPort", mExtrTcpPort, 3679);
 	}
+
+	// the cards that stay in a slot (their UUIDs in the card list)
+	Fl_Preferences pcmcia(inPrefs, "PCMCIA");
+	for (int slot = 0; slot < 2; slot++)
+	{
+		char* theUUID = nullptr;
+		pcmcia.get(slot == 0 ? "KeepInSlot0" : "KeepInSlot1", theUUID, mKeepInSlot[slot].c_str());
+		mKeepInSlot[slot] = theUUID;
+		::free(theUUID);
+	}
 }
 
 void
@@ -377,6 +387,11 @@ TFLMachineSettings::Save(Fl_Preferences& inPrefs) const
 		serial.set("ExtrTcpServer", mExtrTcpServer ? mExtrTcpServer : "");
 		serial.set("ExtrTcpPort", mExtrTcpPort);
 	}
+
+	// the cards that stay in a slot
+	Fl_Preferences pcmcia(inPrefs, "PCMCIA");
+	pcmcia.set("KeepInSlot0", mKeepInSlot[0].c_str());
+	pcmcia.set("KeepInSlot1", mKeepInSlot[1].c_str());
 }
 
 void
@@ -444,6 +459,8 @@ TFLSettings::~TFLSettings()
 	for (auto* machine : mMachines)
 		delete machine;
 	delete mSettingsLock;
+	UnlockCard(0);
+	UnlockCard(1);
 }
 
 // Get the lock that allows one Settings window in all Einstein processes, or
@@ -551,6 +568,12 @@ TFLSettings::LoadMachines(Fl_Preferences& inPrefs)
 		auto* machine = new TFLMachineSettings(Fl_Preferences::newUUID(), mUserDataPath.c_str());
 		machine->Load(inPrefs, appPath, mUserDataPath.c_str());
 		machine->SetName("Newton");
+		// Which card stays in which slot was stored with the card.
+		for (auto* card : mCardList)
+		{
+			if (card->KeepInSlot() == 0 || card->KeepInSlot() == 1)
+				machine->mKeepInSlot[card->KeepInSlot()] = card->GetUUID();
+		}
 		// The default checkpoint now lives in the machine's folder. Keep
 		// finding the one in the user data folder, if it was the last one.
 		std::string theOldState = mUserDataPath + "Einstein.state";
@@ -567,8 +590,17 @@ TFLSettings::LoadMachines(Fl_Preferences& inPrefs)
 	} else
 	{
 		// The first machine is also in the old keys, and an older Einstein may
-		// have changed them since. Its changes win.
+		// have changed them since. Its changes win. The same goes for the
+		// cards it keeps in a slot, which an older Einstein stores with the
+		// card.
 		mMachines[0]->Load(inPrefs, appPath, mMachines[0]->GetFolder().c_str());
+		mMachines[0]->mKeepInSlot[0].clear();
+		mMachines[0]->mKeepInSlot[1].clear();
+		for (auto* card : mCardList)
+		{
+			if (card->KeepInSlot() == 0 || card->KeepInSlot() == 1)
+				mMachines[0]->mKeepInSlot[card->KeepInSlot()] = card->GetUUID();
+		}
 	}
 	if (!mMachine)
 		mMachine = mMachines[0];
@@ -631,7 +663,20 @@ TFLSettings::SaveRunningMachine()
 	machines.get("Order", theOrder, "");
 	const char* theFirst = strtok(theOrder, " ");
 	if (theFirst && strcmp(theFirst, mMachine->GetUUID()) == 0)
+	{
 		mMachine->Save(prefs);
+		// The first machine's slots are also stored with each card, where an
+		// older Einstein looks for them (and where LoadMachines() reads them).
+		Fl_Preferences cardlist(prefs, "PCMCIA/CardList");
+		for (auto* card : mCardList)
+		{
+			if (cardlist.groupExists(card->GetUUID()))
+			{
+				Fl_Preferences cardPrefs(cardlist, card->GetUUID());
+				cardPrefs.set("keepInSlot", SlotKeepingCard(mMachine, card));
+			}
+		}
+	}
 	machines.set("LastUsed", mMachine->GetUUID());
 	::free(theOrder);
 }
@@ -646,11 +691,9 @@ TFLSettings::loadPreferences()
 	// general preferences
 	prefs.get("dontShow", dontShow, 0);
 
-	// the machines, see LoadMachines()
 	buf[0] = 0;
 	prefs.getUserdataPath(buf, FL_PATH_MAX - 15);
 	mUserDataPath = buf;
-	LoadMachines(prefs);
 
 	// screen preferences
 	Fl_Preferences screen(prefs, "Screen");
@@ -696,6 +739,9 @@ TFLSettings::loadPreferences()
 		card->SetTag(">NET");
 		mCardList.push_back(card);
 	}
+
+	// the machines, after the cards (see LoadMachines())
+	LoadMachines(prefs);
 
 	// Newton Internet resources
 	Fl_Preferences resources(prefs, "Resources");
@@ -744,6 +790,8 @@ TFLSettings::savePreferences()
 	for (size_t i = 0; i < mCardList.size(); i++)
 	{
 		TFLPCCardSettings* card = mCardList[i];
+		// An older Einstein finds the slot of the first machine's cards here.
+		card->KeepInSlot(mMachines.empty() ? -1 : SlotKeepingCard(mMachines[0], card));
 		Fl_Preferences cardPrefs(cardlist, card->GetUUID());
 		card->WritePrefs(cardPrefs);
 	}
@@ -909,25 +957,39 @@ TFLSettings::UnplugPCCard(int ix)
 void
 TFLSettings::KeepPCCardInSlot(int inSlot, size_t inCard)
 {
-	Boolean clearIf0 = (inSlot == 0);
-	Boolean clearIf1 = (inSlot == 1);
-
-	for (size_t ix = 0; ix < mCardList.size(); ++ix)
+	// Each machine keeps its own cards in its slots. inSlot -1 keeps the card
+	// in no slot, inCard -1 (as size_t) keeps no card in the slot.
+	if (inCard < mCardList.size())
 	{
-		TFLPCCardSettings* card = mCardList[ix];
-		if (ix == inCard)
+		std::string theUUID = mCardList[inCard]->GetUUID();
+		for (auto& kept : mMachine->mKeepInSlot)
 		{
-			card->KeepInSlot(inSlot);
-		} else
-		{
-			if (clearIf0 && card->KeepInSlot() == 0)
-				card->KeepInSlot(-1);
-			if (clearIf1 && card->KeepInSlot() == 1)
-				card->KeepInSlot(-1);
+			if (kept == theUUID)
+				kept.clear();
 		}
+		if (inSlot == 0 || inSlot == 1)
+			mMachine->mKeepInSlot[inSlot] = theUUID;
+	} else if (inSlot == 0 || inSlot == 1)
+	{
+		mMachine->mKeepInSlot[inSlot].clear();
 	}
 
-	savePreferences();
+	SaveRunningMachine();
+}
+
+/**
+ In which slot does this machine keep this card?
+ \return 0 or 1, -1 if in none
+ */
+int
+TFLSettings::SlotKeepingCard(const TFLMachineSettings* inMachine, TFLPCCardSettings* inCard)
+{
+	for (int slot = 0; slot < 2; slot++)
+	{
+		if (!inMachine->mKeepInSlot[slot].empty() && inMachine->mKeepInSlot[slot] == inCard->GetUUID())
+			return slot;
+	}
+	return -1;
 }
 
 int
@@ -947,12 +1009,45 @@ TFLSettings::CardToIndex(TPCMCIACard* inCard)
 int
 TFLSettings::GetCardKeptInSlot(int inSlot)
 {
-	if (inSlot == -1)
-		return -1;
 	for (size_t ix = 0; ix < mCardList.size(); ++ix)
 	{
-		if (mCardList[ix]->KeepInSlot() == inSlot)
+		if (SlotKeepingCard(mMachine, mCardList[ix]) == inSlot)
 			return (int) ix;
 	}
 	return -1;
+}
+
+/**
+ Lock a PC Card image for this machine, so no other Einstein inserts it at the
+ same time (both would write the image). The network card needs no lock.
+ \return false, after telling the user, if another Einstein has the card
+ */
+bool
+TFLSettings::LockCard(int inSlot, TFLPCCardSettings* inCard)
+{
+	UnlockCard(inSlot);
+	if (inCard->GetType() == TFLPCCardSettings::CardType::kNetwork)
+		return true;
+	std::string theFolder = mUserDataPath + "Cards";
+	MakeFolder(theFolder);
+	std::string thePath = theFolder + "/" + inCard->GetUUID() + ".lock";
+	auto* theLock = new TFLFileLock(thePath);
+	if (!theLock->TryLock())
+	{
+		delete theLock;
+		std::string theHolder = TFLFileLock::ReadContent(thePath);
+		fl_alert("The PC Card \"%s\" is inserted in \"%s\" in another Einstein window.",
+			inCard->GetName(), theHolder.empty() ? "another machine" : theHolder.c_str());
+		return false;
+	}
+	theLock->WriteContent(mMachine->GetName());
+	mCardLock[inSlot] = theLock;
+	return true;
+}
+
+void
+TFLSettings::UnlockCard(int inSlot)
+{
+	delete mCardLock[inSlot];
+	mCardLock[inSlot] = nullptr;
 }

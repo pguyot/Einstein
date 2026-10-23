@@ -68,6 +68,11 @@ public:
 	// Does not create the file.
 	static bool IsHeldElsewhere(const std::string& inPath);
 
+	// While holding the lock: write a short text into the file, for example
+	// who holds it. Others can read it with ReadContent().
+	void WriteContent(const std::string& inText);
+	static std::string ReadContent(const std::string& inPath);
+
 private:
 	TFLFileLock(const TFLFileLock&) = delete;
 	TFLFileLock& operator=(const TFLFileLock&) = delete;

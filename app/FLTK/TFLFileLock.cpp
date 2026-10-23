@@ -25,6 +25,7 @@
 
 #include "TFLFileLock.h"
 
+#include <stdio.h>
 #include <utility>
 
 #if TARGET_OS_WIN32
@@ -136,4 +137,34 @@ TFLFileLock::IsHeldElsewhere(const std::string& inPath)
 	close(theFile);
 	return isHeld;
 #endif
+}
+
+void
+TFLFileLock::WriteContent(const std::string& inText)
+{
+	if (!mLocked)
+		return;
+#if TARGET_OS_WIN32
+	SetFilePointer((HANDLE) mHandle, 0, nullptr, FILE_BEGIN);
+	DWORD theWritten = 0;
+	WriteFile((HANDLE) mHandle, inText.data(), (DWORD) inText.size(), &theWritten, nullptr);
+	SetEndOfFile((HANDLE) mHandle);
+#else
+	if (ftruncate(mFile, 0) == 0)
+		(void) pwrite(mFile, inText.data(), inText.size(), 0);
+#endif
+}
+
+std::string
+TFLFileLock::ReadContent(const std::string& inPath)
+{
+	std::string theText;
+	FILE* theFile = fopen(inPath.c_str(), "rb");
+	if (!theFile)
+		return theText;
+	char buf[256];
+	size_t n = fread(buf, 1, sizeof(buf), theFile);
+	fclose(theFile);
+	theText.assign(buf, n);
+	return theText;
 }

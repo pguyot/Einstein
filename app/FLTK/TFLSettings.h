@@ -235,6 +235,10 @@ public:
 	int mScreenOrientation = -1;
 	int mScreenOrientationROM = -1;
 
+	// The cards that this machine keeps in its slots: their UUIDs in the
+	// card list (TFLPCCardSettings::GetUUID()), empty for none.
+	std::string mKeepInSlot[2];
+
 	// The Newton ID (48 bits, 16+32), which the desktop software uses to tell
 	// Newtons apart. The machine made from the old settings keeps the one
 	// Einstein always had, "Newton" in ASCII, so its backups still match.
@@ -302,6 +306,14 @@ public:
 	int CardToIndex(TPCMCIACard* inCard);
 	int GetCardKeptInSlot(int inSlot);
 
+	// In which slot does this machine keep this card? 0, 1, or -1 for none.
+	static int SlotKeepingCard(const TFLMachineSettings* inMachine, TFLPCCardSettings* inCard);
+
+	// Lock or unlock the image of a card that is inserted into a slot, see
+	// TFLSettings.cpp.
+	bool LockCard(int inSlot, TFLPCCardSettings* inCard);
+	void UnlockCard(int inSlot);
+
 	// protected:
 	Fl_Double_Window* mSettingsPanel = nullptr;
 	Fl_Double_Window* mAboutDialog = nullptr;
@@ -313,6 +325,9 @@ public:
 	// held while the Settings window is open (Settings.lock in the user data
 	// folder), see ShowSettingsPanelModal()
 	TFLFileLock* mSettingsLock = nullptr;
+
+	// held while a card is inserted into a slot (Cards/<uuid>.lock)
+	TFLFileLock* mCardLock[2] = { nullptr, nullptr };
 
 	// All machines, in the order of the list. The first one is also stored
 	// in the old preference keys, so an older Einstein launches it.
