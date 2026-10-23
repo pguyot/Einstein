@@ -211,6 +211,12 @@ public:
 	// user can go into fullscreen mode and back to windowed mode
 	int mAllowFullscreen = true;
 
+	// the screen orientation (TScreenManager::EOrientation) when Einstein was
+	// last quit, and the ROM (TROMImage::GetROMId()) that it belongs to. The
+	// next start uses it only with the same ROM. -1 if not known.
+	int mScreenOrientation = -1;
+	int mScreenOrientationROM = -1;
+
 	// if this is set, use the Einstein.rex within the app, otherwise load an external fiie
 	int mUseBuiltinRex = true;
 

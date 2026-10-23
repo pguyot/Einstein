@@ -1062,10 +1062,17 @@ TScreenManager::TransferState(TStream* inStream)
 	inStream->TransferInt32BE(mTabletSampleRate);
 	t = mTabletOrientation;
 	inStream->TransferInt32BE(t);
+	inStream->CheckLimit(t, kOrientation_AppleLeft, "the tablet orientation");
 	mTabletOrientation = (EOrientation) t;
+	EOrientation theOldOrientation = mScreenOrientation;
 	t = mScreenOrientation;
 	inStream->TransferInt32BE(t);
+	inStream->CheckLimit(t, kOrientation_AppleLeft, "the screen orientation");
 	mScreenOrientation = (EOrientation) t;
+	// The front end sizes its window and image buffer by the orientation, so
+	// tell it when a loaded state is rotated differently.
+	if (mScreenOrientation != theOldOrientation)
+		ScreenOrientationChanged(mScreenOrientation);
 	inStream->TransferInt32BE(mContrast);
 	inStream->TransferBoolean(mBacklight);
 	inStream->TransferBoolean(mKbdIsConnected);

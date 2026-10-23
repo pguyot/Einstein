@@ -642,15 +642,21 @@ TFLScreenManager::TFLScreenManager(
 	KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 	KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
 	Boolean inFullScreen /* = false */,
-	Boolean inScreenIsLandscape /* = true */) :
+	Boolean inScreenIsLandscape /* = true */,
+	EOrientation inOrientation /* = kOrientation_Default */) :
 		TScreenManager(
 			inLog,
 			inPortraitWidth,
 			inPortraitHeight,
 			inFullScreen,
 			inScreenIsLandscape),
-		mApp(inApp), mWidget(0L), mScreenWasLandscape(inScreenIsLandscape)
+		mApp(inApp), mWidget(0L)
 {
+	// Start rotated, so the widget and its image buffer below have the size
+	// that NewtonOS will see from its first instruction.
+	InitScreenOrientation(inOrientation);
+	mScreenWasLandscape = ((inOrientation & kOrientation_LandscapeBit) != 0);
+
 	bool createWindow = (Fl_Group::current() == 0L);
 
 	if (createWindow)
@@ -769,26 +775,31 @@ TFLScreenManager::ContrastChanged(KUInt32)
 void
 TFLScreenManager::ScreenOrientationChanged(EOrientation inNewOrientation)
 {
-	static int newWidth, newHeight;
-
+	// This runs on the emulator thread (NewtonOS rotates the screen) or while
+	// a state is loaded. The lock keeps the UI thread from drawing the image
+	// buffer while it is replaced.
+	Fl::lock();
 	bool screenWillBeLandscape = ((inNewOrientation & kOrientation_LandscapeBit) != 0);
 	if (screenWillBeLandscape != mScreenWasLandscape)
 	{
-		newWidth = mWidget->h();
-		newHeight = mWidget->w();
+		mNewWidgetWidth = mWidget->h();
+		mNewWidgetHeight = mWidget->w();
 	} else
 	{
-		newWidth = mWidget->w();
-		newHeight = mWidget->h();
+		mNewWidgetWidth = mWidget->w();
+		mNewWidgetHeight = mWidget->h();
 	}
+	mWidget->newRGBSize(GetScreenWidth(), GetScreenHeight());
+	mScreenWasLandscape = screenWillBeLandscape;
+	Fl::unlock();
+
+	// Only the UI thread may resize the window.
 	Fl::awake(
 		[](void* inScreenManager) -> void {
 			TFLScreenManager* mgr = (TFLScreenManager*) inScreenManager;
-			mgr->mApp->ResizeFromNewton(newWidth, newHeight);
+			mgr->mApp->ResizeFromNewton(mgr->mNewWidgetWidth, mgr->mNewWidgetHeight);
 		},
 		this);
-	mWidget->newRGBSize(GetScreenWidth(), GetScreenHeight());
-	mScreenWasLandscape = screenWillBeLandscape;
 }
 
 // -------------------------------------------------------------------------- //

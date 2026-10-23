@@ -467,6 +467,9 @@ TFLApp::Run(int argc, char* argv[])
 		mFLSettings->mAppWindowPosX = wAppWindow->x();
 		mFLSettings->mAppWindowPosY = wAppWindow->y();
 	}
+	// Start in the same orientation next time.
+	mFLSettings->mScreenOrientation = mScreenManager->GetScreenOrientation();
+	mFLSettings->mScreenOrientationROM = mROMImage->GetROMId();
 	mFLSettings->savePreferences();
 
 	// wait for the emulator to finish before we leave the house, too and lock the doors
@@ -1543,10 +1546,31 @@ TFLApp::InitNetwork()
 void
 TFLApp::InitScreen()
 {
+	// The size in the Settings is the screen as it starts: 320 x 480 for a
+	// MessagePad, 480 x 320 for an eMate. NewtonOS gets the portrait size and
+	// a landscape orientation for a screen that is wider than high.
 	int portraitWidth = mFLSettings->screenWidth;
-	int windowWidth = (int) (portraitWidth * (mFLSettings->screenScale / 100.0));
 	int portraitHeight = mFLSettings->screenHeight;
-	int windowHeight = (int) (portraitHeight * (mFLSettings->screenScale / 100.0));
+	bool startInLandscape = (portraitWidth > portraitHeight);
+	if (startInLandscape)
+		std::swap(portraitWidth, portraitHeight);
+
+	// Start in the orientation that the user left this machine in, so the
+	// window does not rotate while NewtonOS boots. A fresh eMate starts in
+	// landscape, its normal orientation.
+	TScreenManager::EOrientation orientation = TScreenManager::kOrientation_Default;
+	if (startInLandscape || (mROMImage->GetROMId() == TROMImage::kEMate300ROM))
+		orientation = TScreenManager::kOrientation_AppleRight;
+	if ((mFLSettings->mScreenOrientationROM == mROMImage->GetROMId())
+		&& (mFLSettings->mScreenOrientation >= TScreenManager::kOrientation_AppleTop)
+		&& (mFLSettings->mScreenOrientation <= TScreenManager::kOrientation_AppleLeft))
+		orientation = (TScreenManager::EOrientation) mFLSettings->mScreenOrientation;
+	int screenWidth = portraitWidth;
+	int screenHeight = portraitHeight;
+	if (orientation & TScreenManager::kOrientation_LandscapeBit)
+		std::swap(screenWidth, screenHeight);
+	int windowWidth = (int) (screenWidth * (mFLSettings->screenScale / 100.0));
+	int windowHeight = (int) (screenHeight * (mFLSettings->screenScale / 100.0));
 
 	Fl_Group::current(nullptr);
 	wAppWindow = CreateApplicationWindow(mFLSettings->mAppWindowPosX,
@@ -1584,8 +1608,8 @@ TFLApp::InitScreen()
 	}
 
 	wAppWindow->size(windowWidth, windowHeight + emulatorScreenY);
-	if (windowWidth > portraitWidth)
-		wAppWindow->size_range(portraitWidth, portraitHeight + emulatorScreenY);
+	if (windowWidth > screenWidth)
+		wAppWindow->size_range(screenWidth, screenHeight + emulatorScreenY);
 	wAppWindow->resizable(nullptr);
 #if TARGET_OS_WIN32
 	wAppWindow->icon((char*) LoadIcon(fl_display, MAKEINTRESOURCE(101)));
@@ -1597,7 +1621,7 @@ TFLApp::InitScreen()
 		wMenuItemFullscreen->deactivate();
 
 	wAppWindow->begin();
-	TFLScreenManager* flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
+	TFLScreenManager* flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false, orientation);
 	mNewtonScreen = flScreenManager->GetWidget();
 	mScreenManager = flScreenManager;
 	mNewtonScreen->resize(0, emulatorScreenY, windowWidth, windowHeight);

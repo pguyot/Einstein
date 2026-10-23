@@ -59,6 +59,7 @@ public:
 	/// \param inFullScreen			whether we're full screen (and we do
 	///								emulate the rotation).
 	/// \param inScreenIsLandscape	whether the physical screen is in landscape.
+	/// \param inOrientation		the orientation that the screen starts with.
 	///
 	TFLScreenManager(
 		TFLApp* inApp,
@@ -66,7 +67,8 @@ public:
 		KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 		KUInt32 inPortraitHeight = kDefaultPortraitHeight,
 		Boolean inFullScreen = false,
-		Boolean inScreenIsLandscape = true);
+		Boolean inScreenIsLandscape = true,
+		EOrientation inOrientation = kOrientation_Default);
 
 	///
 	/// Destructeur.
@@ -181,6 +183,11 @@ private:
 
 	// Store the value of the last time that the orientation was set.
 	Boolean mScreenWasLandscape { false };
+
+	// The size of the screen widget after the last rotation, for the UI
+	// thread that resizes the window. Guarded by the FLTK lock.
+	int mNewWidgetWidth { 0 };
+	int mNewWidgetHeight { 0 };
 };
 
 #endif

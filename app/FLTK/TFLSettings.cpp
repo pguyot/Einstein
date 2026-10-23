@@ -321,6 +321,8 @@ TFLSettings::loadPreferences()
 		screen.get("AppWindowPosY", mAppWindowPosY, 150);
 		screen.get("AllowScreenResize", mAllowScreenResize, true);
 		screen.get("AllowFullscreen", mAllowFullscreen, true);
+		screen.get("Orientation", mScreenOrientation, -1);
+		screen.get("OrientationROM", mScreenOrientationROM, -1);
 
 		screen.get("LaunchMonitorAtBoot", mLaunchMonitorAtBoot, 0);
 		screen.get("BreakAtROMBoot", mBreakAtROMBoot, 0);
@@ -428,6 +430,8 @@ TFLSettings::savePreferences()
 		screen.set("AppWindowPosY", mAppWindowPosY);
 		screen.set("AllowScreenResize", mAllowScreenResize);
 		screen.set("AllowFullscreen", mAllowFullscreen);
+		screen.set("Orientation", mScreenOrientation);
+		screen.set("OrientationROM", mScreenOrientationROM);
 
 		screen.set("LaunchMonitorAtBoot", mLaunchMonitorAtBoot);
 		screen.set("BreakAtROMBoot", mBreakAtROMBoot);

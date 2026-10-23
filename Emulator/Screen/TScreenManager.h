@@ -609,6 +609,16 @@ protected:
 		return mMemory;
 	}
 
+	///
+	/// Set the orientation that the screen starts with, before the front end
+	/// creates its window. Does not call ScreenOrientationChanged().
+	///
+	void
+	InitScreenOrientation(EOrientation inOrientation)
+	{
+		mScreenOrientation = inOrientation;
+	}
+
 public:
 	///
 	///	Insert a sample with pen down.
