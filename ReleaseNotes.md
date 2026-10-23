@@ -1,3 +1,38 @@
+Binary Release (next)
+=====================
+
+User Release Notes
+------------------
+ - Several machines: the Settings window has a list of emulated Newtons on
+   the left (open it with the << button at the bottom left). Each machine
+   has its own ROM, internal storage, memory, screen, serial port, saved
+   states and PC Cards, and its own Newton ID. Add, duplicate, rename,
+   reorder and delete machines; start one with its play button.
+ - Several machines can run at the same time, each in its own Einstein
+   window. A machine can only run once, and a PC Card can only be in one
+   running machine.
+ - Your settings so far become the first machine. It keeps its internal
+   storage where it was and its Newton ID, so existing backups in Newton
+   Connection and NCX still match it. An older Einstein starts the first
+   machine in the list.
+ - The window title shows the name of the machine.
+
+Developer Release Notes
+-----------------------
+ - `--machine <name or id>` starts a machine without the Settings window.
+   An unknown machine is an error (exit code 1).
+ - Each machine has a folder `Machines/<uuid>/` in the user data folder:
+   `Machine.prefs` (its settings and Newton ID, `System/NewtonID`), its
+   flash, `FastStart.state` and `Einstein.state`. The main preferences hold
+   the list (`Machines/Order`, `LastUsed`, `SidebarOpen`) and the shared
+   settings; the first machine is also written to and read from the old
+   keys.
+ - Lock files, released by the OS when a process ends: `Machine.lock` per
+   machine, `Settings.lock` for the Settings window, `Cards/<uuid>.lock`
+   while a PC Card is inserted.
+ - The Settings dialog identifies a ROM without applying the ROM patches,
+   so "Applying patch at ..." appears only once.
+
 
 Binary Release v2026.10.23
 ==========================

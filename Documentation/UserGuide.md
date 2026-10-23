@@ -22,8 +22,9 @@ macOS version (Cocoa) has fewer features.
 9. [Serial port and Dock](#9-serial-port-and-dock)
 10. [Networking](#10-networking)
 11. [For developers: Toolkit and Monitor](#11-for-developers-toolkit-and-monitor)
-12. [What Einstein can't do yet](#12-what-einstein-cant-do-yet)
-13. [More resources](#13-more-resources)
+12. [Several machines](#12-several-machines)
+13. [What Einstein can't do yet](#13-what-einstein-cant-do-yet)
+14. [More resources](#14-more-resources)
 
 
 ## 1. Before you start
@@ -260,6 +261,7 @@ upper or lower half of the **PCCards** toolbar button:
 - **Replace Card:** removes the inserted card and inserts another one.
 - **Eject Card** removes the card. Close the documents on the card first.
 - **Keep in Slot** keeps the card inserted the next time you start Einstein.
+  Each machine keeps its own cards (see [section 12](#12-several-machines)).
 
 ### Backing up cards
 
@@ -355,17 +357,73 @@ Commands for state files (the Newton must be stopped with `stop` first):
 the Monitor when Einstein starts.
 
 
-## 12. What Einstein can't do yet
+## 12. Several machines
+
+Einstein can keep several emulated Newtons, called machines. Each machine has
+its own ROM, internal storage (flash), memory, screen, serial port settings,
+saved states and PC Cards in its slots. It also has its own Newton ID, so
+Newton Connection, NCX and other desktop software can tell the machines apart.
+
+The list of machines is on the left of the Settings window. Open or close it
+with the **<<** button at the bottom left; Einstein remembers your choice.
+
+- Click a machine to show its settings in the tabs on the right.
+- Click its play button, or double-click it, to start it.
+- **+** adds a machine. It uses the same ROM as the selected machine, 4 MB of
+  memory, and new, empty internal storage, so NewtonOS sets it up like a new
+  Newton.
+- Right-click a machine (or Ctrl-click it) for more:
+  - **Duplicate** makes a copy with all its settings and a copy of its
+    internal storage.
+  - **Rename...**
+  - **Show in Finder** (Explorer, or the folder on Linux) opens the machine's
+    folder, which holds its settings, internal storage and saved states.
+  - **Move Up** and **Move Down** change the order of the list.
+  - **Delete...** removes the machine from the list, and if you choose
+    *Delete Files Too*, its folder as well. The last machine can't be
+    deleted.
+
+Changes to the list take effect at once. Changes in the tabs take effect when
+you click **Start** or **Save**.
+
+### Running several machines at once
+
+While a machine runs, open the Settings (**Window › Settings...**) and click
+the play button of another machine. It starts in its own Einstein window, with
+its own Dock icon on macOS. The window's title is the machine's name.
+
+- A running machine has a green dot instead of the play button. The play
+  button comes back when its window closes.
+- A machine can only run once. While it runs in another window, its settings
+  can't be changed there.
+- A PC Card can only be in one running machine at a time. Einstein tells you
+  which machine has it.
+- The Settings can only be open in one Einstein window at a time.
+
+### Older versions of Einstein
+
+The first machine in the list is the one that an older version of Einstein
+starts. Move another machine to the top to start that one instead. The
+machine that Einstein made from your settings when you updated keeps its
+internal storage where it was, and the same Newton ID as before, so your
+backups still match it.
+
+### Starting a machine from the command line
+
+`Einstein --machine <name>` starts that machine right away, without the
+Settings window. The name can also be the machine's ID, the name of its
+folder.
+
+
+## 13. What Einstein can't do yet
 
 - Infrared beaming between Newtons is not emulated.
-- Multiple configurations (several emulated Newtons with their own settings)
-  are planned, but not available yet.
 - The Edit menu (Cut, Copy, Paste) doesn't work yet. However, moving selected
   text to the left or right screen edge makes the text available in the host's
   paste buffer.
 
 
-## 13. More resources
+## 14. More resources
 
 - [Einstein on GitHub](https://github.com/pguyot/Einstein): downloads,
   source code, and bug reports ("Issues").
