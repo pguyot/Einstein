@@ -134,7 +134,7 @@ NewtonScript Reboot (fixed). The investigation notes this work
 started from (bug list, missing-state table, step-by-step logs) are in the
 history of this file: `git show d230e8a7:CLAUDE.md`.
 
-**Open: a rotated screen (Matt, 2026-10-18).** When the emulated NewtonOS
+**Done: a rotated screen (Matt, 2026-10-18; done 2026-10-23, `0235c869`).** When the emulated NewtonOS
 rotates the screen, a fast start doesn't remember the rotation and starts
 un-rotated: the screen shows the image's lines interleaved. Not unexpected:
 Einstein has code for rotating the screen, but the FLTK app has no setting
@@ -215,8 +215,9 @@ fields ("MessagePad: 320 x 480 (portrait)", "eMate 300: 480 x 320
 (landscape)"; the checkboxes below moved down 30 px), and step 5:
 `TFLScreenManager::ScreenOrientationChanged()` replaces the image buffer
 under `Fl::lock()` and hands the new widget size to the UI thread in
-members instead of `static` variables. Still to test: the hint's layout,
-taps in all four rotations.
+members instead of `static` variables. Tested (Matt, 2026-10-23): taps
+work in all four rotations and in full screen. Rotation per machine
+follows with Multiple Configurations.
 
 **How it works**
 - *State file* (`TEmulator::SaveState`/`LoadState`, file version 14): header

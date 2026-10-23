@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0400
+version 1.0405
 use_FL_COMMAND
 header_name {.h}
 code_name {.cpp}
@@ -73,7 +73,7 @@ decl {\#include <FL/Fl.H>} {private local
 decl {\#include <FL/fl_draw.H>} {private local
 }
 
-declblock {\#if TARGET_OS_MAC} {open public after {\#endif}
+declblock {\#if TARGET_OS_MAC} {open public map 3 after {\#endif}
 } {
   decl {\#include <FL/Fl_Sys_Menu_Bar.H>} {public global
   }
@@ -1616,7 +1616,7 @@ if (choice && choice->callback()) {
     choice->callback_(RMB, choice->user_data_);
 }} {}
   }
-  declblock {\#if TARGET_OS_MAC} {open public after {\#endif}
+  declblock {\#if TARGET_OS_MAC} {open public map 3 after {\#endif}
   } {
     decl {Fl_Sys_Menu_Bar *wSysMenubar = nullptr;} {public local
     }
