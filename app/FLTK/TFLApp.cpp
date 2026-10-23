@@ -489,8 +489,9 @@ TFLApp::UserActionQuit()
 	if (mFastStartSave != EFastStartSave::kIdle)
 		return;
 
-	// Let the Newton fall asleep and save its state for the next start.
-	// QuitNow() is called when that is done.
+	// Let the Newton fall asleep first, so apps save their open entries, and
+	// save its state for the next start if Fast start is on. QuitNow() is
+	// called when that is done.
 	if (StartSavingFastStartState())
 		return;
 
@@ -1823,21 +1824,24 @@ TFLApp::LoadFastStartState()
 }
 
 /**
- Start letting the Newton fall asleep, to save its state for the next start.
+ Start letting the Newton fall asleep before quitting.
 
- Like pressing the power button. SaveFastStartStateTimer() then waits for the
- Newton to fall asleep, stops the emulator, saves the state, and calls
- QuitNow(). If the Newton does not fall asleep in time (an open dialog, a
- hang), no state is saved and the next start is a normal boot. An old fast
- start file is always deleted first.
+ Like pressing the power button. A Newton saves the entries that are open in
+ apps when it goes to sleep; quitting while it is awake would lose them.
+ SaveFastStartStateTimer() then waits for the Newton to fall asleep. With Fast
+ start on, it stops the emulator and saves the state for the next start. Then
+ it calls QuitNow(). If the Newton does not fall asleep in time (an open
+ dialog, a hang), Einstein quits anyway and no state is saved, so the next
+ start is a normal boot. An old fast start file is always deleted first.
 
- \return false if no state will be saved, and the caller should quit now.
+ \return false if the Newton can't fall asleep (the emulator is halted), and
+	the caller should quit now.
  */
 bool
 TFLApp::StartSavingFastStartState()
 {
 	(void) ::remove(FastStartFilePath().c_str());
-	if (!mFLSettings->mFastStart || !mEmulator || !mMonitor || mMonitor->IsHalted())
+	if (!mEmulator || !mMonitor || mMonitor->IsHalted())
 		return false;
 
 	fl_cursor(FL_CURSOR_WAIT);
@@ -1865,12 +1869,18 @@ TFLApp::SaveFastStartStateTimer(void* inData)
 		case EFastStartSave::kWaitForSleep:
 			if (!app->mPlatformManager->IsPowerOn())
 			{
-				// The Newton is asleep. Let the monitor thread save it.
-				app->mFastStartSave = EFastStartSave::kSave;
-				app->mFastStartSaveStepStart = SecondsNow();
+				if (app->mFLSettings->mFastStart)
+				{
+					// The Newton is asleep. Let the monitor thread save it.
+					app->mFastStartSave = EFastStartSave::kSave;
+					app->mFastStartSaveStepStart = SecondsNow();
+				} else
+				{
+					done = true;
+				}
 			} else if (elapsed > 10.0)
 			{
-				KPrintf("Fast start: the Newton did not fall asleep, no state saved.\n");
+				KPrintf("Quit: the Newton did not fall asleep, quitting anyway.\n");
 				done = true;
 			}
 			break;

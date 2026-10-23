@@ -227,9 +227,11 @@ private:
 	// On launch: insert the cards from the fast start file and load it
 	EFastStart LoadFastStartState();
 
-	// On quit: start letting the Newton fall asleep, to save the fast start
-	// file. Returns false if no state will be saved. If it returns true,
-	// QuitNow() is called when the state was saved (or after a timeout).
+	// On quit: start letting the Newton fall asleep, so apps save their
+	// entries, and save the fast start file if Fast start is on. Returns false
+	// if the Newton can't sleep (the emulator is halted). If it returns true,
+	// QuitNow() is called when the Newton sleeps and the state was saved (or
+	// after a timeout).
 	bool StartSavingFastStartState();
 
 	// Timer callback that runs while the fast start file is being saved
