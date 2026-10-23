@@ -8,7 +8,15 @@ User Release Notes
    sets for itself were set to a date in 1993, went off at once, and woke
    the Newton every time it tried to sleep. Einstein now counts the
    NewtonScript time from 2024, which is good until January 2041.
-   The fix is for the U.S. MessagePad 2000/2100 ROM.
+ - The date fix (Y2K10) now works for all four ROMs: U.S. and German
+   MessagePads, eMate 300 and Watson. Before, only the U.S. ROM showed the
+   right date; the others showed 1996.
+ - Help › Install Essentials offers Apple's System Update for each ROM
+   (U.S. 717260, German 747260, eMate 737246; there is none for Watson)
+   instead of the Y2K10 patch packages. Don't install a Y2K10 patch
+   package: it replaces Einstein's fix with an older one, and the Newton
+   no longer goes to sleep. If you installed one, back up your Newton and
+   start with a new flash file.
  - Windows: the Newton's clock is no longer off by 150 days and one hour.
  - Windows: Einstein.exe no longer needs the Visual C++ Redistributable.
    With an older version of it installed, Einstein could crash while the

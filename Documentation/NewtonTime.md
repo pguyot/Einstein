@@ -62,8 +62,8 @@ software only.
 ```
 
 So after every boot the RTC of a NewtonOS 2.1 device runs from July 1996.
-Einstein does not patch this yet, so its RTC runs from 1996 after every boot
-too. The time that NewtonOS *shows* is right anyway, because Einstein patches
+Einstein does not patch this yet (on any ROM), so its RTC runs from 1996
+after every boot too. The time that NewtonOS *shows* is right anyway, because Einstein patches
 `RealClockSeconds()` (below). A consequence: alarms are compared with the
 1996-based RTC, so alarms set for today lie 30 years in the future and never
 fire in Einstein.
@@ -145,8 +145,9 @@ sleep since 2025-01-04 whenever such an alarm is set.
 
 ## What Einstein patches
 
-In `Emulator/JIT/Generic/TJITGenericROMPatch.cpp`, for the US ROM only (the
-other three columns are `kROMPatchVoid`):
+In `Emulator/JIT/Generic/TJITGenericROMPatch.cpp`, for all four ROMs since
+October 2026 (the addresses of the other ROMs are in *Patching the other
+ROMs* below). The US ROM:
 
 | Address | Original | Patch | Name |
 |---|---|---|---|
@@ -178,8 +179,28 @@ off"). The RTC and `RealClockSeconds()` now share
 
 ## Patching the other ROMs
 
-Einstein applies the time patches only to the US ROM. The German MP2100 ROM,
-the eMate 300 ROM and Watson run without any Y2K10 fix. To add them:
+Done in October 2026. The ROM images are in `_Data_/ROM_Images`. The code
+was found by matching a few instruction words of the US ROM around each
+address, with the offsets of branch instructions ignored; the data words by
+value (step 1 and 2 of the recipe below). Every pattern had exactly one
+match per ROM, and the offsets inside the functions are the same as in the
+US ROM (for example the `SetSysAlarm()` literal is `0x19C` bytes after the
+start of the function in all four ROMs).
+
+| Patch | US 717006 | German 747129 | eMate 300 | Watson |
+|---|---|---|---|---|
+| `RealClockSeconds` | `0x00255578` | `0x00253630` | `0x00235814` | `0x00252168` |
+| `FTimeInSeconds` | `0x00089B80` | `0x0008ADCC` | `0x000863B8` | `0x0008A0B0` |
+| `FDateFromSeconds` | `0x0008A8A8` | `0x0008BAF4` | `0x000870E0` | `0x0008ADD8` |
+| `Ignore setting time` | `0x0008A20C` | `0x0008B458` | `0x00086A44` | `0x0008A73C` |
+| `Time base (1/4)` | `0x00420750` | `0x0043CE08` | `0x003B5FD8` | `0x00443384` |
+| `Time base (2/4)` | `0x00420798` | `0x0043CE50` | `0x003B6020` | `0x004433CC` |
+| `Time base (3/4)` | `0x004DCA14` | `0x004F7E68` | `0x0047FE3C` | `0x004F3C08` |
+| `Time base (4/4)` | `0x0030F088` | `0x002E9D74` | `0x002A2838` | `0x0030E608` |
+| `AdjustRealTimeClock` (not patched) | `0x000452FC` | `0x00045BCC` | `0x00044B90` | `0x00045308` |
+| `FSetSysAlarm` | `0x0030EEEC` | `0x002E9BD8` | `0x002A269C` | `0x0030E46C` |
+
+The recipe, for another ROM:
 
 1. Search the ROM for the data words `0xA7693A00` and `0x0B292600`. In the US
    ROM there is one `0xA7693A00` (in `SetSysAlarm`) and three `0x0B292600`.
@@ -196,10 +217,30 @@ the eMate 300 ROM and Watson run without any Y2K10 fix. To add them:
    `0x0F181000`; called right before `OsBoot`).
 4. Add the addresses in the second, third or fourth column of the
    `T_ROM_PATCH` and `TJITGenericPatch` lines: MP2100 D, eMate 300, Watson.
-   `CalculateROMREXCheckSums` already has all four, as an example.
 
-The functions are probably at different addresses, but the code should be
-the same, because all ROMs are built from the same NewtonOS 2.1 sources.
+### Y2K10 patch packages and System Updates
+
+Before October 2026, Help › Install Essentials offered Y2K10 patch packages
+from 40hz.org for the German ROM (`Patch_D.pkg`, patch level
+"D-2.1 (74J185)") and the eMate (`Patch_eMate.pkg`, "2.1 (73J186)"). For
+the US ROM, the same kind of package is patch level 71J059: Apple's System
+Update 717260 plus the fix. These are system patches: NewtonOS installs
+their code in the flash and runs it instead of the ROM's code. The packages
+contain the 2008 base (`0xC39F3300`, 2008-01-01 in seconds since 1904, and
+`0x0D0A9D00`, the same in minutes as a NewtonScript integer) and code from
+`TimeInSeconds()`, `DateFromSeconds()`, `SetTimeInSeconds()` and
+`SetSysAlarm()`. On a Newton with such a package, that code runs instead of
+the ROM's, so Einstein's patches at the ROM addresses are not reached: the
+2008 base is back (no sleep since 2025), possibly mixed with Einstein's 2024
+base where the package does not replace the code. Found by reading the
+packages, not tested in Einstein.
+
+Apple's System Updates contain none of the time values: US 2.1 (717260),
+German D-2.1 (747260) and eMate 2.1 (737246). There is none for the French
+MessagePad 2x00 (UNNA has French updates for the MessagePad 110 only).
+Install Essentials now offers these three instead of the Y2K10 packages. A
+Newton that has a Y2K10 package needs a new flash file (after a backup) to
+get rid of it.
 
 ## Patching physical Newtons
 

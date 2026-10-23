@@ -81,11 +81,14 @@ Windows and Linux. For example, **Window › Settings...** is Cmd+Shift+U.
 **Help › Install Essentials...** opens a window with software that most
 Einstein users want:
 
-- **NewtonOS Y2K10 Fix.** NewtonOS has a bug with dates after January 5,
-  2010. Choose the patch that matches your ROM (German MP2x00 or eMate 300).
-  Read the warning in the window before you install a patch.
-  The US MP2x00 ROM (717006) is patched by Einstein itself, so you do not
-  need to install a patch for it.
+- **System Updates.** Apple's last System Update for your ROM: 2.1 (717260)
+  for U.S. MessagePads, D-2.1 (747260) for German MessagePads, 2.1 (737246)
+  for the eMate 300. There is none for the French (Watson) ROM. Read the
+  warning in the window before you install one.
+  NewtonOS also has a bug with dates after January 5, 2010 (the Y2K10 bug).
+  Einstein fixes it itself for all four ROMs. Don't install a Y2K10 patch
+  package: it replaces Einstein's fix with an older one that stopped working
+  in 2025, so the Newton no longer goes to sleep.
 - **NIE, the Newton Internet Enabler**, and the **Einstein Network Card
   driver**, for networking (see [section 10](#10-networking)).
 - **Courier**, a web browser, and **ViewFrame**, a tool for programmers.
@@ -304,8 +307,8 @@ the Extras drawer) and tap
 Einstein can connect the Newton to the Internet through an emulated network
 card:
 
-1. To run **NIE**, the U.S. ROM needs System Update 2.1 (717260); German ROMs and
-   eMates need the Y2K10 patch. Both are under **Help › Install Essentials...**.
+1. To run **NIE**, install the System Update for your ROM first (see
+   [section 3](#3-essential-software)). The U.S. ROM needs 2.1 (717260).
 2. Install **NIE** and the **Einstein Network Card driver** with
    **Help › Install Essentials...**.
 3. Insert the **Einstein Network Card** into a PC Card slot via

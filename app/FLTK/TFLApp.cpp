@@ -1346,33 +1346,42 @@ TFLApp::UserActionInstallEssentials()
 		wInstallerWindow = makeInstaller();
 		// --- Essentials
 		addInstallerTitle("Essentials");
-		// Y2K10
-		addInstallerGroup("NewtonOS Y2K10 Fix");
-		addInstallerText("NewtonOS has a bug in handling years past 18:48:31 on January 5, 2010. "
-						 "Einstein fixes it for U.S. MP2x00 ROMs. U.S. ROMs still need System Update 2.1 (717260) "
-						 "to use NIE and the Einstein Network Card.\n\n"
-						 "German MP2x00 MessagePads and eMates need the Y2K10 patch below.\n\n"
-						 "Please install the patch that matches your ROM image before installing anything else, "
-						 "as this will wipe your Newton's memory.");
-		addInstallerLink("explained by Eckhart Köppen", new StringList { ":https://40hz.org/Pages/newton/hacking/newton-year-2010-problem/" });
-		addInstallerLink("Readme file for the patch", new StringList { "MDownloads/Einstein/Essentials/y2k10/README.txt" });
-		addInstallerText("Please select the patch that matches the ROM image of your machine.\n"
-						 "These fixes only work until about 2026.");
-		addInstallerPackage("U.S. System Update 2.1 (717260)", new StringList { "WInstalling this patch may irreversibly erase all data\n"
-																				"on your MessagePad.\n\n"
-																				"Please proceed only if this is a new device, or if your\n"
-																				"data is securely backed up!",
-																   "Uunna/apple/software/SystemPatches/english/2x00/mp717260.pkg" });
-		addInstallerPackage("German MP2x00 patch", new StringList { "WInstalling this patch may irreversibly erase all data\n"
-																	"on your MessagePad.\n\n"
-																	"Please proceed only if this is a new device, or if your\n"
-																	"data is securely backed up!",
-													   "MDownloads/Einstein/Essentials/y2k10/Patch_D.pkg" });
-		addInstallerPackage("eMate 300 patch", new StringList { "WInstalling this patch may irreversibly erase all data\n"
-																"on your eMate 300.\n\n"
-																"Please proceed only if this is a new device, or if your\n"
-																"data is securely backed up!",
-												   "MDownloads/Einstein/Essentials/y2k10/Patch_eMate.pkg" });
+		// System Updates. Einstein fixes the date (Y2K10) for all four ROMs
+		// itself. The Y2K10 patch packages from 40hz.org use a time base of 2008
+		// and replace the same functions, so they would undo Einstein's fix.
+		addInstallerGroup("System Updates");
+		addInstallerText("Apple's last System Update for your ROM fixes several bugs. "
+						 "MessagePads and eMates need to install the System Update "
+						 "to use NIE and the Einstein Network Card. "
+						 "Apple did not release a System Update for the French (Watson) ROM.\n"
+						 "\n"
+						 "Einstein fixes the Y2K10 bug for all ROMs, up until the year 2040. "
+						 "Do *NOT* install the Y2K10 or Y2K25 patch package on Einstein, "
+						 "or the Newton no longer goes to sleep.\n"
+						 "\n"
+						 "If you already installed the Y2K10 or Y2K25 patch package, "
+						 "you should first uninstall it: "
+						 "back up your Newton, start with a new flash file, and "
+						 "install the System Update below instead.\n"
+						 "\n"
+						 "Please install the System Update that matches your ROM image before "
+						 "installing anything else, as this may wipe your Newton's memory.");
+		addInstallerLink("The Y2K10 bug, explained by Eckhart Köppen", new StringList { ":https://40hz.org/Pages/newton/hacking/newton-year-2010-problem/" });
+		addInstallerPackage("U.S. MP2x00 System Update 2.1 (717260)", new StringList { "WInstalling this patch may irreversibly erase all data\n"
+																					   "on your MessagePad.\n\n"
+																					   "Please proceed only if this is a new device, or if your\n"
+																					   "data is securely backed up!",
+																		  "Uunna/apple/software/SystemPatches/english/2x00/mp717260.pkg" });
+		addInstallerPackage("German MP2x00 System Update D-2.1 (747260)", new StringList { "WInstalling this patch may irreversibly erase all data\n"
+																						   "on your MessagePad.\n\n"
+																						   "Please proceed only if this is a new device, or if your\n"
+																						   "data is securely backed up!",
+																			  "Uunna/apple/software/SystemPatches/german/2x00/mp747260.pkg" });
+		addInstallerPackage("eMate 300 System Update 2.1 (737246)", new StringList { "WInstalling this patch may irreversibly erase all data\n"
+																					 "on your eMate 300.\n\n"
+																					 "Please proceed only if this is a new device, or if your\n"
+																					 "data is securely backed up!",
+																		"Uunna/apple/software/SystemPatches/english/eMate/EM737246.PKG" });
 		// --- Networking
 		addInstallerTitle("Networking");
 		// NIE
