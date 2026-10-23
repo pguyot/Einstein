@@ -57,6 +57,9 @@ User Release Notes
    quit shows up at the next start.
  - The Newton always uses your computer's time zone, whatever home city
    is set in Time Zones.
+ - On a new Newton, the Setup Assistant picks a home city in your
+   computer's time zone. Before, the city was off by an hour in summer on
+   macOS, and in the wrong direction on Windows and Linux.
 
 Developer Release Notes
 -----------------------

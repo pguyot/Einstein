@@ -406,14 +406,6 @@ follows with Multiple Configurations.
     with the same package name, NewtonOS reported a conflict at every start.
     Next version (Matt): not a separate app, but a new item in the built-in
     Newton preferences.
-14. **Leftover "E" when an app closes** (found 2026-10-11): tapping the icon
-    of an open Extras app (for example Einstein Prefs) closes it, as NewtonOS
-    does, but the last frame of the closing animation (the app icon, an "E")
-    stays on the screen until something redraws it. Also without Fast start.
-    Check on a real Newton; if it doesn't happen there, look at the blit modes
-    in `TScreenManager`. Also: a tap on the icon of an app that is already
-    open closes it, which looks like "nothing happens" if the window is
-    hidden.
 12. **Documentation** (Matt, 2026-10-11): write new release notes next, and
     refresh the documentation, maybe with a help page. Release notes drafted
     in `ReleaseNotes.md` and `ReleaseText.md` (version 2026.10.11, tag
@@ -971,8 +963,17 @@ Open:
 - Ctrl-Q forwards a Ctrl key-down to NewtonOS before the quit presses power;
   a key event in that window can cancel the sleep too. On the Mac, any key
   (also modifiers) wakes the emulator.
-- `THostInfo::GetHostTimeZone()` on Windows multiplies seconds by 3600, and
-  the sign differs between platforms.
+- ~~`THostInfo::GetHostTimeZone()` on Windows multiplies seconds by 3600, and
+  the sign differs between platforms.~~ Fixed 2026-10-23 (untested): it
+  returns the host's standard offset, east positive, without daylight
+  saving, on every platform (`TInterruptManager::GetHostTimeZone()`). Used
+  by the NS Runtime's Setup patch (`kGetLocationWithProperGMTFn`,
+  Drivers/NSRuntime/UserInfo.f), which picks the home city whose `gmt`
+  matches when the Setup Assistant finishes. On macOS it included daylight
+  saving, so a Berlin host got a UTC+2 city in summer. Tested by Matt: Setup now picks a UTC+1
+  city, Albania (the first one in the soup with that offset). Idea for
+  later: prefer the host's city (macOS knows the zone name, e.g.
+  "Europe/Berlin").
 
 ## fixups
 
