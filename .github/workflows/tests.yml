@@ -40,6 +40,23 @@ jobs:
     - name: Compile EinsteinTests
       run: |
         cmake --build build --config Release --target EinsteinTests
+    # TEMPORARY: EinsteinTests hangs before listing its tests on the macOS
+    # runner (not locally). Show where it hangs.
+    - name: Diagnose a hanging EinsteinTests (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        ./build/EinsteinTests --gtest_list_tests > list.txt 2>&1 &
+        pid=$!
+        for i in $(seq 20); do kill -0 $pid 2>/dev/null || break; sleep 1; done
+        if kill -0 $pid 2>/dev/null; then
+          echo "EinsteinTests still runs after 20 s. Where it is:"
+          sample $pid 3 -file sample.txt > /dev/null 2>&1 || true
+          sed -n '/Call graph/,/Total number in stack/p' sample.txt | head -150
+          kill $pid
+        else
+          echo "EinsteinTests listed its tests:"
+          tail -5 list.txt
+        fi
     - name: Run tests
       run: |
         ctest --test-dir build --build-config Release --output-on-failure

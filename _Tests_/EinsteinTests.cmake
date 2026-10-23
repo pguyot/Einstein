@@ -109,6 +109,6 @@ target_compile_definitions ( EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" US
 
 target_link_libraries ( EinsteinTests gtest_main )
 
-# Listing the tests takes longer than the default 5 s on the first launch on
-# the macOS CI runners.
-gtest_discover_tests ( EinsteinTests DISCOVERY_TIMEOUT 60 )
+# List the tests when ctest runs, not after linking, so the build does not
+# depend on running the test program (it hangs on the macOS CI runner).
+gtest_discover_tests ( EinsteinTests DISCOVERY_TIMEOUT 60 DISCOVERY_MODE PRE_TEST )
