@@ -26,6 +26,9 @@ Suggested order (to be decided):
 3. SDL and Android.
 4. Multiple Configurations, then IR.
 
+Before Multiple Configurations (Matt, 2026-10-23): the time patches for the
+other ROMs (*Time base*, open points), then the serial fixups (*fixups*).
+
 ## SDL and Android
 
 There are stubs to generate Einstein for Android using SDL3. This is a bigger
@@ -824,7 +827,7 @@ emulators can beam data between them.
 - **Q10.5** Should a real Newton be reachable through a host IR adapter?
   (Probably out of scope.)
 
-## eMate special keys bar
+## eMate Special Keys bar
 
 (Matt, 2026-10-23.) The eMate 300 has 13 special keys above its keyboard, in
 five groups: close, extras | dock, send, receive | scroll up, overview,
@@ -853,9 +856,25 @@ resizes with the window above it.
 3. Layout: the bar is a fixed height below the screen; `InitScreen()`,
    `ResizeFromNewton()` (rotation), full screen and the window size range
    take it into account, as they do for the toolbar.
-4. Setting `Screen/ShowKeys` (per machine once machines exist), checked in
-   the Settings next to Menubar and Toolbar; on by default for a fresh
-   eMate ROM?
+4. Setting `Screen/ShowSpecialKeys` (per machine once machines exist), in
+   the Settings next to Menubar and Toolbar.
+
+Decisions (Matt, 2026-10-23): the eMate docs call them "Special Keys"; on
+by default for the eMate; the MP2x00 ROMs don't understand them, so the
+checkbox is cleared and grayed out for other ROMs.
+
+Status (2026-10-23, `ea834f0f`; Matt: "works very well", he changed the
+key box style and colors): `TFLSpecialKeys`
+(app/FLTK/TFLSpecialKeys.cpp) draws the keys itself with built-in SVG
+icons, spreads them over its width (labels when they fit, icons only
+otherwise), sends `KeyDown`/`KeyUp` on press and release (dragging off a
+key lets it go), and calls the app for light and power. `InitScreen()`
+puts it under the screen if the setting is on and the ROM is an eMate's;
+its height is 40 px times the screen scale, its width follows the window.
+The host's F11 and F12 toggle the backlight and the power, once per press.
+Settings: "Special Keys (eMate)" under Toolbar; `updateSpecialKeysCheckbox()`
+follows the ROM chosen in the dialog (`mDialogROMId`, set by
+`GetROMDetails()`), and a grayed-out checkbox keeps the saved setting.
 
 ## Event forwarding on slow machines
 
@@ -903,7 +922,14 @@ Newtons, and the plan for 2040: `Documentation/NewtonTime.md`.
 
 Open:
 - The time patches exist for the US ROM only; MP2100 D, eMate 300 and Watson
-  have no Y2K10 fix at all.
+  have no Y2K10 fix at all. Next, before Multiple Configurations (Matt,
+  2026-10-23): all four ROM images are in `~/dev/Einstein/_Data_/ROM_Images`
+  now, so the addresses can be found by matching instruction words (as for
+  the calibration patch). Check that a Y2K10 patch package already
+  installed in the Newton does not interfere with Einstein's patches, and
+  have Help › Install Essentials offer the right System Updates instead of
+  the Y2K10 patch packages. There may be no update for the French (Watson)
+  ROM; check when we get there.
 - `AdjustRealTimeClock` resets the RTC to 1996 at every boot, so alarms never
   fire in Einstein. A native patch there should work in Einstein (JIT patches
   are active from the first instruction), not on physical Newtons.
@@ -916,6 +942,10 @@ Open:
   the sign differs between platforms.
 
 ## fixups
+
+To do before Multiple Configurations, after the time patches (Matt,
+2026-10-23). The Einstein Prefs source code is on Matt's BasiliskII setup
+(the NTK project), for the fixes on the Newton side.
 
 Serial port settings:
 
