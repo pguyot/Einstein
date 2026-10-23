@@ -279,6 +279,9 @@ static const char* tfl_file_chooser(const char* message, const char* pat, const 
 
 TFLApp* gApp = nullptr;
 
+// The machine given with --machine <uuid or name>, empty if none.
+static std::string sRequestedMachine;
+
 // MARK: - Public: -
 // --- Constructor and destructor
 
@@ -330,9 +333,32 @@ TFLApp::Run(int argc, char* argv[])
 
 	static char theROMImagePath[FL_PATH_MAX + 1];
 
+	// --machine starts that machine right away, without the Settings.
+	Boolean startAtOnce = false;
+	if (!sRequestedMachine.empty())
+	{
+		for (auto* machine : mFLSettings->mMachines)
+		{
+			if (sRequestedMachine == machine->GetUUID() || sRequestedMachine == machine->GetName())
+			{
+				mFLSettings->mMachine = machine;
+				startAtOnce = true;
+				break;
+			}
+		}
+		if (!startAtOnce)
+		{
+			// Don't run another machine instead: a script would change the
+			// wrong flash without noticing.
+			KPrintf("There is no machine \"%s\".\n", sRequestedMachine.c_str());
+			fl_alert("There is no machine \"%s\".", sRequestedMachine.c_str());
+			::exit(1);
+		}
+	}
+
 	for (Boolean firstAttempt = true;; firstAttempt = false)
 	{
-		if (!firstAttempt || !mFLSettings->dontShow)
+		if (!firstAttempt || !(mFLSettings->dontShow || startAtOnce))
 			mFLSettings->ShowSettingsPanelModal();
 		strncpy(theROMImagePath, mFLSettings->mMachine->ROMPath, FL_PATH_MAX);
 		mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, mFLSettings->mMachine->mUseBuiltinRex);
@@ -361,6 +387,9 @@ TFLApp::Run(int argc, char* argv[])
 		delete mROMImage;
 		// go back to showing the settings panel
 	}
+
+	// The machine's folder holds its fast start and state files.
+	mFLSettings->mMachine->CreateFolder();
 
 	const char* theFlashPath = strdup(mFLSettings->mMachine->FlashPath);
 	//    std::filesystem::path flashPath( theFlashPath );
@@ -392,6 +421,10 @@ TFLApp::Run(int argc, char* argv[])
 
 	mPlatformManager = mEmulator->GetPlatformManager();
 	printerManager->SetMemory(mEmulator->GetMemory());
+
+	// Each machine has its own Newton ID, so the desktop software tells them
+	// apart. This also sets the serial number chip.
+	mEmulator->SetNewtonID(mFLSettings->mMachine->mNewtonID[0], mFLSettings->mMachine->mNewtonID[1]);
 
 	// yes, this is valid C++ code; it tells the emulator to call us so we can tell FLTK to
 	// call us again later from the main thread which then closes all windows, terminating
@@ -668,28 +701,24 @@ TFLApp::UserActionInstallPackage()
 }
 
 /**
- Return the path of a file in Einstein's data folder, next to the default
- flash file.
+ Return the path of a file in the folder of the machine that runs.
  */
 static std::string
-DataFilePath(const char* inName)
+MachineFilePath(const char* inName)
 {
-	char buf[FL_PATH_MAX];
-	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
-	prefs.getUserdataPath(buf, sizeof(buf));
-	return std::string(buf) + inName;
+	return gApp->GetSettings()->mMachine->GetFolder() + inName;
 }
 
 /**
  Return the state file used by "Save State" and "Restore Last": the last one
- saved or restored, or Einstein.state in the user data folder.
+ saved or restored, or Einstein.state in the machine's folder.
  */
 std::string
 TFLApp::CurrentStatePath()
 {
 	if (mFLSettings->mMachine->mStatePath && mFLSettings->mMachine->mStatePath[0])
 		return mFLSettings->mMachine->mStatePath;
-	return DataFilePath("Einstein.state");
+	return MachineFilePath("Einstein.state");
 }
 
 /**
@@ -868,7 +897,7 @@ TFLApp::UserActionCheckState()
 {
 	if (!mMonitor)
 		return;
-	std::string basePath = DataFilePath("EinsteinCheck");
+	std::string basePath = MachineFilePath("EinsteinCheck");
 	if (!mMonitor->RequestCheckState(basePath.c_str()))
 		fl_beep();
 }
@@ -1505,11 +1534,29 @@ TFLApp::ResizeFromNewton(int w, int h)
 
 // MARK: - Private: -
 
+/**
+ Handle the command line options that FLTK does not know.
+ \return the number of arguments used, 0 if the option is unknown
+ */
+static int
+HandleArgument(int argc, char** argv, int& i)
+{
+	if ((strcmp(argv[i], "--machine") == 0 || strcmp(argv[i], "-machine") == 0) && i + 1 < argc)
+	{
+		sRequestedMachine = argv[i + 1];
+		i += 2;
+		return 2;
+	}
+	return 0;
+}
+
 void
 TFLApp::InitFLTK(int argc, char** argv)
 {
 	Fl::scheme("gtk+");
-	Fl::args(argc, argv);
+	int i = 1;
+	if (Fl::args(argc, argv, i, HandleArgument) < argc)
+		Fl::error("Options are:\n --machine <uuid or name>\n%s", Fl::help);
 	Fl::get_system_colors();
 	Fl::use_high_res_GL(1);
 	Fl::visual(FL_RGB);
@@ -1737,12 +1784,12 @@ TFLApp::MountPCCardsKeptInSlot()
 }
 
 /**
- Return the path of the fast start file, next to the default flash file.
+ Return the path of the fast start file, in the machine's folder.
  */
 static std::string
 FastStartFilePath()
 {
-	return DataFilePath("FastStart.state");
+	return MachineFilePath("FastStart.state");
 }
 
 /**

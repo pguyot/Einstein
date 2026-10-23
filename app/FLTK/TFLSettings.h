@@ -184,6 +184,12 @@ public:
 	// Write the settings to the same groups below inPrefs.
 	void Save(Fl_Preferences& inPrefs) const;
 
+	// Create the machine's folder if it does not exist yet.
+	void CreateFolder() const;
+
+	// Give the machine a new, random Newton ID (for a new machine).
+	void MakeRandomNewtonID();
+
 	void SetExtrTcpServer(const char* inServer);
 
 	// Set the state file used by "Save State" and "Restore Last".
@@ -227,6 +233,11 @@ public:
 	// next start uses it only with the same ROM. -1 if not known.
 	int mScreenOrientation = -1;
 	int mScreenOrientationROM = -1;
+
+	// The Newton ID (48 bits, 16+32), which the desktop software uses to tell
+	// Newtons apart. The machine made from the old settings keeps the one
+	// Einstein always had, "Newton" in ASCII, so its backups still match.
+	KUInt32 mNewtonID[2] { 0x00004E65, 0x77746F6E };
 
 private:
 	TFLMachineSettings(const TFLMachineSettings&) = delete;
