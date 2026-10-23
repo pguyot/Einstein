@@ -41,9 +41,11 @@
 
 /*
  * Avoid calibration screen early in the game.
- * This patch changes a branch instruction in CheckTabletCalibration(void).
+ * This patch changes a branch instruction in CheckTabletCalibration(void),
+ * so it always returns without asking (b 0x00141324 in the US ROM, the same
+ * offset in the German, eMate and Watson ROMs).
  */
-TJITGenericPatch p001412f8(0x001412f8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+TJITGenericPatch p001412f8(0x001412f8, 0x00142E4C, 0x00133760, 0x00141D1C,
 	0xea000009, "Avoid screen calibration");
 
 /*
