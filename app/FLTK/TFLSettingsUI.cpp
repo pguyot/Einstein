@@ -26,6 +26,7 @@
 #include "TFLSettingsUI.h"
 #include "TFLAppUI.h"
 #include "Emulator/Platform/TPlatformManager.h"
+#include "Emulator/ROM/TROMImage.h"
 #include "app/Version.h"
 #include "app/FLTK/TFLTabs.h"
 #if TARGET_OS_WIN32
@@ -419,6 +420,7 @@ void TFLSettingsUI::cb_wROMName_i(Fl_Input*, void*) {
     strncat(buf, wROMName->value(), FL_PATH_MAX);
     wROMPath->copy_label(buf);
     wROMDetails->copy_label(GetROMDetails(buf));
+    updateSpecialKeysCheckbox();
   }
 }
 void TFLSettingsUI::cb_wROMName(Fl_Input* o, void* v) {
@@ -435,6 +437,7 @@ void TFLSettingsUI::cb_wROMPathChoose_i(Fl_Button*, void*) {
       wROMName->value(fl_filename_name(filename));
       wROMPath->copy_label(filename);
       wROMDetails->copy_label(GetROMDetails(filename));
+      updateSpecialKeysCheckbox();
   }
 }
 void TFLSettingsUI::cb_wROMPathChoose(Fl_Button* o, void* v) {
@@ -493,6 +496,13 @@ Fl_Menu_Item TFLSettingsUI::menu_wRAMSizeChoice[] = {
  {"16MB (maximum)", 0,  0, (void*)(253), 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {0,0,0,0,0,0,0,0,0}
 };
+
+void TFLSettingsUI::cb_wShowSpecialKeys_i(Fl_Check_Button* o, void*) {
+  mDialogShowSpecialKeys = o->value();
+}
+void TFLSettingsUI::cb_wShowSpecialKeys(Fl_Check_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_wShowSpecialKeys_i(o,v);
+}
 
 Fl_Menu_Item TFLSettingsUI::menu_wScale[] = {
  {"100", 0,  0, (void*)(100), 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
@@ -1750,7 +1760,7 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       } // Fl_Group* o
       { Fl_Group* o = new Fl_Group(10, 35, 430, 375, "  User Interface  ");
         o->hide();
-        { Fl_Group* o = new Fl_Group(20, 90, 408, 222);
+        { Fl_Group* o = new Fl_Group(20, 90, 408, 232);
           o->box(FL_FLAT_BOX);
           o->labelsize(12);
           o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
@@ -1800,6 +1810,13 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
             wShowToolbar->down_box(FL_DOWN_BOX);
             wShowToolbar->labelsize(13);
           } // Fl_Check_Button* wShowToolbar
+          { wShowSpecialKeys = new Fl_Check_Button(120, 300, 196, 20, "Special Keys (eMate)");
+            wShowSpecialKeys->tooltip("Show the eMate\'s Special Keys under the screen.\nOnly the eMate ROM knows th"
+"ese keys.");
+            wShowSpecialKeys->down_box(FL_DOWN_BOX);
+            wShowSpecialKeys->labelsize(13);
+            wShowSpecialKeys->callback((Fl_Callback*)cb_wShowSpecialKeys);
+          } // Fl_Check_Button* wShowSpecialKeys
           { Fl_Box* o = new Fl_Box(20, 250, 94, 20, "Show:");
             o->labelsize(13);
             o->align(Fl_Align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE));
@@ -2116,6 +2133,8 @@ void TFLSettingsUI::revertDialog() {
   wBreakAtROMBoot->value(mBreakAtROMBoot);
   wShowMenubar->value(mShowMenubar);
   wShowToolbar->value(mShowToolbar);
+  mDialogShowSpecialKeys = mShowSpecialKeys;
+  updateSpecialKeysCheckbox();
 
   // ---- PC Cards
 
@@ -2173,6 +2192,8 @@ void TFLSettingsUI::applyDialog() {
   mBreakAtROMBoot = wBreakAtROMBoot->value();
   mShowMenubar = wShowMenubar->value();
   mShowToolbar = wShowToolbar->value();
+  if (wShowSpecialKeys->active())
+  	mShowSpecialKeys = wShowSpecialKeys->value();
 
   // ---- PC Cards
 
@@ -2205,6 +2226,20 @@ void TFLSettingsUI::applyDialog() {
   dontShow = wDontShow->value();
 
   updateMenus();
+}
+
+/**
+ Only an eMate ROM has Special Keys. For other ROMs, the checkbox is
+ cleared and grayed out, and the setting is kept for the eMate.
+*/
+void TFLSettingsUI::updateSpecialKeysCheckbox() {
+  if (mDialogROMId == TROMImage::kEMate300ROM) {
+    wShowSpecialKeys->activate();
+    wShowSpecialKeys->value(mDialogShowSpecialKeys);
+  } else {
+    wShowSpecialKeys->value(0);
+    wShowSpecialKeys->deactivate();
+  }
 }
 
 void TFLSettingsUI::runningMode() {

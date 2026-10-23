@@ -333,6 +333,7 @@ TFLSettings::loadPreferences()
 		screen.get("ShowMenubar", mShowMenubar, 1);
 #endif
 		screen.get("ShowToolbar", mShowToolbar, 1);
+		screen.get("ShowSpecialKeys", mShowSpecialKeys, 1);
 	}
 
 	// Memory preferences
@@ -438,6 +439,7 @@ TFLSettings::savePreferences()
 
 		screen.set("ShowMenubar", mShowMenubar);
 		screen.set("ShowToolbar", mShowToolbar);
+		screen.set("ShowSpecialKeys", mShowSpecialKeys);
 	}
 
 	// Memory preferences
@@ -498,6 +500,7 @@ TFLSettings::GetROMDetails(const char* inFilename)
 		text = (char*) malloc(text_size + 1);
 	}
 
+	mDialogROMId = -1;
 	TROMImage* theROMImage = TROMImage::LoadROMAndREX(inFilename, true, true);
 	if (!theROMImage)
 	{
@@ -506,6 +509,7 @@ TFLSettings::GetROMDetails(const char* inFilename)
 	}
 	if (theROMImage->GetErrorCode() == TROMImage::kNoError)
 	{
+		mDialogROMId = theROMImage->GetROMId();
 		switch (theROMImage->GetROMId())
 		{
 			case TROMImage::k717006:

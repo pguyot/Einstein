@@ -234,6 +234,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TROMImage.h"
+#include "app/FLTK/TFLSpecialKeys.h"
 #include "Emulator/Screen/TFLScreenManager.h"
 #include "Emulator/Serial/TSerialPortDriver.h"
 #include "Emulator/Serial/TSerialPortDriverTcpClient.h"
@@ -958,6 +959,8 @@ TFLApp::UserActionOriginalScreenSize()
 			y += wToolbar->h();
 		w = (int) (mScreenManager->GetScreenWidth() * mFLSettings->screenScale / 100.0);
 		h = y + (int) (mScreenManager->GetScreenHeight() * mFLSettings->screenScale / 100.0);
+		if (mSpecialKeys)
+			h += mSpecialKeys->h();
 		wAppWindow->size(w, h);
 		if (!mFLSettings->mAllowScreenResize)
 			wAppWindow->resizable(nullptr);
@@ -1608,9 +1611,14 @@ TFLApp::InitScreen()
 		wToolbar->hide();
 	}
 
-	wAppWindow->size(windowWidth, windowHeight + emulatorScreenY);
+	// the eMate's Special Keys go under the screen
+	int specialKeysHeight = 0;
+	if (mFLSettings->mShowSpecialKeys && (mROMImage->GetROMId() == TROMImage::kEMate300ROM))
+		specialKeysHeight = TFLSpecialKeys::PreferredHeight(mFLSettings->screenScale);
+
+	wAppWindow->size(windowWidth, windowHeight + emulatorScreenY + specialKeysHeight);
 	if (windowWidth > screenWidth)
-		wAppWindow->size_range(screenWidth, screenHeight + emulatorScreenY);
+		wAppWindow->size_range(screenWidth, screenHeight + emulatorScreenY + specialKeysHeight);
 	wAppWindow->resizable(nullptr);
 #if TARGET_OS_WIN32
 	wAppWindow->icon((char*) LoadIcon(fl_display, MAKEINTRESOURCE(101)));
@@ -1626,6 +1634,9 @@ TFLApp::InitScreen()
 	mNewtonScreen = flScreenManager->GetWidget();
 	mScreenManager = flScreenManager;
 	mNewtonScreen->resize(0, emulatorScreenY, windowWidth, windowHeight);
+	if (specialKeysHeight)
+		mSpecialKeys = new TFLSpecialKeys(0, emulatorScreenY + windowHeight, windowWidth, specialKeysHeight,
+			this, mScreenManager);
 	wAppWindow->end();
 
 	if (mFLSettings->mAllowScreenResize)

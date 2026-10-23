@@ -43,6 +43,9 @@ decl {\#include "TFLAppUI.h"} {private local
 decl {\#include "Emulator/Platform/TPlatformManager.h"} {private local
 }
 
+decl {\#include "Emulator/ROM/TROMImage.h"} {private local
+}
+
 decl {\#include "app/Version.h"} {private global
 }
 
@@ -443,6 +446,7 @@ if (name) {
   strncat(buf, wROMName->value(), FL_PATH_MAX);
   wROMPath->copy_label(buf);
   wROMDetails->copy_label(GetROMDetails(buf));
+  updateSpecialKeysCheckbox();
 }}
               xywh {120 95 235 20} color 54 labelsize 13 textsize 12
             }
@@ -466,6 +470,7 @@ if (filename) {
     wROMName->value(fl_filename_name(filename));
     wROMPath->copy_label(filename);
     wROMDetails->copy_label(GetROMDetails(filename));
+    updateSpecialKeysCheckbox();
 }}
               tooltip {Select a Newton ROM image file.
 Einstein does not include any ROMs.} xywh {355 95 75 20} labelsize 12
@@ -566,7 +571,7 @@ The next start continues from there, if nothing changed in the meantime.} xywh {
           xywh {10 35 430 375} hide
         } {
           Fl_Group {} {open
-            xywh {20 90 408 222} box FLAT_BOX labelsize 12 align 5
+            xywh {20 90 408 232} box FLAT_BOX labelsize 12 align 5
           } {
             Fl_Input wWidth {
               label {Screen Size: }
@@ -607,6 +612,12 @@ Used on pen or touch screen devices.} xywh {120 175 208 20} down_box DOWN_BOX la
             Fl_Check_Button wShowToolbar {
               label Toolbar
               xywh {120 275 196 20} down_box DOWN_BOX labelsize 13
+            }
+            Fl_Check_Button wShowSpecialKeys {
+              label {Special Keys (eMate)}
+              callback {mDialogShowSpecialKeys = o->value();}
+              tooltip {Show the eMate's Special Keys under the screen.
+Only the eMate ROM knows these keys.} xywh {120 300 196 20} down_box DOWN_BOX labelsize 13
             }
             Fl_Box {} {
               label {Show:}
@@ -1315,6 +1326,8 @@ wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
 wBreakAtROMBoot->value(mBreakAtROMBoot);
 wShowMenubar->value(mShowMenubar);
 wShowToolbar->value(mShowToolbar);
+mDialogShowSpecialKeys = mShowSpecialKeys;
+updateSpecialKeysCheckbox();
 
 // ---- PC Cards
 
@@ -1372,6 +1385,8 @@ mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();
 mBreakAtROMBoot = wBreakAtROMBoot->value();
 mShowMenubar = wShowMenubar->value();
 mShowToolbar = wShowToolbar->value();
+if (wShowSpecialKeys->active())
+	mShowSpecialKeys = wShowSpecialKeys->value();
 
 // ---- PC Cards
 
@@ -1404,6 +1419,18 @@ mDevObjDumpPath = strdup(wDevObjDumpPath->value());
 dontShow = wDontShow->value();
 
 updateMenus();} {}
+  }
+  Function {updateSpecialKeysCheckbox()} {
+    comment {Only an eMate ROM has Special Keys. For other ROMs, the checkbox is
+cleared and grayed out, and the setting is kept for the eMate.} return_type void
+  } {
+    code {if (mDialogROMId == TROMImage::kEMate300ROM) {
+  wShowSpecialKeys->activate();
+  wShowSpecialKeys->value(mDialogShowSpecialKeys);
+} else {
+  wShowSpecialKeys->value(0);
+  wShowSpecialKeys->deactivate();
+}} {}
   }
   Function {runningMode()} {return_type void
   } {

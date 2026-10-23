@@ -205,6 +205,8 @@ class Fl_Newton_Screen_Widget : public Fl_Box
 	TFLApp* mApp { nullptr };
 	int rgbWidth_ { 0 }, rgbHeight_ { 0 };
 	int penX { 0 }, penY { 0 }, penIsDown { 0 };
+	// F11 or F12 while it is held down, 0 if none
+	int mAppKeyDown { 0 };
 	Boolean mPowerState { false };
 
 public:
@@ -503,6 +505,21 @@ public:
 				// allow for Command-Q to quit the app which is not used in NewtonOS AFAIK.
 				if (((Fl::event_state() & (FL_SHIFT | FL_CTRL | FL_ALT | FL_META)) == FL_COMMAND) && (Fl::event_key() == 'q'))
 					return 0;
+				// F11 and F12 are the light and power keys of the eMate's Special
+				// Keys (Esc and F1 to F10 are the others, NewtonOS knows those).
+				// A held key repeats; toggle only once.
+				if ((Fl::event_key() == FL_F + 11) || (Fl::event_key() == FL_F + 12))
+				{
+					if (mAppKeyDown != Fl::event_key())
+					{
+						mAppKeyDown = Fl::event_key();
+						if (mAppKeyDown == FL_F + 11)
+							mApp->UserActionToggleBacklight();
+						else
+							mApp->UserActionTogglePower();
+					}
+					return 1;
+				}
 #if TARGET_OS_MAC
 				// FLTK on MacOS sends only one keystroke down when the capslock is typed
 				// and a key_up event when it is typed again
@@ -522,6 +539,11 @@ public:
 				// allow for Command-Q to quit the app which is not used in NewtonOS AFAIK.
 				if (((Fl::event_state() & (FL_SHIFT | FL_CTRL | FL_ALT | FL_META)) == FL_COMMAND) && (Fl::event_key() == 'q'))
 					return 0;
+				if ((Fl::event_key() == FL_F + 11) || (Fl::event_key() == FL_F + 12))
+				{
+					mAppKeyDown = 0;
+					return 1;
+				}
 #if TARGET_OS_MAC
 				if (Fl::event_key() == 65509)
 				{

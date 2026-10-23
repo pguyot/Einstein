@@ -182,6 +182,15 @@ public:
 	int mShowMenubar = 1;
 	int mShowToolbar = 1;
 
+	// show the eMate's Special Keys under the screen (eMate ROMs only)
+	int mShowSpecialKeys = 1;
+
+	// the Settings dialog: the ROM that is chosen there
+	// (TROMImage::GetROMId(), -1 if none), and the Special Keys checkbox
+	// while the chosen ROM is not an eMate's
+	int mDialogROMId = -1;
+	int mDialogShowSpecialKeys = 1;
+
 	int mLaunchMonitorAtBoot = 0;
 	int mBreakAtROMBoot = 0;
 	int mFetchDateAndTime = 1;

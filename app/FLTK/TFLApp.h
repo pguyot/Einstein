@@ -58,6 +58,7 @@ class TToolkit;
 class Fl_Widget;
 class TFLApp;
 class TFLSettingsUI;
+class TFLSpecialKeys;
 
 extern TFLApp* gApp;
 
@@ -314,6 +315,8 @@ private:
 	TToolkit* mToolkit = nullptr;
 #endif
 	Fl_Widget* mNewtonScreen = nullptr;
+	// the eMate's Special Keys under the screen, null if not shown
+	TFLSpecialKeys* mSpecialKeys = nullptr;
 	int mWindowedX = 150;
 	int mWindowedY = 150;
 	int mWindowedWidth = 320;

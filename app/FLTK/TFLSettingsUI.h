@@ -127,6 +127,11 @@ public:
   Fl_Check_Button *wBreakAtROMBoot;
   Fl_Check_Button *wShowMenubar;
   Fl_Check_Button *wShowToolbar;
+  Fl_Check_Button *wShowSpecialKeys;
+private:
+  inline void cb_wShowSpecialKeys_i(Fl_Check_Button*, void*);
+  static void cb_wShowSpecialKeys(Fl_Check_Button*, void*);
+public:
   Fl_Input_Choice *wScale;
   static Fl_Menu_Item menu_wScale[];
   Fl_Input *wUIConfigName;
@@ -231,6 +236,7 @@ public:
   void updateMenus();
   void revertDialog();
   void applyDialog();
+  void updateSpecialKeysCheckbox();
   void runningMode();
 private:
   void close_window_cb(Fl_Widget*, void *user);
