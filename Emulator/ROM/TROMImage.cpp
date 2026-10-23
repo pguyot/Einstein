@@ -76,6 +76,8 @@ TROMImage::~TROMImage(void)
 	}
 }
 
+Boolean TROMImage::sApplyPatches = true;
+
 // -------------------------------------------------------------------------- //
 //  * CreateImage( const char*, const KUInt8*, KUInt32 )
 // -------------------------------------------------------------------------- //
@@ -105,7 +107,8 @@ TROMImage::CreateImage(const KUInt8* inBuffer)
 
 	mROMId = ComputeROMId(theImagePtr->fROM, mCRCValid);
 
-	JITClass::PatchROM((KUInt32*) theImagePtr->fROM, mROMId);
+	if (sApplyPatches)
+		JITClass::PatchROM((KUInt32*) theImagePtr->fROM, mROMId);
 
 	// Compute the checksum.
 	DoComputeChecksums(theImagePtr);
@@ -466,9 +469,15 @@ fl_filename_setext(char* buf, int size, const char* ext)
 #endif
 
 TROMImage*
-TROMImage::LoadROMAndREX(const char* theROMImagePath, Boolean useMonitor, Boolean useBuiltinERex)
+TROMImage::LoadROMAndREX(const char* theROMImagePath, Boolean useMonitor, Boolean useBuiltinERex,
+	Boolean inApplyPatches)
 {
 	(void) useMonitor;
+	// The constructors below call CreateImage(), which reads this.
+	struct SPatchesGuard {
+		SPatchesGuard(Boolean inApply) { sApplyPatches = inApply; }
+		~SPatchesGuard() { sApplyPatches = true; }
+	} thePatchesGuard(inApplyPatches);
 	TROMImage* theROMImage = nullptr;
 
 	// If we use the builtin REX, set the REX path to null

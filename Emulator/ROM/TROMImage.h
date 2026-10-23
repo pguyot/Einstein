@@ -122,7 +122,15 @@ public:
 	static const KSInt32 kEMate300ROM = 2;
 	static const KSInt32 kWatsonROM = 3;
 
-	static TROMImage* LoadROMAndREX(const char* theROMImagePath, Boolean useMonitor, Boolean useExternalERex);
+	///
+	/// Load a ROM image and the REx.
+	///
+	/// \param inApplyPatches	apply Einstein's ROM patches. Without them, the
+	///						image is only good for finding out which ROM it is
+	///						(the Settings dialog shows that), not for running it.
+	///
+	static TROMImage* LoadROMAndREX(const char* theROMImagePath, Boolean useMonitor, Boolean useExternalERex,
+		Boolean inApplyPatches = true);
 
 protected:
 	///
@@ -214,6 +222,10 @@ private:
 	KSInt32 mROMId { kUnknownROM };
 
 	bool mCRCValid { true };
+
+	/// CreateImage() applies the patches unless LoadROMAndREX() was asked not
+	/// to (set only while it creates the image).
+	static Boolean sApplyPatches;
 };
 
 #endif

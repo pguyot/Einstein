@@ -39,7 +39,9 @@
 #include <algorithm>
 #include <errno.h>
 #include <iterator>
+#include <random>
 #include <stdio.h>
+#include <stdlib.h>
 #include <vector>
 
 #include "Emulator/Log/TStdOutLog.h"
@@ -301,6 +303,14 @@ TFLMachineSettings::Load(Fl_Preferences& inPrefs, const char* inAppPath, const c
 		newtSystem.get("FastStart", mFastStart, 1);
 		::free(mStatePath);
 		newtSystem.get("StatePath", mStatePath, "");
+		char theID[32];
+		snprintf(theID, sizeof(theID), "%04X%08X", (unsigned) mNewtonID[0], (unsigned) mNewtonID[1]);
+		char* theStoredID = nullptr;
+		newtSystem.get("NewtonID", theStoredID, theID);
+		unsigned long long theValue = strtoull(theStoredID, nullptr, 16);
+		::free(theStoredID);
+		mNewtonID[0] = (KUInt32) ((theValue >> 32) & 0xFFFF);
+		mNewtonID[1] = (KUInt32) (theValue & 0xFFFFFFFF);
 	}
 
 	// serial port preferences
@@ -354,6 +364,9 @@ TFLMachineSettings::Save(Fl_Preferences& inPrefs) const
 	{
 		newtSystem.set("FastStart", mFastStart);
 		newtSystem.set("StatePath", mStatePath ? mStatePath : "");
+		char theID[32];
+		snprintf(theID, sizeof(theID), "%04X%08X", (unsigned) mNewtonID[0], (unsigned) mNewtonID[1]);
+		newtSystem.set("NewtonID", theID);
 	}
 
 	// serial port preferences
@@ -379,10 +392,24 @@ TFLMachineSettings::LoadFromFolder(const char* inAppPath)
 }
 
 void
-TFLMachineSettings::SaveToFolder() const
+TFLMachineSettings::CreateFolder() const
 {
 	MakeFolder(mFolder.substr(0, mFolder.size() - mUUID.size() - 2)); // .../Machines
 	MakeFolder(mFolder.substr(0, mFolder.size() - 1));
+}
+
+void
+TFLMachineSettings::MakeRandomNewtonID()
+{
+	std::random_device theRandom;
+	mNewtonID[0] = theRandom() & 0xFFFF;
+	mNewtonID[1] = theRandom();
+}
+
+void
+TFLMachineSettings::SaveToFolder() const
+{
+	CreateFolder();
 	std::string theFile = mFolder + "Machine.prefs";
 	Fl_Preferences prefs(theFile.c_str(), "robowerk.com", nullptr, Fl_Preferences::C_LOCALE);
 	prefs.set("Name", mName.c_str());
@@ -491,6 +518,15 @@ TFLSettings::LoadMachines(Fl_Preferences& inPrefs)
 		auto* machine = new TFLMachineSettings(Fl_Preferences::newUUID(), mUserDataPath.c_str());
 		machine->Load(inPrefs, appPath, mUserDataPath.c_str());
 		machine->SetName("Newton");
+		// The default checkpoint now lives in the machine's folder. Keep
+		// finding the one in the user data folder, if it was the last one.
+		std::string theOldState = mUserDataPath + "Einstein.state";
+		FILE* theFile = (machine->mStatePath && machine->mStatePath[0]) ? nullptr : fopen(theOldState.c_str(), "rb");
+		if (theFile)
+		{
+			fclose(theFile);
+			machine->SetStatePath(theOldState.c_str());
+		}
 		mMachines.push_back(machine);
 	} else
 	{
@@ -660,7 +696,8 @@ TFLSettings::GetROMDetails(const char* inFilename)
 	}
 
 	mDialogROMId = -1;
-	TROMImage* theROMImage = TROMImage::LoadROMAndREX(inFilename, true, true);
+	// Only to find out which ROM it is: no need to apply the patches.
+	TROMImage* theROMImage = TROMImage::LoadROMAndREX(inFilename, true, true, false);
 	if (!theROMImage)
 	{
 		strncpy(text, "Can't load ROM image.\nFile format not supported.", text_size);
