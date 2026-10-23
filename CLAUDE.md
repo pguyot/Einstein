@@ -921,15 +921,20 @@ gone. Details, ROM addresses, how to patch the other ROMs and physical
 Newtons, and the plan for 2040: `Documentation/NewtonTime.md`.
 
 Open:
-- The time patches exist for the US ROM only; MP2100 D, eMate 300 and Watson
-  have no Y2K10 fix at all. Next, before Multiple Configurations (Matt,
-  2026-10-23): all four ROM images are in `~/dev/Einstein/_Data_/ROM_Images`
-  now, so the addresses can be found by matching instruction words (as for
-  the calibration patch). Check that a Y2K10 patch package already
-  installed in the Newton does not interfere with Einstein's patches, and
-  have Help › Install Essentials offer the right System Updates instead of
-  the Y2K10 patch packages. There may be no update for the French (Watson)
-  ROM; check when we get there.
+- ~~The time patches exist for the US ROM only.~~ All four ROMs since
+  2026-10-23 (addresses found by matching instruction words, table in
+  `Documentation/NewtonTime.md`). Matt tested them: they work on all
+  four ROMs. The 40hz Y2K10 packages (Patch_D.pkg "74J185", Patch_eMate.pkg
+  "73J186") do interfere: they bring the 2008 base and code of
+  `TimeInSeconds`, `DateFromSeconds`, `SetTimeInSeconds`, `SetSysAlarm`,
+  which then runs instead of the ROM code that Einstein patches. Apple's
+  updates contain none of it. Install Essentials now offers 717260, 747260
+  and 737246; there is no French 2x00 update (UNNA, checked on the MIT
+  mirror `web.mit.edu/unna`; www.unna.org was down on 2026-10-23 for a PHP
+  security fix). Idea,
+  not done: warn at launch if the flash holds a Y2K10 package (search the
+  flash file for "74J185", "73J186", "71J059"; check first with a flash
+  that has one).
 - `AdjustRealTimeClock` resets the RTC to 1996 at every boot, so alarms never
   fire in Einstein. A native patch there should work in Einstein (JIT patches
   are active from the first instruction), not on physical Newtons.
