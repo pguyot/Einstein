@@ -60,6 +60,12 @@ User Release Notes
  - On a new Newton, the Setup Assistant picks a home city in your
    computer's time zone. Before, the city was off by an hour in summer on
    macOS, and in the wrong direction on Windows and Linux.
+ - macOS: Einstein no longer asks for access to your contacts at every
+   launch. It asks when the Newton first wants your name and address, in
+   the Setup Assistant.
+ - Einstein Prefs only offers serial drivers that exist.
+ - The setting "Fetch date and time from host" is gone; it had no effect.
+   The Newton always shows your computer's date and time.
 
 Developer Release Notes
 -----------------------
@@ -78,6 +84,15 @@ Developer Release Notes
  - The TCP client socket never blocks, also not while connecting, so a quit
    or a driver change is answered at once. A server that does not answer is
    given up after 5 seconds, and Einstein tries again after 3 seconds.
+
+Maintenance Release Notes
+-------------------------
+ - Windows ARM64 builds again with the static C runtime: FLTK 1.4.5's
+   `rint()` fallback is patched for old MSVC only
+   (`cmake/PatchFLTKMath.cmake`, until FLTK 1.5).
+ - The unit tests pass on Linux x64, Linux ARM64, Windows and macOS. On
+   macOS they hung before `main()`, waiting for access to the contacts.
+ - The Cocoa CI workflow builds, tests and archives the app unsigned.
 
 Binary Release v2026.10.13
 ==========================
