@@ -130,7 +130,7 @@ pthread_cond_timedwait_relative_np(win_pthread_cond_t* cv, HANDLE* external_mute
 int
 pthread_cond_timedwait(win_pthread_cond_t* cv, HANDLE* external_mutex, const struct timespec* tabs)
 {
-#if _MSC_VER
+#if TARGET_OS_WIN32
 	struct _timeb msTime;
 	_ftime(&msTime);
 	unsigned __int64 t_now = msTime.time * 1000 + msTime.millitm;

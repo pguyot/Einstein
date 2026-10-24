@@ -39,7 +39,7 @@
 // ANSI C & POSIX
 #include <fcntl.h>
 #include <sys/types.h>
-#if _MSC_VER
+#if TARGET_OS_WIN32
 #include <io.h>
 #else
 #include <sys/mman.h>
@@ -49,7 +49,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if _MSC_VER
+#if TARGET_OS_WIN32
 #define WRITE_RESULT_TYPE size_t
 #else
 #define WRITE_RESULT_TYPE ssize_t
@@ -100,7 +100,7 @@ TMappedFile::Map(
 	void* preferredAddress)
 {
 	// Open the file.
-#if _MSC_VER
+#if TARGET_OS_WIN32
 	// We always open the file in binary mode to avoid differences
 	// bewteen a memory mapped file and a conventionaly opened file.
 	inFlags |= O_BINARY;
@@ -140,7 +140,7 @@ TMappedFile::Map(
 		}
 	}
 
-#if _MSC_VER
+#if TARGET_OS_WIN32
 	// WIN32 memory mapped file API is extremely painful, so for now
 	// we read the file conventionally
 	mBuffer = (void*) -1;
@@ -174,7 +174,7 @@ TMappedFile::Map(
 		theFlags,
 		mFileFd,
 		0);
-#endif // _MSC_VER
+#endif // TARGET_OS_WIN32
 	mMapped = true;
 
 	if (mBuffer == (void*) -1)
@@ -209,7 +209,7 @@ TMappedFile::Unmap()
 		if (mMapped)
 		{
 			// use munmap
-#if _MSC_VER
+#if TARGET_OS_WIN32
 			// WIN32 memory mapped file API is extremely painful, so for now
 			// we write the file conventionally
 #else
@@ -221,7 +221,7 @@ TMappedFile::Unmap()
 					errno, __FILE__, __LINE__);
 				::abort();
 			}
-#endif // _MSC_VER
+#endif // TARGET_OS_WIN32
 		} else
 		{
 			// Write the content if it wasn't read only.
@@ -259,7 +259,7 @@ TMappedFile::Sync(void) const
 	{
 		if (mMapped)
 		{
-#if _MSC_VER
+#if TARGET_OS_WIN32
 			// WIN32 memory mapped file API is extremely painful, so for now
 			// we sync by writing the file conventionally
 #else
@@ -272,7 +272,7 @@ TMappedFile::Sync(void) const
 					errno, __FILE__, __LINE__);
 				::abort();
 			}
-#endif // _MSC_VER
+#endif // TARGET_OS_WIN32
 		} else
 		{
 			// Write the content.

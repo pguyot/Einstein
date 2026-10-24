@@ -84,7 +84,11 @@ elseif ( WIN32 )
 	add_executable ( EinsteinTests
 		${common_sources} ${test_sources}
 	)
-	target_compile_options( EinsteinTests PUBLIC "/bigobj" )
+	if ( MSVC )
+		target_compile_options( EinsteinTests PUBLIC "/bigobj" )
+	elseif ( MINGW )
+		target_compile_options( EinsteinTests PUBLIC "-Wa,-mbig-obj" )
+	endif ()
 	target_compile_definitions ( EinsteinTests PRIVATE
 		TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
 		WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
