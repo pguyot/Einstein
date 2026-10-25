@@ -275,10 +275,15 @@ public:
 
 	void ShowAboutDialog();
 
-	// Show the Settings and wait until they close. Only one Settings window
-	// may be open, in all Einstein processes together.
+	// Show the Settings and wait until they close, or until Start is chosen
+	// while the machine list is shown (then they stay open). Only one Settings
+	// window may be open, in all Einstein processes together.
 	// \return false if the Settings are open in another Einstein
 	bool ShowSettingsPanelModal();
+
+	// Start the machine in the tabs in this Einstein (Start button, play
+	// button, double click) when no machine runs here yet.
+	void StartHere();
 
 	// Show the Settings while a machine runs (see ShowSettingsPanelModal()).
 	void ShowSettingsPanel();
@@ -379,6 +384,9 @@ public:
 
 	// the Settings window was opened while a machine runs in this Einstein
 	bool mRunningMode = false;
+
+	// Start was chosen with the machine list shown, see StartHere()
+	bool mStartRequested = false;
 
 	// the machine of this Einstein was closed, see EmulationEnded()
 	bool mEmulationEnded = false;

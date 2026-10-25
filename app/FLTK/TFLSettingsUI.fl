@@ -1158,9 +1158,7 @@ if (filename) {
       }
       Fl_Button wStart {
         label Start
-        callback {applyDialog();
-savePreferences();
-mSettingsPanel->hide();}
+        callback {StartHere();}
         xywh {322 420 95 25} color 50 labelsize 12
         code0 {Fl::focus(wStart);}
       }

@@ -425,6 +425,11 @@ TFLApp::Run(int argc, char* argv[])
 		// go back to showing the settings panel
 	}
 
+	// Started with the machine list shown: the Settings stay open, as they
+	// are when opened while a machine runs.
+	if (mFLSettings->mSettingsPanel->visible())
+		mFLSettings->ShowSettingsPanel();
+
 	const char* theFlashPath = strdup(mFLSettings->mMachine->FlashPath);
 	//    std::filesystem::path flashPath( theFlashPath );
 	//    mPresentEssentialsInstaller = !std::filesystem::exists(flashPath);

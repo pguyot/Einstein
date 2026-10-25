@@ -936,9 +936,7 @@ void TFLSettingsUI::cb_wQuit(Fl_Button* o, void* v) {
 }
 
 void TFLSettingsUI::cb_wStart_i(Fl_Button*, void*) {
-  applyDialog();
-  savePreferences();
-  mSettingsPanel->hide();
+  StartHere();
 }
 void TFLSettingsUI::cb_wStart(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->user_data()))->cb_wStart_i(o,v);

@@ -486,10 +486,27 @@ TFLSettings::ShowSettingsPanelModal()
 		return false;
 	updateEditable();
 	mSettingsPanel->show();
-	while (mSettingsPanel->visible())
+	mStartRequested = false;
+	while (mSettingsPanel->visible() && !mStartRequested)
 		Fl::wait();
-	mSettingsLock->Unlock();
+	// Still open: the machine starts, and ShowSettingsPanel() keeps the lock
+	// while the Settings stay open.
+	if (!mSettingsPanel->visible())
+		mSettingsLock->Unlock();
 	return true;
+}
+
+void
+TFLSettings::StartHere()
+{
+	applyDialog();
+	savePreferences();
+	// With the machine list, the Settings stay open, so that more machines
+	// can be started from there.
+	if (mSidebarShown)
+		mStartRequested = true;
+	else
+		mSettingsPanel->hide();
 }
 
 void
@@ -1278,9 +1295,7 @@ TFLSettings::StartMachine(TFLMachineSettings* inMachine)
 	if (!mRunningMode)
 	{
 		// Einstein just started: run it here, like the Start button.
-		applyDialog();
-		savePreferences();
-		mSettingsPanel->hide();
+		StartHere();
 	} else if (inMachine != mMachine || mEmulationEnded)
 	{
 		// A machine runs here already, or ran and was closed: start another
