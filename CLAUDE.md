@@ -828,16 +828,27 @@ enough. Any machine can be deleted, at least one stays.
 
 About 8–9 days. `--machine` also makes scripted tests easier.
 
-*Later* (Matt, 2026-10-24, after testing 5a–c):
-- The same flash file must not be used by two machines (idea: lock the
-  flash file at launch, like the PC Card images, and warn in the Settings
-  when two machines point to the same file).
-- A machine's default flash file is in its folder, next to its settings,
-  so a machine is self-contained in one directory; an external file stays
-  possible. Open: move the flash of the machine made from the old settings
-  into its folder too (an older Einstein would follow the new path, since
-  the first machine's path is mirrored into the old keys).
-- A GUI element to go back to the default flash file of a machine.
+*Later* (Matt, 2026-10-24, after testing 5a–c), done 2026-10-26
+(`75fd6920` … `b1847f60`, steps 1–6 below):
+- ~~The same flash file must not be used by two machines~~ The flash file
+  is locked at launch (`Flash/<hash of the canonical path>.lock`); the
+  Settings warn when another machine uses the same file and gray out Brain
+  Wipe and Create while another Einstein has it.
+- ~~A machine's default flash file is in its folder~~ ROM and flash each
+  have a file in the machine folder (stored by name) and one on the host
+  (full path); radio buttons "Keep (a copy) in the machine folder" / "Use
+  the file where it is" choose, both are kept (Matt: no hidden copies or
+  deletes). The old keys get the full path of the file in use. The machine
+  made from the old settings keeps its files on the host (Matt, Q5).
+- ~~A GUI element to go back to the default flash file~~ the radio button.
+  In the folder, a machine has one flash (Create/Choose only for host
+  files); Brain Wipe... deletes it and `FastStart.state`. ROM lights: red
+  (none, missing), yellow (unknown), green (known). Choose... in folder
+  mode offers Copy to Machine Folder or Use Where It Is.
+- "+" › Add Existing Machine... adds a machine folder (copied into
+  `Machines/<new uuid>/` unless it is there already; a new Newton ID if one
+  in the list has the same). PC Cards stay shared (Matt, Q6).
+- `System/StatePath` is stored by name for files in the machine folder.
 
 ## IR emulation via UDP broadcasting
 
