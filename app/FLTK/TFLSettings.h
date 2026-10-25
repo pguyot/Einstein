@@ -365,6 +365,7 @@ public:
 	void SelectMachine(TFLMachineSettings* inMachine);
 	void StartMachine(TFLMachineSettings* inMachine);
 	void NewMachine();
+	void AddExistingMachine();
 	void DuplicateMachine(TFLMachineSettings* inMachine);
 
 	// Copy a file into the machine's folder, for a ROM with the files that

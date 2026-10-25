@@ -1220,9 +1220,21 @@ TFLMachineList::TFLMachineList(int x, int y, int w, int h, TFLSettings* inSettin
 	add->box(FL_FLAT_BOX);
 	add->color(color());
 	add->labelsize(20);
-	add->tooltip("Add a machine");
+	add->tooltip("Add a new machine, or a machine folder from elsewhere");
 	add->clear_visible_focus();
-	add->callback([](Fl_Widget* w, void*) { ((TFLMachineList*) w->parent())->GetSettings()->NewMachine(); });
+	add->callback([](Fl_Widget* w, void*) {
+		TFLSettings* settings = ((TFLMachineList*) w->parent())->GetSettings();
+		Fl_Menu_Item menu[] = {
+			{ "New Machine", 0, nullptr, (void*) 1 },
+			{ "Add Existing Machine...", 0, nullptr, (void*) 2 },
+			{ nullptr }
+		};
+		const Fl_Menu_Item* picked = menu->popup(w->x(), w->y() + w->h());
+		if (picked && picked->argument() == 1)
+			settings->NewMachine();
+		else if (picked && picked->argument() == 2)
+			settings->AddExistingMachine();
+	});
 
 	mScroll = new Fl_Scroll(x, y + kTitleHeight, w, h - kTitleHeight);
 	mScroll->box(FL_FLAT_BOX);

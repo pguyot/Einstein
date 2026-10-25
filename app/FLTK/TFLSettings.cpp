@@ -1749,6 +1749,107 @@ DeleteMachineFolder(const std::string& inUserDataPath, const std::string& inFold
 	(void) ::remove(inFolder.substr(0, inFolder.size() - 1).c_str());
 }
 
+/**
+ Add a machine folder that is not in the list: one brought from another
+ computer, or one whose entry was deleted. A folder in Einstein's Machines
+ folder is added where it is. Any other folder is copied there, because a
+ machine's folder is Machines/<its ID>/. If a machine in the list has the
+ same Newton ID, the new one gets its own, so desktop programs tell the two
+ apart.
+ */
+void
+TFLSettings::AddExistingMachine()
+{
+	std::string theMachines = mUserDataPath + "Machines/";
+	const char* theChosen = gApp->ChooseExistingDirectory("Choose a Machine Folder", nullptr, theMachines.c_str());
+	if (!theChosen)
+		return;
+	std::string theSource = theChosen;
+#if TARGET_OS_WIN32
+	std::replace(theSource.begin(), theSource.end(), '\\', '/');
+#endif
+	while (theSource.size() > 1 && theSource.back() == '/')
+		theSource.pop_back();
+	if (fl_access((theSource + "/Machine.prefs").c_str(), 0) != 0)
+	{
+		fl_alert("\"%s\" is not a machine folder: it has no Machine.prefs.", fl_filename_name(theSource.c_str()));
+		return;
+	}
+
+	// Already in Einstein's Machines folder?
+	std::string theFolderName = fl_filename_name(theSource.c_str());
+	bool inPlace = (CanonicalPath(theSource) == CanonicalPath(theMachines + theFolderName));
+	std::string theUUID = theFolderName;
+	if (inPlace)
+	{
+		for (auto* machine : mMachines)
+		{
+			if (theUUID == machine->GetUUID())
+			{
+				fl_alert("\"%s\" is in the list already.", machine->GetName());
+				return;
+			}
+		}
+	} else
+	{
+		// Copy its files (not its lock) into a new folder.
+		theUUID = Fl_Preferences::newUUID();
+		std::string theFolder = theMachines + theUUID + "/";
+		MakeFolder(theMachines);
+		MakeFolder(theFolder.substr(0, theFolder.size() - 1));
+		dirent** theFiles = nullptr;
+		int n = fl_filename_list(theSource.c_str(), &theFiles);
+		bool ok = true;
+		for (int i = 0; i < n && ok; i++)
+		{
+			const char* name = theFiles[i]->d_name;
+			size_t len = strlen(name);
+			// fl_filename_list() ends folder names with a slash.
+			if (len == 0 || name[len - 1] == '/' || strcmp(name, ".") == 0 || strcmp(name, "..") == 0
+				|| strcmp(name, "Machine.lock") == 0)
+				continue;
+			ok = CopyFile((theSource + "/" + name).c_str(), (theFolder + name).c_str());
+			if (!ok)
+				fl_alert("\"%s\" could not be copied.", name);
+		}
+		if (theFiles)
+			fl_filename_free_list(&theFiles, n);
+		if (!ok)
+		{
+			DeleteMachineFolder(mUserDataPath, theFolder);
+			return;
+		}
+	}
+
+	auto* machine = new TFLMachineSettings(theUUID.c_str(), mUserDataPath.c_str());
+	machine->LoadFromFolder(appPath);
+	machine->SetName(UniqueName(this, machine->GetName()).c_str());
+	if (!inPlace)
+	{
+		// Its cards are in the card list of another computer, or in use by
+		// the machine it was copied from.
+		machine->mKeepInSlot[0].clear();
+		machine->mKeepInSlot[1].clear();
+	}
+	TFLMachineSettings* theTwin = nullptr;
+	for (auto* other : mMachines)
+	{
+		if (other->mNewtonID[0] == machine->mNewtonID[0] && other->mNewtonID[1] == machine->mNewtonID[1])
+			theTwin = other;
+	}
+	if (theTwin)
+		machine->MakeRandomNewtonID();
+	machine->SaveToFolder();
+	mMachines.push_back(machine);
+	SaveMachineOrder(this);
+	mMachineList->Update();
+	SelectMachine(machine);
+	if (theTwin)
+		fl_message("\"%s\" has a new Newton ID, because \"%s\" had the same one.\n\n"
+				   "This way, Newton Connection and other desktop programs can tell them apart.",
+			machine->GetName(), theTwin->GetName());
+}
+
 void
 TFLSettings::DeleteMachine(TFLMachineSettings* inMachine)
 {
