@@ -2498,6 +2498,20 @@ void TFLSettingsUI::updateFlashWidgets() {
     wFlashLight->color(fl_rgb_color(60, 170, 70));
     wFlashBrainWipe->activate();
   }
+  // Two machines on the same file would both write it. Einstein refuses to
+  // start the second one; here we warn, and nothing may erase the file while
+  // another Einstein uses it.
+  std::string theUser = theName.empty() ? std::string() : FlashUsedElsewhere(mEditMachine);
+  std::string theOther = theName.empty() ? std::string() : FlashSharedWith(mEditMachine);
+  if (!theUser.empty()) {
+    wFlashDetails->copy_label(("In use by \"" + theUser + "\" in another window").c_str());
+    wFlashLight->color(fl_rgb_color(235, 185, 30));
+    wFlashBrainWipe->deactivate();
+    wFlashPathCreate->deactivate();
+  } else if (!theOther.empty()) {
+    wFlashDetails->copy_label(("Also used by \"" + theOther + "\"").c_str());
+    wFlashLight->color(fl_rgb_color(235, 185, 30));
+  }
   wFlashLight->redraw();
   mFlashGroup->redraw();
 }
@@ -2537,6 +2551,7 @@ void TFLSettingsUI::updateEditable() {
     wRestartWarning->show();
   }
   if (IsRunning(mEditMachine)) wStart->deactivate(); else wStart->activate();
+  updateFlashWidgets();
   mSettingsPanel->redraw();
 }
 

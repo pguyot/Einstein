@@ -587,6 +587,7 @@ TFLSettings::~TFLSettings()
 	delete mSettingsLock;
 	UnlockCard(0);
 	UnlockCard(1);
+	UnlockFlash();
 }
 
 // Get the lock that allows one Settings window in all Einstein processes, or
@@ -1278,6 +1279,114 @@ TFLSettings::UnlockCard(int inSlot)
 {
 	delete mCardLock[inSlot];
 	mCardLock[inSlot] = nullptr;
+}
+
+// The full path of a file without links and "..", so that two paths to the
+// same file compare equal. The file may not exist yet (a new flash).
+static std::string
+CanonicalPath(const std::string& inPath)
+{
+	char theFull[FL_PATH_MAX];
+#if TARGET_OS_WIN32
+	if (!_fullpath(theFull, inPath.c_str(), FL_PATH_MAX))
+		return inPath;
+	std::string thePath = theFull;
+	std::replace(thePath.begin(), thePath.end(), '\\', '/');
+#else
+	std::string thePath;
+	if (realpath(inPath.c_str(), theFull))
+	{
+		thePath = theFull;
+	} else
+	{
+		std::string theFolder = inPath.substr(0, inPath.size() - strlen(fl_filename_name(inPath.c_str())));
+		if (theFolder.empty() || !realpath(theFolder.c_str(), theFull))
+			return inPath;
+		thePath = std::string(theFull) + "/" + fl_filename_name(inPath.c_str());
+	}
+#endif
+#if TARGET_OS_WIN32 || TARGET_OS_MAC
+	// The file systems ignore case, usually.
+	std::transform(thePath.begin(), thePath.end(), thePath.begin(), [](unsigned char c) { return (char) tolower(c); });
+#endif
+	return thePath;
+}
+
+// The lock file for a flash file: Flash/<hash of its path>.lock in the user
+// data folder. A file next to the flash would not work in a folder that can't
+// be written.
+static std::string
+FlashLockPath(const std::string& inUserDataPath, const std::string& inFlashPath)
+{
+	// FNV-1a, 64 bits
+	KUInt64 theHash = 0xCBF29CE484222325ULL;
+	for (unsigned char c : CanonicalPath(inFlashPath))
+	{
+		theHash ^= c;
+		theHash *= 0x100000001B3ULL;
+	}
+	char theName[32];
+	snprintf(theName, sizeof(theName), "%016llX.lock", (unsigned long long) theHash);
+	return inUserDataPath + "Flash/" + theName;
+}
+
+/**
+ Lock the flash file of the machine that runs here: two machines on the same
+ file would both write it. A flash in the machine's folder is safe through
+ the machine lock already, but a file on the host can be chosen by several
+ machines. The lock is released when this Einstein ends or closes the machine.
+ \return false, after telling the user, if another Einstein has the file
+ */
+bool
+TFLSettings::LockFlash()
+{
+	UnlockFlash();
+	MakeFolder(mUserDataPath + "Flash");
+	std::string thePath = FlashLockPath(mUserDataPath, mMachine->GetFlashPath());
+	auto* theLock = new TFLFileLock(thePath);
+	if (!theLock->TryLock())
+	{
+		delete theLock;
+		std::string theHolder = TFLFileLock::ReadContent(thePath);
+		fl_alert("The internal storage of \"%s\" is used by \"%s\" in another Einstein window.",
+			mMachine->GetName(), theHolder.empty() ? "another machine" : theHolder.c_str());
+		return false;
+	}
+	theLock->WriteContent(mMachine->GetName());
+	mFlashLock = theLock;
+	return true;
+}
+
+void
+TFLSettings::UnlockFlash()
+{
+	delete mFlashLock;
+	mFlashLock = nullptr;
+}
+
+std::string
+TFLSettings::FlashUsedElsewhere(const TFLMachineSettings* inMachine) const
+{
+	std::string thePath = FlashLockPath(mUserDataPath, inMachine->GetFlashPath());
+	// Our own lock is not elsewhere.
+	if (mFlashLock && mFlashLock->GetPath() == thePath)
+		return std::string();
+	if (!TFLFileLock::IsHeldElsewhere(thePath))
+		return std::string();
+	std::string theHolder = TFLFileLock::ReadContent(thePath);
+	return theHolder.empty() ? std::string("another machine") : theHolder;
+}
+
+std::string
+TFLSettings::FlashSharedWith(const TFLMachineSettings* inMachine) const
+{
+	std::string thePath = CanonicalPath(inMachine->GetFlashPath());
+	for (auto* machine : mMachines)
+	{
+		if (machine != inMachine && CanonicalPath(machine->GetFlashPath()) == thePath)
+			return machine->GetName();
+	}
+	return std::string();
 }
 
 // MARK: - Machine List

@@ -392,7 +392,12 @@ TFLApp::Run(int argc, char* argv[])
 			// flash. The lock is released when this Einstein ends.
 			mFLSettings->mMachine->CreateFolder();
 			mMachineLock = new TFLFileLock(mFLSettings->mMachine->GetFolder() + "Machine.lock");
-			if (mMachineLock->TryLock())
+			bool locked = mMachineLock->TryLock();
+			if (!locked)
+				fl_alert("\"%s\" already runs in another Einstein window.", mFLSettings->mMachine->GetName());
+			// Nor may two machines run on the same flash file (LockFlash()
+			// tells the user).
+			if (locked && mFLSettings->LockFlash())
 			{
 				// for the icon and the description in the machine list
 				mFLSettings->mMachine->mROMId = mROMImage->GetROMId();
@@ -400,7 +405,6 @@ TFLApp::Run(int argc, char* argv[])
 			}
 			delete mMachineLock;
 			mMachineLock = nullptr;
-			fl_alert("\"%s\" already runs in another Einstein window.", mFLSettings->mMachine->GetName());
 			if (startAtOnce)
 				::exit(1);
 			delete mROMImage;
@@ -772,6 +776,7 @@ TFLApp::CloseNow()
 	Fl::lock();
 	delete mMachineLock;
 	mMachineLock = nullptr;
+	mFLSettings->UnlockFlash();
 	mFLSettings->EmulationEnded();
 
 #if TARGET_OS_MAC

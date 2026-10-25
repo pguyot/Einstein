@@ -1243,6 +1243,7 @@ TFLMachineList::WatchRunning(void* inList)
 	auto* list = (TFLMachineList*) inList;
 	if (list->visible_r())
 	{
+		bool changed = false;
 		for (int i = 0; i < list->mPack->children(); i++)
 		{
 			auto* row = (TFLMachineRow*) list->mPack->child(i);
@@ -1250,11 +1251,14 @@ TFLMachineList::WatchRunning(void* inList)
 			if (running == row->IsRunning())
 				continue;
 			row->SetRunning(running);
+			changed = true;
 			if (!running)
 				list->mSettings->MachineStopped(row->GetMachine());
-			else if (row->GetMachine() == list->mSettings->mEditMachine)
-				list->mSettings->updateEditable();
 		}
+		// Also if another machine started or stopped: it may use the same
+		// flash file.
+		if (changed)
+			list->mSettings->updateEditable();
 	}
 	Fl::repeat_timeout(1.0, WatchRunning, inList);
 }

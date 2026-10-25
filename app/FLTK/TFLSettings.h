@@ -396,6 +396,19 @@ public:
 	bool LockCard(int inSlot, TFLPCCardSettings* inCard);
 	void UnlockCard(int inSlot);
 
+	// Lock or unlock the flash file of the machine that runs here, so no
+	// other Einstein runs a machine on the same file, see TFLSettings.cpp.
+	bool LockFlash();
+	void UnlockFlash();
+
+	// The machine in another Einstein that has this machine's flash file
+	// open, or an empty string.
+	std::string FlashUsedElsewhere(const TFLMachineSettings* inMachine) const;
+
+	// Another machine in the list that uses the same flash file, or an empty
+	// string.
+	std::string FlashSharedWith(const TFLMachineSettings* inMachine) const;
+
 	// protected:
 	Fl_Double_Window* mSettingsPanel = nullptr;
 	Fl_Double_Window* mAboutDialog = nullptr;
@@ -410,6 +423,9 @@ public:
 
 	// held while a card is inserted into a slot (Cards/<uuid>.lock)
 	TFLFileLock* mCardLock[2] = { nullptr, nullptr };
+
+	// held while the machine runs here, for its flash file (Flash/<hash>.lock)
+	TFLFileLock* mFlashLock = nullptr;
 
 	// the machine list, its button, and whether it is open: 1 or 0 as the
 	// user chose, -1 if not chosen yet (open if there is more than one machine)
