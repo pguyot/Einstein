@@ -335,12 +335,13 @@ wAbout = nullptr;} {}
   } {
     Fl_Window {} {
       label {Einstein Settings}
-      callback {if (wQuit->visible()){
-    exit(0);
-} else {
-    revertDialog();
+      callback {// Changes are saved as they are made; this catches a text field that
+// still has the focus. Without a machine running here, closing quits.
+settingsChanged();
+if (mRunningMode)
     mSettingsPanel->hide();
-}} open
+else
+    exit(0);} open
       xywh {555 583 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
@@ -435,8 +436,9 @@ if (name) {
   wROMPath->copy_label(buf);
   wROMDetails->copy_label(GetROMDetails(buf));
   updateSpecialKeysCheckbox();
+  settingsChanged();
 }}
-                xywh {120 95 235 20} color 54 labelsize 13 textsize 12
+                xywh {120 95 235 20} color 54 labelsize 13 when 12 textsize 12
               }
               Fl_Box wROMPath {
                 label {/here/goes/the/path/and/filename/of/the/ROM}
@@ -459,6 +461,7 @@ if (filename) {
     wROMPath->copy_label(filename);
     wROMDetails->copy_label(GetROMDetails(filename));
     updateSpecialKeysCheckbox();
+    settingsChanged();
 }}
                 tooltip {Select a Newton ROM image file.
 Einstein does not include any ROMs.} xywh {355 95 75 20} labelsize 12
@@ -477,8 +480,9 @@ if (name) {
   *name = 0;
   strncat(buf, wFlashName->value(), FL_PATH_MAX);
   wFlashPath->copy_label(buf);
+  settingsChanged();
 }}
-                xywh {120 190 160 20} color 54 labelsize 13 textsize 12
+                xywh {120 190 160 20} color 54 labelsize 13 when 12 textsize 12
               }
               Fl_Box wFlashPath {
                 label {/here/goes/the/path/and/filename/of/the/FlashFile}
@@ -494,6 +498,7 @@ if (name) {
 if (filename) {
     wFlashName->value(fl_filename_name(filename));
     wFlashPath->copy_label(filename);
+    settingsChanged();
 }}
                 tooltip {Create a new Flash RAM image file.} xywh {280 190 75 20} labelsize 12
               }
@@ -507,6 +512,7 @@ if (filename) {
 if (filename) {
     wFlashName->value(fl_filename_name(filename));
     wFlashPath->copy_label(filename);
+    settingsChanged();
 }}
                 tooltip {Select an existing Flash RAM image file.} xywh {355 190 75 20} labelsize 12
               }
@@ -516,6 +522,7 @@ if (filename) {
             } {
               Fl_Choice wRAMSizeChoice {
                 label {System RAM: } open
+                callback {settingsChanged();}
                 tooltip {select the system memory size (heap)} xywh {120 241 180 20} down_box BORDER_BOX labelsize 13 textsize 12
               } {
                 MenuItem {} {
@@ -546,6 +553,7 @@ if (filename) {
             }
             Fl_Check_Button wFastStart {
               label {Fast start: continue where Einstein was quit}
+              callback {settingsChanged();}
               tooltip {When quitting, Einstein lets the Newton fall asleep and saves its state.
 The next start continues from there, if nothing changed in the meantime.} xywh {120 273 290 20} down_box DOWN_BOX labelsize 13
             }
@@ -563,13 +571,15 @@ The next start continues from there, if nothing changed in the meantime.} xywh {
             } {
               Fl_Input wWidth {
                 label {Screen Size: }
+                callback {settingsChanged();}
                 tooltip {Screen width in pixels,
-Original screen size is 320x480} xywh {120 90 80 20} type Int color 54 labelsize 13 textsize 12
+Original screen size is 320x480} xywh {120 90 80 20} type Int color 54 labelsize 13 when 12 textsize 12
               }
               Fl_Input wHeight {
                 label {x }
+                callback {settingsChanged();}
                 tooltip {Screen height in pixels,
-Original screen size is 320x480} xywh {215 90 80 20} type Int color 54 labelsize 12 textsize 12
+Original screen size is 320x480} xywh {215 90 80 20} type Int color 54 labelsize 12 when 12 textsize 12
               }
               Fl_Box {} {
                 label {MessagePad: 320 x 480 (portrait)
@@ -578,32 +588,39 @@ eMate 300: 480 x 320 (landscape)}
               }
               Fl_Check_Button wFullScreen {
                 label {Full screen}
+                callback {settingsChanged();}
                 xywh {120 150 308 20} down_box DOWN_BOX labelsize 13 deactivate
               }
               Fl_Check_Button wHideMouse {
                 label {Hide mouse pointer}
+                callback {settingsChanged();}
                 tooltip {Hide mouse pointer over MessagePad screen
 Used on pen or touch screen devices.} xywh {120 175 208 20} down_box DOWN_BOX labelsize 13
               }
               Fl_Check_Button wLaunchMonitorAtBoot {
                 label {Launch Monitor at Boot}
+                callback {settingsChanged();}
                 xywh {120 200 196 20} down_box DOWN_BOX labelsize 13
               }
               Fl_Check_Button wBreakAtROMBoot {
                 label {Break at ROMBoot}
+                callback {settingsChanged();}
                 xywh {145 225 196 20} down_box DOWN_BOX labelsize 13 deactivate
               }
               Fl_Check_Button wShowMenubar {
                 label Menubar
+                callback {settingsChanged();}
                 xywh {120 250 196 20} down_box DOWN_BOX labelsize 13
               }
               Fl_Check_Button wShowToolbar {
                 label Toolbar
+                callback {settingsChanged();}
                 xywh {120 275 196 20} down_box DOWN_BOX labelsize 13
               }
               Fl_Check_Button wShowSpecialKeys {
                 label {Special Keys (eMate)}
-                callback {mDialogShowSpecialKeys = o->value();}
+                callback {mDialogShowSpecialKeys = o->value();
+settingsChanged();}
                 tooltip {Show the eMate's Special Keys under the screen.
 Only the eMate ROM knows these keys.} xywh {120 300 196 20} down_box DOWN_BOX labelsize 13
               }
@@ -629,7 +646,9 @@ Only the eMate ROM knows these keys.} xywh {120 300 196 20} down_box DOWN_BOX la
               }
               Fl_Input_Choice wScale {
                 label {Scale:} open
+                callback {settingsChanged();}
                 xywh {340 90 60 20} labelsize 12 textsize 12
+                code0 {o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);}
               } {
                 MenuItem {} {
                   label 100
@@ -736,7 +755,8 @@ card = TFLPCCardSettings::LinkLinearPCCard(imageName, imageFilename);
 wPCCardList->add(imageName, card);
 
 cleanup:
-if (imageName) free(imageName);}
+if (imageName) free(imageName);
+settingsChanged();}
                 xywh {0 0 100 20} labelsize 12 divider
               }
               MenuItem {} {
@@ -786,7 +806,8 @@ if (imageName) free(imageName);}
   wPCCardList->add(imageName, card);
 
   cleanup:
-  if (imageName) free(imageName);}
+  if (imageName) free(imageName);
+  settingsChanged();}
                 xywh {10 10 100 20} labelsize 12
               }
               MenuItem {} {
@@ -865,7 +886,8 @@ cleanup:
 //if (imageFilename) free(imageFilename);
 if (dataFilename) free(dataFilename);
 if (cisFilename) free(cisFilename);
-if (imageName) free(imageName);}
+if (imageName) free(imageName);
+settingsChanged();}
                 xywh {0 0 100 20} labelsize 12 divider
               }
               MenuItem {} {
@@ -916,7 +938,8 @@ if (imageName) free(imageName);}
     wPCCardList->add(imageName, card);
 
   cleanup:
-  if (imageName) free(imageName);}
+  if (imageName) free(imageName);
+  settingsChanged();}
                 xywh {10 10 100 20} labelsize 12
               }
               MenuItem {} {
@@ -951,7 +974,8 @@ if (imageName) free(imageName);}
             callback {int ix = wPCCardList->value();
 if (ix>0 && ix<=wPCCardList->size()) {
   wPCCardList->remove(ix);
-}}
+}
+settingsChanged();}
             tooltip {remove and delete a PCMCIA card} xywh {145 215 25 25} labelfont 4 labelsize 18
           }
           Fl_Button wPCCardMoveUp {
@@ -962,7 +986,8 @@ if (ix>1) {
   wPCCardList->swap(ix, ix-1);
   wPCCardList->value(ix-1);
   wPCCardList->do_callback();
-}}
+}
+settingsChanged();}
             xywh {170 215 25 25} labelfont 4 labelsize 18
           }
           Fl_Button wPCCardMoveDown {
@@ -973,7 +998,8 @@ if (ix>0 && ix<wPCCardList->size()) {
   wPCCardList->swap(ix, ix+1);
   wPCCardList->value(ix+1);
   wPCCardList->do_callback();
-}}
+}
+settingsChanged();}
             xywh {195 215 25 25} labelfont 4 labelsize 18
           }
           Fl_Menu_Bar {} {
@@ -991,7 +1017,8 @@ if (ix>0 && ix<=wPCCardList->size()) {
   const char *newName = fl_input("Please enter a new name for you PCCard", oldName);
   if (newName)
     wPCCardList->text(ix, newName);
-}}
+}
+settingsChanged();}
                 xywh {10 10 100 20} labelsize 12
               }
               MenuItem wPCCardEditTag {
@@ -1006,7 +1033,8 @@ if (ix>0 && ix<=wPCCardList->size()) {
   	"characters long.\\n", oldTag);
   if (newTag)
     card->SetTag(newTag);
-}}
+}
+settingsChanged();}
                 xywh {20 20 100 20} labelsize 12
               }
               MenuItem wPCCardEditPath {
@@ -1028,7 +1056,8 @@ if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
     newPath = gApp->ChooseExistingFile("Please select the new PCCard Image location", "Linear Card\\t*.pccard", oldPath);
   if (newPath)
     card->SetImagePath(newPath);
-}}
+}
+settingsChanged();}
                 xywh {10 10 100 20} labelsize 12
               }
             }
@@ -1040,8 +1069,10 @@ if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
         } {
           Fl_Input_Choice wUnnaPath {
             label {UNNA Database: } open
+            callback {settingsChanged();}
             tooltip {United Network of Newton Archives} xywh {172 80 210 20} color 54 labelsize 13 textsize 12
             code0 {o->value("http://www.unna.org/");}
+            code1 {o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);}
           } {
             MenuItem {} {
               label {http://www.unna.org/}
@@ -1065,13 +1096,16 @@ if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
 );
 if (filename) {
     wUnnaPath->value(filename);
+    settingsChanged();
 }}
             tooltip {Select a local copy of the UNNA archive} xywh {382 80 42 20} labelsize 12 labelcolor 3
           }
           Fl_Input_Choice wMessagepadOrgPath {
             label {messagepad.org: } open
+            callback {settingsChanged();}
             xywh {172 115 252 20} color 54 labelsize 13 textsize 12
             code0 {o->value("http://www.messagepad.org/");}
+            code1 {o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);}
           } {
             MenuItem {} {
               label {http://www.messagepad.org/}
@@ -1080,8 +1114,10 @@ if (filename) {
           }
           Fl_Input_Choice wGitRepoPath {
             label {Git Repository: } open
+            callback {settingsChanged();}
             xywh {172 150 252 20} color 54 labelsize 13 textsize 12
             code0 {o->value("https://github.com/pguyot/Einstein.git");}
+            code1 {o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);}
           } {
             MenuItem {} {
               label {https://github.com/pguyot/Einstein.git}
@@ -1094,7 +1130,8 @@ if (filename) {
           }
           Fl_Input wDevAsmPath {
             label {ARM cross assembler: }
-            tooltip {full path to ARM cross assembler} xywh {172 320 210 20} labelsize 13 textsize 12
+            callback {settingsChanged();}
+            tooltip {full path to ARM cross assembler} xywh {172 320 210 20} labelsize 13 when 12 textsize 12
           }
           Fl_Button wDevAsmPathChoose {
             label {@fileopen}
@@ -1105,12 +1142,14 @@ if (filename) {
 );
 if (filename) {
     wDevAsmPath->value(filename);
+    settingsChanged();
 }}
             xywh {382 320 42 20} labelsize 12 labelcolor 3
           }
           Fl_Input wDevObjCopyPath {
             label {ARM objcopy: }
-            tooltip {full path to ARM cross objcopy tool} xywh {172 344 210 20} labelsize 13 textsize 12
+            callback {settingsChanged();}
+            tooltip {full path to ARM cross objcopy tool} xywh {172 344 210 20} labelsize 13 when 12 textsize 12
           }
           Fl_Button wDevObjCopyPathChoose {
             label {@fileopen}
@@ -1121,12 +1160,14 @@ if (filename) {
 );
 if (filename) {
     wDevObjCopyPath->value(filename);
+    settingsChanged();
 }}
             tooltip {Select a local copy of the UNNA archive} xywh {382 344 42 20} labelsize 12 labelcolor 3
           }
           Fl_Input wDevObjDumpPath {
             label {ARM objdump: }
-            tooltip {full path to ARM cross objdump tool} xywh {172 368 210 20} labelsize 13 textsize 12
+            callback {settingsChanged();}
+            tooltip {full path to ARM cross objdump tool} xywh {172 368 210 20} labelsize 13 when 12 textsize 12
           }
           Fl_Button wDevObjDumpPathChoose {
             label {@fileopen}
@@ -1137,6 +1178,7 @@ if (filename) {
 );
 if (filename) {
     wDevObjDumpPath->value(filename);
+    settingsChanged();
 }}
             xywh {382 368 42 20} labelsize 12 labelcolor 3
           }
@@ -1147,33 +1189,16 @@ if (filename) {
         callback {ToggleSidebar();}
         tooltip {Show or hide the list of machines} xywh {14 422 26 21} labelsize 11
       }
-      Fl_Check_Button wDontShow {
-        label {Don't show at startup}
-        xywh {48 422 140 21} down_box DOWN_BOX labelsize 12
+      Fl_Check_Button wShowAtStartup {
+        label {Show at startup}
+        callback {settingsChanged();}
+        tooltip {Show the Settings when Einstein starts.
+Otherwise the last machine starts at once.} xywh {48 422 140 21} down_box DOWN_BOX labelsize 12
       }
-      Fl_Button wQuit {
-        label Quit
-        callback {exit(0);}
-        xywh {217 420 95 25} color 50 labelsize 12
-      }
-      Fl_Button wStart {
+      Fl_Return_Button wStart {
         label Start
-        callback {StartHere();}
-        xywh {322 420 95 25} color 50 labelsize 12
-        code0 {Fl::focus(wStart);}
-      }
-      Fl_Button wRevert {
-        label Revert
-        callback {revertDialog();
-mSettingsPanel->redraw();}
-        xywh {217 420 95 25} color 50 labelsize 12 hide
-      }
-      Fl_Button wSave {
-        label Save
-        callback {applyDialog();
-savePreferences();
-mSettingsPanel->hide();}
-        xywh {322 420 95 25} color 50 labelsize 12 hide
+        callback {StartMachine(mEditMachine);}
+        tooltip {Start the machine shown in the tabs.} xywh {322 420 95 25} color 50 labelsize 12
       }
       Fl_Box {} {
         xywh {10 410 430 5}
@@ -1329,7 +1354,7 @@ wDevObjDumpPath->value(mDevObjDumpPath);
 
 // ---- Dialog
 
-wDontShow->value(dontShow);
+wShowAtStartup->value(!dontShow);
 
 updateMenus();} {}
   }
@@ -1395,7 +1420,7 @@ mDevObjDumpPath = strdup(wDevObjDumpPath->value());
 
 // Dialog
 
-dontShow = wDontShow->value();
+dontShow = !wShowAtStartup->value();
 
 updateMenus();} {}
   }
@@ -1422,12 +1447,13 @@ for (Fl_Widget* w : machineTabs) {
 }
 if (editable) {
   updateSpecialKeysCheckbox();
-  wRestartWarning->label("Setting changes apply only after a  restart");
-  if (mRunningMode) wRestartWarning->show(); else wRestartWarning->hide();
+  wRestartWarning->label("Changes apply the next time this machine starts");
+  if (IsRunning(mEditMachine)) wRestartWarning->show(); else wRestartWarning->hide();
 } else {
   wRestartWarning->label("Runs in another Einstein window, so it can't be changed");
   wRestartWarning->show();
 }
+if (IsRunning(mEditMachine)) wStart->deactivate(); else wStart->activate();
 mSettingsPanel->redraw();} {}
   }
   Function {updateHeadline()} {
@@ -1436,13 +1462,11 @@ mSettingsPanel->redraw();} {}
     code {wMPHeadline->copy_label(mEditMachine->GetName());
 wUIHeadline->copy_label(mEditMachine->GetName());} {}
   }
-  Function {runningMode()} {return_type void
+  Function {settingsChanged()} {
+    comment {Every change in the Settings is saved at once; there is no Save button.} return_type void
   } {
-    code {wRestartWarning->show();
-wQuit->hide();
-wStart->hide();
-wRevert->show();
-wSave->show();} {}
+    code {applyDialog();
+savePreferences();} {}
   }
   Function {close_window_cb(Fl_Widget*, void *user)} {private return_type void
   } {

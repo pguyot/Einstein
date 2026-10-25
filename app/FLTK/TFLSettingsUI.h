@@ -58,6 +58,7 @@ Fl_Group* addInstallerScript(const char *inTitle, StringList *inScriptList);
 #include <FL/Fl_Menu_Bar.H>
 extern void cb_New(Fl_Menu_*, long);
 extern void cb_New1(Fl_Menu_*, long);
+#include <FL/Fl_Return_Button.H>
 #include <FL/Fl_Help_View.H>
 
 class TFLSettingsUI : public TFLSettings {
@@ -113,25 +114,69 @@ private:
   static void cb_wFlashPathChoose(Fl_Button*, void*);
 public:
   Fl_Choice *wRAMSizeChoice;
+private:
+  inline void cb_wRAMSizeChoice_i(Fl_Choice*, void*);
+  static void cb_wRAMSizeChoice(Fl_Choice*, void*);
   static Fl_Menu_Item menu_wRAMSizeChoice[];
+public:
   Fl_Box *wRestartWarning;
   Fl_Check_Button *wFastStart;
+private:
+  inline void cb_wFastStart_i(Fl_Check_Button*, void*);
+  static void cb_wFastStart(Fl_Check_Button*, void*);
+public:
   Fl_Group *mUserInterfaceTab;
   Fl_Int_Input *wWidth;
+private:
+  inline void cb_wWidth_i(Fl_Int_Input*, void*);
+  static void cb_wWidth(Fl_Int_Input*, void*);
+public:
   Fl_Int_Input *wHeight;
+private:
+  inline void cb_wHeight_i(Fl_Int_Input*, void*);
+  static void cb_wHeight(Fl_Int_Input*, void*);
+public:
   Fl_Check_Button *wFullScreen;
+private:
+  inline void cb_wFullScreen_i(Fl_Check_Button*, void*);
+  static void cb_wFullScreen(Fl_Check_Button*, void*);
+public:
   Fl_Check_Button *wHideMouse;
+private:
+  inline void cb_wHideMouse_i(Fl_Check_Button*, void*);
+  static void cb_wHideMouse(Fl_Check_Button*, void*);
+public:
   Fl_Check_Button *wLaunchMonitorAtBoot;
+private:
+  inline void cb_wLaunchMonitorAtBoot_i(Fl_Check_Button*, void*);
+  static void cb_wLaunchMonitorAtBoot(Fl_Check_Button*, void*);
+public:
   Fl_Check_Button *wBreakAtROMBoot;
+private:
+  inline void cb_wBreakAtROMBoot_i(Fl_Check_Button*, void*);
+  static void cb_wBreakAtROMBoot(Fl_Check_Button*, void*);
+public:
   Fl_Check_Button *wShowMenubar;
+private:
+  inline void cb_wShowMenubar_i(Fl_Check_Button*, void*);
+  static void cb_wShowMenubar(Fl_Check_Button*, void*);
+public:
   Fl_Check_Button *wShowToolbar;
+private:
+  inline void cb_wShowToolbar_i(Fl_Check_Button*, void*);
+  static void cb_wShowToolbar(Fl_Check_Button*, void*);
+public:
   Fl_Check_Button *wShowSpecialKeys;
 private:
   inline void cb_wShowSpecialKeys_i(Fl_Check_Button*, void*);
   static void cb_wShowSpecialKeys(Fl_Check_Button*, void*);
 public:
   Fl_Input_Choice *wScale;
+private:
+  inline void cb_wScale_i(Fl_Input_Choice*, void*);
+  static void cb_wScale(Fl_Input_Choice*, void*);
   static Fl_Menu_Item menu_wScale[];
+public:
   Fl_Box *wUIHeadline;
   Fl_Browser *wPCCardList;
 private:
@@ -179,29 +224,53 @@ private:
   static void cb_wPCCardEditPath(Fl_Menu_*, void*);
 public:
   Fl_Input_Choice *wUnnaPath;
+private:
+  inline void cb_wUnnaPath_i(Fl_Input_Choice*, void*);
+  static void cb_wUnnaPath(Fl_Input_Choice*, void*);
   static Fl_Menu_Item menu_wUnnaPath[];
+public:
   Fl_Button *wUnnaPathChoose;
 private:
   inline void cb_wUnnaPathChoose_i(Fl_Button*, void*);
   static void cb_wUnnaPathChoose(Fl_Button*, void*);
 public:
   Fl_Input_Choice *wMessagepadOrgPath;
+private:
+  inline void cb_wMessagepadOrgPath_i(Fl_Input_Choice*, void*);
+  static void cb_wMessagepadOrgPath(Fl_Input_Choice*, void*);
   static Fl_Menu_Item menu_wMessagepadOrgPath[];
+public:
   Fl_Input_Choice *wGitRepoPath;
+private:
+  inline void cb_wGitRepoPath_i(Fl_Input_Choice*, void*);
+  static void cb_wGitRepoPath(Fl_Input_Choice*, void*);
   static Fl_Menu_Item menu_wGitRepoPath[];
+public:
   Fl_Input *wDevAsmPath;
+private:
+  inline void cb_wDevAsmPath_i(Fl_Input*, void*);
+  static void cb_wDevAsmPath(Fl_Input*, void*);
+public:
   Fl_Button *wDevAsmPathChoose;
 private:
   inline void cb_wDevAsmPathChoose_i(Fl_Button*, void*);
   static void cb_wDevAsmPathChoose(Fl_Button*, void*);
 public:
   Fl_Input *wDevObjCopyPath;
+private:
+  inline void cb_wDevObjCopyPath_i(Fl_Input*, void*);
+  static void cb_wDevObjCopyPath(Fl_Input*, void*);
+public:
   Fl_Button *wDevObjCopyPathChoose;
 private:
   inline void cb_wDevObjCopyPathChoose_i(Fl_Button*, void*);
   static void cb_wDevObjCopyPathChoose(Fl_Button*, void*);
 public:
   Fl_Input *wDevObjDumpPath;
+private:
+  inline void cb_wDevObjDumpPath_i(Fl_Input*, void*);
+  static void cb_wDevObjDumpPath(Fl_Input*, void*);
+public:
   Fl_Button *wDevObjDumpPathChoose;
 private:
   inline void cb_wDevObjDumpPathChoose_i(Fl_Button*, void*);
@@ -212,26 +281,15 @@ private:
   inline void cb_wSidebarButton_i(Fl_Button*, void*);
   static void cb_wSidebarButton(Fl_Button*, void*);
 public:
-  Fl_Check_Button *wDontShow;
-  Fl_Button *wQuit;
+  Fl_Check_Button *wShowAtStartup;
 private:
-  inline void cb_wQuit_i(Fl_Button*, void*);
-  static void cb_wQuit(Fl_Button*, void*);
+  inline void cb_wShowAtStartup_i(Fl_Check_Button*, void*);
+  static void cb_wShowAtStartup(Fl_Check_Button*, void*);
 public:
-  Fl_Button *wStart;
+  Fl_Return_Button *wStart;
 private:
-  inline void cb_wStart_i(Fl_Button*, void*);
-  static void cb_wStart(Fl_Button*, void*);
-public:
-  Fl_Button *wRevert;
-private:
-  inline void cb_wRevert_i(Fl_Button*, void*);
-  static void cb_wRevert(Fl_Button*, void*);
-public:
-  Fl_Button *wSave;
-private:
-  inline void cb_wSave_i(Fl_Button*, void*);
-  static void cb_wSave(Fl_Button*, void*);
+  inline void cb_wStart_i(Fl_Return_Button*, void*);
+  static void cb_wStart(Fl_Return_Button*, void*);
 public:
   void updateMenus();
   void revertDialog();
@@ -239,7 +297,7 @@ public:
   void updateSpecialKeysCheckbox();
   void updateEditable();
   void updateHeadline();
-  void runningMode();
+  void settingsChanged();
 private:
   void close_window_cb(Fl_Widget*, void *user);
 public:

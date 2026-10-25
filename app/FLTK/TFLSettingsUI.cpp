@@ -347,12 +347,13 @@ Fl_Group* addInstallerScript(const char *inTitle, StringList *inScriptList) {
 }
 
 void TFLSettingsUI::cb_Einstein_i(Fl_Double_Window*, void*) {
-  if (wQuit->visible()){
-      exit(0);
-  } else {
-      revertDialog();
+  // Changes are saved as they are made; this catches a text field that
+  // still has the focus. Without a machine running here, closing quits.
+  settingsChanged();
+  if (mRunningMode)
       mSettingsPanel->hide();
-  }
+  else
+      exit(0);
 }
 void TFLSettingsUI::cb_Einstein(Fl_Double_Window* o, void* v) {
   ((TFLSettingsUI*)(o->user_data()))->cb_Einstein_i(o,v);
@@ -421,6 +422,7 @@ void TFLSettingsUI::cb_wROMName_i(Fl_Input*, void*) {
     wROMPath->copy_label(buf);
     wROMDetails->copy_label(GetROMDetails(buf));
     updateSpecialKeysCheckbox();
+    settingsChanged();
   }
 }
 void TFLSettingsUI::cb_wROMName(Fl_Input* o, void* v) {
@@ -438,6 +440,7 @@ void TFLSettingsUI::cb_wROMPathChoose_i(Fl_Button*, void*) {
       wROMPath->copy_label(filename);
       wROMDetails->copy_label(GetROMDetails(filename));
       updateSpecialKeysCheckbox();
+      settingsChanged();
   }
 }
 void TFLSettingsUI::cb_wROMPathChoose(Fl_Button* o, void* v) {
@@ -453,6 +456,7 @@ void TFLSettingsUI::cb_wFlashName_i(Fl_Input*, void*) {
     *name = 0;
     strncat(buf, wFlashName->value(), FL_PATH_MAX);
     wFlashPath->copy_label(buf);
+    settingsChanged();
   }
 }
 void TFLSettingsUI::cb_wFlashName(Fl_Input* o, void* v) {
@@ -468,6 +472,7 @@ void TFLSettingsUI::cb_wFlashPathCreate_i(Fl_Button*, void*) {
   if (filename) {
       wFlashName->value(fl_filename_name(filename));
       wFlashPath->copy_label(filename);
+      settingsChanged();
   }
 }
 void TFLSettingsUI::cb_wFlashPathCreate(Fl_Button* o, void* v) {
@@ -483,10 +488,18 @@ void TFLSettingsUI::cb_wFlashPathChoose_i(Fl_Button*, void*) {
   if (filename) {
       wFlashName->value(fl_filename_name(filename));
       wFlashPath->copy_label(filename);
+      settingsChanged();
   }
 }
 void TFLSettingsUI::cb_wFlashPathChoose(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashPathChoose_i(o,v);
+}
+
+void TFLSettingsUI::cb_wRAMSizeChoice_i(Fl_Choice*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wRAMSizeChoice(Fl_Choice* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wRAMSizeChoice_i(o,v);
 }
 
 Fl_Menu_Item TFLSettingsUI::menu_wRAMSizeChoice[] = {
@@ -497,11 +510,82 @@ Fl_Menu_Item TFLSettingsUI::menu_wRAMSizeChoice[] = {
  {0,0,0,0,0,0,0,0,0}
 };
 
+void TFLSettingsUI::cb_wFastStart_i(Fl_Check_Button*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wFastStart(Fl_Check_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_wFastStart_i(o,v);
+}
+
+void TFLSettingsUI::cb_wWidth_i(Fl_Int_Input*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wWidth(Fl_Int_Input* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wWidth_i(o,v);
+}
+
+void TFLSettingsUI::cb_wHeight_i(Fl_Int_Input*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wHeight(Fl_Int_Input* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wHeight_i(o,v);
+}
+
+void TFLSettingsUI::cb_wFullScreen_i(Fl_Check_Button*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wFullScreen(Fl_Check_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFullScreen_i(o,v);
+}
+
+void TFLSettingsUI::cb_wHideMouse_i(Fl_Check_Button*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wHideMouse(Fl_Check_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wHideMouse_i(o,v);
+}
+
+void TFLSettingsUI::cb_wLaunchMonitorAtBoot_i(Fl_Check_Button*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wLaunchMonitorAtBoot(Fl_Check_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wLaunchMonitorAtBoot_i(o,v);
+}
+
+void TFLSettingsUI::cb_wBreakAtROMBoot_i(Fl_Check_Button*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wBreakAtROMBoot(Fl_Check_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wBreakAtROMBoot_i(o,v);
+}
+
+void TFLSettingsUI::cb_wShowMenubar_i(Fl_Check_Button*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wShowMenubar(Fl_Check_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wShowMenubar_i(o,v);
+}
+
+void TFLSettingsUI::cb_wShowToolbar_i(Fl_Check_Button*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wShowToolbar(Fl_Check_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wShowToolbar_i(o,v);
+}
+
 void TFLSettingsUI::cb_wShowSpecialKeys_i(Fl_Check_Button* o, void*) {
   mDialogShowSpecialKeys = o->value();
+  settingsChanged();
 }
 void TFLSettingsUI::cb_wShowSpecialKeys(Fl_Check_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wShowSpecialKeys_i(o,v);
+}
+
+void TFLSettingsUI::cb_wScale_i(Fl_Input_Choice*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wScale(Fl_Input_Choice* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wScale_i(o,v);
 }
 
 Fl_Menu_Item TFLSettingsUI::menu_wScale[] = {
@@ -571,6 +655,7 @@ void TFLSettingsUI::cb_Add_i(Fl_Menu_*, void*) {
 
   cleanup:
   if (imageName) free(imageName);
+  settingsChanged();
 }
 void TFLSettingsUI::cb_Add(Fl_Menu_* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_Add_i(o,v);
@@ -618,6 +703,7 @@ void TFLSettingsUI::cb_New_i(Fl_Menu_*, void* v) {
 
     cleanup:
     if (imageName) free(imageName);
+    settingsChanged();
 }
 void TFLSettingsUI::cb_New(Fl_Menu_* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_New_i(o,v);
@@ -675,6 +761,7 @@ void TFLSettingsUI::cb_Create_i(Fl_Menu_*, void*) {
   if (dataFilename) free(dataFilename);
   if (cisFilename) free(cisFilename);
   if (imageName) free(imageName);
+  settingsChanged();
 }
 void TFLSettingsUI::cb_Create(Fl_Menu_* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_Create_i(o,v);
@@ -723,6 +810,7 @@ void TFLSettingsUI::cb_New1_i(Fl_Menu_*, void* v) {
 
     cleanup:
     if (imageName) free(imageName);
+    settingsChanged();
 }
 void TFLSettingsUI::cb_New1(Fl_Menu_* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_New1_i(o,v);
@@ -753,6 +841,7 @@ void TFLSettingsUI::cb_wPCCardListRemove_i(Fl_Button*, void*) {
   if (ix>0 && ix<=wPCCardList->size()) {
     wPCCardList->remove(ix);
   }
+  settingsChanged();
 }
 void TFLSettingsUI::cb_wPCCardListRemove(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wPCCardListRemove_i(o,v);
@@ -765,6 +854,7 @@ void TFLSettingsUI::cb_wPCCardMoveUp_i(Fl_Button*, void*) {
     wPCCardList->value(ix-1);
     wPCCardList->do_callback();
   }
+  settingsChanged();
 }
 void TFLSettingsUI::cb_wPCCardMoveUp(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wPCCardMoveUp_i(o,v);
@@ -777,6 +867,7 @@ void TFLSettingsUI::cb_wPCCardMoveDown_i(Fl_Button*, void*) {
     wPCCardList->value(ix+1);
     wPCCardList->do_callback();
   }
+  settingsChanged();
 }
 void TFLSettingsUI::cb_wPCCardMoveDown(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wPCCardMoveDown_i(o,v);
@@ -790,6 +881,7 @@ void TFLSettingsUI::cb_wPCCardEditName_i(Fl_Menu_*, void*) {
     if (newName)
       wPCCardList->text(ix, newName);
   }
+  settingsChanged();
 }
 void TFLSettingsUI::cb_wPCCardEditName(Fl_Menu_* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wPCCardEditName_i(o,v);
@@ -807,6 +899,7 @@ void TFLSettingsUI::cb_wPCCardEditTag_i(Fl_Menu_*, void*) {
     if (newTag)
       card->SetTag(newTag);
   }
+  settingsChanged();
 }
 void TFLSettingsUI::cb_wPCCardEditTag(Fl_Menu_* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wPCCardEditTag_i(o,v);
@@ -831,6 +924,7 @@ void TFLSettingsUI::cb_wPCCardEditPath_i(Fl_Menu_*, void*) {
     if (newPath)
       card->SetImagePath(newPath);
   }
+  settingsChanged();
 }
 void TFLSettingsUI::cb_wPCCardEditPath(Fl_Menu_* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wPCCardEditPath_i(o,v);
@@ -848,6 +942,13 @@ Fl_Menu_Item* TFLSettingsUI::wPCCardEditName = TFLSettingsUI::menu_1 + 1;
 Fl_Menu_Item* TFLSettingsUI::wPCCardEditTag = TFLSettingsUI::menu_1 + 2;
 Fl_Menu_Item* TFLSettingsUI::wPCCardEditPath = TFLSettingsUI::menu_1 + 3;
 
+void TFLSettingsUI::cb_wUnnaPath_i(Fl_Input_Choice*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wUnnaPath(Fl_Input_Choice* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wUnnaPath_i(o,v);
+}
+
 Fl_Menu_Item TFLSettingsUI::menu_wUnnaPath[] = {
  {"http://www.unna.org/", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"http://vermont.unna.org/", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
@@ -863,10 +964,18 @@ void TFLSettingsUI::cb_wUnnaPathChoose_i(Fl_Button*, void*) {
   );
   if (filename) {
       wUnnaPath->value(filename);
+      settingsChanged();
   }
 }
 void TFLSettingsUI::cb_wUnnaPathChoose(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wUnnaPathChoose_i(o,v);
+}
+
+void TFLSettingsUI::cb_wMessagepadOrgPath_i(Fl_Input_Choice*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wMessagepadOrgPath(Fl_Input_Choice* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wMessagepadOrgPath_i(o,v);
 }
 
 Fl_Menu_Item TFLSettingsUI::menu_wMessagepadOrgPath[] = {
@@ -874,10 +983,24 @@ Fl_Menu_Item TFLSettingsUI::menu_wMessagepadOrgPath[] = {
  {0,0,0,0,0,0,0,0,0}
 };
 
+void TFLSettingsUI::cb_wGitRepoPath_i(Fl_Input_Choice*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wGitRepoPath(Fl_Input_Choice* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wGitRepoPath_i(o,v);
+}
+
 Fl_Menu_Item TFLSettingsUI::menu_wGitRepoPath[] = {
  {"https://github.com/pguyot/Einstein.git", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {0,0,0,0,0,0,0,0,0}
 };
+
+void TFLSettingsUI::cb_wDevAsmPath_i(Fl_Input*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wDevAsmPath(Fl_Input* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wDevAsmPath_i(o,v);
+}
 
 void TFLSettingsUI::cb_wDevAsmPathChoose_i(Fl_Button*, void*) {
   const char *filename = gApp->ChooseExistingFile(
@@ -887,10 +1010,18 @@ void TFLSettingsUI::cb_wDevAsmPathChoose_i(Fl_Button*, void*) {
   );
   if (filename) {
       wDevAsmPath->value(filename);
+      settingsChanged();
   }
 }
 void TFLSettingsUI::cb_wDevAsmPathChoose(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wDevAsmPathChoose_i(o,v);
+}
+
+void TFLSettingsUI::cb_wDevObjCopyPath_i(Fl_Input*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wDevObjCopyPath(Fl_Input* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wDevObjCopyPath_i(o,v);
 }
 
 void TFLSettingsUI::cb_wDevObjCopyPathChoose_i(Fl_Button*, void*) {
@@ -901,10 +1032,18 @@ void TFLSettingsUI::cb_wDevObjCopyPathChoose_i(Fl_Button*, void*) {
   );
   if (filename) {
       wDevObjCopyPath->value(filename);
+      settingsChanged();
   }
 }
 void TFLSettingsUI::cb_wDevObjCopyPathChoose(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wDevObjCopyPathChoose_i(o,v);
+}
+
+void TFLSettingsUI::cb_wDevObjDumpPath_i(Fl_Input*, void*) {
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wDevObjDumpPath(Fl_Input* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_wDevObjDumpPath_i(o,v);
 }
 
 void TFLSettingsUI::cb_wDevObjDumpPathChoose_i(Fl_Button*, void*) {
@@ -915,6 +1054,7 @@ void TFLSettingsUI::cb_wDevObjDumpPathChoose_i(Fl_Button*, void*) {
   );
   if (filename) {
       wDevObjDumpPath->value(filename);
+      settingsChanged();
   }
 }
 void TFLSettingsUI::cb_wDevObjDumpPathChoose(Fl_Button* o, void* v) {
@@ -928,35 +1068,18 @@ void TFLSettingsUI::cb_wSidebarButton(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->user_data()))->cb_wSidebarButton_i(o,v);
 }
 
-void TFLSettingsUI::cb_wQuit_i(Fl_Button*, void*) {
-  exit(0);
+void TFLSettingsUI::cb_wShowAtStartup_i(Fl_Check_Button*, void*) {
+  settingsChanged();
 }
-void TFLSettingsUI::cb_wQuit(Fl_Button* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->user_data()))->cb_wQuit_i(o,v);
+void TFLSettingsUI::cb_wShowAtStartup(Fl_Check_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->user_data()))->cb_wShowAtStartup_i(o,v);
 }
 
-void TFLSettingsUI::cb_wStart_i(Fl_Button*, void*) {
-  StartHere();
+void TFLSettingsUI::cb_wStart_i(Fl_Return_Button*, void*) {
+  StartMachine(mEditMachine);
 }
-void TFLSettingsUI::cb_wStart(Fl_Button* o, void* v) {
+void TFLSettingsUI::cb_wStart(Fl_Return_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->user_data()))->cb_wStart_i(o,v);
-}
-
-void TFLSettingsUI::cb_wRevert_i(Fl_Button*, void*) {
-  revertDialog();
-  mSettingsPanel->redraw();
-}
-void TFLSettingsUI::cb_wRevert(Fl_Button* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->user_data()))->cb_wRevert_i(o,v);
-}
-
-void TFLSettingsUI::cb_wSave_i(Fl_Button*, void*) {
-  applyDialog();
-  savePreferences();
-  mSettingsPanel->hide();
-}
-void TFLSettingsUI::cb_wSave(Fl_Button* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->user_data()))->cb_wSave_i(o,v);
 }
 
 void TFLSettingsUI::cb_wAbout_i(Fl_Double_Window* o, void*) {
@@ -1671,6 +1794,7 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
               wROMName->labelsize(13);
               wROMName->textsize(12);
               wROMName->callback((Fl_Callback*)cb_wROMName);
+              wROMName->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
             } // Fl_Input* wROMName
             { wROMPath = new Fl_Box(120, 115, 310, 27, "/here/goes/the/path/and/filename/of/the/ROM");
               wROMPath->labelsize(11);
@@ -1696,6 +1820,7 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
               wFlashName->labelsize(13);
               wFlashName->textsize(12);
               wFlashName->callback((Fl_Callback*)cb_wFlashName);
+              wFlashName->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
             } // Fl_Input* wFlashName
             { wFlashPath = new Fl_Box(120, 210, 310, 27, "/here/goes/the/path/and/filename/of/the/FlashFile");
               wFlashPath->labelsize(11);
@@ -1722,6 +1847,7 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
               wRAMSizeChoice->down_box(FL_BORDER_BOX);
               wRAMSizeChoice->labelsize(13);
               wRAMSizeChoice->textsize(12);
+              wRAMSizeChoice->callback((Fl_Callback*)cb_wRAMSizeChoice);
               wRAMSizeChoice->menu(menu_wRAMSizeChoice);
             } // Fl_Choice* wRAMSizeChoice
             o->end();
@@ -1738,6 +1864,7 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
 " next start continues from there, if nothing changed in the meantime.");
             wFastStart->down_box(FL_DOWN_BOX);
             wFastStart->labelsize(13);
+            wFastStart->callback((Fl_Callback*)cb_wFastStart);
           } // Fl_Check_Button* wFastStart
           mMessagePadTab->end();
         } // Fl_Group* mMessagePadTab
@@ -1756,6 +1883,8 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
               wWidth->color(FL_LIGHT3);
               wWidth->labelsize(13);
               wWidth->textsize(12);
+              wWidth->callback((Fl_Callback*)cb_wWidth);
+              wWidth->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
             } // Fl_Int_Input* wWidth
             { wHeight = new Fl_Int_Input(215, 90, 80, 20, "x ");
               wHeight->tooltip("Screen height in pixels,\nOriginal screen size is 320x480");
@@ -1763,6 +1892,8 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
               wHeight->color(FL_LIGHT3);
               wHeight->labelsize(12);
               wHeight->textsize(12);
+              wHeight->callback((Fl_Callback*)cb_wHeight);
+              wHeight->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
             } // Fl_Int_Input* wHeight
             { Fl_Box* o = new Fl_Box(120, 112, 290, 28, "MessagePad: 320 x 480 (portrait)\neMate 300: 480 x 320 (landscape)");
               o->labelsize(11);
@@ -1771,6 +1902,7 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
             { wFullScreen = new Fl_Check_Button(120, 150, 308, 20, "Full screen");
               wFullScreen->down_box(FL_DOWN_BOX);
               wFullScreen->labelsize(13);
+              wFullScreen->callback((Fl_Callback*)cb_wFullScreen);
               wFullScreen->deactivate();
             } // Fl_Check_Button* wFullScreen
             { wHideMouse = new Fl_Check_Button(120, 175, 208, 20, "Hide mouse pointer");
@@ -1778,23 +1910,28 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
 "s.");
               wHideMouse->down_box(FL_DOWN_BOX);
               wHideMouse->labelsize(13);
+              wHideMouse->callback((Fl_Callback*)cb_wHideMouse);
             } // Fl_Check_Button* wHideMouse
             { wLaunchMonitorAtBoot = new Fl_Check_Button(120, 200, 196, 20, "Launch Monitor at Boot");
               wLaunchMonitorAtBoot->down_box(FL_DOWN_BOX);
               wLaunchMonitorAtBoot->labelsize(13);
+              wLaunchMonitorAtBoot->callback((Fl_Callback*)cb_wLaunchMonitorAtBoot);
             } // Fl_Check_Button* wLaunchMonitorAtBoot
             { wBreakAtROMBoot = new Fl_Check_Button(145, 225, 196, 20, "Break at ROMBoot");
               wBreakAtROMBoot->down_box(FL_DOWN_BOX);
               wBreakAtROMBoot->labelsize(13);
+              wBreakAtROMBoot->callback((Fl_Callback*)cb_wBreakAtROMBoot);
               wBreakAtROMBoot->deactivate();
             } // Fl_Check_Button* wBreakAtROMBoot
             { wShowMenubar = new Fl_Check_Button(120, 250, 196, 20, "Menubar");
               wShowMenubar->down_box(FL_DOWN_BOX);
               wShowMenubar->labelsize(13);
+              wShowMenubar->callback((Fl_Callback*)cb_wShowMenubar);
             } // Fl_Check_Button* wShowMenubar
             { wShowToolbar = new Fl_Check_Button(120, 275, 196, 20, "Toolbar");
               wShowToolbar->down_box(FL_DOWN_BOX);
               wShowToolbar->labelsize(13);
+              wShowToolbar->callback((Fl_Callback*)cb_wShowToolbar);
             } // Fl_Check_Button* wShowToolbar
             { wShowSpecialKeys = new Fl_Check_Button(120, 300, 196, 20, "Special Keys (eMate)");
               wShowSpecialKeys->tooltip("Show the eMate\'s Special Keys under the screen.\nOnly the eMate ROM knows th"
@@ -1819,10 +1956,12 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
             { Fl_Box* o = new Fl_Box(132, 278, 204, 28, "Show at startup: machine choice, settings, last open machine");
               o->hide();
             } // Fl_Box* o
-            { wScale = new Fl_Input_Choice(340, 90, 60, 20, "Scale:");
+            { Fl_Input_Choice* o = wScale = new Fl_Input_Choice(340, 90, 60, 20, "Scale:");
               wScale->labelsize(12);
               wScale->textsize(12);
+              wScale->callback((Fl_Callback*)cb_wScale);
               wScale->menu(menu_wScale);
+              o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);
             } // Fl_Input_Choice* wScale
             { Fl_Box* o = new Fl_Box(400, 90, 1, 20, "%");
               o->labelsize(12);
@@ -1882,8 +2021,10 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
           wUnnaPath->color(FL_LIGHT3);
           wUnnaPath->labelsize(13);
           wUnnaPath->textsize(12);
+          wUnnaPath->callback((Fl_Callback*)cb_wUnnaPath);
           wUnnaPath->menu(menu_wUnnaPath);
           o->value("http://www.unna.org/");
+          o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);
         } // Fl_Input_Choice* wUnnaPath
         { wUnnaPathChoose = new Fl_Button(382, 80, 42, 20, "@fileopen");
           wUnnaPathChoose->tooltip("Select a local copy of the UNNA archive");
@@ -1895,15 +2036,19 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
           wMessagepadOrgPath->color(FL_LIGHT3);
           wMessagepadOrgPath->labelsize(13);
           wMessagepadOrgPath->textsize(12);
+          wMessagepadOrgPath->callback((Fl_Callback*)cb_wMessagepadOrgPath);
           wMessagepadOrgPath->menu(menu_wMessagepadOrgPath);
           o->value("http://www.messagepad.org/");
+          o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);
         } // Fl_Input_Choice* wMessagepadOrgPath
         { Fl_Input_Choice* o = wGitRepoPath = new Fl_Input_Choice(172, 150, 252, 20, "Git Repository: ");
           wGitRepoPath->color(FL_LIGHT3);
           wGitRepoPath->labelsize(13);
           wGitRepoPath->textsize(12);
+          wGitRepoPath->callback((Fl_Callback*)cb_wGitRepoPath);
           wGitRepoPath->menu(menu_wGitRepoPath);
           o->value("https://github.com/pguyot/Einstein.git");
+          o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);
         } // Fl_Input_Choice* wGitRepoPath
         { Fl_Box* o = new Fl_Box(172, 280, 252, 36, "Advanced tools for creating native functions in NewtonScript packaeges and RO"
 "M patches");
@@ -1914,6 +2059,8 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
           wDevAsmPath->tooltip("full path to ARM cross assembler");
           wDevAsmPath->labelsize(13);
           wDevAsmPath->textsize(12);
+          wDevAsmPath->callback((Fl_Callback*)cb_wDevAsmPath);
+          wDevAsmPath->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
         } // Fl_Input* wDevAsmPath
         { wDevAsmPathChoose = new Fl_Button(382, 320, 42, 20, "@fileopen");
           wDevAsmPathChoose->labelsize(12);
@@ -1924,6 +2071,8 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
           wDevObjCopyPath->tooltip("full path to ARM cross objcopy tool");
           wDevObjCopyPath->labelsize(13);
           wDevObjCopyPath->textsize(12);
+          wDevObjCopyPath->callback((Fl_Callback*)cb_wDevObjCopyPath);
+          wDevObjCopyPath->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
         } // Fl_Input* wDevObjCopyPath
         { wDevObjCopyPathChoose = new Fl_Button(382, 344, 42, 20, "@fileopen");
           wDevObjCopyPathChoose->tooltip("Select a local copy of the UNNA archive");
@@ -1935,6 +2084,8 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
           wDevObjDumpPath->tooltip("full path to ARM cross objdump tool");
           wDevObjDumpPath->labelsize(13);
           wDevObjDumpPath->textsize(12);
+          wDevObjDumpPath->callback((Fl_Callback*)cb_wDevObjDumpPath);
+          wDevObjDumpPath->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
         } // Fl_Input* wDevObjDumpPath
         { wDevObjDumpPathChoose = new Fl_Button(382, 368, 42, 20, "@fileopen");
           wDevObjDumpPathChoose->labelsize(12);
@@ -1951,33 +2102,19 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       wSidebarButton->labelsize(11);
       wSidebarButton->callback((Fl_Callback*)cb_wSidebarButton);
     } // Fl_Button* wSidebarButton
-    { wDontShow = new Fl_Check_Button(48, 422, 140, 21, "Don\'t show at startup");
-      wDontShow->down_box(FL_DOWN_BOX);
-      wDontShow->labelsize(12);
-    } // Fl_Check_Button* wDontShow
-    { wQuit = new Fl_Button(217, 420, 95, 25, "Quit");
-      wQuit->color(FL_LIGHT1);
-      wQuit->labelsize(12);
-      wQuit->callback((Fl_Callback*)cb_wQuit);
-    } // Fl_Button* wQuit
-    { wStart = new Fl_Button(322, 420, 95, 25, "Start");
+    { wShowAtStartup = new Fl_Check_Button(48, 422, 140, 21, "Show at startup");
+      wShowAtStartup->tooltip("Show the Settings when Einstein starts.\nOtherwise the last machine starts at"
+" once.");
+      wShowAtStartup->down_box(FL_DOWN_BOX);
+      wShowAtStartup->labelsize(12);
+      wShowAtStartup->callback((Fl_Callback*)cb_wShowAtStartup);
+    } // Fl_Check_Button* wShowAtStartup
+    { wStart = new Fl_Return_Button(322, 420, 95, 25, "Start");
+      wStart->tooltip("Start the machine shown in the tabs.");
       wStart->color(FL_LIGHT1);
       wStart->labelsize(12);
       wStart->callback((Fl_Callback*)cb_wStart);
-      Fl::focus(wStart);
-    } // Fl_Button* wStart
-    { wRevert = new Fl_Button(217, 420, 95, 25, "Revert");
-      wRevert->color(FL_LIGHT1);
-      wRevert->labelsize(12);
-      wRevert->callback((Fl_Callback*)cb_wRevert);
-      wRevert->hide();
-    } // Fl_Button* wRevert
-    { wSave = new Fl_Button(322, 420, 95, 25, "Save");
-      wSave->color(FL_LIGHT1);
-      wSave->labelsize(12);
-      wSave->callback((Fl_Callback*)cb_wSave);
-      wSave->hide();
-    } // Fl_Button* wSave
+    } // Fl_Return_Button* wStart
     { Fl_Box* o = new Fl_Box(10, 410, 430, 5);
       o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));
     } // Fl_Box* o
@@ -2133,7 +2270,7 @@ void TFLSettingsUI::revertDialog() {
 
   // ---- Dialog
 
-  wDontShow->value(dontShow);
+  wShowAtStartup->value(!dontShow);
 
   updateMenus();
 }
@@ -2199,7 +2336,7 @@ void TFLSettingsUI::applyDialog() {
 
   // Dialog
 
-  dontShow = wDontShow->value();
+  dontShow = !wShowAtStartup->value();
 
   updateMenus();
 }
@@ -2230,12 +2367,13 @@ void TFLSettingsUI::updateEditable() {
   }
   if (editable) {
     updateSpecialKeysCheckbox();
-    wRestartWarning->label("Setting changes apply only after a  restart");
-    if (mRunningMode) wRestartWarning->show(); else wRestartWarning->hide();
+    wRestartWarning->label("Changes apply the next time this machine starts");
+    if (IsRunning(mEditMachine)) wRestartWarning->show(); else wRestartWarning->hide();
   } else {
     wRestartWarning->label("Runs in another Einstein window, so it can't be changed");
     wRestartWarning->show();
   }
+  if (IsRunning(mEditMachine)) wStart->deactivate(); else wStart->activate();
   mSettingsPanel->redraw();
 }
 
@@ -2247,12 +2385,12 @@ void TFLSettingsUI::updateHeadline() {
   wUIHeadline->copy_label(mEditMachine->GetName());
 }
 
-void TFLSettingsUI::runningMode() {
-  wRestartWarning->show();
-  wQuit->hide();
-  wStart->hide();
-  wRevert->show();
-  wSave->show();
+/**
+ Every change in the Settings is saved at once; there is no Save button.
+*/
+void TFLSettingsUI::settingsChanged() {
+  applyDialog();
+  savePreferences();
 }
 
 void TFLSettingsUI::close_window_cb(Fl_Widget*, void *user) {

@@ -516,11 +516,10 @@ TFLSettings::ShowSettingsPanel()
 		return;
 	mRunningMode = true;
 	RefreshMachines();
-	runningMode();
 	revertDialog();
 	updateEditable();
 	mSettingsPanel->show();
-	// Release the lock when the window closes (any of its buttons hides it).
+	// Release the lock when the window closes.
 	Fl::add_timeout(0.5, SettingsLockTimer, this);
 }
 
@@ -1267,8 +1266,8 @@ TFLSettings::ToggleSidebar()
 }
 
 /**
- Show another machine in the tabs. What was changed for the previous one stays
- in memory until Save or Start.
+ Show another machine in the tabs. What was changed for the previous one is
+ saved first (a text field may still have the focus).
  */
 void
 TFLSettings::SelectMachine(TFLMachineSettings* inMachine)
@@ -1276,6 +1275,7 @@ TFLSettings::SelectMachine(TFLMachineSettings* inMachine)
 	if (inMachine == mEditMachine)
 		return;
 	applyDialog();
+	savePreferences();
 	mEditMachine = inMachine;
 	revertDialog();
 	updateEditable();

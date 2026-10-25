@@ -270,7 +270,6 @@ public:
 	virtual void applyDialog() = 0;
 	virtual void updateEditable() = 0;
 	virtual void updateHeadline() = 0;
-	virtual void runningMode() = 0;
 	virtual void HandlePopupMenu() = 0;
 
 	void ShowAboutDialog();
@@ -328,8 +327,8 @@ public:
 	void ToggleSidebar();
 	void ShowSidebar(bool inOpen);
 
-	// The actions of the machine list. Changes to the list are saved at once;
-	// changes in the tabs wait for Save or Start.
+	// The actions of the machine list. Changes to the list and in the tabs are
+	// saved at once.
 	void SelectMachine(TFLMachineSettings* inMachine);
 	void StartMachine(TFLMachineSettings* inMachine);
 	void NewMachine();

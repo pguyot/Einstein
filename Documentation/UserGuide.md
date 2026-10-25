@@ -60,18 +60,23 @@ When you start Einstein, the Settings window opens.
    next start.
 4. Leave *Fast start: continue where Einstein was quit* on (see
    [section 6](#6-fast-start-saving-and-restoring)).
-5. If you check **Don't show at startup**, Einstein starts the Newton right away
+5. If you turn off **Show at startup**, Einstein starts the Newton right away
    next time. You can open the Settings any time with **Window › Settings...**.
 6. Click **Start**.
+
+Changes in the Settings are saved as you make them; there is no Save button.
+Changes to a machine that is running apply the next time it starts.
 
 The Newton always shows your computer's date and time.
 
 The Newton starts. The first start takes a little longer, while NewtonOS sets
 up the new flash.
 
-To quit, choose **File › Quit** or close the window. Einstein first puts the
-Newton to sleep, so apps save what you are editing; this can take a few
-seconds.
+To quit, choose **File › Quit**. Einstein first puts the Newton to sleep, so
+apps save what you are editing; this can take a few seconds. **File › Close**
+(Cmd+Shift+W, so Cmd+W stays with NewtonOS) or closing the window does the
+same, but if the Settings window is open, it stays open and only the Newton
+stops.
 
 You can go back to an older version of Einstein: it starts the Newton with the
 same settings. It only shows the settings it knows, though, and when you click
@@ -383,8 +388,9 @@ with the **<<** button at the bottom left; Einstein remembers your choice.
     *Delete Files Too*, its folder as well. The last machine can't be
     deleted.
 
-Changes to the list take effect at once. Changes in the tabs take effect when
-you click **Start** or **Save**.
+Changes to the list and in the tabs are saved at once. While the list is
+shown, **Start** keeps the Settings window open, so you can start more
+machines from there.
 
 ### Running several machines at once
 
