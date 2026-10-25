@@ -1,94 +1,76 @@
-Binary Release v2026.10.23
-==========================
+Binary Release (next)
+=====================
 
 User Release Notes
 ------------------
- - The Newton goes to sleep again. Since January 2025, alarms that NewtonOS
-   sets for itself were set to a date in 1993, went off at once, and woke
-   the Newton every time it tried to sleep. Einstein now counts the
-   NewtonScript time from 2024, which is good until January 2041.
- - The date fix (Y2K10) now works for all four ROMs: U.S. and German
-   MessagePads, eMate 300 and Watson. Before, only the U.S. ROM showed the
-   right date; the others showed 1996.
- - Help › Install Essentials offers Apple's System Update for each ROM
-   (U.S. 717260, German 747260, eMate 737246; there is none for Watson)
-   instead of the Y2K10 patch packages. Don't install a Y2K10 patch
-   package: it replaces Einstein's fix with an older one, and the Newton
-   no longer goes to sleep. If you installed one, back up your Newton and
-   start with a new flash file.
- - Windows: the Newton's clock is no longer off by 150 days and one hour.
- - Windows: Einstein.exe no longer needs the Visual C++ Redistributable.
-   With an older version of it installed, Einstein could crash while the
-   Newton was booting.
- - Serial port: connections over TCP (for example to NCX or Newton
-   Connection), named pipes, pseudo terminals and BasiliskII are much more
-   reliable. Data that arrived faster than NewtonOS could read it
-   overwrote earlier bytes, so the Newton asked for the same data again and
-   again; NCX backups stopped halfway. Einstein now passes data on at about
-   the speed of a fast serial line.
- - Switching to another serial driver in the Settings or in Einstein Prefs
-   now stops the old driver cleanly.
- - Switching the serial port back to the Network Client keeps your server
-   address and port; before, it went back to 127.0.0.1:3679.
- - Fast start: a new version of Einstein starts the Newton normally instead
-   of continuing a state that an older version saved. Saved states (File ›
-   Save State) still load into a new version.
- - Quitting always puts the Newton to sleep first, also with Fast start
-   off, so apps save what you are editing. Before, a quit could lose the
-   last changes in an open note. (Works on the eMate still saves a document
-   only when you leave it, for example with Overview.)
- - Screen rotation: when you rotate the Newton's screen, Einstein starts in
-   the same rotation next time. After a fast start or when restoring a saved
-   state, a rotated screen no longer shows garbled lines.
- - eMate 300: the eMate starts in landscape. The screen size in the
-   Settings is the size at the start: 320 x 480 for a MessagePad, 480 x 320
-   for an eMate; both give an eMate the same screen.
- - eMate 300: the Special Keys (close, extras, dock, send, receive, scroll,
-   overview, undo, find, assist, light, power) appear as a row of buttons
-   under the screen. Turn them off with "Special Keys (eMate)" in the User
-   Interface tab of the Settings. On your keyboard, Esc and F1 to F10 do
-   the same.
- - F11 switches the backlight on or off, F12 presses the power button.
- - The German MessagePad, eMate 300 and Watson ROMs no longer ask to
-   calibrate the screen.
- - Alarms work: alarms and timers go off on time, also while the Newton
-   sleeps, which wakes it up. An alarm that came due while Einstein was
-   quit shows up at the next start.
- - The Newton always uses your computer's time zone, whatever home city
-   is set in Time Zones.
- - On a new Newton, the Setup Assistant picks a home city in your
-   computer's time zone. Before, the city was off by an hour in summer on
-   macOS, and in the wrong direction on Windows and Linux.
- - macOS: Einstein no longer asks for access to your contacts at every
-   launch. It asks when the Newton first wants your name and address, in
-   the Setup Assistant.
- - Einstein Prefs only offers serial drivers that exist.
- - The setting "Fetch date and time from host" is gone; it had no effect.
-   The Newton always shows your computer's date and time.
+ - Several machines: the Settings window has a list of emulated Newtons on
+   the left (open it with the << button at the bottom left). Each machine
+   has its own ROM, internal storage, memory, screen, serial port, saved
+   states and PC Cards, and its own Newton ID. Add, duplicate, rename,
+   reorder and delete machines from the list; start one with its play
+   button.
+ - Several machines can run at the same time, each in its own Einstein
+   window, with its name in the window title. A machine can only run once,
+   a PC Card can only be in one running machine, and two machines can't run
+   on the same internal storage file. While a machine runs in another
+   window, its settings can't be changed.
+ - Your settings so far become the first machine. It keeps its ROM and its
+   internal storage where they were, and its Newton ID, so existing backups
+   in Newton Connection and NCX still match it. An older Einstein starts the
+   first machine in the list.
+ - The ROM and the internal storage can be kept in the machine's folder or
+   used from anywhere on your computer; Einstein remembers both, so you can
+   switch back and forth. A machine whose files are in its folder can be
+   taken to another computer: copy the folder, and add it there with
+   + › Add Existing Machine...
+ - A light shows whether Einstein knows the ROM (green), doesn't know the
+   file (yellow) or has none (red), and whether the internal storage exists.
+   Brain Wipe... in the Settings erases the internal storage, after asking.
+ - The Settings save every change at once; Start is the only button. While
+   the machine list is shown, the Settings window stays open after Start,
+   so you can start more machines. "Don't show at startup" is now "Show at
+   startup".
+ - File › Close (Cmd+Shift+W, so Cmd+W stays with NewtonOS) and the window's
+   close button end the Newton like Quit, but keep the Settings window open
+   if it is. Quit always quits.
+ - Windows: Einstein no longer crashes when you close its window with fast
+   start on. The state was saved before the crash, so no data was lost.
+ - Windows: the Newton no longer freezes, and Einstein no longer hangs on
+   quit, when NewtonOS stops a sound (for example, quitting a few seconds
+   after launch).
+ - Install Essentials no longer crashes when a download server does not
+   answer; it shows "File can't be downloaded" instead.
 
 Developer Release Notes
 -----------------------
- - The emulated real-time clock counts UTC, as on a real Newton, and no
-   longer goes back to 1996 at every boot (all four ROMs). `GMTOffset()` and
-   `DaylightSavingsOffset()` return the host's time zone, and setting the
-   time in NewtonOS no longer changes the clock. Before, the clock ran on
-   local time, so alarms were off by the home city's offset and could fire
-   in an endless loop.
- - The RTC alarm interrupt is emulated: it fires once when the clock
-   reaches the alarm register, and wakes a sleeping Newton if the wake-up
-   mask (0x0F184800) allows it.
- - `Documentation/NewtonTime.md` describes how NewtonOS keeps the time,
-   the ROM addresses of the time patches, how to patch other ROMs and
-   physical Newtons, and the 2040 limit of the 32-bit clock.
- - The TCP client socket never blocks, also not while connecting, so a quit
-   or a driver change is answered at once. A server that does not answer is
-   given up after 5 seconds, and Einstein tries again after 3 seconds.
-
-Maintenance Release Notes
--------------------------
- - Windows ARM64 builds again with the static C runtime: FLTK 1.4.5's
-   `rint()` fallback is patched for old MSVC only
-   (`cmake/PatchFLTKMath.cmake`, until FLTK 1.5).
- - The unit tests pass on Linux x64, Linux ARM64, Windows and macOS. On
-   macOS they hung before `main()`, waiting for access to the contacts.
- - The Cocoa CI workflow builds, tests and archives the app unsigned.
+ - `--machine <name or id>` starts a machine without the Settings window.
+   An unknown machine is an error (exit code 1).
+ - Each machine has a folder `Machines/<uuid>/` in the user data folder:
+   `Machine.prefs` (its settings and Newton ID, `System/NewtonID`), its
+   flash, `FastStart.state`, `Einstein.state` and, if chosen, its ROM. The
+   main preferences hold the list (`Machines/Order`, `LastUsed`,
+   `SidebarOpen`) and the shared settings; the first machine is also
+   written to and read from the old keys.
+ - `Machine.prefs` stores the ROM and the flash as `inFolder`, `name` (the
+   file in the machine folder) and `path` (the file on the host). Files in
+   the machine folder, and the state file there, are stored by name only,
+   so the folder can be moved; the old keys get the full path of the file
+   in use.
+ - Lock files, released by the OS when a process ends: `Machine.lock` per
+   machine, `Settings.lock` for the Settings window, `Cards/<uuid>.lock`
+   while a PC Card is inserted, `Flash/<hash of the path>.lock` for the
+   flash file of a running machine.
+ - Close ends the emulation in the running process (`TFLApp::CloseNow()`:
+   the Newton sleeps, the fast start state is saved, the emulator thread is
+   joined and the locks are released); the process ends when the Settings
+   window closes. Machines started from the list run in a new process.
+ - macOS: Quit in the application menu calls `UserActionQuit()`
+   (`app/FLTK/TFLAppMac.mm`). FLTK's own Quit closes every window, which
+   would only be a Close now.
+ - The Settings dialog identifies a ROM without applying the ROM patches,
+   so "Applying patch at ..." appears only once.
+ - Windows sound: the waveOut device signals an event (`CALLBACK_EVENT`)
+   and a thread of Einstein's handles the played buffers. The callback
+   used to call waveOut functions, which deadlocked with `waveOutReset()`.
+ - `TBufferLog` writes to its refresh socket only if it is >= 0; the FLTK
+   app leaves it at -1, and `write(-1)` ends the program on Windows.
