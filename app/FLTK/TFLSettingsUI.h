@@ -83,10 +83,7 @@ private:
   static void cb_Power(Fl_Menu_*, void*);
 public:
   Fl_Group *mMessagePadTab;
-  Fl_Input *wMPConfigName;
-  Fl_Button *wMPConfigMenuButton;
-  Fl_Button *wMPConfigAddButton;
-  Fl_Button *wMPConfigRemoveButton;
+  Fl_Box *wMPHeadline;
   Fl_Input *wROMName;
 private:
   inline void cb_wROMName_i(Fl_Input*, void*);
@@ -135,10 +132,7 @@ private:
 public:
   Fl_Input_Choice *wScale;
   static Fl_Menu_Item menu_wScale[];
-  Fl_Input *wUIConfigName;
-  Fl_Button *wUIConfigMenuButton;
-  Fl_Button *wUIConfigAddButton;
-  Fl_Button *wUIConfigRemoveButton;
+  Fl_Box *wUIHeadline;
   Fl_Browser *wPCCardList;
 private:
   inline void cb_wPCCardList_i(Fl_Browser*, void*);
@@ -244,6 +238,7 @@ public:
   void applyDialog();
   void updateSpecialKeysCheckbox();
   void updateEditable();
+  void updateHeadline();
   void runningMode();
 private:
   void close_window_cb(Fl_Widget*, void *user);

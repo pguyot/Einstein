@@ -227,6 +227,8 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #endif
 #if TARGET_OS_MAC
 #include <mach-o/dyld.h>
+
+#include "app/FLTK/TFLAppMac.h"
 #endif
 
 // Einstein
@@ -486,6 +488,11 @@ TFLApp::Run(int argc, char* argv[])
 	Fl::lock();
 	wAppWindow->show(1, argv);
 	StoreAppWindowSize();
+#if TARGET_OS_MAC
+	// Closing the window is Close now, but Quit in the application menu
+	// must still quit.
+	TFLRedirectAppMenuQuit();
+#endif
 	if (hidemouse)
 	{
 		wAppWindow->HideMousePointer();
@@ -499,7 +506,7 @@ TFLApp::Run(int argc, char* argv[])
 		// }
 	}
 	// launch the actual emulation in the background
-	auto emulatorThread = new std::thread(&TFLApp::EmulatorThreadEntry, this);
+	mEmulatorThread = new std::thread(&TFLApp::EmulatorThreadEntry, this);
 
 	// The fast start state was saved while the Newton was asleep. Wake it up.
 	if (theFastStart == kFastStartLoaded)
@@ -513,6 +520,26 @@ TFLApp::Run(int argc, char* argv[])
 	// run the user interface until all windows are close
 	Fl::run();
 	Fl::unlock();
+
+	// Close may have ended the emulation already, with the Settings window
+	// left open.
+	EndEmulation();
+
+	// wait for the emulator to finish before we leave the house, too and lock the doors
+	if (mEmulatorThread->joinable())
+		mEmulatorThread->join();
+}
+
+/**
+ Stop the emulator, flush the PC Card contents and save the settings of the
+ machine that ran. This runs once, at Close or at the end of Run().
+ */
+void
+TFLApp::EndEmulation()
+{
+	if (mEmulationEnded)
+		return;
+	mEmulationEnded = true;
 
 	// if the emulator does not know yet, tell it to wrap things up and quit
 	mEmulator->Quit();
@@ -537,9 +564,6 @@ TFLApp::Run(int argc, char* argv[])
 	mFLSettings->mMachine->mScreenOrientation = mScreenManager->GetScreenOrientation();
 	mFLSettings->mMachine->mScreenOrientationROM = mROMImage->GetROMId();
 	mFLSettings->SaveRunningMachine();
-
-	// wait for the emulator to finish before we leave the house, too and lock the doors
-	emulatorThread->join();
 }
 
 // MARK: -
@@ -551,7 +575,15 @@ TFLApp::Run(int argc, char* argv[])
 void
 TFLApp::UserActionQuit()
 {
-	// A second quit while the fast start file is being saved does nothing.
+	// After Close, only the Settings window is left.
+	if (mEmulationEnded)
+	{
+		QuitNow();
+		return;
+	}
+	// A second quit while the fast start file is being saved does nothing,
+	// but a Quit after a Close quits.
+	mCloseOnly = false;
 	if (mFastStartSave != EFastStartSave::kIdle)
 		return;
 
@@ -562,6 +594,27 @@ TFLApp::UserActionQuit()
 		return;
 
 	QuitNow();
+}
+
+/**
+ User wants to end the emulation. With the Settings window open, Einstein keeps
+ running and shows it, so another machine can be started. Otherwise this is
+ the same as Quit.
+ */
+void
+TFLApp::UserActionClose()
+{
+	if (mEmulationEnded || mFastStartSave != EFastStartSave::kIdle)
+		return;
+
+	// As for Quit, the Newton falls asleep first. QuitOrCloseNow() is called
+	// when that is done.
+	mCloseOnly = true;
+	if (StartSavingFastStartState())
+		return;
+
+	// Not from inside the menu callback: CloseNow() deletes the macOS menu bar.
+	Fl::awake([](void* inApp) { ((TFLApp*) inApp)->QuitOrCloseNow(); }, this);
 }
 
 /**
@@ -679,6 +732,59 @@ TFLApp::QuitNow()
 
 	// afte Fl::run() if finished, TFLApp waits for the emulator
 	// process to finish as well.
+}
+
+/**
+ The Newton sleeps after Quit or Close. The Settings window may have been
+ closed in the meantime; then Close quits too.
+ */
+void
+TFLApp::QuitOrCloseNow()
+{
+	if (mCloseOnly && mFLSettings->mSettingsPanel && mFLSettings->mSettingsPanel->visible())
+		CloseNow();
+	else
+		QuitNow();
+}
+
+/**
+ End the emulation, but keep Einstein running with the Settings window. The
+ machine's lock is released, so it can be started again (in a new Einstein).
+ Closing the Settings window then ends Fl::run(), and Einstein quits.
+ */
+void
+TFLApp::CloseNow()
+{
+#if USE_TOOLKIT
+	if (mToolkit)
+		mToolkit->Hide();
+#endif
+
+	EndEmulation();
+	// The emulator thread may need the FLTK lock to finish, and we hold it.
+	Fl::unlock();
+	mEmulatorThread->join();
+	Fl::lock();
+	delete mMachineLock;
+	mMachineLock = nullptr;
+	mFLSettings->EmulationEnded();
+
+#if TARGET_OS_MAC
+	// The menu bar belongs to the machine that ended.
+	delete mFLSettings->wSysMenubar;
+	mFLSettings->wSysMenubar = nullptr;
+#endif
+
+	// Hide all windows but the Settings. Hiding changes the list of windows,
+	// so collect them first.
+	std::vector<Fl_Window*> theWindows;
+	for (Fl_Window* w = Fl::first_window(); w; w = Fl::next_window(w))
+	{
+		if (w != mFLSettings->mSettingsPanel)
+			theWindows.push_back(w);
+	}
+	for (Fl_Window* w : theWindows)
+		w->hide();
 }
 
 /**
@@ -1808,7 +1914,7 @@ TFLApp::InitScreen()
 #if TARGET_OS_WIN32
 	wAppWindow->icon((char*) LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
-	wAppWindow->callback(quit_cb, this);
+	wAppWindow->callback(close_cb, this);
 	if (mFLSettings->mAllowFullscreen)
 		wMenuItemFullscreen->activate();
 	else
@@ -2113,7 +2219,7 @@ TFLApp::SaveFastStartStateTimer(void* inData)
 		// On macOS, timers fire inside the event wait, and Fl::wait() does
 		// not return for them. Closing the windows from here would leave
 		// Fl::run() waiting. An awake callback ends the wait.
-		Fl::awake([](void* inApp) { ((TFLApp*) inApp)->QuitNow(); }, app);
+		Fl::awake([](void* inApp) { ((TFLApp*) inApp)->QuitOrCloseNow(); }, app);
 	} else
 	{
 		Fl::repeat_timeout(0.05, SaveFastStartStateTimer, inData);
@@ -2163,8 +2269,12 @@ TFLApp::EmulatorThreadEntry()
 	{
 		mEmulator->Run();
 	}
-	// wake up the FLTK mainloop and have it call GUI Quit.
-	Fl::awake([](void*) { gApp->UserActionQuit(); });
+	// wake up the FLTK mainloop and have it call GUI Quit, unless the
+	// emulator ended because the user chose Close.
+	Fl::awake([](void*) {
+		if (!gApp->mEmulationEnded)
+			gApp->UserActionQuit();
+	});
 }
 
 /**
@@ -2241,14 +2351,13 @@ TFLApp::CreateScreenManager(
 }
 
 /**
- User wants us to quit.
-
- This may be a menu item or the Cllose button on the window decoration.
+ User closed the emulator window (the close button on the window decoration).
+ That is the same as Close in the File menu.
  */
 void
-TFLApp::quit_cb(Fl_Widget*, void*)
+TFLApp::close_cb(Fl_Widget*, void*)
 {
-	gApp->UserActionQuit();
+	gApp->UserActionClose();
 }
 
 /**

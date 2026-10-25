@@ -26,6 +26,13 @@ list ( APPEND app_sources
 	app/FLTK/TFLTabs.h
 )
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	list ( APPEND app_sources
+		app/FLTK/TFLAppMac.mm
+		app/FLTK/TFLAppMac.h
+	)
+endif ()
+
 list ( APPEND fluid_sources
 	app/FLTK/TFLRexImage.cpp
 	app/FLTK/TFLRexImage.h

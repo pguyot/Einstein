@@ -409,32 +409,16 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open
           xywh {10 35 430 375}
         } {
           Fl_Group mMessagePadTab {open
             xywh {15 40 420 365}
           } {
-            Fl_Group {} {
-              xywh {120 50 275 25}
-            } {
-              Fl_Input wMPConfigName {
-                label {Configuration: }
-                tooltip {give this MessagePad configuration a name} xywh {120 50 160 25} color 54 deactivate
-                code0 {o->value("default");}
-              }
-              Fl_Button wMPConfigMenuButton {
-                label {@2>}
-                tooltip {choose another configuration for editing} xywh {280 50 25 25} labelcolor 40 deactivate
-              }
-              Fl_Button wMPConfigAddButton {
-                label {+}
-                tooltip {add another hardware configuration} xywh {305 50 25 25} labelfont 4 labelsize 18 deactivate
-              }
-              Fl_Button wMPConfigRemoveButton {
-                label {-}
-                tooltip {delete this hardware configuration} xywh {330 50 25 25} labelfont 4 labelsize 18 deactivate
-              }
+            Fl_Box wMPHeadline {
+              label Machine
+              comment {The name of the machine shown in the tabs} selected
+              xywh {20 50 410 27} labelfont 1 labelsize 16 align 80
             }
             Fl_Group {} {
               xywh {22 90 408 87} box FLAT_BOX labelsize 12 align 5
@@ -678,26 +662,10 @@ Only the eMate ROM knows these keys.} xywh {120 300 196 20} down_box DOWN_BOX la
                 xywh {400 90 1 20} labelsize 12 align 8
               }
             }
-            Fl_Group {} {
-              xywh {120 50 275 25}
-            } {
-              Fl_Input wUIConfigName {
-                label {Configuration: }
-                tooltip {give this User Interface configuration a name} xywh {120 50 160 25} color 54 deactivate
-                code0 {o->value("default");}
-              }
-              Fl_Button wUIConfigMenuButton {
-                label {@2>}
-                tooltip {choose another configuration for editing} xywh {280 50 25 25} labelcolor 40 deactivate
-              }
-              Fl_Button wUIConfigAddButton {
-                label {+}
-                tooltip {add another interface configuration} xywh {305 50 25 25} labelfont 4 labelsize 18 deactivate
-              }
-              Fl_Button wUIConfigRemoveButton {
-                label {-}
-                tooltip {delete this interface configuration} xywh {330 50 25 25} labelfont 4 labelsize 18 deactivate
-              }
+            Fl_Box wUIHeadline {
+              label Machine
+              comment {The name of the machine shown in the tabs}
+              xywh {20 50 410 27} labelfont 1 labelsize 16 align 80
             }
           }
         }
@@ -1301,6 +1269,8 @@ mSettingsPanel->hide();}
   } {
     code {char buf[32];
 
+updateHeadline();
+
 // ---- MessagePad
 
 wROMName->value(fl_filename_name(mEditMachine->ROMPath));
@@ -1461,6 +1431,12 @@ if (editable) {
   wRestartWarning->show();
 }
 mSettingsPanel->redraw();} {}
+  }
+  Function {updateHeadline()} {
+    comment {The name of the machine in the tabs, after a selection or a rename.} return_type void
+  } {
+    code {wMPHeadline->copy_label(mEditMachine->GetName());
+wUIHeadline->copy_label(mEditMachine->GetName());} {}
   }
   Function {runningMode()} {return_type void
   } {

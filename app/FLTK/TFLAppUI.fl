@@ -92,7 +92,8 @@ o->show();
         }
         MenuItem {} {
           label Close
-          xywh {0 0 100 20} shortcut 0x410077 deactivate divider
+          callback {gApp->UserActionClose();}
+          xywh {0 0 100 20} shortcut 0x410077 divider
         }
         MenuItem {} {
           xywh {0 0 100 20} hide deactivate

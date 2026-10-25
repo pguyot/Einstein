@@ -231,6 +231,10 @@ static void cb_Save2(Fl_Menu_*, void*) {
 #endif
 }
 
+static void cb_Close(Fl_Menu_*, void*) {
+  gApp->UserActionClose();
+}
+
 static void cb_Print(Fl_Menu_*, void*) {
   gApp->UserActionPrintScreen();
 }
@@ -320,7 +324,7 @@ Fl_Menu_Item menu_wMenubar[] = {
  {"Restore Last", 0,  (Fl_Callback*)cb_Restore, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Restore From...", 0,  (Fl_Callback*)cb_Restore1, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Save Statistics", 0,  (Fl_Callback*)cb_Save2, 0, 16, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Close", FL_COMMAND|FL_SHIFT|'w',  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Close", FL_COMMAND|FL_SHIFT|'w',  (Fl_Callback*)cb_Close, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"", 0,  0, 0, 17, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"", 0,  0, 0, 17, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"", 0,  0, 0, 17, (uchar)FL_NORMAL_LABEL, 0, 14, 0},

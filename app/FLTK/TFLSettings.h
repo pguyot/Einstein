@@ -269,6 +269,7 @@ public:
 	virtual void revertDialog() = 0;
 	virtual void applyDialog() = 0;
 	virtual void updateEditable() = 0;
+	virtual void updateHeadline() = 0;
 	virtual void runningMode() = 0;
 	virtual void HandlePopupMenu() = 0;
 
@@ -307,6 +308,10 @@ public:
 	// A machine stopped running in another Einstein, which saved it: read it
 	// again.
 	void MachineStopped(TFLMachineSettings* inMachine);
+
+	// The machine that ran here was closed, but the Settings window stays
+	// open. Its machine can be edited and started again (in a new Einstein).
+	void EmulationEnded();
 
 	// Read the machine list again, which another Einstein may have changed.
 	// The machine that runs here stays as it is.
@@ -374,6 +379,9 @@ public:
 
 	// the Settings window was opened while a machine runs in this Einstein
 	bool mRunningMode = false;
+
+	// the machine of this Einstein was closed, see EmulationEnded()
+	bool mEmulationEnded = false;
 
 	// All machines, in the order of the list. The first one is also stored
 	// in the old preference keys, so an older Einstein launches it.

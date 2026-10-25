@@ -663,7 +663,14 @@ TFLSettings::IsRunningElsewhere(const TFLMachineSettings* inMachine) const
 bool
 TFLSettings::IsRunning(const TFLMachineSettings* inMachine) const
 {
-	return (mRunningMode && inMachine == mMachine) || IsRunningElsewhere(inMachine);
+	return (mRunningMode && !mEmulationEnded && inMachine == mMachine) || IsRunningElsewhere(inMachine);
+}
+
+void
+TFLSettings::EmulationEnded()
+{
+	// The list's timer sees that the machine stopped and reads it again.
+	mEmulationEnded = true;
 }
 
 void
@@ -1274,9 +1281,10 @@ TFLSettings::StartMachine(TFLMachineSettings* inMachine)
 		applyDialog();
 		savePreferences();
 		mSettingsPanel->hide();
-	} else if (inMachine != mMachine)
+	} else if (inMachine != mMachine || mEmulationEnded)
 	{
-		// A machine runs here already: start another Einstein for this one.
+		// A machine runs here already, or ran and was closed: start another
+		// Einstein for this one.
 		// It reads the settings from the file, so save them first.
 		applyDialog();
 		savePreferences();
@@ -1311,7 +1319,7 @@ TFLSettings::NewMachine()
 void
 TFLSettings::DuplicateMachine(TFLMachineSettings* inMachine)
 {
-	if (IsRunningElsewhere(inMachine) || (mRunningMode && inMachine == mMachine))
+	if (IsRunning(inMachine))
 	{
 		fl_alert("Quit \"%s\" first, so that its internal storage is complete.", inMachine->GetName());
 		return;
@@ -1358,6 +1366,8 @@ TFLSettings::RenameMachine(TFLMachineSettings* inMachine)
 	inMachine->SetName(theName);
 	inMachine->SaveToFolder();
 	mMachineList->Update();
+	if (inMachine == mEditMachine)
+		updateHeadline();
 }
 
 void
@@ -1412,7 +1422,7 @@ TFLSettings::DeleteMachine(TFLMachineSettings* inMachine)
 		fl_alert("\"%s\" is the only machine, so it can't be deleted.", inMachine->GetName());
 		return;
 	}
-	if (IsRunningElsewhere(inMachine) || (mRunningMode && inMachine == mMachine))
+	if (IsRunning(inMachine))
 	{
 		fl_alert("\"%s\" is running. Quit it first.", inMachine->GetName());
 		return;

@@ -36,6 +36,7 @@
 #include <FL/x.H>
 
 #include <string>
+#include <thread>
 #include <vector>
 
 typedef std::vector<std::string> StringList;
@@ -94,6 +95,10 @@ public:
 
 	// user wants to quit the emulator
 	void UserActionQuit();
+
+	// user wants to end the emulation; Einstein keeps running if the Settings
+	// window is open, otherwise this is the same as Quit
+	void UserActionClose();
 
 	// user pull power switch
 	void UserActionTogglePower();
@@ -242,6 +247,16 @@ private:
 	// Close all windows, which ends Fl::run()
 	void QuitNow();
 
+	// Called when the Newton sleeps after Quit or Close: QuitNow(), or
+	// CloseNow() if only the emulation ends
+	void QuitOrCloseNow();
+
+	// End the emulation and close all windows but the Settings
+	void CloseNow();
+
+	// Stop the emulator, flush the cards and save the machine's settings
+	void EndEmulation();
+
 public:
 	// Start another Einstein that runs this machine (one machine per process).
 	void LaunchMachine(const char* inUUID);
@@ -261,6 +276,14 @@ private:
 		kWaitForSave
 	};
 	EFastStartSave mFastStartSave { EFastStartSave::kIdle };
+
+	// The user chose Close, not Quit: when the Newton sleeps, end the
+	// emulation, but keep the Settings window if it is open.
+	bool mCloseOnly { false };
+
+	// The emulator was told to quit and the machine was saved (Close, or the
+	// end of Run()). After Close, the Settings window is still open.
+	bool mEmulationEnded { false };
 
 	// Save State and Restore: the request handed to the monitor, and its file
 	enum class EStateAction {
@@ -297,8 +320,8 @@ private:
 	// run the emulation in a new thread
 	void EmulatorThreadEntry(void);
 
-	// called when the user wants to quit Einstein (close button on window decoration)
-	void static quit_cb(Fl_Widget* w, void* p);
+	// called when the user closes the emulator window (close button on window decoration)
+	void static close_cb(Fl_Widget* w, void* p);
 
 	// store the current size of the app window in mWindowed...
 	void StoreAppWindowSize();
@@ -326,6 +349,8 @@ private:
 	TFLSpecialKeys* mSpecialKeys = nullptr;
 	// held while this Einstein runs its machine (Machine.lock in its folder)
 	TFLFileLock* mMachineLock = nullptr;
+	// runs the emulator or the monitor, see EmulatorThreadEntry()
+	std::thread* mEmulatorThread = nullptr;
 	int mWindowedX = 150;
 	int mWindowedY = 150;
 	int mWindowedWidth = 320;

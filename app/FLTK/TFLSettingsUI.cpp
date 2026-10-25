@@ -1658,32 +1658,12 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       { // Add a field to select a REx, choose matching PC Cards per slot
         Fl_Group* o = new Fl_Group(10, 35, 430, 375, "  MessagePad  ");
         { mMessagePadTab = new Fl_Group(15, 40, 420, 365);
-          { Fl_Group* o = new Fl_Group(120, 50, 275, 25);
-            { Fl_Input* o = wMPConfigName = new Fl_Input(120, 50, 160, 25, "Configuration: ");
-              wMPConfigName->tooltip("give this MessagePad configuration a name");
-              wMPConfigName->color(FL_LIGHT3);
-              wMPConfigName->deactivate();
-              o->value("default");
-            } // Fl_Input* wMPConfigName
-            { wMPConfigMenuButton = new Fl_Button(280, 50, 25, 25, "@2>");
-              wMPConfigMenuButton->tooltip("choose another configuration for editing");
-              wMPConfigMenuButton->labelcolor((Fl_Color)40);
-              wMPConfigMenuButton->deactivate();
-            } // Fl_Button* wMPConfigMenuButton
-            { wMPConfigAddButton = new Fl_Button(305, 50, 25, 25, "+");
-              wMPConfigAddButton->tooltip("add another hardware configuration");
-              wMPConfigAddButton->labelfont(4);
-              wMPConfigAddButton->labelsize(18);
-              wMPConfigAddButton->deactivate();
-            } // Fl_Button* wMPConfigAddButton
-            { wMPConfigRemoveButton = new Fl_Button(330, 50, 25, 25, "-");
-              wMPConfigRemoveButton->tooltip("delete this hardware configuration");
-              wMPConfigRemoveButton->labelfont(4);
-              wMPConfigRemoveButton->labelsize(18);
-              wMPConfigRemoveButton->deactivate();
-            } // Fl_Button* wMPConfigRemoveButton
-            o->end();
-          } // Fl_Group* o
+          { // The name of the machine shown in the tabs
+            wMPHeadline = new Fl_Box(20, 50, 410, 27, "Machine");
+            wMPHeadline->labelfont(1);
+            wMPHeadline->labelsize(16);
+            wMPHeadline->align(Fl_Align(FL_ALIGN_CLIP|FL_ALIGN_INSIDE));
+          } // Fl_Box* wMPHeadline
           { Fl_Group* o = new Fl_Group(22, 90, 408, 87);
             o->box(FL_FLAT_BOX);
             o->labelsize(12);
@@ -1852,32 +1832,12 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
             } // Fl_Box* o
             o->end();
           } // Fl_Group* o
-          { Fl_Group* o = new Fl_Group(120, 50, 275, 25);
-            { Fl_Input* o = wUIConfigName = new Fl_Input(120, 50, 160, 25, "Configuration: ");
-              wUIConfigName->tooltip("give this User Interface configuration a name");
-              wUIConfigName->color(FL_LIGHT3);
-              wUIConfigName->deactivate();
-              o->value("default");
-            } // Fl_Input* wUIConfigName
-            { wUIConfigMenuButton = new Fl_Button(280, 50, 25, 25, "@2>");
-              wUIConfigMenuButton->tooltip("choose another configuration for editing");
-              wUIConfigMenuButton->labelcolor((Fl_Color)40);
-              wUIConfigMenuButton->deactivate();
-            } // Fl_Button* wUIConfigMenuButton
-            { wUIConfigAddButton = new Fl_Button(305, 50, 25, 25, "+");
-              wUIConfigAddButton->tooltip("add another interface configuration");
-              wUIConfigAddButton->labelfont(4);
-              wUIConfigAddButton->labelsize(18);
-              wUIConfigAddButton->deactivate();
-            } // Fl_Button* wUIConfigAddButton
-            { wUIConfigRemoveButton = new Fl_Button(330, 50, 25, 25, "-");
-              wUIConfigRemoveButton->tooltip("delete this interface configuration");
-              wUIConfigRemoveButton->labelfont(4);
-              wUIConfigRemoveButton->labelsize(18);
-              wUIConfigRemoveButton->deactivate();
-            } // Fl_Button* wUIConfigRemoveButton
-            o->end();
-          } // Fl_Group* o
+          { // The name of the machine shown in the tabs
+            wUIHeadline = new Fl_Box(20, 50, 410, 27, "Machine");
+            wUIHeadline->labelfont(1);
+            wUIHeadline->labelsize(16);
+            wUIHeadline->align(Fl_Align(FL_ALIGN_CLIP|FL_ALIGN_INSIDE));
+          } // Fl_Box* wUIHeadline
           mUserInterfaceTab->end();
         } // Fl_Group* mUserInterfaceTab
         o->end();
@@ -2113,6 +2073,8 @@ void TFLSettingsUI::updateMenus() {
 void TFLSettingsUI::revertDialog() {
   char buf[32];
 
+  updateHeadline();
+
   // ---- MessagePad
 
   wROMName->value(fl_filename_name(mEditMachine->ROMPath));
@@ -2277,6 +2239,14 @@ void TFLSettingsUI::updateEditable() {
     wRestartWarning->show();
   }
   mSettingsPanel->redraw();
+}
+
+/**
+ The name of the machine in the tabs, after a selection or a rename.
+*/
+void TFLSettingsUI::updateHeadline() {
+  wMPHeadline->copy_label(mEditMachine->GetName());
+  wUIHeadline->copy_label(mEditMachine->GetName());
 }
 
 void TFLSettingsUI::runningMode() {
