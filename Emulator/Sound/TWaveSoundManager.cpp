@@ -61,7 +61,10 @@ TWaveSoundManager::TWaveSoundManager(TLog* inLog /* = nil */) :
 		nextAvailable(0),
 		isPlaying(false),
 		volume(32768),
-		mutex(0L)
+		mutex(0L),
+		doneEvent(0L),
+		doneThread(0L),
+		quitDoneThread(false)
 {
 	mutex = new TMutex();
 	LOG KPrintf("v WAVE constructor\n");
@@ -69,6 +72,8 @@ TWaveSoundManager::TWaveSoundManager(TLog* inLog /* = nil */) :
 	for (int i = 0; i < NWaveBuffer; i++)
 		initWaveBuffer(i);
 	mutex->Unlock();
+	doneEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+	doneThread = new std::thread(&TWaveSoundManager::doneThreadEntry, this);
 	LOG KPrintf("^ WAVE constructor\n");
 }
 
@@ -80,6 +85,11 @@ TWaveSoundManager::~TWaveSoundManager(void)
 	LOG KPrintf("v WAVE destructor\n");
 	StopOutput();
 
+	quitDoneThread = true;
+	SetEvent(doneEvent);
+	doneThread->join();
+	delete doneThread;
+
 	mutex->Lock();
 	for (int i = 0; i < NWaveBuffer; i++)
 		freeWaveBuffer(i);
@@ -87,6 +97,7 @@ TWaveSoundManager::~TWaveSoundManager(void)
 
 	if (waveOut)
 		waveOutClose(waveOut);
+	CloseHandle(doneEvent);
 
 	delete mutex;
 
@@ -192,16 +203,20 @@ TWaveSoundManager::StopOutput(void)
 {
 	LOG KPrintf("v WAVE stop\n");
 
-	int i;
-	waveOutReset(waveOut);
-
 	mutex->Lock();
 
-	for (i = 0; i < NWaveBuffer; i++)
+	// Nothing waits for the done thread here, so the mutex can be held.
+	if (waveOut)
+		waveOutReset(waveOut);
+
+	for (int i = 0; i < NWaveBuffer; i++)
 	{
 		WaveBuffer& b = wb[i];
+		if (waveOut && (b.waveHdr.dwFlags & WHDR_PREPARED))
+			waveOutUnprepareHeader(waveOut, &b.waveHdr, sizeof(b.waveHdr));
 		b.state = available;
 	}
+	isPlaying = false;
 
 	mutex->Unlock();
 
@@ -228,29 +243,32 @@ TWaveSoundManager::OutputIsRunning(void)
 }
 
 void
-TWaveSoundManager::waveOutProcCB(
-	HWAVEOUT, UINT uMsg, DWORD_PTR dwInstance,
-	DWORD_PTR dwParam1, DWORD_PTR dwParam2)
+TWaveSoundManager::doneThreadEntry()
 {
-	TWaveSoundManager* me = (TWaveSoundManager*) dwInstance;
-	WAVEHDR* wh = (WAVEHDR*) dwParam1;
-	switch (uMsg)
+	for (;;)
 	{
-		case WOM_DONE:
-			me->waveOutProc(uMsg, wh->dwUser);
+		WaitForSingleObject(doneEvent, INFINITE);
+		if (quitDoneThread)
 			break;
+		mutex->Lock();
+		// Oldest buffer first: the one after the next buffer to fill.
+		for (int k = 0; k < NWaveBuffer; k++)
+		{
+			int ix = (nextAvailable + k) % NWaveBuffer;
+			if (wb[ix].state == playing && (wb[ix].waveHdr.dwFlags & WHDR_DONE))
+				bufferDone(ix);
+		}
+		mutex->Unlock();
 	}
 }
 
+/**
+ Called with the mutex held when buffer ix was played.
+ */
 void
-TWaveSoundManager::waveOutProc(UINT uMsg, int ix)
+TWaveSoundManager::bufferDone(int ix)
 {
-	if (uMsg != WOM_DONE)
-		return;
-
-	LOG KPrintf("v WAVE callback (%d: %d)\n", uMsg, ix);
-
-	mutex->Lock();
+	LOG KPrintf("v WAVE done (%d)\n", ix);
 
 	WaveBuffer& b = wb[ix];
 
@@ -278,9 +296,7 @@ TWaveSoundManager::waveOutProc(UINT uMsg, int ix)
 		RaiseOutputInterrupt();
 	}
 
-	mutex->Unlock();
-
-	LOG KPrintf("^ WAVE callback\n");
+	LOG KPrintf("^ WAVE done\n");
 }
 
 void
@@ -405,8 +421,8 @@ TWaveSoundManager::openWaveOut()
 		};
 		MMRESULT err = waveOutOpen(
 			&waveOut, WAVE_MAPPER, &waveFormat,
-			(DWORD_PTR) waveOutProcCB, (DWORD_PTR) this,
-			CALLBACK_FUNCTION);
+			(DWORD_PTR) doneEvent, 0,
+			CALLBACK_EVENT);
 		if (err)
 		{
 			logError("Error opening waveOut sound device", err);

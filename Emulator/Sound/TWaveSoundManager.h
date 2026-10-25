@@ -30,6 +30,9 @@
 #include <Windows.h>
 #include <mmeapi.h>
 
+#include <atomic>
+#include <thread>
+
 // Einstein
 #include "TSoundManager.h"
 
@@ -114,11 +117,13 @@ private:
 
 	void updateVolume();
 
-	static void CALLBACK waveOutProcCB(
-		HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance,
-		DWORD_PTR dwParam1, DWORD_PTR dwParam2);
+	// The device signals doneEvent when a buffer was played. A waveOut
+	// callback function must not call waveOut functions (waveOutReset waits
+	// for the callback, which waits for waveOut: a deadlock), so a thread of
+	// our own handles the played buffers.
+	void doneThreadEntry();
 
-	void waveOutProc(UINT uMsg, int ix);
+	void bufferDone(int ix);
 
 	int next(int ix);
 
@@ -139,6 +144,12 @@ private:
 	DWORD volume;
 
 	TMutex* mutex;
+
+	HANDLE doneEvent;
+
+	std::thread* doneThread;
+
+	std::atomic<bool> quitDoneThread;
 };
 
 #endif
