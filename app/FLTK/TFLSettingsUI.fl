@@ -1296,13 +1296,15 @@ updateHeadline();
 
 // ---- MessagePad
 
-wROMName->value(fl_filename_name(mEditMachine->ROMPath));
-wROMPath->copy_label(mEditMachine->ROMPath);
+std::string theROMPath = mEditMachine->GetROMPath();
+wROMName->value(fl_filename_name(theROMPath.c_str()));
+wROMPath->copy_label(theROMPath.c_str());
 wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
 mEditMachine->mROMId = mDialogROMId;
 
-wFlashName->value(fl_filename_name(mEditMachine->FlashPath));
-wFlashPath->copy_label(mEditMachine->FlashPath);
+std::string theFlashPath = mEditMachine->GetFlashPath();
+wFlashName->value(fl_filename_name(theFlashPath.c_str()));
+wFlashPath->copy_label(theFlashPath.c_str());
 
 if (mEditMachine->RAMSize<=16)
 	wRAMSizeChoice->value(0);
@@ -1364,11 +1366,11 @@ updateMenus();} {}
 
 mEditMachine->mROMId = mDialogROMId;
 
-free(mEditMachine->ROMPath);
-mEditMachine->ROMPath = strdup(wROMPath->label());
-
-free(mEditMachine->FlashPath);
-mEditMachine->FlashPath = strdup(wFlashPath->label());
+// Only a new file changes where it is stored (machine folder or host).
+if (mEditMachine->GetROMPath() != wROMPath->label())
+	mEditMachine->SetROMPath(wROMPath->label());
+if (mEditMachine->GetFlashPath() != wFlashPath->label())
+	mEditMachine->SetFlashPath(wFlashPath->label());
 
 mEditMachine->mFastStart = wFastStart->value();
 

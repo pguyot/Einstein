@@ -364,7 +364,7 @@ NewtPatchFileFromARM(const char* text, const char* filename, bool /*literal*/)
 
 	char appDir[FL_PATH_MAX + 1], romDir[FL_PATH_MAX + 1];
 	getcwd(appDir, FL_PATH_MAX);
-	fl_filename_absolute(romDir, FL_PATH_MAX, gApp->GetSettings()->mMachine->ROMPath);
+	fl_filename_absolute(romDir, FL_PATH_MAX, gApp->GetSettings()->mMachine->GetROMPath().c_str());
 	char* x = (char*) fl_filename_name(romDir);
 	if (x)
 		x[0] = 0;

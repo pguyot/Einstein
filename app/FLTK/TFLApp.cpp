@@ -379,7 +379,7 @@ TFLApp::Run(int argc, char* argv[])
 				::exit(0);
 		// Run the machine that is selected in the Settings.
 		mFLSettings->mMachine = mFLSettings->mEditMachine;
-		strncpy(theROMImagePath, mFLSettings->mMachine->ROMPath, FL_PATH_MAX);
+		strncpy(theROMImagePath, mFLSettings->mMachine->GetROMPath().c_str(), FL_PATH_MAX);
 		mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, mFLSettings->mMachine->mUseBuiltinRex);
 		if (!mROMImage)
 		{
@@ -430,7 +430,7 @@ TFLApp::Run(int argc, char* argv[])
 	if (mFLSettings->mSettingsPanel->visible())
 		mFLSettings->ShowSettingsPanel();
 
-	const char* theFlashPath = strdup(mFLSettings->mMachine->FlashPath);
+	const char* theFlashPath = strdup(mFLSettings->mMachine->GetFlashPath().c_str());
 	//    std::filesystem::path flashPath( theFlashPath );
 	//    mPresentEssentialsInstaller = !std::filesystem::exists(flashPath);
 
@@ -947,9 +947,7 @@ MachineFilePath(const char* inName)
 std::string
 TFLApp::CurrentStatePath()
 {
-	if (mFLSettings->mMachine->mStatePath && mFLSettings->mMachine->mStatePath[0])
-		return mFLSettings->mMachine->mStatePath;
-	return MachineFilePath("Einstein.state");
+	return mFLSettings->mMachine->GetStatePath();
 }
 
 /**

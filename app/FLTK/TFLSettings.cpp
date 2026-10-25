@@ -251,14 +251,114 @@ TFLMachineSettings::TFLMachineSettings(const char* inUUID, const char* inUserDat
 
 TFLMachineSettings::~TFLMachineSettings()
 {
-	::free(ROMPath);
-	::free(FlashPath);
 	::free(mStatePath);
 	::free(mExtrTcpServer);
 }
 
+/**
+ Read a file setting (ROM or flash) from its group. The machine's own file
+ has the file in the folder (inFolder, name) and the one on the host (path).
+ The old keys and files of earlier versions only have the full path of the
+ file that is used: a file in the machine's folder is taken as that.
+ */
 void
-TFLMachineSettings::Load(Fl_Preferences& inPrefs, const char* inAppPath, const char* inUserDataPath)
+TFLMachineSettings::LoadFile(Fl_Preferences& inGroup, const char* inDefault, bool inOldKeys,
+	int& ioInFolder, std::string& ioName, std::string& ioHostPath)
+{
+	char* thePath = nullptr;
+	if (inOldKeys || !inGroup.entryExists("inFolder"))
+	{
+		std::string theUsed = ioInFolder ? (mFolder + ioName) : ioHostPath;
+		inGroup.get("path", thePath, inDefault);
+		// An older Einstein may have chosen another file.
+		if (theUsed != thePath)
+			SetFile(thePath, ioInFolder, ioName, ioHostPath);
+	} else
+	{
+		inGroup.get("inFolder", ioInFolder, ioInFolder);
+		char* theName = nullptr;
+		inGroup.get("name", theName, ioName.c_str());
+		ioName = theName;
+		::free(theName);
+		inGroup.get("path", thePath, "");
+		ioHostPath = thePath;
+	}
+	::free(thePath);
+}
+
+void
+TFLMachineSettings::SaveFile(Fl_Preferences& inGroup, bool inOldKeys,
+	int inInFolder, const std::string& inName, const std::string& inHostPath) const
+{
+	if (inOldKeys)
+	{
+		inGroup.set("path", (inInFolder ? (mFolder + inName) : inHostPath).c_str());
+		return;
+	}
+	inGroup.set("inFolder", inInFolder);
+	inGroup.set("name", inName.c_str());
+	inGroup.set("path", inHostPath.c_str());
+}
+
+/**
+ Use the file at inPath: by name if it is in the machine's folder, otherwise
+ by its full path on the host.
+ */
+void
+TFLMachineSettings::SetFile(const char* inPath, int& outInFolder, std::string& outName, std::string& outHostPath)
+{
+	if (IsInFolder(inPath, outName))
+	{
+		outInFolder = 1;
+	} else
+	{
+		outInFolder = 0;
+		outHostPath = inPath ? inPath : "";
+	}
+}
+
+bool
+TFLMachineSettings::IsInFolder(const char* inPath, std::string& outName) const
+{
+	std::string thePath = inPath ? inPath : "";
+#if TARGET_OS_WIN32
+	std::replace(thePath.begin(), thePath.end(), '\\', '/');
+#endif
+	if (thePath.size() <= mFolder.size() || thePath.compare(0, mFolder.size(), mFolder) != 0)
+		return false;
+	std::string theName = thePath.substr(mFolder.size());
+	if (theName.find('/') != std::string::npos)
+		return false;
+	outName = theName;
+	return true;
+}
+
+std::string
+TFLMachineSettings::GetROMPath() const
+{
+	return mROMInFolder ? (mFolder + mROMName) : mROMHostPath;
+}
+
+std::string
+TFLMachineSettings::GetFlashPath() const
+{
+	return mFlashInFolder ? (mFolder + mFlashName) : mFlashHostPath;
+}
+
+void
+TFLMachineSettings::SetROMPath(const char* inPath)
+{
+	SetFile(inPath, mROMInFolder, mROMName, mROMHostPath);
+}
+
+void
+TFLMachineSettings::SetFlashPath(const char* inPath)
+{
+	SetFile(inPath, mFlashInFolder, mFlashName, mFlashHostPath);
+}
+
+void
+TFLMachineSettings::Load(Fl_Preferences& inPrefs, const char* inAppPath, const char* inUserDataPath, bool inOldKeys)
 {
 	char buf[FL_PATH_MAX];
 
@@ -266,8 +366,7 @@ TFLMachineSettings::Load(Fl_Preferences& inPrefs, const char* inAppPath, const c
 	Fl_Preferences rom(inPrefs, "ROM");
 	{
 		snprintf(buf, sizeof(buf), "%s717006", inAppPath);
-		::free(ROMPath);
-		rom.get("path", ROMPath, buf);
+		LoadFile(rom, buf, inOldKeys, mROMInFolder, mROMName, mROMHostPath);
 		rom.get("builtInRex", mUseBuiltinRex, true);
 		rom.get("ID", mROMId, mROMId);
 	}
@@ -276,8 +375,7 @@ TFLMachineSettings::Load(Fl_Preferences& inPrefs, const char* inAppPath, const c
 	Fl_Preferences flash(inPrefs, "Flash");
 	{
 		snprintf(buf, sizeof(buf), "%sinternal.flash", inUserDataPath);
-		::free(FlashPath);
-		flash.get("path", FlashPath, buf);
+		LoadFile(flash, buf, inOldKeys, mFlashInFolder, mFlashName, mFlashHostPath);
 	}
 
 	// screen preferences
@@ -304,8 +402,10 @@ TFLMachineSettings::Load(Fl_Preferences& inPrefs, const char* inAppPath, const c
 	Fl_Preferences newtSystem(inPrefs, "System");
 	{
 		newtSystem.get("FastStart", mFastStart, 1);
-		::free(mStatePath);
-		newtSystem.get("StatePath", mStatePath, "");
+		char* theStatePath = nullptr;
+		newtSystem.get("StatePath", theStatePath, "");
+		SetStatePath(theStatePath);
+		::free(theStatePath);
 		char theID[32];
 		snprintf(theID, sizeof(theID), "%04X%08X", (unsigned) mNewtonID[0], (unsigned) mNewtonID[1]);
 		char* theStoredID = nullptr;
@@ -337,12 +437,12 @@ TFLMachineSettings::Load(Fl_Preferences& inPrefs, const char* inAppPath, const c
 }
 
 void
-TFLMachineSettings::Save(Fl_Preferences& inPrefs) const
+TFLMachineSettings::Save(Fl_Preferences& inPrefs, bool inOldKeys) const
 {
 	// ROM Preferences
 	Fl_Preferences rom(inPrefs, "ROM");
 	{
-		rom.set("path", ROMPath);
+		SaveFile(rom, inOldKeys, mROMInFolder, mROMName, mROMHostPath);
 		rom.set("builtInRex", mUseBuiltinRex);
 		rom.set("ID", mROMId);
 	}
@@ -350,7 +450,7 @@ TFLMachineSettings::Save(Fl_Preferences& inPrefs) const
 	// Flash Preferences
 	Fl_Preferences flash(inPrefs, "Flash");
 	{
-		flash.set("path", FlashPath);
+		SaveFile(flash, inOldKeys, mFlashInFolder, mFlashName, mFlashHostPath);
 	}
 
 	// screen preferences
@@ -377,7 +477,11 @@ TFLMachineSettings::Save(Fl_Preferences& inPrefs) const
 	Fl_Preferences newtSystem(inPrefs, "System");
 	{
 		newtSystem.set("FastStart", mFastStart);
-		newtSystem.set("StatePath", mStatePath ? mStatePath : "");
+		// An older Einstein only knows full paths.
+		if (inOldKeys && mStatePath && mStatePath[0])
+			newtSystem.set("StatePath", GetStatePath().c_str());
+		else
+			newtSystem.set("StatePath", mStatePath ? mStatePath : "");
 		char theID[32];
 		snprintf(theID, sizeof(theID), "%04X%08X", (unsigned) mNewtonID[0], (unsigned) mNewtonID[1]);
 		newtSystem.set("NewtonID", theID);
@@ -445,12 +549,31 @@ TFLMachineSettings::SetExtrTcpServer(const char* inServer)
 		mExtrTcpServer = strdup(inServer);
 }
 
+std::string
+TFLMachineSettings::GetStatePath() const
+{
+	if (!mStatePath || !mStatePath[0])
+		return mFolder + "Einstein.state";
+	// Only a name: in the machine's folder.
+	if (!strchr(mStatePath, '/')
+#if TARGET_OS_WIN32
+		&& !strchr(mStatePath, '\\') && !strchr(mStatePath, ':')
+#endif
+	)
+		return mFolder + mStatePath;
+	return mStatePath;
+}
+
 void
 TFLMachineSettings::SetStatePath(const char* inPath)
 {
 	if (mStatePath)
 		::free(mStatePath);
-	mStatePath = inPath ? strdup(inPath) : nullptr;
+	std::string theName;
+	if (IsInFolder(inPath, theName))
+		mStatePath = strdup(theName == "Einstein.state" ? "" : theName.c_str());
+	else
+		mStatePath = inPath ? strdup(inPath) : nullptr;
 }
 
 // MARK: - Application Settings
@@ -590,7 +713,7 @@ TFLSettings::LoadMachines(Fl_Preferences& inPrefs)
 	{
 		// First start with machines: the settings so far become the first one.
 		auto* machine = new TFLMachineSettings(Fl_Preferences::newUUID(), mUserDataPath.c_str());
-		machine->Load(inPrefs, appPath, mUserDataPath.c_str());
+		machine->Load(inPrefs, appPath, mUserDataPath.c_str(), true);
 		machine->SetName("Newton");
 		// Which card stays in which slot was stored with the card.
 		for (auto* card : mCardList)
@@ -617,7 +740,7 @@ TFLSettings::LoadMachines(Fl_Preferences& inPrefs)
 		// have changed them since. Its changes win. The same goes for the
 		// cards it keeps in a slot, which an older Einstein stores with the
 		// card.
-		mMachines[0]->Load(inPrefs, appPath, mMachines[0]->GetFolder().c_str());
+		mMachines[0]->Load(inPrefs, appPath, mMachines[0]->GetFolder().c_str(), true);
 		mMachines[0]->mKeepInSlot[0].clear();
 		mMachines[0]->mKeepInSlot[1].clear();
 		for (auto* card : mCardList)
@@ -660,7 +783,7 @@ TFLSettings::SaveMachines(Fl_Preferences& inPrefs)
 	machines.set("LastUsed", mMachine ? mMachine->GetUUID() : "");
 
 	if (!mMachines.empty() && !IsRunningElsewhere(mMachines[0]))
-		mMachines[0]->Save(inPrefs);
+		mMachines[0]->Save(inPrefs, true);
 }
 
 /**
@@ -769,7 +892,7 @@ TFLSettings::SaveRunningMachine()
 	const char* theFirst = strtok(theOrder, " ");
 	if (theFirst && strcmp(theFirst, mMachine->GetUUID()) == 0)
 	{
-		mMachine->Save(prefs);
+		mMachine->Save(prefs, true);
 		// The first machine's slots are also stored with each card, where an
 		// older Einstein looks for them (and where LoadMachines() reads them).
 		Fl_Preferences cardlist(prefs, "PCMCIA/CardList");
@@ -1175,7 +1298,7 @@ SaveMachineOrder(TFLSettings* inSettings)
 	Fl_Preferences machines(prefs, "Machines");
 	machines.set("Order", theOrder.c_str());
 	if (!inSettings->mMachines.empty() && !inSettings->IsRunningElsewhere(inSettings->mMachines[0]))
-		inSettings->mMachines[0]->Save(prefs);
+		inSettings->mMachines[0]->Save(prefs, true);
 }
 
 // A name that no machine has yet: "Newton", "Newton 2", ...
@@ -1191,6 +1314,31 @@ UniqueName(TFLSettings* inSettings, const std::string& inBase)
 		if (!taken)
 			return theName;
 	}
+}
+
+// The files that make up a ROM image, see TROMImage::LoadROMAndREX(): the
+// image, and the Newton REx next to an .aif image or a "Senior Cirrus" image.
+static std::vector<std::string>
+ROMFiles(const std::string& inPath)
+{
+	std::vector<std::string> theFiles { inPath };
+	const char* ext = fl_filename_ext(inPath.c_str());
+	const char* name = fl_filename_name(inPath.c_str());
+	if (ext && strcasecmp(ext, ".aif") == 0)
+	{
+		char theREX[FL_PATH_MAX];
+		strncpy(theREX, inPath.c_str(), FL_PATH_MAX - 1);
+		theREX[FL_PATH_MAX - 1] = 0;
+		fl_filename_setext(theREX, FL_PATH_MAX, ".rex");
+		theFiles.push_back(theREX);
+	} else if (name && (strncmp(name, "Senior Cirrus", 13) == 0 || strncmp(name, "Senior DCirrus", 14) == 0)
+		&& strstr(name, "image"))
+	{
+		std::string theHigh = inPath;
+		theHigh.replace(theHigh.rfind("image"), 5, "high");
+		theFiles.push_back(theHigh);
+	}
+	return theFiles;
 }
 
 // Copy a file. \return false if it can't be read or written.
@@ -1316,10 +1464,11 @@ TFLSettings::NewMachine()
 {
 	auto* machine = new TFLMachineSettings(Fl_Preferences::newUUID(), mUserDataPath.c_str());
 	machine->SetName(UniqueName(this, "Newton").c_str());
-	machine->ROMPath = strdup(mEditMachine->ROMPath ? mEditMachine->ROMPath : "");
+	// The same ROM file, also if it is in the other machine's folder. The flash
+	// is a new one in its own folder.
+	machine->SetROMPath(mEditMachine->GetROMPath().c_str());
 	machine->mUseBuiltinRex = mEditMachine->mUseBuiltinRex;
 	machine->mROMId = mEditMachine->mROMId;
-	machine->FlashPath = strdup((machine->GetFolder() + "internal.flash").c_str());
 	machine->RAMSize = 64;
 	machine->SetStatePath("");
 	machine->SetExtrTcpServer("127.0.0.1");
@@ -1350,14 +1499,27 @@ TFLSettings::DuplicateMachine(TFLMachineSettings* inMachine)
 	machine->SetStatePath("");
 	machine->mKeepInSlot[0].clear(); // a card can only be in one machine at a time
 	machine->mKeepInSlot[1].clear();
-	// Its own copy of the internal storage.
+	// Its own copy of the internal storage, in its folder. It must not share
+	// the original's flash file on the host.
 	machine->CreateFolder();
 	std::string theFlash = machine->GetFolder() + "internal.flash";
-	if (inMachine->FlashPath && !CopyFile(inMachine->FlashPath, theFlash.c_str()))
+	std::string theOldFlash = inMachine->GetFlashPath();
+	if (!theOldFlash.empty() && !CopyFile(theOldFlash.c_str(), theFlash.c_str()))
 		fl_alert("The internal storage of \"%s\" could not be copied.\nThe copy starts with an empty one.",
 			inMachine->GetName());
-	::free(machine->FlashPath);
-	machine->FlashPath = strdup(theFlash.c_str());
+	machine->mFlashInFolder = 1;
+	machine->mFlashName = "internal.flash";
+	machine->mFlashHostPath.clear();
+	// A ROM in the original's folder is copied too, so the copy has one.
+	if (inMachine->mROMInFolder)
+	{
+		for (const std::string& theFile : ROMFiles(inMachine->GetROMPath()))
+		{
+			std::string theCopy = machine->GetFolder() + fl_filename_name(theFile.c_str());
+			if (!CopyFile(theFile.c_str(), theCopy.c_str()))
+				fl_alert("The ROM file \"%s\" could not be copied.", fl_filename_name(theFile.c_str()));
+		}
+	}
 	machine->SaveToFolder();
 	// Right after the original.
 	auto it = std::find(mMachines.begin(), mMachines.end(), inMachine);

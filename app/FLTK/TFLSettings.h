@@ -181,11 +181,14 @@ public:
 
 	// Read the settings from the ROM, Flash, Screen, Memory, System and Serial
 	// groups below inPrefs. inAppPath and inUserDataPath end in a slash; they
-	// give the default ROM and flash files.
-	void Load(Fl_Preferences& inPrefs, const char* inAppPath, const char* inUserDataPath);
+	// give the default ROM and flash files. inOldKeys: the global keys that an
+	// older Einstein reads and writes, which only know the full paths of the
+	// ROM and the flash.
+	void Load(Fl_Preferences& inPrefs, const char* inAppPath, const char* inUserDataPath, bool inOldKeys = false);
 
-	// Write the settings to the same groups below inPrefs.
-	void Save(Fl_Preferences& inPrefs) const;
+	// Write the settings to the same groups below inPrefs. With inOldKeys,
+	// only the full paths of the ROM and the flash that are used.
+	void Save(Fl_Preferences& inPrefs, bool inOldKeys = false) const;
 
 	// Create the machine's folder if it does not exist yet.
 	void CreateFolder() const;
@@ -195,11 +198,30 @@ public:
 
 	void SetExtrTcpServer(const char* inServer);
 
-	// Set the state file used by "Save State" and "Restore Last".
+	// The state file used by "Save State" and "Restore Last". A file in the
+	// machine's folder is stored by name.
+	std::string GetStatePath() const;
 	void SetStatePath(const char* inPath);
 
-	char* ROMPath = nullptr;
-	char* FlashPath = nullptr;
+	// The ROM and the flash file. Each can be a file in the machine's folder,
+	// stored by its name, so the folder can be moved, or a file anywhere on
+	// the host, stored by its full path. Both are kept, so switching between
+	// them loses nothing.
+	std::string GetROMPath() const;
+	std::string GetFlashPath() const;
+
+	// Use this file: in the machine's folder if it is there, otherwise on the
+	// host. The other one is kept.
+	void SetROMPath(const char* inPath);
+	void SetFlashPath(const char* inPath);
+
+	int mROMInFolder = 0;
+	std::string mROMName;
+	std::string mROMHostPath;
+	int mFlashInFolder = 1;
+	std::string mFlashName = "internal.flash";
+	std::string mFlashHostPath;
+
 	int screenWidth = 320;
 	int screenHeight = 480;
 	int screenScale = 100;
@@ -217,7 +239,8 @@ public:
 	int mFastStart = 1;
 
 	// the state file used by "Save State" and "Restore Last": the last one
-	// saved or restored. Empty for the default file in the user data folder.
+	// saved or restored, by name if it is in the machine's folder. Empty for
+	// Einstein.state in the machine's folder. See GetStatePath().
 	char* mStatePath = nullptr;
 
 	// driver for the external serial port (TSerialPorts::EDriverID), default is the TCP client
@@ -253,6 +276,16 @@ public:
 private:
 	TFLMachineSettings(const TFLMachineSettings&) = delete;
 	TFLMachineSettings& operator=(const TFLMachineSettings&) = delete;
+
+	// Read, write or set the ROM or the flash file, see GetROMPath().
+	void LoadFile(Fl_Preferences& inGroup, const char* inDefault, bool inOldKeys,
+		int& ioInFolder, std::string& ioName, std::string& ioHostPath);
+	void SaveFile(Fl_Preferences& inGroup, bool inOldKeys,
+		int inInFolder, const std::string& inName, const std::string& inHostPath) const;
+	void SetFile(const char* inPath, int& outInFolder, std::string& outName, std::string& outHostPath);
+
+	// Is inPath a file in the machine's folder? Then outName is its name.
+	bool IsInFolder(const char* inPath, std::string& outName) const;
 
 	std::string mUUID;
 	std::string mName;
