@@ -80,7 +80,8 @@ TBufferLog::DoLogLine(const char* inLine)
 	(void) ::strncpy(mBuffer[mTopLineIndex], inLine, 79);
 	mTopLineIndex = (mTopLineIndex + 1) % 32;
 
-	if (mRefreshSocket)
+	// -1 means no socket (FLTK). On Windows, write(-1) aborts the program.
+	if (mRefreshSocket >= 0)
 	{
 		// Write a dummy byte.
 		char someByte = 1;
