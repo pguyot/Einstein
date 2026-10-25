@@ -419,18 +419,18 @@ else
             Fl_Box wMPHeadline {
               label Machine
               comment {The name of the machine shown in the tabs} selected
-              xywh {20 50 410 27} labelfont 1 labelsize 16 align 80
+              xywh {20 45 410 27} labelfont 1 labelsize 16 align 80
             }
             Fl_Group {} {
               comment {The ROM: a file in the machine folder or on the host, see TFLMachineSettings::GetROMPath()} open
-              xywh {20 88 410 120} box FLAT_BOX labelsize 12 align 5
+              xywh {15 78 420 122} box FLAT_BOX labelsize 12 align 5
             } {
               Fl_Box {} {
                 label {Newton ROM:}
-                xywh {20 88 98 20} labelsize 13 align 24
+                xywh {15 78 101 20} labelsize 13 align 24
               }
               Fl_Group {} {open
-                xywh {120 88 310 38}
+                xywh {120 78 315 40}
               } {
                 Fl_Round_Button wROMInFolder {
                   label {Keep a copy in the machine folder}
@@ -438,18 +438,18 @@ else
 updateROMWidgets();
 settingsChanged();}
                   tooltip {Use the ROM file in the machine's folder, so the folder holds all the machine needs.
-The menu of a machine in the list opens its folder.} xywh {120 88 300 20} type Radio down_box ROUND_DOWN_BOX labelsize 13
+The menu of a machine in the list opens its folder.} xywh {120 78 300 20} type Radio down_box ROUND_DOWN_BOX labelsize 13
                 }
                 Fl_Round_Button wROMOnHost {
                   label {Use the file where it is}
                   callback {mEditMachine->mROMInFolder = wROMInFolder->value();
 updateROMWidgets();
 settingsChanged();}
-                  tooltip {Use a ROM file anywhere on this computer.} xywh {120 106 300 20} type Radio down_box ROUND_DOWN_BOX labelsize 13
+                  tooltip {Use a ROM file anywhere on this computer.} xywh {120 98 300 20} type Radio down_box ROUND_DOWN_BOX labelsize 13
                 }
               }
               Fl_Output wROMName {
-                xywh {120 130 235 20} color 49 labelsize 13 textsize 12
+                xywh {120 126 245 20} color 49 labelsize 13 textsize 12
               }
               Fl_Button wROMPathChoose {
                 label {Choose...}
@@ -468,7 +468,7 @@ if (mEditMachine->mROMInFolder) {
     if (theChoice == 1) {
       mEditMachine->mROMInFolder = 0;
       mEditMachine->mROMHostPath = filename;
-    } else if (!CopyROMIntoFolder(mEditMachine, filename, theName)) {
+    } else if (!CopyIntoFolder(mEditMachine, filename, true, theName)) {
       return;
     }
   }
@@ -480,79 +480,116 @@ if (mEditMachine->mROMInFolder) {
 updateROMWidgets();
 settingsChanged();}
                 tooltip {Select a Newton ROM image file.
-Einstein does not include any ROMs.} xywh {355 130 75 20} labelsize 12
+Einstein does not include any ROMs.} xywh {365 126 70 20} labelsize 12
               }
               Fl_Box wROMPath {
                 label {/here/goes/the/path/and/filename/of/the/ROM}
-                xywh {120 150 310 26} labelsize 11 align 212
+                xywh {120 146 315 24} labelsize 11 align 212
               }
               Fl_Box wROMLight {
                 comment {red: no file, yellow: not a ROM that Einstein knows, green: a known ROM}
-                xywh {120 182 12 12} box OVAL_BOX color 1
+                xywh {124 176 12 12} box OVAL_BOX color 1
               }
               Fl_Box wROMDetails {
                 label {ROM file found
 Enjoy Einstein}
-                xywh {138 178 292 30} labelsize 12 align 212
+                xywh {138 170 297 28} labelsize 12 align 212
               }
             }
-            Fl_Group {} {
-              xywh {22 215 408 48} box FLAT_BOX labelsize 12 align 5
+            Fl_Group mFlashGroup {
+              comment {The flash: a file in the machine folder or on the host, see TFLMachineSettings::GetFlashPath().
+Grayed out while the machine runs here: the file is in use.} open
+              xywh {15 210 420 112} box FLAT_BOX labelsize 12 align 5
             } {
-              Fl_Input wFlashName {
-                label {System Flash: }
-                callback {char buf[FL_PATH_MAX + 1];
-buf[0] = 0;
-strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
-char *name = (char*)fl_filename_name(buf);
-if (name) {
-  *name = 0;
-  strncat(buf, wFlashName->value(), FL_PATH_MAX);
-  wFlashPath->copy_label(buf);
-  settingsChanged();
-}}
-                xywh {120 216 160 20} color 54 labelsize 13 when 12 textsize 12
+              Fl_Box {} {
+                label {Internal Storage:}
+                xywh {15 211 103 59} labelsize 13 align 217
               }
-              Fl_Box wFlashPath {
-                label {/here/goes/the/path/and/filename/of/the/FlashFile}
-                xywh {120 236 310 27} labelsize 11 align 212
+              Fl_Group {} {open
+                xywh {120 210 315 40}
+              } {
+                Fl_Round_Button wFlashInFolder {
+                  label {Keep in the machine folder}
+                  callback {mEditMachine->mFlashInFolder = wFlashInFolder->value();
+updateFlashWidgets();
+settingsChanged();}
+                  tooltip {Use the flash file in the machine's folder, so the folder holds all the machine needs.} xywh {120 210 315 20} type Radio down_box ROUND_DOWN_BOX labelsize 13
+                }
+                Fl_Round_Button wFlashOnHost {
+                  label {Use the file where it is}
+                  callback {mEditMachine->mFlashInFolder = wFlashInFolder->value();
+updateFlashWidgets();
+settingsChanged();}
+                  tooltip {Use a flash file anywhere on this computer.} xywh {120 230 315 20} type Radio down_box ROUND_DOWN_BOX labelsize 13
+                }
+              }
+              Fl_Output wFlashName {
+                xywh {120 258 175 20} color 49 labelsize 13 textsize 12
               }
               Fl_Button wFlashPathCreate {
                 label {Create...}
-                callback {const char *filename = gApp->ChooseNewFile(
-	"Create a new Flash Memory file",
-	nullptr,
-	wFlashPath->label()
-);
-if (filename) {
-    wFlashName->value(fl_filename_name(filename));
-    wFlashPath->copy_label(filename);
-    settingsChanged();
-}}
-                tooltip {Create a new Flash RAM image file.} xywh {280 216 75 20} labelsize 12
+                callback {// Only for a file on the host: the machine folder has one flash file.
+const char *filename = gApp->ChooseNewFile("Create a new internal storage file", nullptr, mEditMachine->mFlashHostPath.c_str());
+if (!filename)
+  return;
+std::string thePath = filename;
+// A new file means a new, empty internal storage.
+if (fl_access(thePath.c_str(), 0) == 0) {
+  if (fl_choice("\\"%s\\" exists already.\\n\\nErase it, so that the Newton starts with a new, empty internal storage?",
+                "Cancel", "Erase", nullptr, fl_filename_name(thePath.c_str())) == 0)
+    return;
+  fl_unlink(thePath.c_str());
+}
+mEditMachine->mFlashHostPath = thePath;
+updateFlashWidgets();
+settingsChanged();}
+                tooltip {Choose a name for a new, empty internal storage on this computer.
+NewtonOS sets it up at the next start.} xywh {295 258 70 20} labelsize 12
               }
               Fl_Button wFlashPathChoose {
                 label {Choose...}
-                callback {const char *filename = gApp->ChooseExistingFile(
-	"Choose an existing Flash Memory file",
-	nullptr,
-	wFlashPath->label()
-);
-if (filename) {
-    wFlashName->value(fl_filename_name(filename));
-    wFlashPath->copy_label(filename);
-    settingsChanged();
-}}
-                tooltip {Select an existing Flash RAM image file.} xywh {355 216 75 20} labelsize 12
+                callback {// Only for a file on the host: the machine folder has one flash file.
+const char *filename = gApp->ChooseExistingFile("Choose an existing internal storage file", nullptr, mEditMachine->mFlashHostPath.c_str());
+if (!filename)
+  return;
+mEditMachine->mFlashHostPath = filename;
+updateFlashWidgets();
+settingsChanged();}
+                tooltip {Select an existing internal storage file on this computer.} xywh {365 258 70 20} labelsize 12
+              }
+              Fl_Box wFlashPath {
+                label {/here/goes/the/path/and/filename/of/the/FlashFile}
+                xywh {120 278 315 24} labelsize 11 align 212
+              }
+              Fl_Box wFlashLight {
+                comment {red: no file, yellow: new and empty at the next start, green: found}
+                xywh {124 305 12 12} box OVAL_BOX color 1
+              }
+              Fl_Box wFlashDetails {
+                label {Internal storage found}
+                xywh {138 302 196 20} labelsize 12 align 84
+              }
+              Fl_Button wFlashBrainWipe {
+                label {Brain Wipe...}
+                callback {if (fl_choice("Erase the internal storage of \\"%s\\"?\\n\\n"
+              "Everything stored in this Newton is lost. It starts like a new\\n"
+              "Newton and asks to be set up.",
+              "Cancel", "Erase", nullptr, mEditMachine->GetName()) == 0)
+  return;
+fl_unlink(mEditMachine->GetFlashPath().c_str());
+// The fast start state belongs to the old contents.
+fl_unlink((mEditMachine->GetFolder() + "FastStart.state").c_str());
+updateFlashWidgets();}
+                tooltip {Erase the internal storage, after asking.} xywh {334 302 101 20} labelsize 12
               }
             }
             Fl_Group {} {
-              xywh {22 272 408 21} box FLAT_BOX labelsize 12 align 5
+              xywh {15 332 420 20} box FLAT_BOX labelsize 12 align 5
             } {
               Fl_Choice wRAMSizeChoice {
-                label {System RAM: } open
-                callback {settingsChanged();}
-                tooltip {select the system memory size (heap)} xywh {120 273 180 20} down_box BORDER_BOX labelsize 13 textsize 12
+                label {System RAM: }
+                callback {settingsChanged();} open
+                tooltip {select the system memory size (heap)} xywh {120 332 180 20} down_box BORDER_BOX labelsize 13 textsize 12
               } {
                 MenuItem {} {
                   label {1MB (MP2000/eMate)}
@@ -576,15 +613,15 @@ if (filename) {
                 }
               }
             }
-            Fl_Box wRestartWarning {
-              label {Setting changes apply only after a  restart}
-              xywh {30 378 386 20} box FLAT_BOX labelfont 1 labelsize 12 align 16 hide
-            }
             Fl_Check_Button wFastStart {
               label {Fast start: continue where Einstein was quit}
               callback {settingsChanged();}
               tooltip {When quitting, Einstein lets the Newton fall asleep and saves its state.
-The next start continues from there, if nothing changed in the meantime.} xywh {120 300 290 20} down_box DOWN_BOX labelsize 13
+The next start continues from there, if nothing changed in the meantime.} xywh {120 360 290 20} down_box DOWN_BOX labelsize 13
+            }
+            Fl_Box wRestartWarning {
+              label {Setting changes apply only after a  restart}
+              xywh {30 384 386 20} box FLAT_BOX labelfont 1 labelsize 12 align 16 hide
             }
           }
         }
@@ -596,87 +633,87 @@ The next start continues from there, if nothing changed in the meantime.} xywh {
             xywh {15 40 420 365}
           } {
             Fl_Group {} {
-              xywh {20 90 408 232} box FLAT_BOX labelsize 12 align 5
+              xywh {20 80 408 232} box FLAT_BOX labelsize 12 align 5
             } {
               Fl_Input wWidth {
                 label {Screen Size: }
                 callback {settingsChanged();}
                 tooltip {Screen width in pixels,
-Original screen size is 320x480} xywh {120 90 80 20} type Int color 54 labelsize 13 when 12 textsize 12
+Original screen size is 320x480} xywh {120 80 80 20} type Int color 54 labelsize 13 when 12 textsize 12
               }
               Fl_Input wHeight {
                 label {x }
                 callback {settingsChanged();}
                 tooltip {Screen height in pixels,
-Original screen size is 320x480} xywh {215 90 80 20} type Int color 54 labelsize 12 when 12 textsize 12
+Original screen size is 320x480} xywh {215 80 80 20} type Int color 54 labelsize 12 when 12 textsize 12
               }
               Fl_Box {} {
                 label {MessagePad: 320 x 480 (portrait)
 eMate 300: 480 x 320 (landscape)}
-                xywh {120 112 290 28} labelsize 11 align 21
+                xywh {120 102 290 28} labelsize 11 align 21
               }
               Fl_Check_Button wFullScreen {
                 label {Full screen}
                 callback {settingsChanged();}
-                xywh {120 150 308 20} down_box DOWN_BOX labelsize 13 deactivate
+                xywh {120 140 308 20} down_box DOWN_BOX labelsize 13 deactivate
               }
               Fl_Check_Button wHideMouse {
                 label {Hide mouse pointer}
                 callback {settingsChanged();}
                 tooltip {Hide mouse pointer over MessagePad screen
-Used on pen or touch screen devices.} xywh {120 175 208 20} down_box DOWN_BOX labelsize 13
+Used on pen or touch screen devices.} xywh {120 165 208 20} down_box DOWN_BOX labelsize 13
               }
               Fl_Check_Button wLaunchMonitorAtBoot {
                 label {Launch Monitor at Boot}
                 callback {settingsChanged();}
-                xywh {120 200 196 20} down_box DOWN_BOX labelsize 13
+                xywh {120 190 196 20} down_box DOWN_BOX labelsize 13
               }
               Fl_Check_Button wBreakAtROMBoot {
                 label {Break at ROMBoot}
                 callback {settingsChanged();}
-                xywh {145 225 196 20} down_box DOWN_BOX labelsize 13 deactivate
+                xywh {145 215 196 20} down_box DOWN_BOX labelsize 13 deactivate
               }
               Fl_Check_Button wShowMenubar {
                 label Menubar
                 callback {settingsChanged();}
-                xywh {120 250 196 20} down_box DOWN_BOX labelsize 13
+                xywh {120 240 196 20} down_box DOWN_BOX labelsize 13
               }
               Fl_Check_Button wShowToolbar {
                 label Toolbar
                 callback {settingsChanged();}
-                xywh {120 275 196 20} down_box DOWN_BOX labelsize 13
+                xywh {120 265 196 20} down_box DOWN_BOX labelsize 13
               }
               Fl_Check_Button wShowSpecialKeys {
                 label {Special Keys (eMate)}
                 callback {mDialogShowSpecialKeys = o->value();
 settingsChanged();}
                 tooltip {Show the eMate's Special Keys under the screen.
-Only the eMate ROM knows these keys.} xywh {120 300 196 20} down_box DOWN_BOX labelsize 13
+Only the eMate ROM knows these keys.} xywh {120 290 196 20} down_box DOWN_BOX labelsize 13
               }
               Fl_Box {} {
                 label {Show:}
-                xywh {20 250 94 20} labelsize 13 align 24
+                xywh {20 240 94 20} labelsize 13 align 24
               }
               Fl_Box {} {
                 label {add screen scale}
-                xywh {112 186 204 28} hide
+                xywh {112 176 204 28} hide
               }
               Fl_Box {} {
                 label {toggle menubar, toolbar, and functionkey bar}
-                xywh {122 212 204 28} hide
+                xywh {122 202 204 28} hide
               }
               Fl_Box {} {
                 label {maybe developer menu, novice menu, expert menu?}
-                xywh {128 240 204 28} hide
+                xywh {128 230 204 28} hide
               }
               Fl_Box {} {
                 label {Show at startup: machine choice, settings, last open machine}
-                xywh {132 278 204 28} hide
+                xywh {132 268 204 28} hide
               }
               Fl_Input_Choice wScale {
-                label {Scale:} open
-                callback {settingsChanged();}
-                xywh {340 90 60 20} labelsize 12 textsize 12
+                label {Scale:}
+                callback {settingsChanged();} open
+                xywh {340 80 60 20} labelsize 12 textsize 12
                 code0 {o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);}
               } {
                 MenuItem {} {
@@ -707,13 +744,13 @@ Only the eMate ROM knows these keys.} xywh {120 300 196 20} down_box DOWN_BOX la
               }
               Fl_Box {} {
                 label {%}
-                xywh {400 90 1 20} labelsize 12 align 8
+                xywh {400 80 1 20} labelsize 12 align 8
               }
             }
             Fl_Box wUIHeadline {
               label Machine
               comment {The name of the machine shown in the tabs}
-              xywh {20 50 410 27} labelfont 1 labelsize 16 align 80
+              xywh {20 45 410 27} labelfont 1 labelsize 16 align 80
             }
           }
         }
@@ -759,7 +796,7 @@ const char *e;
 TFLPCCardSettings* card;
 
 char path[FL_PATH_MAX];
-strcpy(path, wFlashPath->label());
+strcpy(path, mEditMachine->GetFlashPath().c_str());
 char *nn = (char*)fl_filename_name(path);
 if (nn) *nn = 0;
 
@@ -806,7 +843,7 @@ settingsChanged();}
   TFLPCCardSettings* card;
 
   char path[FL_PATH_MAX];
-  strcpy(path, wFlashPath->label());
+  strcpy(path, mEditMachine->GetFlashPath().c_str());
   char *nn = (char*)fl_filename_name(path);
   if (nn) *nn = 0;
 
@@ -877,7 +914,7 @@ int ret;
 TFLPCCardSettings* card;
 
 char path[FL_PATH_MAX];
-strcpy(path, wFlashPath->label());
+strcpy(path, mEditMachine->GetFlashPath().c_str());
 char *nn = (char*)fl_filename_name(path);
 if (nn) *nn = 0;
 
@@ -937,7 +974,7 @@ settingsChanged();}
   TFLPCCardSettings* card;
 
   char path[FL_PATH_MAX];
-  strcpy(path, wFlashPath->label());
+  strcpy(path, mEditMachine->GetFlashPath().c_str());
   char *nn = (char*)fl_filename_name(path);
   if (nn) *nn = 0;
 
@@ -1097,8 +1134,8 @@ settingsChanged();}
           xywh {10 35 430 375} hide
         } {
           Fl_Input_Choice wUnnaPath {
-            label {UNNA Database: } open
-            callback {settingsChanged();}
+            label {UNNA Database: }
+            callback {settingsChanged();} open
             tooltip {United Network of Newton Archives} xywh {172 80 210 20} color 54 labelsize 13 textsize 12
             code0 {o->value("http://www.unna.org/");}
             code1 {o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);}
@@ -1130,8 +1167,8 @@ if (filename) {
             tooltip {Select a local copy of the UNNA archive} xywh {382 80 42 20} labelsize 12 labelcolor 3
           }
           Fl_Input_Choice wMessagepadOrgPath {
-            label {messagepad.org: } open
-            callback {settingsChanged();}
+            label {messagepad.org: }
+            callback {settingsChanged();} open
             xywh {172 115 252 20} color 54 labelsize 13 textsize 12
             code0 {o->value("http://www.messagepad.org/");}
             code1 {o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);}
@@ -1142,8 +1179,8 @@ if (filename) {
             }
           }
           Fl_Input_Choice wGitRepoPath {
-            label {Git Repository: } open
-            callback {settingsChanged();}
+            label {Git Repository: }
+            callback {settingsChanged();} open
             xywh {172 150 252 20} color 54 labelsize 13 textsize 12
             code0 {o->value("https://github.com/pguyot/Einstein.git");}
             code1 {o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);}
@@ -1222,7 +1259,7 @@ if (filename) {
         label {Show at startup}
         callback {settingsChanged();}
         tooltip {Show the Settings when Einstein starts.
-Otherwise the last machine starts at once.} xywh {48 422 140 21} down_box DOWN_BOX labelsize 12
+Otherwise the last machine starts at once.} xywh {48 422 126 21} down_box DOWN_BOX labelsize 13
       }
       Fl_Return_Button wStart {
         label Start
@@ -1328,9 +1365,7 @@ updateHeadline();
 updateROMWidgets();
 mEditMachine->mROMId = mDialogROMId;
 
-std::string theFlashPath = mEditMachine->GetFlashPath();
-wFlashName->value(fl_filename_name(theFlashPath.c_str()));
-wFlashPath->copy_label(theFlashPath.c_str());
+updateFlashWidgets();
 
 if (mEditMachine->RAMSize<=16)
 	wRAMSizeChoice->value(0);
@@ -1392,10 +1427,8 @@ updateMenus();} {}
 
 mEditMachine->mROMId = mDialogROMId;
 
-// The ROM is set by its widgets directly, see updateROMWidgets().
-// Only a new file changes where the flash is stored (machine folder or host).
-if (mEditMachine->GetFlashPath() != wFlashPath->label())
-	mEditMachine->SetFlashPath(wFlashPath->label());
+// The ROM and the flash are set by their widgets directly, see
+// updateROMWidgets() and updateFlashWidgets().
 
 mEditMachine->mFastStart = wFastStart->value();
 
@@ -1481,6 +1514,41 @@ wROMLight->color(theLight);
 wROMLight->redraw();
 updateSpecialKeysCheckbox();} {}
   }
+  Function {updateFlashWidgets()} {
+    comment {Show the flash of the machine: where it is stored, its file, and whether
+it exists. The light is red without a file, yellow if the file does not exist
+yet (a new, empty one is made at the next start), and green if it exists.} return_type void
+  } {
+    code {bool inFolder = mEditMachine->mFlashInFolder;
+(inFolder ? wFlashInFolder : wFlashOnHost)->setonly();
+std::string thePath = mEditMachine->GetFlashPath();
+std::string theName = inFolder ? mEditMachine->mFlashName : std::string(fl_filename_name(mEditMachine->mFlashHostPath.c_str()));
+wFlashName->value(theName.c_str());
+wFlashPath->copy_label(inFolder ? ("(machine folder)/" + theName).c_str() : thePath.c_str());
+// The machine folder has one flash file; other files are on the host.
+if (inFolder) {
+  wFlashPathCreate->deactivate();
+  wFlashPathChoose->deactivate();
+} else {
+  wFlashPathCreate->activate();
+  wFlashPathChoose->activate();
+}
+if (theName.empty()) {
+  wFlashDetails->copy_label("No file chosen");
+  wFlashLight->color(fl_rgb_color(215, 55, 45));
+  wFlashBrainWipe->deactivate();
+} else if (fl_access(thePath.c_str(), 0) != 0) {
+  wFlashDetails->copy_label("New and empty at the next start");
+  wFlashLight->color(fl_rgb_color(235, 185, 30));
+  wFlashBrainWipe->deactivate();
+} else {
+  wFlashDetails->copy_label("Internal storage found");
+  wFlashLight->color(fl_rgb_color(60, 170, 70));
+  wFlashBrainWipe->activate();
+}
+wFlashLight->redraw();
+mFlashGroup->redraw();} {}
+  }
   Function {updateSpecialKeysCheckbox()} {
     comment {Only an eMate ROM has Special Keys. For other ROMs, the checkbox is
 cleared and grayed out, and the setting is kept for the eMate.} return_type void
@@ -1502,6 +1570,8 @@ Fl_Widget* machineTabs[] = { mMessagePadTab, mUserInterfaceTab };
 for (Fl_Widget* w : machineTabs) {
   if (editable) w->activate(); else w->deactivate();
 }
+// The flash file is in use while the machine runs here.
+if (editable && IsRunning(mEditMachine)) mFlashGroup->deactivate(); else mFlashGroup->activate();
 if (editable) {
   updateSpecialKeysCheckbox();
   wRestartWarning->label("Changes apply the next time this machine starts");

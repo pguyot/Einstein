@@ -445,7 +445,7 @@ void TFLSettingsUI::cb_wROMPathChoose_i(Fl_Button*, void*) {
       if (theChoice == 1) {
         mEditMachine->mROMInFolder = 0;
         mEditMachine->mROMHostPath = filename;
-      } else if (!CopyROMIntoFolder(mEditMachine, filename, theName)) {
+      } else if (!CopyIntoFolder(mEditMachine, filename, true, theName)) {
         return;
       }
     }
@@ -461,52 +461,71 @@ void TFLSettingsUI::cb_wROMPathChoose(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wROMPathChoose_i(o,v);
 }
 
-void TFLSettingsUI::cb_wFlashName_i(Fl_Input*, void*) {
-  char buf[FL_PATH_MAX + 1];
-  buf[0] = 0;
-  strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
-  char *name = (char*)fl_filename_name(buf);
-  if (name) {
-    *name = 0;
-    strncat(buf, wFlashName->value(), FL_PATH_MAX);
-    wFlashPath->copy_label(buf);
-    settingsChanged();
-  }
+void TFLSettingsUI::cb_wFlashInFolder_i(Fl_Round_Button*, void*) {
+  mEditMachine->mFlashInFolder = wFlashInFolder->value();
+  updateFlashWidgets();
+  settingsChanged();
 }
-void TFLSettingsUI::cb_wFlashName(Fl_Input* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashName_i(o,v);
+void TFLSettingsUI::cb_wFlashInFolder(Fl_Round_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashInFolder_i(o,v);
+}
+
+void TFLSettingsUI::cb_wFlashOnHost_i(Fl_Round_Button*, void*) {
+  mEditMachine->mFlashInFolder = wFlashInFolder->value();
+  updateFlashWidgets();
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wFlashOnHost(Fl_Round_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashOnHost_i(o,v);
 }
 
 void TFLSettingsUI::cb_wFlashPathCreate_i(Fl_Button*, void*) {
-  const char *filename = gApp->ChooseNewFile(
-  	"Create a new Flash Memory file",
-  	nullptr,
-  	wFlashPath->label()
-  );
-  if (filename) {
-      wFlashName->value(fl_filename_name(filename));
-      wFlashPath->copy_label(filename);
-      settingsChanged();
+  // Only for a file on the host: the machine folder has one flash file.
+  const char *filename = gApp->ChooseNewFile("Create a new internal storage file", nullptr, mEditMachine->mFlashHostPath.c_str());
+  if (!filename)
+    return;
+  std::string thePath = filename;
+  // A new file means a new, empty internal storage.
+  if (fl_access(thePath.c_str(), 0) == 0) {
+    if (fl_choice("\"%s\" exists already.\n\nErase it, so that the Newton starts with a new, empty internal storage?",
+                  "Cancel", "Erase", nullptr, fl_filename_name(thePath.c_str())) == 0)
+      return;
+    fl_unlink(thePath.c_str());
   }
+  mEditMachine->mFlashHostPath = thePath;
+  updateFlashWidgets();
+  settingsChanged();
 }
 void TFLSettingsUI::cb_wFlashPathCreate(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashPathCreate_i(o,v);
 }
 
 void TFLSettingsUI::cb_wFlashPathChoose_i(Fl_Button*, void*) {
-  const char *filename = gApp->ChooseExistingFile(
-  	"Choose an existing Flash Memory file",
-  	nullptr,
-  	wFlashPath->label()
-  );
-  if (filename) {
-      wFlashName->value(fl_filename_name(filename));
-      wFlashPath->copy_label(filename);
-      settingsChanged();
-  }
+  // Only for a file on the host: the machine folder has one flash file.
+  const char *filename = gApp->ChooseExistingFile("Choose an existing internal storage file", nullptr, mEditMachine->mFlashHostPath.c_str());
+  if (!filename)
+    return;
+  mEditMachine->mFlashHostPath = filename;
+  updateFlashWidgets();
+  settingsChanged();
 }
 void TFLSettingsUI::cb_wFlashPathChoose(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashPathChoose_i(o,v);
+}
+
+void TFLSettingsUI::cb_wFlashBrainWipe_i(Fl_Button*, void*) {
+  if (fl_choice("Erase the internal storage of \"%s\"?\n\n"
+                "Everything stored in this Newton is lost. It starts like a new\n"
+                "Newton and asks to be set up.",
+                "Cancel", "Erase", nullptr, mEditMachine->GetName()) == 0)
+    return;
+  fl_unlink(mEditMachine->GetFlashPath().c_str());
+  // The fast start state belongs to the old contents.
+  fl_unlink((mEditMachine->GetFolder() + "FastStart.state").c_str());
+  updateFlashWidgets();
+}
+void TFLSettingsUI::cb_wFlashBrainWipe(Fl_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashBrainWipe_i(o,v);
 }
 
 void TFLSettingsUI::cb_wRAMSizeChoice_i(Fl_Choice*, void*) {
@@ -643,7 +662,7 @@ void TFLSettingsUI::cb_Add_i(Fl_Menu_*, void*) {
   TFLPCCardSettings* card;
 
   char path[FL_PATH_MAX];
-  strcpy(path, wFlashPath->label());
+  strcpy(path, mEditMachine->GetFlashPath().c_str());
   char *nn = (char*)fl_filename_name(path);
   if (nn) *nn = 0;
 
@@ -687,7 +706,7 @@ void TFLSettingsUI::cb_New_i(Fl_Menu_*, void* v) {
     TFLPCCardSettings* card;
 
     char path[FL_PATH_MAX];
-    strcpy(path, wFlashPath->label());
+    strcpy(path, mEditMachine->GetFlashPath().c_str());
     char *nn = (char*)fl_filename_name(path);
     if (nn) *nn = 0;
 
@@ -736,7 +755,7 @@ void TFLSettingsUI::cb_Create_i(Fl_Menu_*, void*) {
   TFLPCCardSettings* card;
 
   char path[FL_PATH_MAX];
-  strcpy(path, wFlashPath->label());
+  strcpy(path, mEditMachine->GetFlashPath().c_str());
   char *nn = (char*)fl_filename_name(path);
   if (nn) *nn = 0;
 
@@ -793,7 +812,7 @@ void TFLSettingsUI::cb_New1_i(Fl_Menu_*, void* v) {
     TFLPCCardSettings* card;
 
     char path[FL_PATH_MAX];
-    strcpy(path, wFlashPath->label());
+    strcpy(path, mEditMachine->GetFlashPath().c_str());
     char *nn = (char*)fl_filename_name(path);
     if (nn) *nn = 0;
 
@@ -1794,22 +1813,22 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
         Fl_Group* o = new Fl_Group(10, 35, 430, 375, "  MessagePad  ");
         { mMessagePadTab = new Fl_Group(15, 40, 420, 365);
           { // The name of the machine shown in the tabs
-            wMPHeadline = new Fl_Box(20, 50, 410, 27, "Machine");
+            wMPHeadline = new Fl_Box(20, 45, 410, 27, "Machine");
             wMPHeadline->labelfont(1);
             wMPHeadline->labelsize(16);
             wMPHeadline->align(Fl_Align(FL_ALIGN_CLIP|FL_ALIGN_INSIDE));
           } // Fl_Box* wMPHeadline
           { // The ROM: a file in the machine folder or on the host, see TFLMachineSettings::GetROMPath()
-            Fl_Group* o = new Fl_Group(20, 88, 410, 120);
+            Fl_Group* o = new Fl_Group(15, 78, 420, 122);
             o->box(FL_FLAT_BOX);
             o->labelsize(12);
             o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-            { Fl_Box* o = new Fl_Box(20, 88, 98, 20, "Newton ROM:");
+            { Fl_Box* o = new Fl_Box(15, 78, 101, 20, "Newton ROM:");
               o->labelsize(13);
               o->align(Fl_Align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE));
             } // Fl_Box* o
-            { Fl_Group* o = new Fl_Group(120, 88, 310, 38);
-              { wROMInFolder = new Fl_Round_Button(120, 88, 300, 20, "Keep a copy in the machine folder");
+            { Fl_Group* o = new Fl_Group(120, 78, 315, 40);
+              { wROMInFolder = new Fl_Round_Button(120, 78, 300, 20, "Keep a copy in the machine folder");
                 wROMInFolder->tooltip("Use the ROM file in the machine\'s folder, so the folder holds all the machin"
 "e needs.\nThe menu of a machine in the list opens its folder.");
                 wROMInFolder->type(102);
@@ -1817,7 +1836,7 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
                 wROMInFolder->labelsize(13);
                 wROMInFolder->callback((Fl_Callback*)cb_wROMInFolder);
               } // Fl_Round_Button* wROMInFolder
-              { wROMOnHost = new Fl_Round_Button(120, 106, 300, 20, "Use the file where it is");
+              { wROMOnHost = new Fl_Round_Button(120, 98, 300, 20, "Use the file where it is");
                 wROMOnHost->tooltip("Use a ROM file anywhere on this computer.");
                 wROMOnHost->type(102);
                 wROMOnHost->down_box(FL_ROUND_DOWN_BOX);
@@ -1826,63 +1845,102 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
               } // Fl_Round_Button* wROMOnHost
               o->end();
             } // Fl_Group* o
-            { wROMName = new Fl_Output(120, 130, 235, 20);
+            { wROMName = new Fl_Output(120, 126, 245, 20);
               wROMName->color(FL_BACKGROUND_COLOR);
               wROMName->labelsize(13);
               wROMName->textsize(12);
             } // Fl_Output* wROMName
-            { wROMPathChoose = new Fl_Button(355, 130, 75, 20, "Choose...");
+            { wROMPathChoose = new Fl_Button(365, 126, 70, 20, "Choose...");
               wROMPathChoose->tooltip("Select a Newton ROM image file.\nEinstein does not include any ROMs.");
               wROMPathChoose->labelsize(12);
               wROMPathChoose->callback((Fl_Callback*)cb_wROMPathChoose);
             } // Fl_Button* wROMPathChoose
-            { wROMPath = new Fl_Box(120, 150, 310, 26, "/here/goes/the/path/and/filename/of/the/ROM");
+            { wROMPath = new Fl_Box(120, 146, 315, 24, "/here/goes/the/path/and/filename/of/the/ROM");
               wROMPath->labelsize(11);
               wROMPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
             } // Fl_Box* wROMPath
             { // red: no file, yellow: not a ROM that Einstein knows, green: a known ROM
-              wROMLight = new Fl_Box(120, 182, 12, 12);
+              wROMLight = new Fl_Box(124, 176, 12, 12);
               wROMLight->box(FL_OVAL_BOX);
               wROMLight->color((Fl_Color)1);
             } // Fl_Box* wROMLight
-            { wROMDetails = new Fl_Box(138, 178, 292, 30, "ROM file found\nEnjoy Einstein");
+            { wROMDetails = new Fl_Box(138, 170, 297, 28, "ROM file found\nEnjoy Einstein");
               wROMDetails->labelsize(12);
               wROMDetails->align(Fl_Align(196|FL_ALIGN_INSIDE));
             } // Fl_Box* wROMDetails
             o->end();
           } // Fl_Group* o
-          { Fl_Group* o = new Fl_Group(22, 215, 408, 48);
-            o->box(FL_FLAT_BOX);
-            o->labelsize(12);
-            o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-            { wFlashName = new Fl_Input(120, 216, 160, 20, "System Flash: ");
-              wFlashName->color(FL_LIGHT3);
+          { /*
+             The flash: a file in the machine folder or on the host, see TFLMachineSettings::GetFlashPath().
+             Grayed out while the machine runs here: the file is in use.
+             */
+            mFlashGroup = new Fl_Group(15, 210, 420, 112);
+            mFlashGroup->box(FL_FLAT_BOX);
+            mFlashGroup->labelsize(12);
+            mFlashGroup->align(Fl_Align(FL_ALIGN_TOP_LEFT));
+            { Fl_Box* o = new Fl_Box(15, 211, 103, 59, "Internal Storage:");
+              o->labelsize(13);
+              o->align(Fl_Align(201|FL_ALIGN_INSIDE));
+            } // Fl_Box* o
+            { Fl_Group* o = new Fl_Group(120, 210, 315, 40);
+              { wFlashInFolder = new Fl_Round_Button(120, 210, 315, 20, "Keep in the machine folder");
+                wFlashInFolder->tooltip("Use the flash file in the machine\'s folder, so the folder holds all the mach"
+"ine needs.");
+                wFlashInFolder->type(102);
+                wFlashInFolder->down_box(FL_ROUND_DOWN_BOX);
+                wFlashInFolder->labelsize(13);
+                wFlashInFolder->callback((Fl_Callback*)cb_wFlashInFolder);
+              } // Fl_Round_Button* wFlashInFolder
+              { wFlashOnHost = new Fl_Round_Button(120, 230, 315, 20, "Use the file where it is");
+                wFlashOnHost->tooltip("Use a flash file anywhere on this computer.");
+                wFlashOnHost->type(102);
+                wFlashOnHost->down_box(FL_ROUND_DOWN_BOX);
+                wFlashOnHost->labelsize(13);
+                wFlashOnHost->callback((Fl_Callback*)cb_wFlashOnHost);
+              } // Fl_Round_Button* wFlashOnHost
+              o->end();
+            } // Fl_Group* o
+            { wFlashName = new Fl_Output(120, 258, 175, 20);
+              wFlashName->color(FL_BACKGROUND_COLOR);
               wFlashName->labelsize(13);
               wFlashName->textsize(12);
-              wFlashName->callback((Fl_Callback*)cb_wFlashName);
-              wFlashName->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
-            } // Fl_Input* wFlashName
-            { wFlashPath = new Fl_Box(120, 236, 310, 27, "/here/goes/the/path/and/filename/of/the/FlashFile");
-              wFlashPath->labelsize(11);
-              wFlashPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
-            } // Fl_Box* wFlashPath
-            { wFlashPathCreate = new Fl_Button(280, 216, 75, 20, "Create...");
-              wFlashPathCreate->tooltip("Create a new Flash RAM image file.");
+            } // Fl_Output* wFlashName
+            { wFlashPathCreate = new Fl_Button(295, 258, 70, 20, "Create...");
+              wFlashPathCreate->tooltip("Choose a name for a new, empty internal storage on this computer.\nNewtonOS s"
+"ets it up at the next start.");
               wFlashPathCreate->labelsize(12);
               wFlashPathCreate->callback((Fl_Callback*)cb_wFlashPathCreate);
             } // Fl_Button* wFlashPathCreate
-            { wFlashPathChoose = new Fl_Button(355, 216, 75, 20, "Choose...");
-              wFlashPathChoose->tooltip("Select an existing Flash RAM image file.");
+            { wFlashPathChoose = new Fl_Button(365, 258, 70, 20, "Choose...");
+              wFlashPathChoose->tooltip("Select an existing internal storage file on this computer.");
               wFlashPathChoose->labelsize(12);
               wFlashPathChoose->callback((Fl_Callback*)cb_wFlashPathChoose);
             } // Fl_Button* wFlashPathChoose
-            o->end();
-          } // Fl_Group* o
-          { Fl_Group* o = new Fl_Group(22, 272, 408, 21);
+            { wFlashPath = new Fl_Box(120, 278, 315, 24, "/here/goes/the/path/and/filename/of/the/FlashFile");
+              wFlashPath->labelsize(11);
+              wFlashPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
+            } // Fl_Box* wFlashPath
+            { // red: no file, yellow: new and empty at the next start, green: found
+              wFlashLight = new Fl_Box(124, 305, 12, 12);
+              wFlashLight->box(FL_OVAL_BOX);
+              wFlashLight->color((Fl_Color)1);
+            } // Fl_Box* wFlashLight
+            { wFlashDetails = new Fl_Box(138, 302, 196, 20, "Internal storage found");
+              wFlashDetails->labelsize(12);
+              wFlashDetails->align(Fl_Align(68|FL_ALIGN_INSIDE));
+            } // Fl_Box* wFlashDetails
+            { wFlashBrainWipe = new Fl_Button(334, 302, 101, 20, "Brain Wipe...");
+              wFlashBrainWipe->tooltip("Erase the internal storage, after asking.");
+              wFlashBrainWipe->labelsize(12);
+              wFlashBrainWipe->callback((Fl_Callback*)cb_wFlashBrainWipe);
+            } // Fl_Button* wFlashBrainWipe
+            mFlashGroup->end();
+          } // Fl_Group* mFlashGroup
+          { Fl_Group* o = new Fl_Group(15, 332, 420, 20);
             o->box(FL_FLAT_BOX);
             o->labelsize(12);
             o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-            { wRAMSizeChoice = new Fl_Choice(120, 273, 180, 20, "System RAM: ");
+            { wRAMSizeChoice = new Fl_Choice(120, 332, 180, 20, "System RAM: ");
               wRAMSizeChoice->tooltip("select the system memory size (heap)");
               wRAMSizeChoice->down_box(FL_BORDER_BOX);
               wRAMSizeChoice->labelsize(13);
@@ -1892,20 +1950,20 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
             } // Fl_Choice* wRAMSizeChoice
             o->end();
           } // Fl_Group* o
-          { wRestartWarning = new Fl_Box(30, 378, 386, 20, "Setting changes apply only after a  restart");
-            wRestartWarning->box(FL_FLAT_BOX);
-            wRestartWarning->labelfont(1);
-            wRestartWarning->labelsize(12);
-            wRestartWarning->align(Fl_Align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE));
-            wRestartWarning->hide();
-          } // Fl_Box* wRestartWarning
-          { wFastStart = new Fl_Check_Button(120, 300, 290, 20, "Fast start: continue where Einstein was quit");
+          { wFastStart = new Fl_Check_Button(120, 360, 290, 20, "Fast start: continue where Einstein was quit");
             wFastStart->tooltip("When quitting, Einstein lets the Newton fall asleep and saves its state.\nThe"
 " next start continues from there, if nothing changed in the meantime.");
             wFastStart->down_box(FL_DOWN_BOX);
             wFastStart->labelsize(13);
             wFastStart->callback((Fl_Callback*)cb_wFastStart);
           } // Fl_Check_Button* wFastStart
+          { wRestartWarning = new Fl_Box(30, 384, 386, 20, "Setting changes apply only after a  restart");
+            wRestartWarning->box(FL_FLAT_BOX);
+            wRestartWarning->labelfont(1);
+            wRestartWarning->labelsize(12);
+            wRestartWarning->align(Fl_Align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE));
+            wRestartWarning->hide();
+          } // Fl_Box* wRestartWarning
           mMessagePadTab->end();
         } // Fl_Group* mMessagePadTab
         o->end();
@@ -1913,11 +1971,11 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       { Fl_Group* o = new Fl_Group(10, 35, 430, 375, "  User Interface  ");
         o->hide();
         { mUserInterfaceTab = new Fl_Group(15, 40, 420, 365);
-          { Fl_Group* o = new Fl_Group(20, 90, 408, 232);
+          { Fl_Group* o = new Fl_Group(20, 80, 408, 232);
             o->box(FL_FLAT_BOX);
             o->labelsize(12);
             o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-            { wWidth = new Fl_Int_Input(120, 90, 80, 20, "Screen Size: ");
+            { wWidth = new Fl_Int_Input(120, 80, 80, 20, "Screen Size: ");
               wWidth->tooltip("Screen width in pixels,\nOriginal screen size is 320x480");
               wWidth->type(2);
               wWidth->color(FL_LIGHT3);
@@ -1926,7 +1984,7 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
               wWidth->callback((Fl_Callback*)cb_wWidth);
               wWidth->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
             } // Fl_Int_Input* wWidth
-            { wHeight = new Fl_Int_Input(215, 90, 80, 20, "x ");
+            { wHeight = new Fl_Int_Input(215, 80, 80, 20, "x ");
               wHeight->tooltip("Screen height in pixels,\nOriginal screen size is 320x480");
               wHeight->type(2);
               wHeight->color(FL_LIGHT3);
@@ -1935,82 +1993,82 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
               wHeight->callback((Fl_Callback*)cb_wHeight);
               wHeight->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
             } // Fl_Int_Input* wHeight
-            { Fl_Box* o = new Fl_Box(120, 112, 290, 28, "MessagePad: 320 x 480 (portrait)\neMate 300: 480 x 320 (landscape)");
+            { Fl_Box* o = new Fl_Box(120, 102, 290, 28, "MessagePad: 320 x 480 (portrait)\neMate 300: 480 x 320 (landscape)");
               o->labelsize(11);
               o->align(Fl_Align(FL_ALIGN_TOP_LEFT|FL_ALIGN_INSIDE));
             } // Fl_Box* o
-            { wFullScreen = new Fl_Check_Button(120, 150, 308, 20, "Full screen");
+            { wFullScreen = new Fl_Check_Button(120, 140, 308, 20, "Full screen");
               wFullScreen->down_box(FL_DOWN_BOX);
               wFullScreen->labelsize(13);
               wFullScreen->callback((Fl_Callback*)cb_wFullScreen);
               wFullScreen->deactivate();
             } // Fl_Check_Button* wFullScreen
-            { wHideMouse = new Fl_Check_Button(120, 175, 208, 20, "Hide mouse pointer");
+            { wHideMouse = new Fl_Check_Button(120, 165, 208, 20, "Hide mouse pointer");
               wHideMouse->tooltip("Hide mouse pointer over MessagePad screen\nUsed on pen or touch screen device"
 "s.");
               wHideMouse->down_box(FL_DOWN_BOX);
               wHideMouse->labelsize(13);
               wHideMouse->callback((Fl_Callback*)cb_wHideMouse);
             } // Fl_Check_Button* wHideMouse
-            { wLaunchMonitorAtBoot = new Fl_Check_Button(120, 200, 196, 20, "Launch Monitor at Boot");
+            { wLaunchMonitorAtBoot = new Fl_Check_Button(120, 190, 196, 20, "Launch Monitor at Boot");
               wLaunchMonitorAtBoot->down_box(FL_DOWN_BOX);
               wLaunchMonitorAtBoot->labelsize(13);
               wLaunchMonitorAtBoot->callback((Fl_Callback*)cb_wLaunchMonitorAtBoot);
             } // Fl_Check_Button* wLaunchMonitorAtBoot
-            { wBreakAtROMBoot = new Fl_Check_Button(145, 225, 196, 20, "Break at ROMBoot");
+            { wBreakAtROMBoot = new Fl_Check_Button(145, 215, 196, 20, "Break at ROMBoot");
               wBreakAtROMBoot->down_box(FL_DOWN_BOX);
               wBreakAtROMBoot->labelsize(13);
               wBreakAtROMBoot->callback((Fl_Callback*)cb_wBreakAtROMBoot);
               wBreakAtROMBoot->deactivate();
             } // Fl_Check_Button* wBreakAtROMBoot
-            { wShowMenubar = new Fl_Check_Button(120, 250, 196, 20, "Menubar");
+            { wShowMenubar = new Fl_Check_Button(120, 240, 196, 20, "Menubar");
               wShowMenubar->down_box(FL_DOWN_BOX);
               wShowMenubar->labelsize(13);
               wShowMenubar->callback((Fl_Callback*)cb_wShowMenubar);
             } // Fl_Check_Button* wShowMenubar
-            { wShowToolbar = new Fl_Check_Button(120, 275, 196, 20, "Toolbar");
+            { wShowToolbar = new Fl_Check_Button(120, 265, 196, 20, "Toolbar");
               wShowToolbar->down_box(FL_DOWN_BOX);
               wShowToolbar->labelsize(13);
               wShowToolbar->callback((Fl_Callback*)cb_wShowToolbar);
             } // Fl_Check_Button* wShowToolbar
-            { wShowSpecialKeys = new Fl_Check_Button(120, 300, 196, 20, "Special Keys (eMate)");
+            { wShowSpecialKeys = new Fl_Check_Button(120, 290, 196, 20, "Special Keys (eMate)");
               wShowSpecialKeys->tooltip("Show the eMate\'s Special Keys under the screen.\nOnly the eMate ROM knows th"
 "ese keys.");
               wShowSpecialKeys->down_box(FL_DOWN_BOX);
               wShowSpecialKeys->labelsize(13);
               wShowSpecialKeys->callback((Fl_Callback*)cb_wShowSpecialKeys);
             } // Fl_Check_Button* wShowSpecialKeys
-            { Fl_Box* o = new Fl_Box(20, 250, 94, 20, "Show:");
+            { Fl_Box* o = new Fl_Box(20, 240, 94, 20, "Show:");
               o->labelsize(13);
               o->align(Fl_Align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE));
             } // Fl_Box* o
-            { Fl_Box* o = new Fl_Box(112, 186, 204, 28, "add screen scale");
+            { Fl_Box* o = new Fl_Box(112, 176, 204, 28, "add screen scale");
               o->hide();
             } // Fl_Box* o
-            { Fl_Box* o = new Fl_Box(122, 212, 204, 28, "toggle menubar, toolbar, and functionkey bar");
+            { Fl_Box* o = new Fl_Box(122, 202, 204, 28, "toggle menubar, toolbar, and functionkey bar");
               o->hide();
             } // Fl_Box* o
-            { Fl_Box* o = new Fl_Box(128, 240, 204, 28, "maybe developer menu, novice menu, expert menu?");
+            { Fl_Box* o = new Fl_Box(128, 230, 204, 28, "maybe developer menu, novice menu, expert menu?");
               o->hide();
             } // Fl_Box* o
-            { Fl_Box* o = new Fl_Box(132, 278, 204, 28, "Show at startup: machine choice, settings, last open machine");
+            { Fl_Box* o = new Fl_Box(132, 268, 204, 28, "Show at startup: machine choice, settings, last open machine");
               o->hide();
             } // Fl_Box* o
-            { Fl_Input_Choice* o = wScale = new Fl_Input_Choice(340, 90, 60, 20, "Scale:");
+            { Fl_Input_Choice* o = wScale = new Fl_Input_Choice(340, 80, 60, 20, "Scale:");
               wScale->labelsize(12);
               wScale->textsize(12);
               wScale->callback((Fl_Callback*)cb_wScale);
               wScale->menu(menu_wScale);
               o->input()->when(o->input()->when() | FL_WHEN_ENTER_KEY);
             } // Fl_Input_Choice* wScale
-            { Fl_Box* o = new Fl_Box(400, 90, 1, 20, "%");
+            { Fl_Box* o = new Fl_Box(400, 80, 1, 20, "%");
               o->labelsize(12);
               o->align(Fl_Align(FL_ALIGN_RIGHT));
             } // Fl_Box* o
             o->end();
           } // Fl_Group* o
           { // The name of the machine shown in the tabs
-            wUIHeadline = new Fl_Box(20, 50, 410, 27, "Machine");
+            wUIHeadline = new Fl_Box(20, 45, 410, 27, "Machine");
             wUIHeadline->labelfont(1);
             wUIHeadline->labelsize(16);
             wUIHeadline->align(Fl_Align(FL_ALIGN_CLIP|FL_ALIGN_INSIDE));
@@ -2142,11 +2200,11 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       wSidebarButton->labelsize(11);
       wSidebarButton->callback((Fl_Callback*)cb_wSidebarButton);
     } // Fl_Button* wSidebarButton
-    { wShowAtStartup = new Fl_Check_Button(48, 422, 140, 21, "Show at startup");
+    { wShowAtStartup = new Fl_Check_Button(48, 422, 126, 21, "Show at startup");
       wShowAtStartup->tooltip("Show the Settings when Einstein starts.\nOtherwise the last machine starts at"
 " once.");
       wShowAtStartup->down_box(FL_DOWN_BOX);
-      wShowAtStartup->labelsize(12);
+      wShowAtStartup->labelsize(13);
       wShowAtStartup->callback((Fl_Callback*)cb_wShowAtStartup);
     } // Fl_Check_Button* wShowAtStartup
     { wStart = new Fl_Return_Button(322, 420, 95, 25, "Start");
@@ -2255,9 +2313,7 @@ void TFLSettingsUI::revertDialog() {
   updateROMWidgets();
   mEditMachine->mROMId = mDialogROMId;
 
-  std::string theFlashPath = mEditMachine->GetFlashPath();
-  wFlashName->value(fl_filename_name(theFlashPath.c_str()));
-  wFlashPath->copy_label(theFlashPath.c_str());
+  updateFlashWidgets();
 
   if (mEditMachine->RAMSize<=16)
   	wRAMSizeChoice->value(0);
@@ -2319,10 +2375,8 @@ void TFLSettingsUI::applyDialog() {
 
   mEditMachine->mROMId = mDialogROMId;
 
-  // The ROM is set by its widgets directly, see updateROMWidgets().
-  // Only a new file changes where the flash is stored (machine folder or host).
-  if (mEditMachine->GetFlashPath() != wFlashPath->label())
-  	mEditMachine->SetFlashPath(wFlashPath->label());
+  // The ROM and the flash are set by their widgets directly, see
+  // updateROMWidgets() and updateFlashWidgets().
 
   mEditMachine->mFastStart = wFastStart->value();
 
@@ -2412,6 +2466,43 @@ void TFLSettingsUI::updateROMWidgets() {
 }
 
 /**
+ Show the flash of the machine: where it is stored, its file, and whether
+ it exists. The light is red without a file, yellow if the file does not exist
+ yet (a new, empty one is made at the next start), and green if it exists.
+*/
+void TFLSettingsUI::updateFlashWidgets() {
+  bool inFolder = mEditMachine->mFlashInFolder;
+  (inFolder ? wFlashInFolder : wFlashOnHost)->setonly();
+  std::string thePath = mEditMachine->GetFlashPath();
+  std::string theName = inFolder ? mEditMachine->mFlashName : std::string(fl_filename_name(mEditMachine->mFlashHostPath.c_str()));
+  wFlashName->value(theName.c_str());
+  wFlashPath->copy_label(inFolder ? ("(machine folder)/" + theName).c_str() : thePath.c_str());
+  // The machine folder has one flash file; other files are on the host.
+  if (inFolder) {
+    wFlashPathCreate->deactivate();
+    wFlashPathChoose->deactivate();
+  } else {
+    wFlashPathCreate->activate();
+    wFlashPathChoose->activate();
+  }
+  if (theName.empty()) {
+    wFlashDetails->copy_label("No file chosen");
+    wFlashLight->color(fl_rgb_color(215, 55, 45));
+    wFlashBrainWipe->deactivate();
+  } else if (fl_access(thePath.c_str(), 0) != 0) {
+    wFlashDetails->copy_label("New and empty at the next start");
+    wFlashLight->color(fl_rgb_color(235, 185, 30));
+    wFlashBrainWipe->deactivate();
+  } else {
+    wFlashDetails->copy_label("Internal storage found");
+    wFlashLight->color(fl_rgb_color(60, 170, 70));
+    wFlashBrainWipe->activate();
+  }
+  wFlashLight->redraw();
+  mFlashGroup->redraw();
+}
+
+/**
  Only an eMate ROM has Special Keys. For other ROMs, the checkbox is
  cleared and grayed out, and the setting is kept for the eMate.
 */
@@ -2435,6 +2526,8 @@ void TFLSettingsUI::updateEditable() {
   for (Fl_Widget* w : machineTabs) {
     if (editable) w->activate(); else w->deactivate();
   }
+  // The flash file is in use while the machine runs here.
+  if (editable && IsRunning(mEditMachine)) mFlashGroup->deactivate(); else mFlashGroup->activate();
   if (editable) {
     updateSpecialKeysCheckbox();
     wRestartWarning->label("Changes apply the next time this machine starts");

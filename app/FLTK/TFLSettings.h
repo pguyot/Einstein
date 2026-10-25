@@ -367,9 +367,9 @@ public:
 	void NewMachine();
 	void DuplicateMachine(TFLMachineSettings* inMachine);
 
-	// Copy a ROM file and the files that belong to it into the machine's
-	// folder; outName is its name there. Asks before replacing files.
-	bool CopyROMIntoFolder(TFLMachineSettings* inMachine, const char* inPath, std::string& outName);
+	// Copy a file into the machine's folder, for a ROM with the files that
+	// belong to it; outName is its name there. Asks before replacing files.
+	bool CopyIntoFolder(TFLMachineSettings* inMachine, const char* inPath, bool inROM, std::string& outName);
 	void RenameMachine(TFLMachineSettings* inMachine);
 	void ShowMachineFolder(TFLMachineSettings* inMachine);
 	void MoveMachine(TFLMachineSettings* inMachine, int inDelta);

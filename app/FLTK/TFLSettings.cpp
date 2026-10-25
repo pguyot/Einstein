@@ -1543,14 +1543,15 @@ TFLSettings::DuplicateMachine(TFLMachineSettings* inMachine)
 }
 
 /**
- Copy a ROM file, and the files that belong to it, into the machine's folder.
- Asks before replacing files that are there already.
+ Copy a file into the machine's folder: a flash file, or a ROM file with the
+ files that belong to it. Asks before replacing files that are there already.
  \return false if nothing was copied (cancelled or failed)
  */
 bool
-TFLSettings::CopyROMIntoFolder(TFLMachineSettings* inMachine, const char* inPath, std::string& outName)
+TFLSettings::CopyIntoFolder(TFLMachineSettings* inMachine, const char* inPath, bool inROM, std::string& outName)
 {
-	std::vector<std::string> theFiles = ROMFiles(inPath, inMachine->mUseBuiltinRex);
+	std::vector<std::string> theFiles = inROM ? ROMFiles(inPath, inMachine->mUseBuiltinRex)
+											  : std::vector<std::string> { inPath };
 	std::string theExisting;
 	for (const std::string& theFile : theFiles)
 	{
@@ -1654,8 +1655,8 @@ TFLSettings::DeleteMachine(TFLMachineSettings* inMachine)
 	}
 	int theChoice = fl_choice(
 		"Delete \"%s\"?\n\n"
-		"Delete Files Too also deletes its folder, with its internal storage "
-		"(flash) and saved states. Files outside its folder stay, for example "
+		"Delete Files Too also deletes its folder, with its internal storage\n "
+		"(flash) and saved states. Files outside its folder stay, for example\n "
 		"a flash file from an older Einstein.",
 		"Cancel", "Delete Entry Only", "Delete Files Too", inMachine->GetName());
 	if (theChoice == 0)

@@ -51,7 +51,6 @@ Fl_Group* addInstallerScript(const char *inTitle, StringList *inScriptList);
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_Output.H>
-#include <FL/Fl_Input.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Int_Input.H>
@@ -60,6 +59,7 @@ Fl_Group* addInstallerScript(const char *inTitle, StringList *inScriptList);
 #include <FL/Fl_Menu_Bar.H>
 extern void cb_New(Fl_Menu_*, long);
 extern void cb_New1(Fl_Menu_*, long);
+#include <FL/Fl_Input.H>
 #include <FL/Fl_Return_Button.H>
 #include <FL/Fl_Help_View.H>
 
@@ -106,12 +106,18 @@ public:
   Fl_Box *wROMPath;
   Fl_Box *wROMLight;
   Fl_Box *wROMDetails;
-  Fl_Input *wFlashName;
+  Fl_Group *mFlashGroup;
+  Fl_Round_Button *wFlashInFolder;
 private:
-  inline void cb_wFlashName_i(Fl_Input*, void*);
-  static void cb_wFlashName(Fl_Input*, void*);
+  inline void cb_wFlashInFolder_i(Fl_Round_Button*, void*);
+  static void cb_wFlashInFolder(Fl_Round_Button*, void*);
 public:
-  Fl_Box *wFlashPath;
+  Fl_Round_Button *wFlashOnHost;
+private:
+  inline void cb_wFlashOnHost_i(Fl_Round_Button*, void*);
+  static void cb_wFlashOnHost(Fl_Round_Button*, void*);
+public:
+  Fl_Output *wFlashName;
   Fl_Button *wFlashPathCreate;
 private:
   inline void cb_wFlashPathCreate_i(Fl_Button*, void*);
@@ -122,18 +128,26 @@ private:
   inline void cb_wFlashPathChoose_i(Fl_Button*, void*);
   static void cb_wFlashPathChoose(Fl_Button*, void*);
 public:
+  Fl_Box *wFlashPath;
+  Fl_Box *wFlashLight;
+  Fl_Box *wFlashDetails;
+  Fl_Button *wFlashBrainWipe;
+private:
+  inline void cb_wFlashBrainWipe_i(Fl_Button*, void*);
+  static void cb_wFlashBrainWipe(Fl_Button*, void*);
+public:
   Fl_Choice *wRAMSizeChoice;
 private:
   inline void cb_wRAMSizeChoice_i(Fl_Choice*, void*);
   static void cb_wRAMSizeChoice(Fl_Choice*, void*);
   static Fl_Menu_Item menu_wRAMSizeChoice[];
 public:
-  Fl_Box *wRestartWarning;
   Fl_Check_Button *wFastStart;
 private:
   inline void cb_wFastStart_i(Fl_Check_Button*, void*);
   static void cb_wFastStart(Fl_Check_Button*, void*);
 public:
+  Fl_Box *wRestartWarning;
   Fl_Group *mUserInterfaceTab;
   Fl_Int_Input *wWidth;
 private:
@@ -304,6 +318,7 @@ public:
   void revertDialog();
   void applyDialog();
   void updateROMWidgets();
+  void updateFlashWidgets();
   void updateSpecialKeysCheckbox();
   void updateEditable();
   void updateHeadline();
