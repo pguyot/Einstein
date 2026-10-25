@@ -40,6 +40,10 @@ Einstein needs two files:
   empty flash file for you, or you can use one from an earlier Einstein
   installation.
 
+Einstein keeps each emulated Newton, called a machine, in a folder of its own
+(see [section 12](#12-several-machines)). The ROM and the flash file can be
+in that folder or anywhere on your computer.
+
 Keep a copy of your flash file. It holds all your Newton data.
 
 
@@ -47,11 +51,26 @@ Keep a copy of your flash file. It holds all your Newton data.
 
 When you start Einstein, the Settings window opens.
 
-1. In the **MessagePad** tab, click **Choose...** next to *Newton ROM* and
-   select your ROM image. Einstein shows "ROM file found" when it recognizes
-   the file.
-2. Next to *System Flash*, click **Create...** for a new flash file, or
-   **Choose...** for an existing one.
+1. In the **MessagePad** tab, choose where Einstein finds the *Newton ROM*:
+   - **Keep a copy in the machine folder**: click **Choose...** and select
+     your ROM image, then **Copy to Machine Folder**. The machine then has
+     everything it needs in its folder.
+   - **Use the file where it is**: click **Choose...** and select your ROM
+     image. Einstein uses it from there.
+
+   The light in front of the ROM's description is green when Einstein knows
+   the ROM, yellow for a file it does not know, and red when no file is
+   chosen or the file is missing. Einstein keeps both choices, so you can
+   switch between them without losing anything.
+2. Choose where the *Internal Storage* (the flash file) is:
+   - **Keep in the machine folder** (the default): the machine's own
+     `internal.flash`. Einstein creates it, new and empty, at the first start.
+   - **Use the file where it is**: **Choose...** an existing flash file, for
+     example one from an earlier Einstein, or **Create...** a new one.
+
+   **Brain Wipe...** erases the internal storage after asking, so the Newton
+   starts like a new one. These buttons are grayed out while the machine
+   runs.
 3. Choose the *System RAM*: 1 MB (like a MessagePad 2000 or an eMate 300),
    4 MB (like a MessagePad 2100), or 8 MB or 16 MB, more than any real Newton
    had. NewtonOS sees the extra memory, but the NewtonScript heap, where
@@ -374,9 +393,11 @@ with the **<<** button at the bottom left; Einstein remembers your choice.
 
 - Click a machine to show its settings in the tabs on the right.
 - Click its play button, or double-click it, to start it.
-- **+** adds a machine. It uses the same ROM as the selected machine, 4 MB of
-  memory, and new, empty internal storage, so NewtonOS sets it up like a new
-  Newton.
+- **+** › **New Machine** adds a machine. It uses the same ROM file as the
+  selected machine, 4 MB of memory, and new, empty internal storage, so
+  NewtonOS sets it up like a new Newton.
+- **+** › **Add Existing Machine...** adds a machine folder, for example one
+  from another computer (see [Machine folders](#machine-folders)).
 - Right-click a machine (or Ctrl-click it) for more:
   - **Duplicate** makes a copy with all its settings and a copy of its
     internal storage.
@@ -404,7 +425,24 @@ its own Dock icon on macOS. The window's title is the machine's name.
   can't be changed there.
 - A PC Card can only be in one running machine at a time. Einstein tells you
   which machine has it.
+- Two machines can't run on the same internal storage file at the same time.
+  The Settings show it when another machine uses the same file.
 - The Settings can only be open in one Einstein window at a time.
+
+### Machine folders
+
+Each machine has a folder (**Show in Finder** in its menu) with its settings,
+its internal storage and its saved states, and, if you choose so, its ROM.
+When the ROM and the internal storage are kept in the machine folder, the
+folder holds everything the machine needs. To take a machine to another
+computer, quit it, copy its folder, and use **+** › **Add Existing
+Machine...** there. Einstein copies the folder into its own list of
+machines.
+
+PC Cards are not part of a machine folder; they are shared by all machines.
+If the new machine has the same Newton ID as one in the list, for example a
+copy of a machine on the same computer, it gets a new one, so desktop
+programs can tell the two apart.
 
 ### Older versions of Einstein
 

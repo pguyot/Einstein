@@ -16,6 +16,17 @@ User Release Notes
    Connection and NCX still match it. An older Einstein starts the first
    machine in the list.
  - The window title shows the name of the machine.
+ - The ROM and the internal storage can be kept in the machine's folder or
+   used from anywhere on your computer; Einstein remembers both. A machine
+   whose files are in its folder can be taken to another computer: copy the
+   folder and add it with + › Add Existing Machine... A light shows whether
+   the ROM is known and the internal storage exists. Brain Wipe... in the
+   Settings erases the internal storage.
+ - Two machines can't run on the same internal storage file.
+ - Settings are saved as you change them; Start is the only button. "Don't
+   show at startup" is now "Show at startup".
+ - File › Close (Cmd+Shift+W) and the window's close button end the Newton but
+   keep the Settings window open, if it is; Quit quits.
  - Windows: Einstein no longer crashes when you close its window with fast
    start on. The state was saved before the crash, so no data was lost.
  - Windows: the Newton no longer freezes, and Einstein no longer hangs on
@@ -36,7 +47,12 @@ Developer Release Notes
    keys.
  - Lock files, released by the OS when a process ends: `Machine.lock` per
    machine, `Settings.lock` for the Settings window, `Cards/<uuid>.lock`
-   while a PC Card is inserted.
+   while a PC Card is inserted, `Flash/<hash of the path>.lock` for the
+   flash file of a running machine.
+ - `Machine.prefs` stores the ROM and the flash as `inFolder`, `name` (the
+   file in the machine folder) and `path` (the file on the host). Files in
+   the machine folder, and the state file there, are stored by name only;
+   the old keys get the full path of the file in use.
  - The Settings dialog identifies a ROM without applying the ROM patches,
    so "Applying patch at ..." appears only once.
  - Windows sound: the waveOut device signals an event (`CALLBACK_EVENT`)
