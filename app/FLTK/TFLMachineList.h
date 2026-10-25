@@ -26,8 +26,8 @@
 
 #include <FL/Fl_Group.H>
 
+class Fl_PNG_Image;
 class Fl_Pack;
-class Fl_SVG_Image;
 class Fl_Scroll;
 class TFLSettings;
 class TFLMachineSettings;
@@ -67,7 +67,7 @@ public:
 		return mSettings;
 	}
 
-	Fl_SVG_Image* IconFor(const TFLMachineSettings* inMachine) const;
+	Fl_PNG_Image* IconFor(const TFLMachineSettings* inMachine) const;
 
 private:
 	void ShowMenu(TFLMachineSettings* inMachine);
@@ -79,8 +79,8 @@ private:
 	TFLMachineSettings* mMenuMachine { nullptr };
 	Fl_Scroll* mScroll { nullptr };
 	Fl_Pack* mPack { nullptr };
-	Fl_SVG_Image* mMessagePadIcon { nullptr };
-	Fl_SVG_Image* mEMateIcon { nullptr };
+	Fl_PNG_Image* mMessagePadIcon { nullptr };
+	Fl_PNG_Image* mEMateIcon { nullptr };
 };
 
 #endif // T_FL_MACHINE_LIST_H

@@ -1202,7 +1202,7 @@ TFLSettings::CreateMachineList(Fl_Widget* inSidebarButton)
 	mSettingsPanel->end();
 	mMachineList->hide();
 	if (mSidebarButton)
-		mSidebarButton->label("@>>");
+		mSidebarButton->label("@<<");
 }
 
 /**
@@ -1227,7 +1227,7 @@ TFLSettings::ShowSidebar(bool inOpen)
 	else
 		mMachineList->hide();
 	if (mSidebarButton)
-		mSidebarButton->label(inOpen ? "@<<" : "@>>");
+		mSidebarButton->label(inOpen ? "@>>" : "@<<");
 	mSidebarShown = inOpen;
 	mSettingsPanel->redraw();
 }

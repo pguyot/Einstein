@@ -82,6 +82,7 @@ private:
   inline void cb_Power_i(Fl_Menu_*, void*);
   static void cb_Power(Fl_Menu_*, void*);
 public:
+  Fl_Group *mMessagePadTab;
   Fl_Input *wMPConfigName;
   Fl_Button *wMPConfigMenuButton;
   Fl_Button *wMPConfigAddButton;
@@ -118,6 +119,7 @@ public:
   static Fl_Menu_Item menu_wRAMSizeChoice[];
   Fl_Box *wRestartWarning;
   Fl_Check_Button *wFastStart;
+  Fl_Group *mUserInterfaceTab;
   Fl_Int_Input *wWidth;
   Fl_Int_Input *wHeight;
   Fl_Check_Button *wFullScreen;

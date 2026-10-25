@@ -424,7 +424,7 @@ void TFLSettingsUI::cb_wROMName_i(Fl_Input*, void*) {
   }
 }
 void TFLSettingsUI::cb_wROMName(Fl_Input* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_wROMName_i(o,v);
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wROMName_i(o,v);
 }
 
 void TFLSettingsUI::cb_wROMPathChoose_i(Fl_Button*, void*) {
@@ -441,7 +441,7 @@ void TFLSettingsUI::cb_wROMPathChoose_i(Fl_Button*, void*) {
   }
 }
 void TFLSettingsUI::cb_wROMPathChoose(Fl_Button* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_wROMPathChoose_i(o,v);
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wROMPathChoose_i(o,v);
 }
 
 void TFLSettingsUI::cb_wFlashName_i(Fl_Input*, void*) {
@@ -456,7 +456,7 @@ void TFLSettingsUI::cb_wFlashName_i(Fl_Input*, void*) {
   }
 }
 void TFLSettingsUI::cb_wFlashName(Fl_Input* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashName_i(o,v);
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashName_i(o,v);
 }
 
 void TFLSettingsUI::cb_wFlashPathCreate_i(Fl_Button*, void*) {
@@ -471,7 +471,7 @@ void TFLSettingsUI::cb_wFlashPathCreate_i(Fl_Button*, void*) {
   }
 }
 void TFLSettingsUI::cb_wFlashPathCreate(Fl_Button* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashPathCreate_i(o,v);
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashPathCreate_i(o,v);
 }
 
 void TFLSettingsUI::cb_wFlashPathChoose_i(Fl_Button*, void*) {
@@ -486,7 +486,7 @@ void TFLSettingsUI::cb_wFlashPathChoose_i(Fl_Button*, void*) {
   }
 }
 void TFLSettingsUI::cb_wFlashPathChoose(Fl_Button* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashPathChoose_i(o,v);
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wFlashPathChoose_i(o,v);
 }
 
 Fl_Menu_Item TFLSettingsUI::menu_wRAMSizeChoice[] = {
@@ -501,7 +501,7 @@ void TFLSettingsUI::cb_wShowSpecialKeys_i(Fl_Check_Button* o, void*) {
   mDialogShowSpecialKeys = o->value();
 }
 void TFLSettingsUI::cb_wShowSpecialKeys(Fl_Check_Button* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_wShowSpecialKeys_i(o,v);
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wShowSpecialKeys_i(o,v);
 }
 
 Fl_Menu_Item TFLSettingsUI::menu_wScale[] = {
@@ -1657,223 +1657,229 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       o->when(FL_WHEN_RELEASE);
       { // Add a field to select a REx, choose matching PC Cards per slot
         Fl_Group* o = new Fl_Group(10, 35, 430, 375, "  MessagePad  ");
-        { Fl_Group* o = new Fl_Group(120, 50, 275, 25);
-          { Fl_Input* o = wMPConfigName = new Fl_Input(120, 50, 160, 25, "Configuration: ");
-            wMPConfigName->tooltip("give this MessagePad configuration a name");
-            wMPConfigName->color(FL_LIGHT3);
-            wMPConfigName->deactivate();
-            o->value("default");
-          } // Fl_Input* wMPConfigName
-          { wMPConfigMenuButton = new Fl_Button(280, 50, 25, 25, "@2>");
-            wMPConfigMenuButton->tooltip("choose another configuration for editing");
-            wMPConfigMenuButton->labelcolor((Fl_Color)40);
-            wMPConfigMenuButton->deactivate();
-          } // Fl_Button* wMPConfigMenuButton
-          { wMPConfigAddButton = new Fl_Button(305, 50, 25, 25, "+");
-            wMPConfigAddButton->tooltip("add another hardware configuration");
-            wMPConfigAddButton->labelfont(4);
-            wMPConfigAddButton->labelsize(18);
-            wMPConfigAddButton->deactivate();
-          } // Fl_Button* wMPConfigAddButton
-          { wMPConfigRemoveButton = new Fl_Button(330, 50, 25, 25, "-");
-            wMPConfigRemoveButton->tooltip("delete this hardware configuration");
-            wMPConfigRemoveButton->labelfont(4);
-            wMPConfigRemoveButton->labelsize(18);
-            wMPConfigRemoveButton->deactivate();
-          } // Fl_Button* wMPConfigRemoveButton
-          o->end();
-        } // Fl_Group* o
-        { Fl_Group* o = new Fl_Group(22, 90, 408, 87);
-          o->box(FL_FLAT_BOX);
-          o->labelsize(12);
-          o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-          { wROMName = new Fl_Input(120, 95, 235, 20, "Newton ROM: ");
-            wROMName->color(FL_LIGHT3);
-            wROMName->labelsize(13);
-            wROMName->textsize(12);
-            wROMName->callback((Fl_Callback*)cb_wROMName);
-          } // Fl_Input* wROMName
-          { wROMPath = new Fl_Box(120, 115, 310, 27, "/here/goes/the/path/and/filename/of/the/ROM");
-            wROMPath->labelsize(11);
-            wROMPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
-          } // Fl_Box* wROMPath
-          { wROMDetails = new Fl_Box(120, 142, 310, 35, "ROM file found\nEnjoy Einstein");
-            wROMDetails->labelsize(12);
-            wROMDetails->align(Fl_Align(196|FL_ALIGN_INSIDE));
-          } // Fl_Box* wROMDetails
-          { wROMPathChoose = new Fl_Button(355, 95, 75, 20, "Choose...");
-            wROMPathChoose->tooltip("Select a Newton ROM image file.\nEinstein does not include any ROMs.");
-            wROMPathChoose->labelsize(12);
-            wROMPathChoose->callback((Fl_Callback*)cb_wROMPathChoose);
-          } // Fl_Button* wROMPathChoose
-          o->end();
-        } // Fl_Group* o
-        { Fl_Group* o = new Fl_Group(22, 189, 408, 48);
-          o->box(FL_FLAT_BOX);
-          o->labelsize(12);
-          o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-          { wFlashName = new Fl_Input(120, 190, 160, 20, "System Flash: ");
-            wFlashName->color(FL_LIGHT3);
-            wFlashName->labelsize(13);
-            wFlashName->textsize(12);
-            wFlashName->callback((Fl_Callback*)cb_wFlashName);
-          } // Fl_Input* wFlashName
-          { wFlashPath = new Fl_Box(120, 210, 310, 27, "/here/goes/the/path/and/filename/of/the/FlashFile");
-            wFlashPath->labelsize(11);
-            wFlashPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
-          } // Fl_Box* wFlashPath
-          { wFlashPathCreate = new Fl_Button(280, 190, 75, 20, "Create...");
-            wFlashPathCreate->tooltip("Create a new Flash RAM image file.");
-            wFlashPathCreate->labelsize(12);
-            wFlashPathCreate->callback((Fl_Callback*)cb_wFlashPathCreate);
-          } // Fl_Button* wFlashPathCreate
-          { wFlashPathChoose = new Fl_Button(355, 190, 75, 20, "Choose...");
-            wFlashPathChoose->tooltip("Select an existing Flash RAM image file.");
-            wFlashPathChoose->labelsize(12);
-            wFlashPathChoose->callback((Fl_Callback*)cb_wFlashPathChoose);
-          } // Fl_Button* wFlashPathChoose
-          o->end();
-        } // Fl_Group* o
-        { Fl_Group* o = new Fl_Group(22, 240, 408, 21);
-          o->box(FL_FLAT_BOX);
-          o->labelsize(12);
-          o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-          { wRAMSizeChoice = new Fl_Choice(120, 241, 180, 20, "System RAM: ");
-            wRAMSizeChoice->tooltip("select the system memory size (heap)");
-            wRAMSizeChoice->down_box(FL_BORDER_BOX);
-            wRAMSizeChoice->labelsize(13);
-            wRAMSizeChoice->textsize(12);
-            wRAMSizeChoice->menu(menu_wRAMSizeChoice);
-          } // Fl_Choice* wRAMSizeChoice
-          o->end();
-        } // Fl_Group* o
-        { wRestartWarning = new Fl_Box(30, 378, 386, 20, "Setting changes apply only after a  restart");
-          wRestartWarning->box(FL_FLAT_BOX);
-          wRestartWarning->labelfont(1);
-          wRestartWarning->labelsize(12);
-          wRestartWarning->align(Fl_Align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE));
-          wRestartWarning->hide();
-        } // Fl_Box* wRestartWarning
-        { wFastStart = new Fl_Check_Button(120, 273, 290, 20, "Fast start: continue where Einstein was quit");
-          wFastStart->tooltip("When quitting, Einstein lets the Newton fall asleep and saves its state.\nThe"
+        { mMessagePadTab = new Fl_Group(15, 40, 420, 365);
+          { Fl_Group* o = new Fl_Group(120, 50, 275, 25);
+            { Fl_Input* o = wMPConfigName = new Fl_Input(120, 50, 160, 25, "Configuration: ");
+              wMPConfigName->tooltip("give this MessagePad configuration a name");
+              wMPConfigName->color(FL_LIGHT3);
+              wMPConfigName->deactivate();
+              o->value("default");
+            } // Fl_Input* wMPConfigName
+            { wMPConfigMenuButton = new Fl_Button(280, 50, 25, 25, "@2>");
+              wMPConfigMenuButton->tooltip("choose another configuration for editing");
+              wMPConfigMenuButton->labelcolor((Fl_Color)40);
+              wMPConfigMenuButton->deactivate();
+            } // Fl_Button* wMPConfigMenuButton
+            { wMPConfigAddButton = new Fl_Button(305, 50, 25, 25, "+");
+              wMPConfigAddButton->tooltip("add another hardware configuration");
+              wMPConfigAddButton->labelfont(4);
+              wMPConfigAddButton->labelsize(18);
+              wMPConfigAddButton->deactivate();
+            } // Fl_Button* wMPConfigAddButton
+            { wMPConfigRemoveButton = new Fl_Button(330, 50, 25, 25, "-");
+              wMPConfigRemoveButton->tooltip("delete this hardware configuration");
+              wMPConfigRemoveButton->labelfont(4);
+              wMPConfigRemoveButton->labelsize(18);
+              wMPConfigRemoveButton->deactivate();
+            } // Fl_Button* wMPConfigRemoveButton
+            o->end();
+          } // Fl_Group* o
+          { Fl_Group* o = new Fl_Group(22, 90, 408, 87);
+            o->box(FL_FLAT_BOX);
+            o->labelsize(12);
+            o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
+            { wROMName = new Fl_Input(120, 95, 235, 20, "Newton ROM: ");
+              wROMName->color(FL_LIGHT3);
+              wROMName->labelsize(13);
+              wROMName->textsize(12);
+              wROMName->callback((Fl_Callback*)cb_wROMName);
+            } // Fl_Input* wROMName
+            { wROMPath = new Fl_Box(120, 115, 310, 27, "/here/goes/the/path/and/filename/of/the/ROM");
+              wROMPath->labelsize(11);
+              wROMPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
+            } // Fl_Box* wROMPath
+            { wROMDetails = new Fl_Box(120, 142, 310, 35, "ROM file found\nEnjoy Einstein");
+              wROMDetails->labelsize(12);
+              wROMDetails->align(Fl_Align(196|FL_ALIGN_INSIDE));
+            } // Fl_Box* wROMDetails
+            { wROMPathChoose = new Fl_Button(355, 95, 75, 20, "Choose...");
+              wROMPathChoose->tooltip("Select a Newton ROM image file.\nEinstein does not include any ROMs.");
+              wROMPathChoose->labelsize(12);
+              wROMPathChoose->callback((Fl_Callback*)cb_wROMPathChoose);
+            } // Fl_Button* wROMPathChoose
+            o->end();
+          } // Fl_Group* o
+          { Fl_Group* o = new Fl_Group(22, 189, 408, 48);
+            o->box(FL_FLAT_BOX);
+            o->labelsize(12);
+            o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
+            { wFlashName = new Fl_Input(120, 190, 160, 20, "System Flash: ");
+              wFlashName->color(FL_LIGHT3);
+              wFlashName->labelsize(13);
+              wFlashName->textsize(12);
+              wFlashName->callback((Fl_Callback*)cb_wFlashName);
+            } // Fl_Input* wFlashName
+            { wFlashPath = new Fl_Box(120, 210, 310, 27, "/here/goes/the/path/and/filename/of/the/FlashFile");
+              wFlashPath->labelsize(11);
+              wFlashPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
+            } // Fl_Box* wFlashPath
+            { wFlashPathCreate = new Fl_Button(280, 190, 75, 20, "Create...");
+              wFlashPathCreate->tooltip("Create a new Flash RAM image file.");
+              wFlashPathCreate->labelsize(12);
+              wFlashPathCreate->callback((Fl_Callback*)cb_wFlashPathCreate);
+            } // Fl_Button* wFlashPathCreate
+            { wFlashPathChoose = new Fl_Button(355, 190, 75, 20, "Choose...");
+              wFlashPathChoose->tooltip("Select an existing Flash RAM image file.");
+              wFlashPathChoose->labelsize(12);
+              wFlashPathChoose->callback((Fl_Callback*)cb_wFlashPathChoose);
+            } // Fl_Button* wFlashPathChoose
+            o->end();
+          } // Fl_Group* o
+          { Fl_Group* o = new Fl_Group(22, 240, 408, 21);
+            o->box(FL_FLAT_BOX);
+            o->labelsize(12);
+            o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
+            { wRAMSizeChoice = new Fl_Choice(120, 241, 180, 20, "System RAM: ");
+              wRAMSizeChoice->tooltip("select the system memory size (heap)");
+              wRAMSizeChoice->down_box(FL_BORDER_BOX);
+              wRAMSizeChoice->labelsize(13);
+              wRAMSizeChoice->textsize(12);
+              wRAMSizeChoice->menu(menu_wRAMSizeChoice);
+            } // Fl_Choice* wRAMSizeChoice
+            o->end();
+          } // Fl_Group* o
+          { wRestartWarning = new Fl_Box(30, 378, 386, 20, "Setting changes apply only after a  restart");
+            wRestartWarning->box(FL_FLAT_BOX);
+            wRestartWarning->labelfont(1);
+            wRestartWarning->labelsize(12);
+            wRestartWarning->align(Fl_Align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE));
+            wRestartWarning->hide();
+          } // Fl_Box* wRestartWarning
+          { wFastStart = new Fl_Check_Button(120, 273, 290, 20, "Fast start: continue where Einstein was quit");
+            wFastStart->tooltip("When quitting, Einstein lets the Newton fall asleep and saves its state.\nThe"
 " next start continues from there, if nothing changed in the meantime.");
-          wFastStart->down_box(FL_DOWN_BOX);
-          wFastStart->labelsize(13);
-        } // Fl_Check_Button* wFastStart
+            wFastStart->down_box(FL_DOWN_BOX);
+            wFastStart->labelsize(13);
+          } // Fl_Check_Button* wFastStart
+          mMessagePadTab->end();
+        } // Fl_Group* mMessagePadTab
         o->end();
       } // Fl_Group* o
       { Fl_Group* o = new Fl_Group(10, 35, 430, 375, "  User Interface  ");
         o->hide();
-        { Fl_Group* o = new Fl_Group(20, 90, 408, 232);
-          o->box(FL_FLAT_BOX);
-          o->labelsize(12);
-          o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-          { wWidth = new Fl_Int_Input(120, 90, 80, 20, "Screen Size: ");
-            wWidth->tooltip("Screen width in pixels,\nOriginal screen size is 320x480");
-            wWidth->type(2);
-            wWidth->color(FL_LIGHT3);
-            wWidth->labelsize(13);
-            wWidth->textsize(12);
-          } // Fl_Int_Input* wWidth
-          { wHeight = new Fl_Int_Input(215, 90, 80, 20, "x ");
-            wHeight->tooltip("Screen height in pixels,\nOriginal screen size is 320x480");
-            wHeight->type(2);
-            wHeight->color(FL_LIGHT3);
-            wHeight->labelsize(12);
-            wHeight->textsize(12);
-          } // Fl_Int_Input* wHeight
-          { Fl_Box* o = new Fl_Box(120, 112, 290, 28, "MessagePad: 320 x 480 (portrait)\neMate 300: 480 x 320 (landscape)");
-            o->labelsize(11);
-            o->align(Fl_Align(FL_ALIGN_TOP_LEFT|FL_ALIGN_INSIDE));
-          } // Fl_Box* o
-          { wFullScreen = new Fl_Check_Button(120, 150, 308, 20, "Full screen");
-            wFullScreen->down_box(FL_DOWN_BOX);
-            wFullScreen->labelsize(13);
-            wFullScreen->deactivate();
-          } // Fl_Check_Button* wFullScreen
-          { wHideMouse = new Fl_Check_Button(120, 175, 208, 20, "Hide mouse pointer");
-            wHideMouse->tooltip("Hide mouse pointer over MessagePad screen\nUsed on pen or touch screen device"
-"s.");
-            wHideMouse->down_box(FL_DOWN_BOX);
-            wHideMouse->labelsize(13);
-          } // Fl_Check_Button* wHideMouse
-          { wLaunchMonitorAtBoot = new Fl_Check_Button(120, 200, 196, 20, "Launch Monitor at Boot");
-            wLaunchMonitorAtBoot->down_box(FL_DOWN_BOX);
-            wLaunchMonitorAtBoot->labelsize(13);
-          } // Fl_Check_Button* wLaunchMonitorAtBoot
-          { wBreakAtROMBoot = new Fl_Check_Button(145, 225, 196, 20, "Break at ROMBoot");
-            wBreakAtROMBoot->down_box(FL_DOWN_BOX);
-            wBreakAtROMBoot->labelsize(13);
-            wBreakAtROMBoot->deactivate();
-          } // Fl_Check_Button* wBreakAtROMBoot
-          { wShowMenubar = new Fl_Check_Button(120, 250, 196, 20, "Menubar");
-            wShowMenubar->down_box(FL_DOWN_BOX);
-            wShowMenubar->labelsize(13);
-          } // Fl_Check_Button* wShowMenubar
-          { wShowToolbar = new Fl_Check_Button(120, 275, 196, 20, "Toolbar");
-            wShowToolbar->down_box(FL_DOWN_BOX);
-            wShowToolbar->labelsize(13);
-          } // Fl_Check_Button* wShowToolbar
-          { wShowSpecialKeys = new Fl_Check_Button(120, 300, 196, 20, "Special Keys (eMate)");
-            wShowSpecialKeys->tooltip("Show the eMate\'s Special Keys under the screen.\nOnly the eMate ROM knows th"
-"ese keys.");
-            wShowSpecialKeys->down_box(FL_DOWN_BOX);
-            wShowSpecialKeys->labelsize(13);
-            wShowSpecialKeys->callback((Fl_Callback*)cb_wShowSpecialKeys);
-          } // Fl_Check_Button* wShowSpecialKeys
-          { Fl_Box* o = new Fl_Box(20, 250, 94, 20, "Show:");
-            o->labelsize(13);
-            o->align(Fl_Align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE));
-          } // Fl_Box* o
-          { Fl_Box* o = new Fl_Box(112, 186, 204, 28, "add screen scale");
-            o->hide();
-          } // Fl_Box* o
-          { Fl_Box* o = new Fl_Box(122, 212, 204, 28, "toggle menubar, toolbar, and functionkey bar");
-            o->hide();
-          } // Fl_Box* o
-          { Fl_Box* o = new Fl_Box(128, 240, 204, 28, "maybe developer menu, novice menu, expert menu?");
-            o->hide();
-          } // Fl_Box* o
-          { Fl_Box* o = new Fl_Box(132, 278, 204, 28, "Show at startup: machine choice, settings, last open machine");
-            o->hide();
-          } // Fl_Box* o
-          { wScale = new Fl_Input_Choice(340, 90, 60, 20, "Scale:");
-            wScale->labelsize(12);
-            wScale->textsize(12);
-            wScale->menu(menu_wScale);
-          } // Fl_Input_Choice* wScale
-          { Fl_Box* o = new Fl_Box(400, 90, 1, 20, "%");
+        { mUserInterfaceTab = new Fl_Group(15, 40, 420, 365);
+          { Fl_Group* o = new Fl_Group(20, 90, 408, 232);
+            o->box(FL_FLAT_BOX);
             o->labelsize(12);
-            o->align(Fl_Align(FL_ALIGN_RIGHT));
-          } // Fl_Box* o
-          o->end();
-        } // Fl_Group* o
-        { Fl_Group* o = new Fl_Group(120, 50, 275, 25);
-          { Fl_Input* o = wUIConfigName = new Fl_Input(120, 50, 160, 25, "Configuration: ");
-            wUIConfigName->tooltip("give this User Interface configuration a name");
-            wUIConfigName->color(FL_LIGHT3);
-            wUIConfigName->deactivate();
-            o->value("default");
-          } // Fl_Input* wUIConfigName
-          { wUIConfigMenuButton = new Fl_Button(280, 50, 25, 25, "@2>");
-            wUIConfigMenuButton->tooltip("choose another configuration for editing");
-            wUIConfigMenuButton->labelcolor((Fl_Color)40);
-            wUIConfigMenuButton->deactivate();
-          } // Fl_Button* wUIConfigMenuButton
-          { wUIConfigAddButton = new Fl_Button(305, 50, 25, 25, "+");
-            wUIConfigAddButton->tooltip("add another interface configuration");
-            wUIConfigAddButton->labelfont(4);
-            wUIConfigAddButton->labelsize(18);
-            wUIConfigAddButton->deactivate();
-          } // Fl_Button* wUIConfigAddButton
-          { wUIConfigRemoveButton = new Fl_Button(330, 50, 25, 25, "-");
-            wUIConfigRemoveButton->tooltip("delete this interface configuration");
-            wUIConfigRemoveButton->labelfont(4);
-            wUIConfigRemoveButton->labelsize(18);
-            wUIConfigRemoveButton->deactivate();
-          } // Fl_Button* wUIConfigRemoveButton
-          o->end();
-        } // Fl_Group* o
+            o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
+            { wWidth = new Fl_Int_Input(120, 90, 80, 20, "Screen Size: ");
+              wWidth->tooltip("Screen width in pixels,\nOriginal screen size is 320x480");
+              wWidth->type(2);
+              wWidth->color(FL_LIGHT3);
+              wWidth->labelsize(13);
+              wWidth->textsize(12);
+            } // Fl_Int_Input* wWidth
+            { wHeight = new Fl_Int_Input(215, 90, 80, 20, "x ");
+              wHeight->tooltip("Screen height in pixels,\nOriginal screen size is 320x480");
+              wHeight->type(2);
+              wHeight->color(FL_LIGHT3);
+              wHeight->labelsize(12);
+              wHeight->textsize(12);
+            } // Fl_Int_Input* wHeight
+            { Fl_Box* o = new Fl_Box(120, 112, 290, 28, "MessagePad: 320 x 480 (portrait)\neMate 300: 480 x 320 (landscape)");
+              o->labelsize(11);
+              o->align(Fl_Align(FL_ALIGN_TOP_LEFT|FL_ALIGN_INSIDE));
+            } // Fl_Box* o
+            { wFullScreen = new Fl_Check_Button(120, 150, 308, 20, "Full screen");
+              wFullScreen->down_box(FL_DOWN_BOX);
+              wFullScreen->labelsize(13);
+              wFullScreen->deactivate();
+            } // Fl_Check_Button* wFullScreen
+            { wHideMouse = new Fl_Check_Button(120, 175, 208, 20, "Hide mouse pointer");
+              wHideMouse->tooltip("Hide mouse pointer over MessagePad screen\nUsed on pen or touch screen device"
+"s.");
+              wHideMouse->down_box(FL_DOWN_BOX);
+              wHideMouse->labelsize(13);
+            } // Fl_Check_Button* wHideMouse
+            { wLaunchMonitorAtBoot = new Fl_Check_Button(120, 200, 196, 20, "Launch Monitor at Boot");
+              wLaunchMonitorAtBoot->down_box(FL_DOWN_BOX);
+              wLaunchMonitorAtBoot->labelsize(13);
+            } // Fl_Check_Button* wLaunchMonitorAtBoot
+            { wBreakAtROMBoot = new Fl_Check_Button(145, 225, 196, 20, "Break at ROMBoot");
+              wBreakAtROMBoot->down_box(FL_DOWN_BOX);
+              wBreakAtROMBoot->labelsize(13);
+              wBreakAtROMBoot->deactivate();
+            } // Fl_Check_Button* wBreakAtROMBoot
+            { wShowMenubar = new Fl_Check_Button(120, 250, 196, 20, "Menubar");
+              wShowMenubar->down_box(FL_DOWN_BOX);
+              wShowMenubar->labelsize(13);
+            } // Fl_Check_Button* wShowMenubar
+            { wShowToolbar = new Fl_Check_Button(120, 275, 196, 20, "Toolbar");
+              wShowToolbar->down_box(FL_DOWN_BOX);
+              wShowToolbar->labelsize(13);
+            } // Fl_Check_Button* wShowToolbar
+            { wShowSpecialKeys = new Fl_Check_Button(120, 300, 196, 20, "Special Keys (eMate)");
+              wShowSpecialKeys->tooltip("Show the eMate\'s Special Keys under the screen.\nOnly the eMate ROM knows th"
+"ese keys.");
+              wShowSpecialKeys->down_box(FL_DOWN_BOX);
+              wShowSpecialKeys->labelsize(13);
+              wShowSpecialKeys->callback((Fl_Callback*)cb_wShowSpecialKeys);
+            } // Fl_Check_Button* wShowSpecialKeys
+            { Fl_Box* o = new Fl_Box(20, 250, 94, 20, "Show:");
+              o->labelsize(13);
+              o->align(Fl_Align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE));
+            } // Fl_Box* o
+            { Fl_Box* o = new Fl_Box(112, 186, 204, 28, "add screen scale");
+              o->hide();
+            } // Fl_Box* o
+            { Fl_Box* o = new Fl_Box(122, 212, 204, 28, "toggle menubar, toolbar, and functionkey bar");
+              o->hide();
+            } // Fl_Box* o
+            { Fl_Box* o = new Fl_Box(128, 240, 204, 28, "maybe developer menu, novice menu, expert menu?");
+              o->hide();
+            } // Fl_Box* o
+            { Fl_Box* o = new Fl_Box(132, 278, 204, 28, "Show at startup: machine choice, settings, last open machine");
+              o->hide();
+            } // Fl_Box* o
+            { wScale = new Fl_Input_Choice(340, 90, 60, 20, "Scale:");
+              wScale->labelsize(12);
+              wScale->textsize(12);
+              wScale->menu(menu_wScale);
+            } // Fl_Input_Choice* wScale
+            { Fl_Box* o = new Fl_Box(400, 90, 1, 20, "%");
+              o->labelsize(12);
+              o->align(Fl_Align(FL_ALIGN_RIGHT));
+            } // Fl_Box* o
+            o->end();
+          } // Fl_Group* o
+          { Fl_Group* o = new Fl_Group(120, 50, 275, 25);
+            { Fl_Input* o = wUIConfigName = new Fl_Input(120, 50, 160, 25, "Configuration: ");
+              wUIConfigName->tooltip("give this User Interface configuration a name");
+              wUIConfigName->color(FL_LIGHT3);
+              wUIConfigName->deactivate();
+              o->value("default");
+            } // Fl_Input* wUIConfigName
+            { wUIConfigMenuButton = new Fl_Button(280, 50, 25, 25, "@2>");
+              wUIConfigMenuButton->tooltip("choose another configuration for editing");
+              wUIConfigMenuButton->labelcolor((Fl_Color)40);
+              wUIConfigMenuButton->deactivate();
+            } // Fl_Button* wUIConfigMenuButton
+            { wUIConfigAddButton = new Fl_Button(305, 50, 25, 25, "+");
+              wUIConfigAddButton->tooltip("add another interface configuration");
+              wUIConfigAddButton->labelfont(4);
+              wUIConfigAddButton->labelsize(18);
+              wUIConfigAddButton->deactivate();
+            } // Fl_Button* wUIConfigAddButton
+            { wUIConfigRemoveButton = new Fl_Button(330, 50, 25, 25, "-");
+              wUIConfigRemoveButton->tooltip("delete this interface configuration");
+              wUIConfigRemoveButton->labelfont(4);
+              wUIConfigRemoveButton->labelsize(18);
+              wUIConfigRemoveButton->deactivate();
+            } // Fl_Button* wUIConfigRemoveButton
+            o->end();
+          } // Fl_Group* o
+          mUserInterfaceTab->end();
+        } // Fl_Group* mUserInterfaceTab
         o->end();
       } // Fl_Group* o
       { Fl_Group* o = new Fl_Group(10, 35, 430, 375, "  PC Cards  ");
@@ -2258,9 +2264,8 @@ void TFLSettingsUI::updateSpecialKeysCheckbox() {
 */
 void TFLSettingsUI::updateEditable() {
   bool editable = !IsRunningElsewhere(mEditMachine);
-  Fl_Widget* machineWidgets[] = { wROMName, wROMPathChoose, wFlashName, wFlashPathCreate,
-    wFlashPathChoose, wRAMSizeChoice, wFastStart, wWidth, wHeight, wScale };
-  for (Fl_Widget* w : machineWidgets) {
+  Fl_Widget* machineTabs[] = { mMessagePadTab, mUserInterfaceTab };
+  for (Fl_Widget* w : machineTabs) {
     if (editable) w->activate(); else w->deactivate();
   }
   if (editable) {
@@ -2268,7 +2273,6 @@ void TFLSettingsUI::updateEditable() {
     wRestartWarning->label("Setting changes apply only after a  restart");
     if (mRunningMode) wRestartWarning->show(); else wRestartWarning->hide();
   } else {
-    wShowSpecialKeys->deactivate();
     wRestartWarning->label("Runs in another Einstein window, so it can't be changed");
     wRestartWarning->show();
   }
