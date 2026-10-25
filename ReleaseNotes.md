@@ -16,6 +16,13 @@ User Release Notes
    Connection and NCX still match it. An older Einstein starts the first
    machine in the list.
  - The window title shows the name of the machine.
+ - Windows: Einstein no longer crashes when you close its window with fast
+   start on. The state was saved before the crash, so no data was lost.
+ - Windows: the Newton no longer freezes, and Einstein no longer hangs on
+   quit, when NewtonOS stops a sound (for example, quitting a few seconds
+   after launch).
+ - Install Essentials no longer crashes when a download server does not
+   answer; it shows "File can't be downloaded" instead.
 
 Developer Release Notes
 -----------------------
@@ -32,6 +39,11 @@ Developer Release Notes
    while a PC Card is inserted.
  - The Settings dialog identifies a ROM without applying the ROM patches,
    so "Applying patch at ..." appears only once.
+ - Windows sound: the waveOut device signals an event (`CALLBACK_EVENT`)
+   and a thread of Einstein's handles the played buffers. The callback
+   used to call waveOut functions, which deadlocked with `waveOutReset()`.
+ - `TBufferLog` writes to its refresh socket only if it is >= 0; the FLTK
+   app leaves it at -1, and `write(-1)` ends the program on Windows.
 
 
 Binary Release v2026.10.23
