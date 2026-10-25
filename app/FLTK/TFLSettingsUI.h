@@ -49,6 +49,8 @@ Fl_Group* addInstallerLink(const char *inTitle, StringList *inLinkList);
 Fl_Group* addInstallerScript(const char *inTitle, StringList *inScriptList);
 #include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Group.H>
+#include <FL/Fl_Round_Button.H>
+#include <FL/Fl_Output.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Check_Button.H>
@@ -85,18 +87,25 @@ private:
 public:
   Fl_Group *mMessagePadTab;
   Fl_Box *wMPHeadline;
-  Fl_Input *wROMName;
+  Fl_Round_Button *wROMInFolder;
 private:
-  inline void cb_wROMName_i(Fl_Input*, void*);
-  static void cb_wROMName(Fl_Input*, void*);
+  inline void cb_wROMInFolder_i(Fl_Round_Button*, void*);
+  static void cb_wROMInFolder(Fl_Round_Button*, void*);
 public:
-  Fl_Box *wROMPath;
-  Fl_Box *wROMDetails;
+  Fl_Round_Button *wROMOnHost;
+private:
+  inline void cb_wROMOnHost_i(Fl_Round_Button*, void*);
+  static void cb_wROMOnHost(Fl_Round_Button*, void*);
+public:
+  Fl_Output *wROMName;
   Fl_Button *wROMPathChoose;
 private:
   inline void cb_wROMPathChoose_i(Fl_Button*, void*);
   static void cb_wROMPathChoose(Fl_Button*, void*);
 public:
+  Fl_Box *wROMPath;
+  Fl_Box *wROMLight;
+  Fl_Box *wROMDetails;
   Fl_Input *wFlashName;
 private:
   inline void cb_wFlashName_i(Fl_Input*, void*);
@@ -294,6 +303,7 @@ public:
   void updateMenus();
   void revertDialog();
   void applyDialog();
+  void updateROMWidgets();
   void updateSpecialKeysCheckbox();
   void updateEditable();
   void updateHeadline();

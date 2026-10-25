@@ -1317,9 +1317,10 @@ UniqueName(TFLSettings* inSettings, const std::string& inBase)
 }
 
 // The files that make up a ROM image, see TROMImage::LoadROMAndREX(): the
-// image, and the Newton REx next to an .aif image or a "Senior Cirrus" image.
+// image, the Newton REx next to an .aif image or a "Senior Cirrus" image, and
+// Einstein.rex next to it if the built-in one is not used.
 static std::vector<std::string>
-ROMFiles(const std::string& inPath)
+ROMFiles(const std::string& inPath, bool inBuiltinRex)
 {
 	std::vector<std::string> theFiles { inPath };
 	const char* ext = fl_filename_ext(inPath.c_str());
@@ -1337,6 +1338,18 @@ ROMFiles(const std::string& inPath)
 		std::string theHigh = inPath;
 		theHigh.replace(theHigh.rfind("image"), 5, "high");
 		theFiles.push_back(theHigh);
+	}
+	if (!inBuiltinRex)
+	{
+		char theREX[FL_PATH_MAX];
+		strncpy(theREX, inPath.c_str(), FL_PATH_MAX - 1);
+		theREX[FL_PATH_MAX - 1] = 0;
+		char* theName = (char*) fl_filename_name(theREX);
+		if (theName)
+		{
+			strcpy(theName, "Einstein.rex");
+			theFiles.push_back(theREX);
+		}
 	}
 	return theFiles;
 }
@@ -1513,7 +1526,7 @@ TFLSettings::DuplicateMachine(TFLMachineSettings* inMachine)
 	// A ROM in the original's folder is copied too, so the copy has one.
 	if (inMachine->mROMInFolder)
 	{
-		for (const std::string& theFile : ROMFiles(inMachine->GetROMPath()))
+		for (const std::string& theFile : ROMFiles(inMachine->GetROMPath(), inMachine->mUseBuiltinRex))
 		{
 			std::string theCopy = machine->GetFolder() + fl_filename_name(theFile.c_str());
 			if (!CopyFile(theFile.c_str(), theCopy.c_str()))
@@ -1527,6 +1540,41 @@ TFLSettings::DuplicateMachine(TFLMachineSettings* inMachine)
 	SaveMachineOrder(this);
 	mMachineList->Update();
 	SelectMachine(machine);
+}
+
+/**
+ Copy a ROM file, and the files that belong to it, into the machine's folder.
+ Asks before replacing files that are there already.
+ \return false if nothing was copied (cancelled or failed)
+ */
+bool
+TFLSettings::CopyROMIntoFolder(TFLMachineSettings* inMachine, const char* inPath, std::string& outName)
+{
+	std::vector<std::string> theFiles = ROMFiles(inPath, inMachine->mUseBuiltinRex);
+	std::string theExisting;
+	for (const std::string& theFile : theFiles)
+	{
+		std::string theCopy = inMachine->GetFolder() + fl_filename_name(theFile.c_str());
+		if (fl_access(theCopy.c_str(), 0) == 0)
+			theExisting += std::string("\n") + fl_filename_name(theFile.c_str());
+	}
+	if (!theExisting.empty()
+		&& fl_choice("The machine folder already has:\n%s\n\nReplace it?", "Cancel", "Replace", nullptr,
+			   theExisting.c_str())
+			== 0)
+		return false;
+	inMachine->CreateFolder();
+	for (const std::string& theFile : theFiles)
+	{
+		std::string theCopy = inMachine->GetFolder() + fl_filename_name(theFile.c_str());
+		if (!CopyFile(theFile.c_str(), theCopy.c_str()))
+		{
+			fl_alert("\"%s\" could not be copied into the machine folder.", fl_filename_name(theFile.c_str()));
+			return false;
+		}
+	}
+	outName = fl_filename_name(inPath);
+	return true;
 }
 
 void

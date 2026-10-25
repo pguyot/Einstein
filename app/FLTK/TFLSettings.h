@@ -215,6 +215,9 @@ public:
 	void SetROMPath(const char* inPath);
 	void SetFlashPath(const char* inPath);
 
+	// Is inPath a file in the machine's folder? Then outName is its name.
+	bool IsInFolder(const char* inPath, std::string& outName) const;
+
 	int mROMInFolder = 0;
 	std::string mROMName;
 	std::string mROMHostPath;
@@ -283,9 +286,6 @@ private:
 	void SaveFile(Fl_Preferences& inGroup, bool inOldKeys,
 		int inInFolder, const std::string& inName, const std::string& inHostPath) const;
 	void SetFile(const char* inPath, int& outInFolder, std::string& outName, std::string& outHostPath);
-
-	// Is inPath a file in the machine's folder? Then outName is its name.
-	bool IsInFolder(const char* inPath, std::string& outName) const;
 
 	std::string mUUID;
 	std::string mName;
@@ -366,6 +366,10 @@ public:
 	void StartMachine(TFLMachineSettings* inMachine);
 	void NewMachine();
 	void DuplicateMachine(TFLMachineSettings* inMachine);
+
+	// Copy a ROM file and the files that belong to it into the machine's
+	// folder; outName is its name there. Asks before replacing files.
+	bool CopyROMIntoFolder(TFLMachineSettings* inMachine, const char* inPath, std::string& outName);
 	void RenameMachine(TFLMachineSettings* inMachine);
 	void ShowMachineFolder(TFLMachineSettings* inMachine);
 	void MoveMachine(TFLMachineSettings* inMachine, int inDelta);

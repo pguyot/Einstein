@@ -411,37 +411,51 @@ Fl_Menu_Item TFLSettingsUI::menu_RMB[] = {
  {0,0,0,0,0,0,0,0,0}
 };
 
-void TFLSettingsUI::cb_wROMName_i(Fl_Input*, void*) {
-  char buf[FL_PATH_MAX + 1];
-  buf[0] = 0;
-  strncpy(buf, wROMPath->label(), FL_PATH_MAX);
-  char *name = (char*)fl_filename_name(buf);
-  if (name) {
-    *name = 0;
-    strncat(buf, wROMName->value(), FL_PATH_MAX);
-    wROMPath->copy_label(buf);
-    wROMDetails->copy_label(GetROMDetails(buf));
-    updateSpecialKeysCheckbox();
-    settingsChanged();
-  }
+void TFLSettingsUI::cb_wROMInFolder_i(Fl_Round_Button*, void*) {
+  mEditMachine->mROMInFolder = wROMInFolder->value();
+  updateROMWidgets();
+  settingsChanged();
 }
-void TFLSettingsUI::cb_wROMName(Fl_Input* o, void* v) {
-  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wROMName_i(o,v);
+void TFLSettingsUI::cb_wROMInFolder(Fl_Round_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wROMInFolder_i(o,v);
+}
+
+void TFLSettingsUI::cb_wROMOnHost_i(Fl_Round_Button*, void*) {
+  mEditMachine->mROMInFolder = wROMInFolder->value();
+  updateROMWidgets();
+  settingsChanged();
+}
+void TFLSettingsUI::cb_wROMOnHost(Fl_Round_Button* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wROMOnHost_i(o,v);
 }
 
 void TFLSettingsUI::cb_wROMPathChoose_i(Fl_Button*, void*) {
-  const char *filename = gApp->ChooseExistingFile(
-  	"Choose ROM file",
-  	nullptr,
-  	wROMPath->label()
-  );
-  if (filename) {
-      wROMName->value(fl_filename_name(filename));
-      wROMPath->copy_label(filename);
-      wROMDetails->copy_label(GetROMDetails(filename));
-      updateSpecialKeysCheckbox();
-      settingsChanged();
+  std::string theStart = mEditMachine->mROMInFolder ? mEditMachine->GetFolder() : mEditMachine->mROMHostPath;
+  const char *filename = gApp->ChooseExistingFile("Choose ROM file", nullptr, theStart.c_str());
+  if (!filename)
+    return;
+  if (mEditMachine->mROMInFolder) {
+    std::string theName;
+    if (!mEditMachine->IsInFolder(filename, theName)) {
+      // A file from elsewhere: copy it in, or use it where it is.
+      int theChoice = fl_choice("\"%s\" is not in the machine folder.",
+        "Cancel", "Use Where It Is", "Copy to Machine Folder", fl_filename_name(filename));
+      if (theChoice == 0)
+        return;
+      if (theChoice == 1) {
+        mEditMachine->mROMInFolder = 0;
+        mEditMachine->mROMHostPath = filename;
+      } else if (!CopyROMIntoFolder(mEditMachine, filename, theName)) {
+        return;
+      }
+    }
+    if (mEditMachine->mROMInFolder)
+      mEditMachine->mROMName = theName;
+  } else {
+    mEditMachine->mROMHostPath = filename;
   }
+  updateROMWidgets();
+  settingsChanged();
 }
 void TFLSettingsUI::cb_wROMPathChoose(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_wROMPathChoose_i(o,v);
@@ -1785,64 +1799,90 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
             wMPHeadline->labelsize(16);
             wMPHeadline->align(Fl_Align(FL_ALIGN_CLIP|FL_ALIGN_INSIDE));
           } // Fl_Box* wMPHeadline
-          { Fl_Group* o = new Fl_Group(22, 90, 408, 87);
+          { // The ROM: a file in the machine folder or on the host, see TFLMachineSettings::GetROMPath()
+            Fl_Group* o = new Fl_Group(20, 88, 410, 120);
             o->box(FL_FLAT_BOX);
             o->labelsize(12);
             o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-            { wROMName = new Fl_Input(120, 95, 235, 20, "Newton ROM: ");
-              wROMName->color(FL_LIGHT3);
+            { Fl_Box* o = new Fl_Box(20, 88, 98, 20, "Newton ROM:");
+              o->labelsize(13);
+              o->align(Fl_Align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE));
+            } // Fl_Box* o
+            { Fl_Group* o = new Fl_Group(120, 88, 310, 38);
+              { wROMInFolder = new Fl_Round_Button(120, 88, 300, 20, "Keep a copy in the machine folder");
+                wROMInFolder->tooltip("Use the ROM file in the machine\'s folder, so the folder holds all the machin"
+"e needs.\nThe menu of a machine in the list opens its folder.");
+                wROMInFolder->type(102);
+                wROMInFolder->down_box(FL_ROUND_DOWN_BOX);
+                wROMInFolder->labelsize(13);
+                wROMInFolder->callback((Fl_Callback*)cb_wROMInFolder);
+              } // Fl_Round_Button* wROMInFolder
+              { wROMOnHost = new Fl_Round_Button(120, 106, 300, 20, "Use the file where it is");
+                wROMOnHost->tooltip("Use a ROM file anywhere on this computer.");
+                wROMOnHost->type(102);
+                wROMOnHost->down_box(FL_ROUND_DOWN_BOX);
+                wROMOnHost->labelsize(13);
+                wROMOnHost->callback((Fl_Callback*)cb_wROMOnHost);
+              } // Fl_Round_Button* wROMOnHost
+              o->end();
+            } // Fl_Group* o
+            { wROMName = new Fl_Output(120, 130, 235, 20);
+              wROMName->color(FL_BACKGROUND_COLOR);
               wROMName->labelsize(13);
               wROMName->textsize(12);
-              wROMName->callback((Fl_Callback*)cb_wROMName);
-              wROMName->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
-            } // Fl_Input* wROMName
-            { wROMPath = new Fl_Box(120, 115, 310, 27, "/here/goes/the/path/and/filename/of/the/ROM");
-              wROMPath->labelsize(11);
-              wROMPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
-            } // Fl_Box* wROMPath
-            { wROMDetails = new Fl_Box(120, 142, 310, 35, "ROM file found\nEnjoy Einstein");
-              wROMDetails->labelsize(12);
-              wROMDetails->align(Fl_Align(196|FL_ALIGN_INSIDE));
-            } // Fl_Box* wROMDetails
-            { wROMPathChoose = new Fl_Button(355, 95, 75, 20, "Choose...");
+            } // Fl_Output* wROMName
+            { wROMPathChoose = new Fl_Button(355, 130, 75, 20, "Choose...");
               wROMPathChoose->tooltip("Select a Newton ROM image file.\nEinstein does not include any ROMs.");
               wROMPathChoose->labelsize(12);
               wROMPathChoose->callback((Fl_Callback*)cb_wROMPathChoose);
             } // Fl_Button* wROMPathChoose
+            { wROMPath = new Fl_Box(120, 150, 310, 26, "/here/goes/the/path/and/filename/of/the/ROM");
+              wROMPath->labelsize(11);
+              wROMPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
+            } // Fl_Box* wROMPath
+            { // red: no file, yellow: not a ROM that Einstein knows, green: a known ROM
+              wROMLight = new Fl_Box(120, 182, 12, 12);
+              wROMLight->box(FL_OVAL_BOX);
+              wROMLight->color((Fl_Color)1);
+            } // Fl_Box* wROMLight
+            { wROMDetails = new Fl_Box(138, 178, 292, 30, "ROM file found\nEnjoy Einstein");
+              wROMDetails->labelsize(12);
+              wROMDetails->align(Fl_Align(196|FL_ALIGN_INSIDE));
+            } // Fl_Box* wROMDetails
             o->end();
           } // Fl_Group* o
-          { Fl_Group* o = new Fl_Group(22, 189, 408, 48);
+          { Fl_Group* o = new Fl_Group(22, 215, 408, 48);
             o->box(FL_FLAT_BOX);
             o->labelsize(12);
             o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-            { wFlashName = new Fl_Input(120, 190, 160, 20, "System Flash: ");
+            { wFlashName = new Fl_Input(120, 216, 160, 20, "System Flash: ");
               wFlashName->color(FL_LIGHT3);
               wFlashName->labelsize(13);
               wFlashName->textsize(12);
               wFlashName->callback((Fl_Callback*)cb_wFlashName);
               wFlashName->when(FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);
             } // Fl_Input* wFlashName
-            { wFlashPath = new Fl_Box(120, 210, 310, 27, "/here/goes/the/path/and/filename/of/the/FlashFile");
+            { wFlashPath = new Fl_Box(120, 236, 310, 27, "/here/goes/the/path/and/filename/of/the/FlashFile");
               wFlashPath->labelsize(11);
               wFlashPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
             } // Fl_Box* wFlashPath
-            { wFlashPathCreate = new Fl_Button(280, 190, 75, 20, "Create...");
+            { wFlashPathCreate = new Fl_Button(280, 216, 75, 20, "Create...");
               wFlashPathCreate->tooltip("Create a new Flash RAM image file.");
               wFlashPathCreate->labelsize(12);
               wFlashPathCreate->callback((Fl_Callback*)cb_wFlashPathCreate);
             } // Fl_Button* wFlashPathCreate
-            { wFlashPathChoose = new Fl_Button(355, 190, 75, 20, "Choose...");
+            { wFlashPathChoose = new Fl_Button(355, 216, 75, 20, "Choose...");
               wFlashPathChoose->tooltip("Select an existing Flash RAM image file.");
               wFlashPathChoose->labelsize(12);
               wFlashPathChoose->callback((Fl_Callback*)cb_wFlashPathChoose);
             } // Fl_Button* wFlashPathChoose
             o->end();
           } // Fl_Group* o
-          { Fl_Group* o = new Fl_Group(22, 240, 408, 21);
+          { Fl_Group* o = new Fl_Group(22, 272, 408, 21);
             o->box(FL_FLAT_BOX);
             o->labelsize(12);
             o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-            { wRAMSizeChoice = new Fl_Choice(120, 241, 180, 20, "System RAM: ");
+            { wRAMSizeChoice = new Fl_Choice(120, 273, 180, 20, "System RAM: ");
               wRAMSizeChoice->tooltip("select the system memory size (heap)");
               wRAMSizeChoice->down_box(FL_BORDER_BOX);
               wRAMSizeChoice->labelsize(13);
@@ -1859,7 +1899,7 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
             wRestartWarning->align(Fl_Align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE));
             wRestartWarning->hide();
           } // Fl_Box* wRestartWarning
-          { wFastStart = new Fl_Check_Button(120, 273, 290, 20, "Fast start: continue where Einstein was quit");
+          { wFastStart = new Fl_Check_Button(120, 300, 290, 20, "Fast start: continue where Einstein was quit");
             wFastStart->tooltip("When quitting, Einstein lets the Newton fall asleep and saves its state.\nThe"
 " next start continues from there, if nothing changed in the meantime.");
             wFastStart->down_box(FL_DOWN_BOX);
@@ -2212,10 +2252,7 @@ void TFLSettingsUI::revertDialog() {
 
   // ---- MessagePad
 
-  std::string theROMPath = mEditMachine->GetROMPath();
-  wROMName->value(fl_filename_name(theROMPath.c_str()));
-  wROMPath->copy_label(theROMPath.c_str());
-  wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
+  updateROMWidgets();
   mEditMachine->mROMId = mDialogROMId;
 
   std::string theFlashPath = mEditMachine->GetFlashPath();
@@ -2282,9 +2319,8 @@ void TFLSettingsUI::applyDialog() {
 
   mEditMachine->mROMId = mDialogROMId;
 
-  // Only a new file changes where it is stored (machine folder or host).
-  if (mEditMachine->GetROMPath() != wROMPath->label())
-  	mEditMachine->SetROMPath(wROMPath->label());
+  // The ROM is set by its widgets directly, see updateROMWidgets().
+  // Only a new file changes where the flash is stored (machine folder or host).
   if (mEditMachine->GetFlashPath() != wFlashPath->label())
   	mEditMachine->SetFlashPath(wFlashPath->label());
 
@@ -2341,6 +2377,38 @@ void TFLSettingsUI::applyDialog() {
   dontShow = !wShowAtStartup->value();
 
   updateMenus();
+}
+
+/**
+ Show the ROM of the machine: where it is stored, its file, and what it is.
+ The light is red without a file, yellow for a file that is not a ROM Einstein
+ knows, and green for a known ROM.
+*/
+void TFLSettingsUI::updateROMWidgets() {
+  bool inFolder = mEditMachine->mROMInFolder;
+  (inFolder ? wROMInFolder : wROMOnHost)->setonly();
+  std::string thePath = mEditMachine->GetROMPath();
+  std::string theName = inFolder ? mEditMachine->mROMName : std::string(fl_filename_name(mEditMachine->mROMHostPath.c_str()));
+  wROMName->value(theName.c_str());
+  wROMPath->copy_label(inFolder ? ("(machine folder)/" + theName).c_str() : thePath.c_str());
+  Fl_Color theLight;
+  if (theName.empty()) {
+    mDialogROMId = TROMImage::kUnknownROM;
+    wROMDetails->copy_label("No ROM file chosen");
+    theLight = fl_rgb_color(215, 55, 45);
+  } else if (fl_access(thePath.c_str(), 4) != 0) {
+    mDialogROMId = TROMImage::kUnknownROM;
+    wROMDetails->copy_label(inFolder ? "The machine folder has no file of this name" : "The file is missing");
+    theLight = fl_rgb_color(215, 55, 45);
+  } else {
+    wROMDetails->copy_label(GetROMDetails(thePath.c_str()));
+    bool known = (mDialogROMId == TROMImage::k717006) || (mDialogROMId == TROMImage::kMP2x00DROM)
+      || (mDialogROMId == TROMImage::kEMate300ROM) || (mDialogROMId == TROMImage::kWatsonROM);
+    theLight = known ? fl_rgb_color(60, 170, 70) : fl_rgb_color(235, 185, 30);
+  }
+  wROMLight->color(theLight);
+  wROMLight->redraw();
+  updateSpecialKeysCheckbox();
 }
 
 /**
