@@ -754,14 +754,15 @@ TFLApp::InstallPackagesFromURI(const char* filenames)
 					if (response.status == 404)
 					{
 						fl_message("Can't install\n%s\nFile not found.", fn);
-					} else if (response.status >= 300)
+					} else if (response.status < 200 || response.status >= 300)
 					{
+						// Status 0: the server closed the connection without a reply.
 						fl_message("Can't install\n%s\nFile can't be dowloaded.", fn);
 					} else
 					{
 						const KUInt8* package = reinterpret_cast<const KUInt8*>(response.body.data());
 						KUInt32 packageSize = static_cast<KUInt32>(response.body.size());
-						if (memcmp(package, "package", 7) != 0)
+						if (packageSize < 7 || memcmp(package, "package", 7) != 0)
 						{
 							fl_message("Can't install\n%s\nThis is not a Newton package.", fn);
 						} else
