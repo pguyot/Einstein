@@ -7,6 +7,7 @@ list ( APPEND cmake_sources
 )
 
 list ( APPEND test_sources
+	_Tests_/CircleBufferTests.cpp
 	_Tests_/EinsteinTests.cpp
 	_Tests_/ExecuteInstructionTests.t
 	_Tests_/UProcessorTests.cpp
