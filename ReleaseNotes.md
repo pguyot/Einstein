@@ -1,5 +1,5 @@
-Binary Release (next)
-=====================
+Binary Release v2026.10.26
+==========================
 
 User Release Notes
 ------------------
