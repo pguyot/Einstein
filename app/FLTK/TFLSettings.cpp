@@ -29,6 +29,7 @@
 #include <FL/Fl_Preferences.H>
 #include <FL/filename.H>
 #include <FL/fl_ask.H>
+#include <FL/fl_utf8.h>
 
 #if TARGET_OS_WIN32
 #include <direct.h>
@@ -37,6 +38,7 @@
 #include <unistd.h>
 #endif
 #include <algorithm>
+#include <ctype.h>
 #include <errno.h>
 #include <iterator>
 #include <random>
@@ -1434,7 +1436,7 @@ ROMFiles(const std::string& inPath, bool inBuiltinRex)
 	std::vector<std::string> theFiles { inPath };
 	const char* ext = fl_filename_ext(inPath.c_str());
 	const char* name = fl_filename_name(inPath.c_str());
-	if (ext && strcasecmp(ext, ".aif") == 0)
+	if (ext && fl_utf_strcasecmp(ext, ".aif") == 0)
 	{
 		char theREX[FL_PATH_MAX];
 		strncpy(theREX, inPath.c_str(), FL_PATH_MAX - 1);
