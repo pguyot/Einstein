@@ -376,12 +376,12 @@ TPortAudioSoundManager::PACallBack(
 	mDataMutex->Lock();
 	KUInt32 available = mOutputBuffer->Consume(outputBuffer, amount);
 	mDataMutex->Unlock();
-	KUInt32 delta = amount - available;
-	if (delta > 0)
+	// Zero the remaining of the buffer: it still holds what it held at the
+	// last callback, which would play again.
+	KUInt32 wanted = (KUInt32) (frameCount * sizeof(KSInt16));
+	if (available < wanted)
 	{
-		// Zero the remaining of the buffer.
-		KPrintf("ZEROING DELTA %ld bytes\n", delta);
-		::bzero(&((KUInt8*) outputBuffer)[available], delta);
+		::bzero(&((KUInt8*) outputBuffer)[available], wanted - available);
 	}
 
 	if (bytesInBuffer < kNewtonBufferSize)

@@ -1,3 +1,29 @@
+Binary Release (next)
+=====================
+
+User Release Notes
+------------------
+ - Sound: short sounds, like the tap on the screen, play completely, and
+   longer sounds no longer have short gaps or get cut off at the end. The
+   faster the computer, the worse it was.
+ - macOS: the end of a sound no longer repeats briefly.
+
+Developer Release Notes
+-----------------------
+ - `TCircleBuffer` (the sound queue of all sound managers but waveOut, and
+   the read buffer of the PTY and direct serial host ports) lost data: when
+   the producer was behind the consumer, the free space underflowed and new
+   data overwrote unread data, and a buffer filled exactly looked empty.
+   `Produce()` now keeps one byte free and grows the buffer when needed.
+   Unit tests in `_Tests_/CircleBufferTests.cpp`.
+ - CoreAudio: `StopOutput()` lets the queued samples play out (NewtonOS
+   stops the output while the last buffer is still queued, because the
+   output interrupt comes as soon as there is room for the next buffer). The
+   output unit keeps running for a second after the last sound, so the next
+   one starts at once. The render callback zeroes the rest of its buffer,
+   also in the PortAudio manager. `EINSTEIN_SOUND_TRACE` prints the calls of
+   NewtonOS's sound driver with their times.
+
 Binary Release v2026.10.26
 ==========================
 

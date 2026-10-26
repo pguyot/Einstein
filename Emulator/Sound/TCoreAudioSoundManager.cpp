@@ -35,6 +35,11 @@
 #include <CoreServices/CoreServices.h>
 #endif
 
+#include <dispatch/dispatch.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 // K
 #include <K/Defines/UByteSex.h>
 #include <K/Misc/TCircleBuffer.h>
@@ -60,6 +65,30 @@
 #define kNewtonBitsPerChannel 16
 #define kFramesPerPacket 1
 
+// How long the output unit keeps running (and plays silence) after the last
+// sound. Starting the unit takes a few milliseconds of a sound, which is all
+// of a tap.
+#define kStopDelayInSeconds 1
+
+// Set EINSTEIN_SOUND_TRACE to see the calls of NewtonOS's sound driver and
+// the output unit with their times.
+static bool sTrace = (getenv("EINSTEIN_SOUND_TRACE") != nullptr);
+
+static void
+Trace(const char* inWhat, long inValue = -1, long inValue2 = -1)
+{
+	if (!sTrace)
+		return;
+	struct timespec now;
+	clock_gettime(CLOCK_MONOTONIC, &now);
+	fprintf(stderr, "sound %6ld.%03ld %s", (long) (now.tv_sec % 100000), now.tv_nsec / 1000000, inWhat);
+	if (inValue >= 0)
+		fprintf(stderr, " %ld", inValue);
+	if (inValue2 >= 0)
+		fprintf(stderr, " %ld", inValue2);
+	fprintf(stderr, "\n");
+}
+
 // -------------------------------------------------------------------------- //
 //  * TCoreAudioSoundManager( void )
 // -------------------------------------------------------------------------- //
@@ -67,9 +96,17 @@ TCoreAudioSoundManager::TCoreAudioSoundManager(TLog* inLog /* = nil */) :
 		TBufferedSoundManager(inLog),
 		mOutputBuffer(new TCircleBuffer(
 			kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16))),
-		mDataMutex(new TMutex())
+		mDataMutex(new TMutex()),
+		mRunMutex(new TMutex())
 {
-	mDataMutex = new TMutex();
+	dispatch_queue_t theQueue = dispatch_queue_create("Einstein sound stop", DISPATCH_QUEUE_SERIAL);
+	dispatch_source_t theTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, theQueue);
+	dispatch_set_context(theTimer, this);
+	dispatch_source_set_event_handler_f(theTimer, SStopWhenDrained);
+	dispatch_source_set_timer(theTimer, DISPATCH_TIME_FOREVER, DISPATCH_TIME_FOREVER, 0);
+	dispatch_resume(theTimer);
+	mStopQueue = theQueue;
+	mStopTimer = theTimer;
 	CreateDefaultAU();
 }
 
@@ -78,6 +115,14 @@ TCoreAudioSoundManager::TCoreAudioSoundManager(TLog* inLog /* = nil */) :
 // -------------------------------------------------------------------------- //
 TCoreAudioSoundManager::~TCoreAudioSoundManager(void)
 {
+	// No more render callbacks, and no StopWhenDrained() left to run: the
+	// empty call on the queue waits for one that runs now.
+	(void) AudioOutputUnitStop(mOutputUnit);
+	dispatch_source_cancel((dispatch_source_t) mStopTimer);
+	dispatch_sync_f((dispatch_queue_t) mStopQueue, nullptr, [](void*) {});
+	dispatch_release((dispatch_source_t) mStopTimer);
+	dispatch_release((dispatch_queue_t) mStopQueue);
+
 #if TARGET_IOS
 	AudioComponentInstanceDispose(mOutputUnit);
 #else
@@ -85,6 +130,7 @@ TCoreAudioSoundManager::~TCoreAudioSoundManager(void)
 	AudioUnitUninitialize(mOutputUnit);
 #endif
 
+	delete mRunMutex;
 	delete mDataMutex;
 	delete mOutputBuffer;
 }
@@ -227,28 +273,47 @@ TCoreAudioSoundManager::RenderCallback(
 	KUIntPtr bytesInBuffer = mOutputBuffer->AvailableBytes();
 	mDataMutex->Unlock();
 
-	if (bytesInBuffer < kNewtonBufferSize)
+	// Real hardware raises the interrupt when a buffer is played, this one as
+	// soon as there is room for the next. So NewtonOS stops the output while
+	// samples are still queued (all of a short sound), and must not be asked
+	// for more then.
+	if (!mStopping && bytesInBuffer < kNewtonBufferSize)
 	{
 		// Ask for more data.
+		Trace("interrupt, queued", (long) bytesInBuffer);
 		RaiseOutputInterrupt();
 	}
 
 	// Copy data from the circle buffer.
 	mDataMutex->Lock();
 
-	KUIntPtr amount = std::min(bytesInBuffer, inNumberFrames * sizeof(KSInt16));
-	// TODO: find possible error in the ringBuffer implementation?
+	KUIntPtr wanted = inNumberFrames * sizeof(KSInt16);
+	KUIntPtr amount = std::min(bytesInBuffer, wanted);
 
 	KUIntPtr available = mOutputBuffer->Consume(
 		ioData->mBuffers[0].mData,
 		amount);
+	Boolean drained = mOutputBuffer->IsEmpty();
 	mDataMutex->Unlock();
 
-	KUIntPtr delta = amount - available;
-	if (delta > 0)
+	if (available > 0 && drained)
+		Trace("played out");
+
+	// Stopped and played out: stop the unit after a while, so the next sound
+	// starts at once, and not from its own render callback.
+	if (mStopping && drained && !mStopScheduled.exchange(true))
 	{
-		// Zero the remaining of the buffer.
-		::bzero(&((KUInt8*) ioData->mBuffers[0].mData)[available], delta);
+		mStopStartCount = mStartCount.load();
+		dispatch_source_set_timer((dispatch_source_t) mStopTimer,
+			dispatch_time(DISPATCH_TIME_NOW, kStopDelayInSeconds * NSEC_PER_SEC),
+			DISPATCH_TIME_FOREVER, 10 * NSEC_PER_MSEC);
+	}
+
+	// Zero the remaining of the buffer: it still holds what it held at the
+	// last callback, which would play again.
+	if (available < wanted)
+	{
+		::bzero(&((KUInt8*) ioData->mBuffers[0].mData)[available], wanted - available);
 	}
 
 	return noErr;
@@ -266,7 +331,9 @@ TCoreAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 		// Copy data.
 		mDataMutex->Lock();
 		mOutputBuffer->Produce(inBuffer, inSize);
+		KUIntPtr queued = mOutputBuffer->AvailableBytes();
 		mDataMutex->Unlock();
+		Trace("ScheduleOutput, now queued", (long) inSize, (long) queued);
 		// Ask for more data.
 		// RaiseOutputInterrupt();
 	}
@@ -278,6 +345,11 @@ TCoreAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 void
 TCoreAudioSoundManager::StartOutput(void)
 {
+	mRunMutex->Lock();
+	Trace("StartOutput");
+	mStopping = false;
+	mStartCount++;
+
 	// Set the volume before starting to render the sound
 	OutputVolumeChanged();
 
@@ -294,25 +366,56 @@ TCoreAudioSoundManager::StartOutput(void)
 				err);
 		}
 	}
+	mRunMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
 //  * StopOutput( void )
+//		The samples that are queued still play: NewtonOS stops the output when
+//		it has no more data, which with our early interrupts is before the last
+//		buffer is played. The render callback stops the unit a while after
+//		they are, see StopWhenDrained().
 // -------------------------------------------------------------------------- //
 void
 TCoreAudioSoundManager::StopOutput(void)
 {
-	// Stop the rendering
-	OSStatus err = AudioOutputUnitStop(mOutputUnit);
-	if (err != noErr)
+	mRunMutex->Lock();
+	mDataMutex->Lock();
+	KUIntPtr queued = mOutputBuffer->AvailableBytes();
+	mDataMutex->Unlock();
+	Trace("StopOutput, queued", (long) queued);
+	mStopping = true;
+	mRunMutex->Unlock();
+}
+
+// -------------------------------------------------------------------------- //
+//  * SStopWhenDrained( void* )
+// -------------------------------------------------------------------------- //
+void
+TCoreAudioSoundManager::SStopWhenDrained(void* inManager)
+{
+	((TCoreAudioSoundManager*) inManager)->StopWhenDrained();
+}
+
+// -------------------------------------------------------------------------- //
+//  * StopWhenDrained( void )
+// -------------------------------------------------------------------------- //
+void
+TCoreAudioSoundManager::StopWhenDrained(void)
+{
+	mRunMutex->Lock();
+	mStopScheduled = false;
+	mDataMutex->Lock();
+	Boolean drained = mOutputBuffer->IsEmpty();
+	mDataMutex->Unlock();
+	// Not if NewtonOS started a sound in the meantime: then the render
+	// callback schedules another stop when that one is played.
+	if (mStopping && drained && (mStartCount == mStopStartCount))
 	{
-		if (GetLog())
-		{
-			GetLog()->FLogLine(
-				"CreateDefaultAU: AudioOutputUnitStart returned an error (%i)",
-				err);
-		}
+		Trace("output unit stopped");
+		(void) AudioOutputUnitStop(mOutputUnit);
 	}
+	mRunMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //

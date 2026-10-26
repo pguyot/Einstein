@@ -30,6 +30,8 @@
 // CoreAudio
 #include <AudioUnit/AudioUnit.h>
 
+#include <atomic>
+
 class TMutex;
 class TCircleBuffer;
 
@@ -114,6 +116,14 @@ private:
 	void CreateDefaultAU(void);
 
 	///
+	/// Stop the output unit if NewtonOS stopped the output and the queued
+	/// samples are played, see StopOutput(). Runs on mStopQueue (by
+	/// mStopTimer), not on the render thread.
+	///
+	static void SStopWhenDrained(void* inManager);
+	void StopWhenDrained();
+
+	///
 	/// Constructeur par copie volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
@@ -134,6 +144,29 @@ private:
 
 	/// Mutex on shared structures.
 	TMutex* mDataMutex { nullptr };
+
+	/// Starting and stopping the output unit (never taken by the render
+	/// callback, so stopping the unit can wait for it).
+	TMutex* mRunMutex { nullptr };
+
+	/// NewtonOS stopped the output; the samples in the buffer still play.
+	std::atomic<bool> mStopping { false };
+
+	/// StopWhenDrained() is scheduled.
+	std::atomic<bool> mStopScheduled { false };
+
+	/// The timer that calls StopWhenDrained() (a dispatch_source_t), and its
+	/// queue (a dispatch_queue_t). A timer source can be cancelled when the
+	/// manager is deleted, dispatch_after() can't. void* here, because under
+	/// ARC an Objective-C++ file that includes this header would see them as
+	/// objects.
+	void* mStopQueue { nullptr };
+	void* mStopTimer { nullptr };
+
+	/// Counts StartOutput(), so a scheduled stop knows that a sound started
+	/// in the meantime.
+	std::atomic<unsigned> mStartCount { 0 };
+	std::atomic<unsigned> mStopStartCount { 0 };
 
 	/// Output unit.
 	AudioUnit mOutputUnit { nullptr };
