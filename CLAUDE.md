@@ -18,6 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | planned (2026-10-27) |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -926,6 +927,105 @@ The host's F11 and F12 toggle the backlight and the power, once per press.
 Settings: "Special Keys (eMate)" under Toolbar; `updateSpecialKeysCheckbox()`
 follows the ROM chosen in the dialog (`mDialogROMId`, set by
 `GetROMDetails()`), and a grayed-out checkbox keeps the saved setting.
+
+## Usermode network (TUsermodeNetwork)
+
+(Matt, 2026-10-27, after the serial fixes.) Check the user-mode network for
+bottlenecks, bad throttling, deadlocks, missing timeouts and other bugs.
+The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
+`TTapNetwork` is only in the Cocoa app.
+
+**How it works**
+- Single-threaded and polled: every call comes from the NE2000 driver
+  package (not part of the REx) (`NE2K.pkg`, source `Drivers/NE2000Driver/NE2000.cpp`, old
+  Mac line endings) through the natives 0x0a00…0x0a15
+  (`TNativePrimitives.cpp` around line 2970), on the emulator thread. A
+  blocking socket call freezes the Newton.
+- The driver's timer runs every 100 ms (`kTimerTime`). Each tick calls
+  `EinsteinNetTimerExpired` (all handlers poll their sockets), then
+  `EinsteinNetDataAvailable` and receives at most one packet. The card
+  interrupt is not used for receiving (`InterruptHandler` only calls a
+  native that does nothing).
+- Handlers: DHCP and ARP (answered at once, fixed addresses), DNS to
+  127.0.0.53 (answered with `gethostbyname`), TCP and UDP (one host socket
+  per connection). Packets for the Newton wait in a FIFO.
+
+**Findings** (Claude, 2026-10-27)
+
+*Throttling*
+- `DataAvailable()` hands out a packet only every 0.25 s; with 100 ms ticks
+  one packet per 300 ms, ACKs included. Added in 2021 (`cdab4332`). Matt: a
+  proof of concept, when the emulation was slow and NewtonOS was easily
+  overwhelmed, probably also because of handshake bugs; never redone.
+- The driver takes at most one packet per tick: 10 packets/s, about
+  14 KB/s, at best.
+- TCP `timer()` reads the socket only when the whole FIFO is empty and then
+  waits for the Newton's ACK of that one segment; every Newton segment gets
+  its own ACK packet, which waits for its slot. Download and upload are
+  about 4–5 KB/s today ("Courier is somewhat working now, but incredibly
+  slow", Matt 2010, `dddd9e4e`).
+
+*Blocking calls (freezes)*
+- `TCPPacketHandler::connect()` waits in `select()` up to 10 s, again for
+  every SYN the Newton retries.
+- DNS: `gethostbyname()` blocks for the whole lookup (deprecated, not
+  thread-safe).
+- `TNetworkManager::Run()` holds `mSelectMutex` during a `select()` without
+  timeout; `TTapNetwork::ReceiveData()` then blocks the emulator until the
+  next packet (Cocoa only).
+
+*TCP*
+- `::send()` result ignored: on the non-blocking socket a partial send or
+  `EAGAIN` loses data that the Newton was already ACKed for. No
+  `MSG_NOSIGNAL`/`SO_NOSIGPIPE`: a send to a closed socket kills Einstein,
+  unless the TCP serial driver happens to have set `SIGPIPE` to a handler.
+- Sequence numbers are never checked: a Newton retransmission (likely with
+  300 ms per packet) reaches the server twice.
+- `recv()` errors other than "no data" and RST from the Newton are
+  ignored; the connection stays forever.
+- Any TCP packet that matches no handler (a stray ACK or RST) creates one
+  and opens an outgoing connection (with the 10 s wait).
+- A failed connect leaks its socket and keeps the handler; no RST to the
+  Newton. No timeouts in the closing states.
+
+*Parsing*
+- TCP and UDP payload sizes come from the frame size, not the IP total
+  length (padding would become data).
+- No length checks before reading fields (DHCP reads offset 0x116 of any
+  UDP packet to port 67, the DNS name parser reads past the packet).
+- The DNS name parser can overflow its 128-byte stack buffer (the counter
+  wraps, only the inner loop stops); the type check uses `&&` instead of
+  `||`, so AAAA queries get an A answer.
+- Natives: `TimerExpired` (0x11) has no null check; `GetDeviceAddress`
+  copies `size` bytes from a 6-byte array.
+
+**Plan** (proposed)
+
+| Step | What | Days |
+|---|---|---|
+| A1 | Remove the 0.25 s throttle; a newer pure ACK of a connection replaces a queued one | 0.5 |
+| A2 | Non-blocking connect: "connecting" state checked in `timer()`, SYN-ACK when connected, RST on failure or after 10 s | 0.5 |
+| A3 | Send buffer per connection: keep what `send()` did not take, flush on the next ticks, ACK only what the host accepted; `MSG_NOSIGNAL`/`SO_NOSIGPIPE` | 0.5–1 |
+| A4 | Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, RST for unknown packets instead of connecting, timeouts for the closing states | 1 |
+| A5 | DNS in a worker thread (`getaddrinfo`), replies queued and delivered in `TimerExpired()`; fix the name parser | 0.5–1 |
+| A6 | Length checks, payload sizes from the IP header, the two natives | 0.5 |
+| B | New NE2K.pkg: receive all queued packets per tick, and on the card interrupt instead of only the timer | 1–2 |
+
+A1–A6 change only the emulator and can be tested one by one (Courier,
+Newt's Cape, Dock over TCP with NCX).
+
+Step B: NE2K.pkg is not part of the `Drivers` CMake build (gcc, `ELFtoPKG`,
+`Rex`); it has its own MPW Makefile (`Drivers/NE2000Driver/Makefile`,
+ARMCpp, Packer, the DDK's `CardGlue.a.o` and Lantern headers), which
+mosrun can run (Matt, 2026-10-27). Install Essentials downloads it from the
+server (`Essentials/NIE/NE2K.pkg`, TFLApp.cpp), so a new version must go
+there too. Alternative: add it to the CMake build like the other drivers.
+
+**To clarify**
+- **Q11.1** Build NE2K.pkg with the MPW Makefile through mosrun, or move it
+  into the CMake build?
+- **Q11.2** Test setup: which apps and servers (Courier, Newt's Cape, NCX
+  Dock over TCP, a local HTTP server)?
 
 ## Event forwarding on slow machines
 
