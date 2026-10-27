@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | planned (2026-10-27) |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1 done (2026-10-27); next B + A1, N2 |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -1053,6 +1053,17 @@ web site. Whether it belongs in the REx is tested last.
   `NE2000Prims.a`), the real card's `NE2000.h` and the old `NE2K.pkg` are
   removed. The new package is `_Data_/NE2K.pkg` (target `NE2K.pkg`,
   installed with the REx).
+
+**State** (2026-10-27, Matt on a break): N1 committed (`d885b2df`), not
+pushed. In the working tree, not committed: a temporary trace with
+`EINSTEIN_NET_TRACE` (every NE2000 native in
+`TNativePrimitives::ExecuteNetworkManagerNative`, every 10th timer tick,
+`SendPacket`/`DataAvailable`/`ReceiveData` sizes; in `TUsermodeNetwork`
+the type of each Newton packet, DHCP request types, queued replies). Keep
+it for B and A1 (it shows about one packet per tick, queued ACKs waiting,
+and four seconds of idle ticks at the end of a page), then decide whether
+it stays like `EINSTEIN_SOUND_TRACE`. Proposed next: B and A1 together
+(their effect shows best in the trace), then N2.
 
 **To clarify**
 - ~~**Q11.1** Build NE2K.pkg with the MPW Makefile through mosrun, or move it
