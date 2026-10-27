@@ -1009,23 +1009,57 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | A4 | Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, RST for unknown packets instead of connecting, timeouts for the closing states | 1 |
 | A5 | DNS in a worker thread (`getaddrinfo`), replies queued and delivered in `TimerExpired()`; fix the name parser | 0.5–1 |
 | A6 | Length checks, payload sizes from the IP header, the two natives | 0.5 |
-| B | New NE2K.pkg: receive all queued packets per tick, and on the card interrupt instead of only the timer | 1–2 |
+| N1 | NE2K.pkg built by the `Drivers` CMake (gcc, `ELFtoPKG`, the NewtonScript part added by `NE2000Driver/AddNSPart.py`), installed to `_Data_/NE2K.pkg` | 1 |
+| N2 | NE2K.pkg embedded in Einstein; Install Essentials installs it from there instead of the server | 0.5 |
+| B | NE2K.pkg receives all queued packets per tick, and on the card interrupt instead of only the timer | 1 |
+| N3 | Last: NE2K.pkg in the REx? First test what it does to an installed NE2K.pkg and to a NewtonOS without NIE (Matt, 2026-10-27) | ? |
 
 A1–A6 change only the emulator and can be tested one by one (Courier,
 Newt's Cape, Dock over TCP with NCX).
 
-Step B: NE2K.pkg is not part of the `Drivers` CMake build (gcc, `ELFtoPKG`,
-`Rex`); it has its own MPW Makefile (`Drivers/NE2000Driver/Makefile`,
-ARMCpp, Packer, the DDK's `CardGlue.a.o` and Lantern headers), which
-mosrun can run (Matt, 2026-10-27). Install Essentials downloads it from the
-server (`Essentials/NIE/NE2K.pkg`, TFLApp.cpp), so a new version must go
-there too. Alternative: add it to the CMake build like the other drivers.
+NE2K.pkg was built with its own MPW Makefile and NTK (1997/2010), never
+with the `Drivers` CMake, which is why it was never maintained. Matt
+(2026-10-27): build it with the `Drivers` CMake, and embed it in Einstein,
+so the right version of the driver is always available, even without the
+web site. Whether it belongs in the REx is tested last.
+
+*N1 (Claude, 2026-10-27; tested by Matt: installs, DHCP, DNS, Courier loads a page):*
+- `NE2000Driver/NE2000.cpp` (line endings converted, otherwise Apple's
+  template with Einstein's natives), `NE2000.impl.s` (class info and
+  branch table, written like `PMainSoundDriver.impl.s`), `NE2000Prims.s`
+  (natives 0x0a00…0x0a15).
+- Apple's `LanternDriver.proto.h` and `LanternDriverAPI.proto.h` are not in
+  the public NCT_Projects (only in Matt's NewtonDev archive), so
+  `NE2000Driver/LanternDriver.h` declares the two protocols, and
+  `LanternDriverAPI.cpp` has the call glue as naked functions (`ldr r0,
+  [r0,#4]; ldr r12, [r0,#8]; add pc, r12, #offset`), the same offsets
+  as the glue in the NE2K.pkg of 1997 (checked). `fDriverAPI` is at offset
+  24, as in the old code.
+- Event handlers: cfront's `(DriverProcPtr) &TNE2000Sample::Method` is a
+  gcc bound member function, `EVENT_HANDLER(method)`, with
+  `-Wno-pmf-conversions`.
+- The package: the NewtonScript part of 1997 (`NE2K.auto`, extracted from
+  the old package; its source is `NE2000Driver/Install` and `Project
+  Data`), then the protocol part from `ELFtoPKG`, put together by
+  `NE2000Driver/AddNSPart.py`. Everything in a package counts from the
+  start of the package: the references in a frame part, the offsets in the
+  relocation data, and the values of the relocated words (here the GOT
+  entries of the event handlers). So the NewtonScript part stays at offset
+  408, where NTK put it (the directory is padded), and the script moves the
+  relocation offsets and the relocated values of the protocol part. (Each of
+  the three showed up as its own failure: "a problem has occurred",
+  "Part 1, Type auto", a driver that stopped after `Enable`.)
+- The MPW build files (`Makefile`, `Makeout`, `FilesInBuild`,
+  `NE2000Prims.a`), the real card's `NE2000.h` and the old `NE2K.pkg` are
+  removed. The new package is `_Data_/NE2K.pkg` (target `NE2K.pkg`,
+  installed with the REx).
 
 **To clarify**
-- **Q11.1** Build NE2K.pkg with the MPW Makefile through mosrun, or move it
-  into the CMake build?
+- ~~**Q11.1** Build NE2K.pkg with the MPW Makefile through mosrun, or move it
+  into the CMake build?~~ CMake (Matt, 2026-10-27).
 - **Q11.2** Test setup: which apps and servers (Courier, Newt's Cape, NCX
-  Dock over TCP, a local HTTP server)?
+  Dock over TCP, a local HTTP server)? Matt's emulator has NIE and Courier
+  (Install Essentials); he can add more apps.
 
 ## Event forwarding on slow machines
 

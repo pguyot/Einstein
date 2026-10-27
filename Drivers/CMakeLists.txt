@@ -78,6 +78,36 @@ add_custom_command(TARGET EinsteinFlashDriver POST_BUILD
 
 add_subdirectory(EinsteinPortEnabler)
 
+# -- The NE2000 network card driver, a package of its own that the user installs
+#    after NIE (Install Essentials offers it). NE2K.pkg holds the protocol part
+#    of the driver and the NewtonScript part that registers it with NIE
+#    (NE2K.auto, made with NTK in 1997, see NE2000Driver/Install). The
+#    NewtonScript part refers to its objects by their offset in the package,
+#    so it stays at the offset it had in the NE2K.pkg of 1997 (408).
+
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+project(NE2K)
+add_executable(NE2K
+    NE2000Driver/NE2000.cpp NE2000Driver/LanternDriverAPI.cpp
+    NE2000Driver/NE2000.impl.s NE2000Driver/NE2000Prims.s)
+add_dependencies(NE2K Runtime)
+target_link_libraries(NE2K Runtime)
+target_include_directories(NE2K PRIVATE ${INCLUDE_DIRECTORIES})
+target_compile_options(NE2K PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-pmf-conversions>)
+target_link_options(NE2K PRIVATE ${LINK_OPTIONS})
+# Not a POST_BUILD step: the package must also be made again when only the
+# script or the NewtonScript part changed.
+add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/obj/NE2K.pkg
+    COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_SOURCE_DIR}/obj/NE2K.protocol.pkg ${CMAKE_SOURCE_DIR}/obj/NE2K.pkg
+    COMMAND ELFtoPKG -o ${CMAKE_SOURCE_DIR}/obj/NE2K.protocol.pkg NE2K -protocol $<TARGET_FILE:NE2K> -autoLoad -autoRemove
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/NE2000Driver/AddNSPart.py
+        ${CMAKE_SOURCE_DIR}/obj/NE2K.protocol.pkg ${CMAKE_SOURCE_DIR}/NE2000Driver/NE2K.auto 408 auto 0x81
+        "NE2K" "Einstein network card driver, based on Apple sample code"
+        ${CMAKE_SOURCE_DIR}/obj/NE2K.pkg
+    DEPENDS NE2K ${CMAKE_SOURCE_DIR}/NE2000Driver/AddNSPart.py ${CMAKE_SOURCE_DIR}/NE2000Driver/NE2K.auto)
+add_custom_target(NE2K.pkg ALL DEPENDS ${CMAKE_SOURCE_DIR}/obj/NE2K.pkg)
+install(FILES ${CMAKE_SOURCE_DIR}/obj/NE2K.pkg DESTINATION ${CMAKE_SOURCE_DIR}/../_Data_/)
+
 # -- Custom target to create the REx, will be always built and installed to the _Data_ directory
 
 project(Einstein)

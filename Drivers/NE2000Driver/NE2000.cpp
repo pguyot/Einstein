@@ -1,1 +1,555 @@
-/*	File:		Template.impl.cp	Contains:	Lantern driver for the Template Wireless Card				You may incorporate this sample code into your applications without				restriction.  This sample code has been provided "AS IS" and the				responsibility for its operation is 100% yours.  You are not				permitted to modify and redistribute the source as "DDK Sample Code."				If you are going to re-distribute the source, we require that you				make it clear in the source that the code was descended from				Apple-provided sample code, but that you've made changes.					Copyright:	© 1997 by Apple Computer, Inc., all rights reserved.	Obtained from NIE2.0 F1C2 build. 9/4/97*/#define EINSTEIN_NET_DRIVER_VERSION 100#ifndef	__TEMPLATE_IMPL_H#include "NE2000.impl.h"#endif#ifndef	__LANTERNEVENTS_H#include "LanternEvents.h"#endif#ifndef	__DELAYTIMER_H#include "DelayTimer.h"#endif#ifndef	__REGISTERRDWR_H#include "RegisterRdWr.h"#endif#ifndef __TEMPLATEEVENT_H//#include "TemplateEvents.h"#endif#ifndef __TEMPLATEERRORS_H//#include "TemplateErrors.h"#endif////  ***** Connection to Native Einstein Code *****//extern "C" void EinsteinNetUnknown();extern "C" void EinsteinNetLog(const char*);extern "C" void EinsteinNetNew(TNE2000Sample*, ULong version);extern "C" void EinsteinNetDelete(TNE2000Sample*);	extern "C" void EinsteinNetInit(TNE2000Sample*);extern "C" void EinsteinNetEnable(TNE2000Sample*);extern "C" void EinsteinNetDisable(TNE2000Sample*);extern "C" void EinsteinNetInterruptHandler(TNE2000Sample*);	extern "C" void EinsteinNetSendBuffer(TNE2000Sample*);extern "C" void EinsteinNetSendCBufferList(TNE2000Sample*);extern "C" void EinsteinNetSendPacket(TNE2000Sample*, UChar *buffer, ULong size);extern "C" NewtonErr EinsteinNetGetDeviceAddress(TNE2000Sample*, UChar *buffer, ULong size);extern "C" void EinsteinNetAddMulticastAddress(TNE2000Sample*);extern "C" void EinsteinNetDelMulticastAddress(TNE2000Sample*);extern "C" void EinsteinNetGetLinkIntegrity(TNE2000Sample*);	extern "C" void EinsteinNetSetPromiscuous(TNE2000Sample*);extern "C" void EinsteinNetGetThroughput(TNE2000Sample*);extern "C" void EinsteinNetTimerExpired(TNE2000Sample*);extern "C" void EinsteinNetInitCard(TNE2000Sample*);extern "C" void EinsteinNetSetCardInfo(TNE2000Sample*);extern "C" ULong EinsteinNetDataAvailable(TNE2000Sample*);extern "C" void EinsteinNetReceiveData(TNE2000Sample*, Ptr buffer, ULong size);////	***** Compiler flags *****//////	***** Definitions *****//////	Constants//#define kTemplateTimerEvent	'tmpl','timr',0	// Timer evevt // Macros for generate event trace code. It checks run time #ifdef kDB__pHISTORYCOLLECT	#define ADD_TRACE_EVENT(id, byte, short)		TRACE_MESSAGE(fEventTraceCollector, id, byte, short);	#define ADD_TRACE_ADDR()						TRACE_FUNCTION(fEventTraceCollector);#else	#define ADD_TRACE_EVENT(id, byte, short)	#define ADD_TRACE_ADDR()#endif////	***** Protocol class routines *****//PROTOCOL_IMPL_SOURCE_MACRO(TNE2000Sample)	// Magic stuff, do not touch.											// (For protocol class)////	TLanternDriver* TTemplateDriver::New()////		Protocol class constructor////			Allocate and set up local varibles here.////			This is called when the card is inserted. The variables fCardSocket, fCardPCMCIA and //			fDriverAPI are NOT set up right now. They are only available later in Init().////			If there is a embeded class in the protocol class, the constructor of the class //			is not executed when the protocol class is initialized. This is the limitation of //			the protocol class. It need be initialized here in the NEW(). For example://			//				PROTOCOL TTemplateDriver : ...//				{//					...//					TFoo	fFoo;			// A embeded class//					...//				}////				TTemplateDriver::New()//				{//					...//					new (&fFoo) TFoo;		// Execute the constructor//					...//				}//TLanternDriver* TNE2000Sample::New(){		fTickTime = new TTime;		EinsteinNetNew(this, EINSTEIN_NET_DRIVER_VERSION);	return this;													// Always return this}////	TTemplateDriver::Delete()////		Protocol class destructor////			Clean up and free all momory allocations//			This is called when the card is removed.//void TNE2000Sample::Delete(){	EinsteinNetDelete(this);		delete fTickTime;	fTickTime = nil;}////	***** Lantern task service routines *****//////	NewtonErr TTemplateDriver::Init()////		Driver initialization////			This is called when the card has been inserted in the system.//			It should intialize the driver and set up the card here.//NewtonErr TNE2000Sample::Init(){	NewtonErr err = noErr;    EinsteinNetInit(this);		//	Add Lantern request functions	fDriverAPI->AddEventHandler(kLanternSendBuffer, (DriverProcPtr) &TNE2000Sample::SendBuffer);	fDriverAPI->AddEventHandler(kLanternSendCBufferList, (DriverProcPtr) &TNE2000Sample::SendCBufferList);	fDriverAPI->AddEventHandler(kLanternGetDeviceAddress, (DriverProcPtr) &TNE2000Sample::GetDeviceAddress);	fDriverAPI->AddEventHandler(kLanternAddMulticastAddress, (DriverProcPtr) &TNE2000Sample::AddMulticastAddress);	fDriverAPI->AddEventHandler(kLanternDelMulticastAddress, (DriverProcPtr) &TNE2000Sample::DelMulticastAddress);	fDriverAPI->AddEventHandler(kLanternGetLinkIntegrity, (DriverProcPtr) &TNE2000Sample::GetLinkIntegrity);		// Add Optional handlers	fDriverAPI->AddEventHandler(kLanternSetPromiscuous, (DriverProcPtr) &TNE2000Sample::SetPromiscuous);	fDriverAPI->AddEventHandler(kLanternGetThroughput, (DriverProcPtr) &TNE2000Sample::GetThroughput);		// Add private timer services handler	fDriverAPI->AddEventHandler(kTemplateTimerEvent, (DriverProcPtr) &TNE2000Sample::TimerExpired);	fTimerPosted = false;	return err;}////	NewtonErr TTemplateDriver::Enable()////		Enable: set up card and start Rx////			This method is called whenever the services of the card are required by clients.//			It is called once when the first client requires services. Subsequent clients//			do not cause this call to be repeated. Clients of an Ethernet card can be AppleTalk,//			TCP/IP or a protoLanternClient from NewtonScript.////			*** NOTE ***////				It is imperative that you do not access the card memory unless//				the driver is enabled.  If you access card memory at any other//				time the Lantern subsystem may be halted.//NewtonErr TNE2000Sample::Enable(){	NewtonErr err = noErr;	Boolean powerOn;	// Turn on card power	fDriverAPI->PowerOn(&powerOn);									// Turn on card power	fStatus |= kStatusCardPowerOn;									// Remember it for destructor to power off	EinsteinNetEnable(this);	if (!fTimerPosted)	{		// This posts the event to our own task so we get the event		fTimerPosted = true;		*fTickTime = GetGlobalTime() + TTime(kTimerTime, kMilliseconds);		fDriverAPI->PostLocalEvent(fTickTime, kTemplateTimerEvent);	}		return err;}////	NewtonErr TTemplateDriver::Disable()////		Disable: stop Rx and Tx operations////			This method is called when there no more clients that require the services of the card,//			or it has been determined that the card is no longer available in the system.//NewtonErr TNE2000Sample::Disable(){	NewtonErr err = noErr;	fDriverAPI->PowerOff();											// Turn off card power and remember it	fStatus &= ~kStatusCardPowerOn;	EinsteinNetDisable(this);	return err;}////	ULong TTemplateDriver::TimerExpired()////		This is a general purpose timer routine.  You may implement as many different timers//		as needed for your particular implementation by adding different events and eventhandlers//		for each timer.////		The three parts to defining this as a timer is to////			1. Add an eventhandler to handle your specifically defined event//			2. Call PostLocalEvent with a delay for the time to send the event//			3. Implement the timer event handler method.////		This timer periodically checks the link integrity (although for this chipset it cannot//		be detected so it just returns true).////			You can send this event out to clients that the link status has changed. //			This is not a necessary event but should be implemented if the link integrity //			can be detected by interrupt (or by timed event polling). If you detect //			the link is bad (packet errors say) you may send this event but should keep //			accepting further requests.////void TNE2000Sample::TimerExpired(void){	if (fStatus & kStatusCardPowerOn)	{		EinsteinNetTimerExpired(this);				// packetSize is the size of the Ethernet package *excluding* the CRC checksum		ULong packetSize = EinsteinNetDataAvailable(this);		if (packetSize) {			Ptr packetBuffer = fDriverAPI->NewPacketPtr(packetSize);			EinsteinNetReceiveData(this, packetBuffer, packetSize);			fDriverAPI->RxReady(packetBuffer, packetSize);		}		// Should grab the link Integrity and post it here		//Boolean linkIntegrity = GetLinkIntegrity();		//if (linkIntegrity != fLinkIntegrity)		//	fDriverAPI->PostEvent(kLanternLinkIntegrity, (ULong) (fLinkIntegrity = linkIntegrity));				// This posts the event to our own task so we get the event		fTimerPosted = true;		*fTickTime = *fTickTime + TTime(kTimerTime, kMilliseconds);		fDriverAPI->PostLocalEvent(fTickTime, kTemplateTimerEvent);	}	else	{		// else timer services are cancelled.		fTimerPosted = false;	}}////	NewtonErr TTemplateDriver::InterruptHandler()////		Interrupt handler (called from task level, not in interrupt level)////			This method is called after an interrupt line on the card is asserted.//			This method is dispatched as a priority event from the system interrupt handler//			and as such is not 'true' interrupt code, consequently it does not have to execute as //			time critical or out-of-state code. However, as a priority event, it is dispatched//			before any other pending RPCs waiting on the driver. The current minimum time between//			a card interrupt and this method executing is apTemplateately 50 mSecs but could be longer//			depending on OS loading.////			There is a fundamental assumption that a Lantern device is capable of buffering inbound //			data for at least as long as required for the interrupt event to be dispatched. For high //			bit rate cards (wired Ethernet) on a busy network (e.g. large AppleTalk nets) this may//			cause loss of packets. As a data link layer, lost packets are allowable, however some//			protocols, especially AppleTalk on the Newton, may be fragile to loosing certain packets.//void TNE2000Sample::InterruptHandler(){	NewtonErr err = noErr;	EinsteinNetInterruptHandler(this);		fDriverAPI->InterruptDone();									// This call is optional (here it's not really needed)}////	***** Lantern client service routines *****//////	void	  TTemplateDriver::SendBuffer(Ptr thePacket, Size packetSize)//	void	  TTemplateDriver::SendCBufferList(CBufferList* thePacket)////		Send a packet in the buffer ptr or the CBufferList////			These events is sent to a driver when Lantern needs data to be sent. The//			driver should send data asynchronously. The driver should buffer data //			to be sent as it may receive more data to send.//void TNE2000Sample::SendBuffer(Ptr thePacket, Size packetSize){	NewtonErr err = noErr;	EinsteinNetSendBuffer(this);		EinsteinNetSendPacket(this, (UChar*)thePacket, packetSize);	fDriverAPI->PostReply(err);}void TNE2000Sample::SendCBufferList(CBufferList* thePacket){	NewtonErr err = noErr;	EinsteinNetSendCBufferList(this);		Size packetSize = thePacket->GetSize();	thePacket->ResetMark();	UChar *tmpBuffer = (UChar*)malloc(packetSize);	thePacket->Getn(tmpBuffer, packetSize);	EinsteinNetSendPacket(this, tmpBuffer, packetSize);	free(tmpBuffer);	fDriverAPI->PostReply(err);}////	void TTemplateDriver::GetDeviceAddress()////		Return the 6-byte device Ethernet hardware address//void TNE2000Sample::GetDeviceAddress(UByte* addr, Size size){	NewtonErr err = noErr;		err = EinsteinNetGetDeviceAddress(this, addr, size);		fDriverAPI->PostReply(err);}////	void TTemplateDriver::AddMulticastAddress(UChar* addr)////		Add a multicast address//void TNE2000Sample::AddMulticastAddress(UChar* addr){	NewtonErr err = noErr;		EinsteinNetAddMulticastAddress(this);	fDriverAPI->PostReply(err);										// Reply}////	void TTemplateDriver::DelMulticastAddress(UChar* addr)////		Delete a multicast address//void TNE2000Sample::DelMulticastAddress(UChar* addr){	NewtonErr err = noErr;		EinsteinNetDelMulticastAddress(this);	fDriverAPI->PostReply(err);										// Reply}////	void TTemplateDriver::GetLinkIntegrity()////		Get the link integrity flag//void TNE2000Sample::GetLinkIntegrity(){	NewtonErr err = noErr;	ULong linkIntegrity = true;	EinsteinNetGetLinkIntegrity(this);		fDriverAPI->PostReply(err, 1, linkIntegrity);				// Reply}void TNE2000Sample::SetPromiscuous(ULong promiscuous){	NewtonErr err = noErr;	EinsteinNetSetPromiscuous(this);	err = eLANTERN_DriverUnhandledEvent;	fDriverAPI->PostReply(err);				// Reply}void TNE2000Sample::GetThroughput(void){	NewtonErr err = noErr;	EinsteinNetGetThroughput(this);	err = eLANTERN_DriverUnhandledEvent;	fDriverAPI->PostReply(err);				// Reply}////	***** Card routines *****//#ifdef forDebug////	void TTemplateDriver::DumpBuffer(UChar* buffer, ULong size, ULong startingAddr)////		Dump buffer data//void TNE2000Sample::DumpBuffer(UChar* buffer, ULong size, ULong startingAddr){	for (ULong i = 0; i < ((size+15) / 16); i++)	{		if ((i & 7) == 0)			printf("\n");		printf("%04X.%04X:", startingAddr + i*16, i*16);		for (ULong j = 0; j < 16; j++)		{			if ((j&3) == 0) printf(" ");			printf("%02X ", buffer[j]);			if (j == 7) printf("-");		}		printf("  ");		for (j = 0; j < 16; j++)		{			if ((j&7) == 0) printf(" ");			char ch = buffer[j];			if ((ch < ' ') || (127 < ch))				ch = '.';			printf("%c", ch);		}		printf("\n");		buffer += 16;	}	printf("\n");}#endif // forDebug
+/*
+	File:		Template.impl.cp
+
+	Contains:	Lantern driver for the Template Wireless Card
+
+				You may incorporate this sample code into your applications without
+				restriction.  This sample code has been provided "AS IS" and the
+				responsibility for its operation is 100% yours.  You are not
+				permitted to modify and redistribute the source as "DDK Sample Code."
+				If you are going to re-distribute the source, we require that you
+				make it clear in the source that the code was descended from
+				Apple-provided sample code, but that you've made changes.
+				
+	Copyright:	© 1997 by Apple Computer, Inc., all rights reserved.
+
+	Obtained from NIE2.0 F1C2 build. 9/4/97
+
+*/
+
+
+#define EINSTEIN_NET_DRIVER_VERSION 100
+
+
+#ifndef	__TEMPLATE_IMPL_H
+#include "NE2000.impl.h"
+#endif
+
+#ifndef	__LANTERNEVENTS_H
+#include "LanternEvents.h"
+#endif
+
+#ifndef	__DELAYTIMER_H
+#include "DelayTimer.h"
+#endif
+
+#ifndef	__REGISTERRDWR_H
+#include "RegisterRdWr.h"
+#endif
+
+#ifndef __TEMPLATEEVENT_H
+//#include "TemplateEvents.h"
+#endif
+
+#ifndef __TEMPLATEERRORS_H
+//#include "TemplateErrors.h"
+#endif
+
+// MPW's cfront made a plain function pointer from the address of a member
+// function. gcc does the same for a bound member function (with
+// -Wno-pmf-conversions); Lantern calls the handler with the driver as the
+// first argument.
+#define EVENT_HANDLER(method) ((DriverProcPtr) (this->*(&TNE2000Sample::method)))
+
+//
+//  ***** Connection to Native Einstein Code *****
+//
+
+extern "C" void EinsteinNetUnknown();
+extern "C" void EinsteinNetLog(const char*);
+
+extern "C" void EinsteinNetNew(TNE2000Sample*, ULong version);
+extern "C" void EinsteinNetDelete(TNE2000Sample*);
+	
+extern "C" void EinsteinNetInit(TNE2000Sample*);
+extern "C" void EinsteinNetEnable(TNE2000Sample*);
+extern "C" void EinsteinNetDisable(TNE2000Sample*);
+extern "C" void EinsteinNetInterruptHandler(TNE2000Sample*);
+	
+extern "C" void EinsteinNetSendBuffer(TNE2000Sample*);
+extern "C" void EinsteinNetSendCBufferList(TNE2000Sample*);
+extern "C" void EinsteinNetSendPacket(TNE2000Sample*, UChar *buffer, ULong size);
+extern "C" NewtonErr EinsteinNetGetDeviceAddress(TNE2000Sample*, UChar *buffer, ULong size);
+extern "C" void EinsteinNetAddMulticastAddress(TNE2000Sample*);
+extern "C" void EinsteinNetDelMulticastAddress(TNE2000Sample*);
+extern "C" void EinsteinNetGetLinkIntegrity(TNE2000Sample*);
+	
+extern "C" void EinsteinNetSetPromiscuous(TNE2000Sample*);
+extern "C" void EinsteinNetGetThroughput(TNE2000Sample*);
+
+extern "C" void EinsteinNetTimerExpired(TNE2000Sample*);
+
+extern "C" void EinsteinNetInitCard(TNE2000Sample*);
+extern "C" void EinsteinNetSetCardInfo(TNE2000Sample*);
+
+
+extern "C" ULong EinsteinNetDataAvailable(TNE2000Sample*);
+extern "C" void EinsteinNetReceiveData(TNE2000Sample*, Ptr buffer, ULong size);
+
+//
+//	***** Compiler flags *****
+//
+
+//
+//	***** Definitions *****
+//
+
+//
+//	Constants
+//
+
+
+#define kTemplateTimerEvent	'tmpl','timr',0	// Timer evevt 
+
+
+// Macros for generate event trace code. It checks run time 
+
+#ifdef kDB__pHISTORYCOLLECT
+
+	#define ADD_TRACE_EVENT(id, byte, short)		TRACE_MESSAGE(fEventTraceCollector, id, byte, short);
+	#define ADD_TRACE_ADDR()						TRACE_FUNCTION(fEventTraceCollector);
+#else
+	#define ADD_TRACE_EVENT(id, byte, short)
+	#define ADD_TRACE_ADDR()
+#endif
+
+
+
+
+//
+//	***** Protocol class routines *****
+//
+
+PROTOCOL_IMPL_SOURCE_MACRO(TNE2000Sample)	// Magic stuff, do not touch.
+											// (For protocol class)
+
+
+//
+//	TLanternDriver* TTemplateDriver::New()
+//
+//		Protocol class constructor
+//
+//			Allocate and set up local varibles here.
+//
+//			This is called when the card is inserted. The variables fCardSocket, fCardPCMCIA and 
+//			fDriverAPI are NOT set up right now. They are only available later in Init().
+//
+//			If there is a embeded class in the protocol class, the constructor of the class 
+//			is not executed when the protocol class is initialized. This is the limitation of 
+//			the protocol class. It need be initialized here in the NEW(). For example:
+//			
+//				PROTOCOL TTemplateDriver : ...
+//				{
+//					...
+//					TFoo	fFoo;			// A embeded class
+//					...
+//				}
+//
+//				TTemplateDriver::New()
+//				{
+//					...
+//					new (&fFoo) TFoo;		// Execute the constructor
+//					...
+//				}
+//
+
+TLanternDriver* TNE2000Sample::New()
+{	
+	fTickTime = new TTime;
+	
+	EinsteinNetNew(this, EINSTEIN_NET_DRIVER_VERSION);
+
+	return this;													// Always return this
+}
+
+
+//
+//	TTemplateDriver::Delete()
+//
+//		Protocol class destructor
+//
+//			Clean up and free all momory allocations
+//			This is called when the card is removed.
+//
+
+void TNE2000Sample::Delete()
+{
+	EinsteinNetDelete(this);
+	
+	delete fTickTime;
+	fTickTime = nil;
+}
+
+
+
+
+//
+//	***** Lantern task service routines *****
+//
+
+//
+//	NewtonErr TTemplateDriver::Init()
+//
+//		Driver initialization
+//
+//			This is called when the card has been inserted in the system.
+//			It should intialize the driver and set up the card here.
+//
+
+NewtonErr TNE2000Sample::Init()
+{
+	NewtonErr err = noErr;
+
+    EinsteinNetInit(this);
+	
+	//	Add Lantern request functions
+
+	fDriverAPI->AddEventHandler(kLanternSendBuffer, EVENT_HANDLER(SendBuffer));
+	fDriverAPI->AddEventHandler(kLanternSendCBufferList, EVENT_HANDLER(SendCBufferList));
+	fDriverAPI->AddEventHandler(kLanternGetDeviceAddress, EVENT_HANDLER(GetDeviceAddress));
+	fDriverAPI->AddEventHandler(kLanternAddMulticastAddress, EVENT_HANDLER(AddMulticastAddress));
+	fDriverAPI->AddEventHandler(kLanternDelMulticastAddress, EVENT_HANDLER(DelMulticastAddress));
+	fDriverAPI->AddEventHandler(kLanternGetLinkIntegrity, EVENT_HANDLER(GetLinkIntegrity));
+	
+	// Add Optional handlers
+	fDriverAPI->AddEventHandler(kLanternSetPromiscuous, EVENT_HANDLER(SetPromiscuous));
+	fDriverAPI->AddEventHandler(kLanternGetThroughput, EVENT_HANDLER(GetThroughput));
+	
+	// Add private timer services handler
+	fDriverAPI->AddEventHandler(kTemplateTimerEvent, EVENT_HANDLER(TimerExpired));
+	fTimerPosted = false;
+
+	return err;
+}
+
+
+//
+//	NewtonErr TTemplateDriver::Enable()
+//
+//		Enable: set up card and start Rx
+//
+//			This method is called whenever the services of the card are required by clients.
+//			It is called once when the first client requires services. Subsequent clients
+//			do not cause this call to be repeated. Clients of an Ethernet card can be AppleTalk,
+//			TCP/IP or a protoLanternClient from NewtonScript.
+//
+//			*** NOTE ***
+//
+//				It is imperative that you do not access the card memory unless
+//				the driver is enabled.  If you access card memory at any other
+//				time the Lantern subsystem may be halted.
+//
+NewtonErr TNE2000Sample::Enable()
+{
+	NewtonErr err = noErr;
+	Boolean powerOn;
+
+	// Turn on card power
+	fDriverAPI->PowerOn(&powerOn);									// Turn on card power
+	fStatus |= kStatusCardPowerOn;									// Remember it for destructor to power off
+
+	EinsteinNetEnable(this);
+
+	if (!fTimerPosted)
+	{
+		// This posts the event to our own task so we get the event
+		fTimerPosted = true;
+		*fTickTime = GetGlobalTime() + TTime(kTimerTime, kMilliseconds);
+		fDriverAPI->PostLocalEvent(fTickTime, kTemplateTimerEvent);
+	}
+	
+	return err;
+}
+
+
+//
+//	NewtonErr TTemplateDriver::Disable()
+//
+//		Disable: stop Rx and Tx operations
+//
+//			This method is called when there no more clients that require the services of the card,
+//			or it has been determined that the card is no longer available in the system.
+//
+
+NewtonErr TNE2000Sample::Disable()
+{
+	NewtonErr err = noErr;
+
+	fDriverAPI->PowerOff();											// Turn off card power and remember it
+	fStatus &= ~kStatusCardPowerOn;
+
+	EinsteinNetDisable(this);
+
+	return err;
+}
+
+
+//
+//	ULong TTemplateDriver::TimerExpired()
+//
+//		This is a general purpose timer routine.  You may implement as many different timers
+//		as needed for your particular implementation by adding different events and eventhandlers
+//		for each timer.
+//
+//		The three parts to defining this as a timer is to
+//
+//			1. Add an eventhandler to handle your specifically defined event
+//			2. Call PostLocalEvent with a delay for the time to send the event
+//			3. Implement the timer event handler method.
+//
+//		This timer periodically checks the link integrity (although for this chipset it cannot
+//		be detected so it just returns true).
+//
+//			You can send this event out to clients that the link status has changed. 
+//			This is not a necessary event but should be implemented if the link integrity 
+//			can be detected by interrupt (or by timed event polling). If you detect 
+//			the link is bad (packet errors say) you may send this event but should keep 
+//			accepting further requests.
+//
+//
+
+void TNE2000Sample::TimerExpired(void)
+{
+	if (fStatus & kStatusCardPowerOn)
+	{
+		EinsteinNetTimerExpired(this);
+		
+		// packetSize is the size of the Ethernet package *excluding* the CRC checksum
+		ULong packetSize = EinsteinNetDataAvailable(this);
+		if (packetSize) {
+			Ptr packetBuffer = fDriverAPI->NewPacketPtr(packetSize);
+			EinsteinNetReceiveData(this, packetBuffer, packetSize);
+			fDriverAPI->RxReady(packetBuffer, packetSize);
+		}
+
+		// Should grab the link Integrity and post it here
+		//Boolean linkIntegrity = GetLinkIntegrity();
+		//if (linkIntegrity != fLinkIntegrity)
+		//	fDriverAPI->PostEvent(kLanternLinkIntegrity, (ULong) (fLinkIntegrity = linkIntegrity));
+		
+		// This posts the event to our own task so we get the event
+		fTimerPosted = true;
+		*fTickTime = *fTickTime + TTime(kTimerTime, kMilliseconds);
+		fDriverAPI->PostLocalEvent(fTickTime, kTemplateTimerEvent);
+	}
+	else
+	{
+		// else timer services are cancelled.
+		fTimerPosted = false;
+	}
+}
+
+
+//
+//	NewtonErr TTemplateDriver::InterruptHandler()
+//
+//		Interrupt handler (called from task level, not in interrupt level)
+//
+//			This method is called after an interrupt line on the card is asserted.
+//			This method is dispatched as a priority event from the system interrupt handler
+//			and as such is not 'true' interrupt code, consequently it does not have to execute as 
+//			time critical or out-of-state code. However, as a priority event, it is dispatched
+//			before any other pending RPCs waiting on the driver. The current minimum time between
+//			a card interrupt and this method executing is apTemplateately 50 mSecs but could be longer
+//			depending on OS loading.
+//
+//			There is a fundamental assumption that a Lantern device is capable of buffering inbound 
+//			data for at least as long as required for the interrupt event to be dispatched. For high 
+//			bit rate cards (wired Ethernet) on a busy network (e.g. large AppleTalk nets) this may
+//			cause loss of packets. As a data link layer, lost packets are allowable, however some
+//			protocols, especially AppleTalk on the Newton, may be fragile to loosing certain packets.
+//
+
+void TNE2000Sample::InterruptHandler()
+{
+	NewtonErr err = noErr;
+
+	EinsteinNetInterruptHandler(this);
+	
+	fDriverAPI->InterruptDone();									// This call is optional (here it's not really needed)
+}
+
+
+
+
+//
+//	***** Lantern client service routines *****
+//
+
+//
+//	void	  TTemplateDriver::SendBuffer(Ptr thePacket, Size packetSize)
+//	void	  TTemplateDriver::SendCBufferList(CBufferList* thePacket)
+//
+//		Send a packet in the buffer ptr or the CBufferList
+//
+//			These events is sent to a driver when Lantern needs data to be sent. The
+//			driver should send data asynchronously. The driver should buffer data 
+//			to be sent as it may receive more data to send.
+//
+
+void TNE2000Sample::SendBuffer(Ptr thePacket, Size packetSize)
+{
+	NewtonErr err = noErr;
+
+	EinsteinNetSendBuffer(this);
+	
+	EinsteinNetSendPacket(this, (UChar*)thePacket, packetSize);
+
+	fDriverAPI->PostReply(err);
+}
+
+
+void TNE2000Sample::SendCBufferList(CBufferList* thePacket)
+{
+	NewtonErr err = noErr;
+
+	EinsteinNetSendCBufferList(this);
+	
+	Size packetSize = thePacket->GetSize();
+	thePacket->ResetMark();
+	UChar *tmpBuffer = (UChar*)malloc(packetSize);
+	thePacket->Getn(tmpBuffer, packetSize);
+	EinsteinNetSendPacket(this, tmpBuffer, packetSize);
+	free(tmpBuffer);
+
+	fDriverAPI->PostReply(err);
+}
+
+
+
+//
+//	void TTemplateDriver::GetDeviceAddress()
+//
+//		Return the 6-byte device Ethernet hardware address
+//
+
+void TNE2000Sample::GetDeviceAddress(UByte* addr, Size size)
+{
+	NewtonErr err = noErr;
+	
+	err = EinsteinNetGetDeviceAddress(this, addr, size);
+	
+	fDriverAPI->PostReply(err);
+}
+
+
+//
+//	void TTemplateDriver::AddMulticastAddress(UChar* addr)
+//
+//		Add a multicast address
+//
+
+void TNE2000Sample::AddMulticastAddress(UChar* addr)
+{
+	NewtonErr err = noErr;	
+
+	EinsteinNetAddMulticastAddress(this);
+
+	fDriverAPI->PostReply(err);										// Reply
+}
+
+
+//
+//	void TTemplateDriver::DelMulticastAddress(UChar* addr)
+//
+//		Delete a multicast address
+//
+
+void TNE2000Sample::DelMulticastAddress(UChar* addr)
+{
+	NewtonErr err = noErr;
+	
+	EinsteinNetDelMulticastAddress(this);
+
+	fDriverAPI->PostReply(err);										// Reply
+}
+
+
+
+//
+//	void TTemplateDriver::GetLinkIntegrity()
+//
+//		Get the link integrity flag
+//
+
+void TNE2000Sample::GetLinkIntegrity()
+{
+	NewtonErr err = noErr;
+
+	ULong linkIntegrity = true;
+
+	EinsteinNetGetLinkIntegrity(this);
+	
+	fDriverAPI->PostReply(err, 1, linkIntegrity);				// Reply
+}
+
+
+void TNE2000Sample::SetPromiscuous(ULong promiscuous)
+{
+	NewtonErr err = noErr;
+
+	EinsteinNetSetPromiscuous(this);
+
+	err = eLANTERN_DriverUnhandledEvent;
+	fDriverAPI->PostReply(err);				// Reply
+}
+
+
+void TNE2000Sample::GetThroughput(void)
+{
+	NewtonErr err = noErr;
+
+	EinsteinNetGetThroughput(this);
+
+	err = eLANTERN_DriverUnhandledEvent;
+	fDriverAPI->PostReply(err);				// Reply
+}
+
+//
+//	***** Card routines *****
+//
+
+#ifdef forDebug
+
+//
+//	void TTemplateDriver::DumpBuffer(UChar* buffer, ULong size, ULong startingAddr)
+//
+//		Dump buffer data
+//
+
+void TNE2000Sample::DumpBuffer(UChar* buffer, ULong size, ULong startingAddr)
+{
+	for (ULong i = 0; i < ((size+15) / 16); i++)
+	{
+		if ((i & 7) == 0)
+			printf("\n");
+
+		printf("%04X.%04X:", startingAddr + i*16, i*16);
+		for (ULong j = 0; j < 16; j++)
+		{
+			if ((j&3) == 0) printf(" ");
+			printf("%02X ", buffer[j]);
+			if (j == 7) printf("-");
+		}
+		printf("  ");
+
+		for (j = 0; j < 16; j++)
+		{
+			if ((j&7) == 0) printf(" ");
+			char ch = buffer[j];
+			if ((ch < ' ') || (127 < ch))
+				ch = '.';
+			printf("%c", ch);
+		}
+		printf("\n");
+
+		buffer += 16;
+	}
+	printf("\n");
+}
+
+
+
+#endif // forDebug
+
+
