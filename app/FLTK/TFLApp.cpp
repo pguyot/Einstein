@@ -180,6 +180,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "TFLApp.h"
 #include "TFLAppUI.h"
 #include "TFLAppWindow.h"
+#include "TFLNE2KImage.h"
 #include "TFLSettingsUI.h"
 #if USE_TOOLKIT
 #include "Toolkit/TToolkit.h"
@@ -859,7 +860,14 @@ TFLApp::InstallPackagesFromURI(const char* filenames)
 		// On macOS, dropped files are just absolute BSD paths, starting with a '/'
 		// On MSWindows, dropped files are absolute file paths, starting with 'C:\' or anothor drive name
 		// URLs start with http://, for example "http://www.unna.org/unna/games/Pyramid/Pyramid.pkg"
-		if (strncmp(fn, "http://", 7) == 0 || strncmp(fn, "https://", 8) == 0)
+		// Packages built into Einstein start with "einstein:", for example "einstein:NE2K.pkg"
+		if (strncmp(fn, "einstein:", 9) == 0)
+		{
+			if (strcmp(fn + 9, "NE2K.pkg") == 0)
+				mPlatformManager->InstallPackage(gNE2KPackage, sizeof(gNE2KPackage));
+			else
+				fl_message("Can't install\n%s\nEinstein has no such package built in.", fn);
+		} else if (strncmp(fn, "http://", 7) == 0 || strncmp(fn, "https://", 8) == 0)
 		{
 			if (strcasecmp(fl_filename_ext(fn), ".pkg") == 0)
 			{
@@ -1597,7 +1605,8 @@ extSymbol(Fl_Color c)
  'W' will create a Warning dialog for the user.
 
  Links starting with a 'U' will have the Unna link prepended. 'M' will add
- the messegapad.or link as defined in the Settings. Staring text with a 'W'
+ the messegapad.or link as defined in the Settings. 'E' installs a package
+ that is built into Einstein (see InstallPackagesFromURI()). Staring text with a 'W'
  will create a Warning dialog to the user, so they can cancel the operation.
  Links starting with a ':' will remain unchanged.
  Scripts must start with the letter 'S'.
@@ -1660,7 +1669,7 @@ TFLApp::UserActionInstallEssentials()
 						 "access the Internet with your Newton. "
 						 "NIE package was released by Apple in 1997.");
 		addInstallerPackage("Apple NIE packages", new StringList { "WThis will install four packages on your Newton\nwhich may take a little while.", "Uunna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg", "Uunna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg", "Uunna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg", "Uunna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg" });
-		addInstallerPackage("Einstein Network Card driver", new StringList { "MDownloads/Einstein/Essentials/NIE/NE2K.pkg" });
+		addInstallerPackage("Einstein Network Card driver", new StringList { "ENE2K.pkg" });
 		addInstallerScript("Open Internet Setup", new StringList { "SGetRoot().|InternetSetup:NIE|:Open();" });
 
 		addInstallerText("Choose the following Internet Setup:\n"

@@ -36,6 +36,8 @@ endif ()
 list ( APPEND fluid_sources
 	app/FLTK/TFLRexImage.cpp
 	app/FLTK/TFLRexImage.h
+	app/FLTK/TFLNE2KImage.cpp
+	app/FLTK/TFLNE2KImage.h
 	app/FLTK/TFLAppUI.fl
 	app/FLTK/TFLAppUI.cpp
 	app/FLTK/TFLAppUI.h
@@ -60,6 +62,23 @@ add_custom_command (
 	DEPENDS "${CMAKE_SOURCE_DIR}/_Data_/Einstein.rex"
 	        "${CMAKE_SOURCE_DIR}/cmake/EmbedResource.cmake"
 	COMMENT "Embedding _Data_/Einstein.rex"
+	VERBATIM
+)
+
+# Embed NE2K.pkg, the driver of the network card, so Install Essentials can
+# install the version that matches this Einstein
+add_custom_command (
+	OUTPUT "${CMAKE_SOURCE_DIR}/app/FLTK/TFLNE2KImage.cpp"
+	       "${CMAKE_SOURCE_DIR}/app/FLTK/TFLNE2KImage.h"
+	COMMAND ${CMAKE_COMMAND}
+		-D INPUT=${CMAKE_SOURCE_DIR}/_Data_/NE2K.pkg
+		-D OUTPUT_CPP=${CMAKE_SOURCE_DIR}/app/FLTK/TFLNE2KImage.cpp
+		-D OUTPUT_H=${CMAKE_SOURCE_DIR}/app/FLTK/TFLNE2KImage.h
+		-D NAME=gNE2KPackage
+		-P ${CMAKE_SOURCE_DIR}/cmake/EmbedResource.cmake
+	DEPENDS "${CMAKE_SOURCE_DIR}/_Data_/NE2K.pkg"
+	        "${CMAKE_SOURCE_DIR}/cmake/EmbedResource.cmake"
+	COMMENT "Embedding _Data_/NE2K.pkg"
 	VERBATIM
 )
 

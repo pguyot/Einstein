@@ -75,6 +75,8 @@ static std::string expand(std::string &inCmd) {
       return gApp->GetSettings()->mUnnaPath + inCmd.substr(1);
     case 'M':
       return gApp->GetSettings()->mMessagepadOrgPath + inCmd.substr(1);
+    case 'E':
+      return "einstein:" + inCmd.substr(1);
     case ':':
       return inCmd.substr(1);
     case 'S':

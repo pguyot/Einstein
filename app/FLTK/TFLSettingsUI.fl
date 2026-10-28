@@ -121,6 +121,8 @@ Function {expand(std::string &inCmd)} {open private return_type {std::string}
     return gApp->GetSettings()->mUnnaPath + inCmd.substr(1);
   case 'M':
     return gApp->GetSettings()->mMessagepadOrgPath + inCmd.substr(1);
+  case 'E':
+    return "einstein:" + inCmd.substr(1);
   case ':':
     return inCmd.substr(1);
   case 'S':

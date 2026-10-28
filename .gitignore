@@ -24,6 +24,8 @@ DerivedData/
 /app/Version_CMake.h
 /app/FLTK/TFLRexImage.h
 /app/FLTK/TFLRexImage.cpp
+/app/FLTK/TFLNE2KImage.h
+/app/FLTK/TFLNE2KImage.cpp
 /app/SDL/TSDLRexImage.h
 /Drivers/packages/MemDumper
 /Drivers/EinsteinPortEnabler/portenabler.ntkc

@@ -124,7 +124,8 @@ Einstein users want:
 - **Courier**, a web browser, and **ViewFrame**, a tool for programmers.
 
 Einstein downloads these packages from the Internet and installs them on the
-Newton.
+Newton. The Einstein Network Card driver is built into Einstein, so it always
+matches the emulator and needs no download.
 
 <!-- TODO(Matt): the outline mentions the built-in NewtTest. What is it for? -->
 <!-- NewtTest is a program that tests some Newton functionality and outputs

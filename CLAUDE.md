@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1 done (2026-10-28); next N2 |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2 done (2026-10-28); next A2 |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -1011,7 +1011,7 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | A5 | DNS in a worker thread (`getaddrinfo`), replies queued and delivered in `TimerExpired()`; fix the name parser | 0.5–1 |
 | A6 | Length checks, payload sizes from the IP header, the two natives | 0.5 |
 | N1 | NE2K.pkg built by the `Drivers` CMake (gcc, `ELFtoPKG`, the NewtonScript part added by `NE2000Driver/AddNSPart.py`), installed to `_Data_/NE2K.pkg` | 1 |
-| N2 | NE2K.pkg embedded in Einstein; Install Essentials installs it from there instead of the server | 0.5 |
+| N2 | ~~NE2K.pkg embedded in Einstein; Install Essentials installs it from there instead of the server~~ done 2026-10-28 | 0.5 |
 | B1 | ~~NE2K.pkg receives all queued packets per tick~~ done 2026-10-28 | 0.5 |
 | B2 | NE2K.pkg also receives on the card interrupt; first find out whether NewtonOS passes the card's IREQ to Lantern's `InterruptHandler` (`TPCMCIAController::RaiseInterrupt()` exists) | 0.5–1 |
 | N3 | Last: NE2K.pkg in the REx? First test what it does to an installed NE2K.pkg and to a NewtonOS without NIE (Matt, 2026-10-27) | ? |
@@ -1073,6 +1073,13 @@ web site. Whether it belongs in the REx is tested last.
   tick (one line in the driver), several segments in flight (with A3/A4).
 - Seen for A4: Einstein answers the Newton's FIN with an RST instead of an
   ACK (`kStatePeerDiscWaitForFIN`).
+
+*N2 (Claude, 2026-10-28; tested by Matt):* CMake embeds `_Data_/NE2K.pkg`
+as `gNE2KPackage` (`app/FLTK/TFLNE2KImage.cpp/.h`, generated like the REx
+image, not in git). Install Essentials links starting with `E` are built
+into Einstein (`expand()` in TFLSettingsUI.fl makes them `einstein:NE2K.pkg`),
+and `TFLApp::InstallPackagesFromURI()` installs them from memory. The
+messagepad.org download of NE2K.pkg is no longer used.
 
 *Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
 (`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`
