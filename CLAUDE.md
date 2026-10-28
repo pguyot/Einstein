@@ -1016,7 +1016,7 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | N2 | ~~NE2K.pkg embedded in Einstein; Install Essentials installs it from there instead of the server~~ done 2026-10-28 | 0.5 |
 | B1 | ~~NE2K.pkg receives all queued packets per tick~~ done 2026-10-28 | 0.5 |
 | B2 | NE2K.pkg also receives on the card interrupt; first find out whether NewtonOS passes the card's IREQ to Lantern's `InterruptHandler` (`TPCMCIAController::RaiseInterrupt()` exists) | 0.5–1 |
-| N3 | Last: NE2K.pkg in the REx? First test what it does to an installed NE2K.pkg and to a NewtonOS without NIE (Matt, 2026-10-27) | ? |
+| N3 | ~~Last: NE2K.pkg in the REx? First test what it does to an installed NE2K.pkg and to a NewtonOS without NIE (Matt, 2026-10-27)~~ dropped (Matt, 2026-10-28: not important) | ? |
 
 A1–A6 change only the emulator and can be tested one by one (Courier,
 Newt's Cape, Dock over TCP with NCX).
@@ -1219,8 +1219,11 @@ Einstein meanwhile; probably an idle timer in NIE (not checked).
 **State** (2026-10-28, Matt offline): pushed up to `8ea69f03`; A7
 (`b4efe073`), A2 (`2bf52396`), A3 (`6a4a5fc5`) and the stray-packet fix
 are committed, not pushed; A4, A5 and A6 too. Open: B2 (card interrupt), N3
-(NE2K.pkg in the REx), the "Broken pipe" case of A3 (timing), an upload
-test of the send buffer.
+(NE2K.pkg in the REx) dropped (Matt: not important), the "Broken pipe"
+case of A3 (timing), an upload test of the send buffer. Matt: A3 matters
+only for docking over NIE Ethernet: Dock_TCP (an extension by Paul Guyot)
+with NCX, which is not very reliable; a try showed some data exchange, but
+nothing useful happened (not looked into yet).
 
 *Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
 (`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`
