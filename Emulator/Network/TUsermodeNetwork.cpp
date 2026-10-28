@@ -888,6 +888,38 @@ KUInt32 Packet::mIndexCount = 1000;
  *
  * To handle new types of packets, a new class should be derived.
  */
+/**
+ * With EINSTEIN_NET_TRACE set, print a TCP packet: direction, ports, flags,
+ * sequence and ACK numbers, window, payload size and its first bytes.
+ * \param inDir "N>E" from the Newton, "E>N" to the Newton
+ */
+static void
+TraceTCP(const char* inDir, Packet* p)
+{
+	if (!TNetworkManager::sTrace || p->GetType() != Packet::kNetTypeIP
+		|| p->GetIPProtocol() != Packet::kIPProtocolTCP)
+		return;
+	KUInt16 f = p->GetTCPFlags();
+	char text[3 * 64 + 64 + 4];
+	char* t = text;
+	ssize_t n = p->GetTCPPayloadSize();
+	const KUInt8* d = p->GetTCPPayloadStart();
+	int shown = n < 64 ? (int) n : 64;
+	for (int i = 0; i < shown; i++)
+		t += snprintf(t, 4, "%02x ", d[i]);
+	*t++ = ' ';
+	for (int i = 0; i < shown; i++)
+		*t++ = (d[i] >= 32 && d[i] < 127) ? (char) d[i] : '.';
+	*t = 0;
+	TNetworkManager::Trace("  TCP %s %u>%u %c%c%c%c%c seq %u ack %u win %u, %d bytes %s",
+		inDir, p->GetTCPSrcPort(), p->GetTCPDstPort(),
+		(f & Packet::kTCPFlagSYN) ? 'S' : '.', (f & Packet::kTCPFlagACK) ? 'A' : '.',
+		(f & Packet::kTCPFlagPSH) ? 'P' : '.', (f & Packet::kTCPFlagFIN) ? 'F' : '.',
+		(f & Packet::kTCPFlagRST) ? 'R' : '.',
+		(unsigned) p->GetTCPSeq(), (unsigned) p->GetTCPAck(), (unsigned) p->GetTCPWindow(),
+		(int) n, n ? text : "");
+}
+
 class PacketHandler
 {
 public:
@@ -1142,6 +1174,15 @@ public:
 		KUInt32 seq = packet.GetTCPSeq();
 		KUInt32 size = (KUInt32) packet.GetTCPPayloadSize();
 		KUInt32 known = mNewtonPacketsSeq - seq; // bytes of this segment that we have
+		// A connection whose first data from the Newton is a Dock command is
+		// a Dock connection (see receive()).
+		if (!mDockChecked && seq == mSeqBase + 1 && size >= 8)
+		{
+			mDockChecked = true;
+			mDock = (memcmp(packet.GetTCPPayloadStart(), "newtdock", 8) == 0);
+			if (mDock)
+				mNet->Trace("  TCP port %u: Dock connection", myPort);
+		}
 		if ((KSInt32) known < 0 || known >= size)
 			return;
 		KUInt32 n = size - known;
@@ -1164,9 +1205,12 @@ public:
 			ssize_t n = ::send(mSocket, (const char*) mSendBuffer.data(), mSendBuffer.size(), kSendFlags);
 			if (n > 0)
 			{
+				if ((size_t) n < mSendBuffer.size())
+					mNet->Trace("  TCP port %u: host took %d of %d bytes", myPort, (int) n, (int) mSendBuffer.size());
 				mSendBuffer.erase(mSendBuffer.begin(), mSendBuffer.begin() + n);
 			} else if (n < 0 && wouldBlock())
 			{
+				mNet->Trace("  TCP port %u: host takes nothing now, %d bytes wait", myPort, (int) mSendBuffer.size());
 				break;
 			} else
 			{
@@ -1610,6 +1654,23 @@ public:
 	receive(KUInt32 inSize, KUInt32 inFlight)
 	{
 		KUInt8 buf[TUsermodeNetwork::kMaxRxBuffer];
+		// Dock_TCP on the Newton takes only one Dock command per segment and
+		// drops the rest, so a desktop command that the host's TCP sent
+		// together with the one before got lost. Every Dock command starts
+		// with "newtdock": cut before the next one. A cut inside a command's
+		// data (if it contains that text) is harmless, long commands come in
+		// several segments anyway.
+		if (mDock)
+		{
+			ssize_t peeked = ::recv(mSocket, (char*) buf, inSize, MSG_PEEK);
+			for (ssize_t i = 8; i + 8 <= peeked; i++)
+				if (memcmp(buf + i, "newtdock", 8) == 0)
+				{
+					mNet->Trace("  TCP port %u: Dock command split after %d of %d bytes", myPort, (int) i, (int) peeked);
+					inSize = (KUInt32) i;
+					break;
+				}
+		}
 		ssize_t avail = ::recv(mSocket, (char*) buf, inSize, 0);
 		if (avail == -1)
 		{
@@ -1724,6 +1785,8 @@ public:
 	static constexpr int kCloseTimeout = 30; ///<! seconds until a connection that does not finish closing is removed
 	std::chrono::steady_clock::time_point mCloseStart {}; ///<! when the connection started to close
 	static constexpr size_t kMaxSendBuffer = 16384; ///<! Newton data that the server did not take yet
+	bool mDockChecked = false; ///<! the first data of the Newton was looked at
+	bool mDock = false; ///<! a Dock connection: one Dock command per segment to the Newton
 	std::vector<KUInt8> mSendBuffer; ///<! Newton data that the server did not take yet
 	KUInt32 mWindow = kMaxSendBuffer; ///<! the window in our last packet to the Newton
 #ifdef MSG_NOSIGNAL
@@ -2644,6 +2707,7 @@ TUsermodeNetwork::SendPacket(KUInt8* data, KUInt32 size)
 	Trace("  Newton sends type 0x%04x, IP protocol %d, to port %d, %u bytes",
 		packet.GetType(), size > 23 ? packet.GetIPProtocol() : -1,
 		size > 37 ? packet.GetUDPDstPort() : -1, (unsigned) size);
+	TraceTCP("N>E", &packet);
 
 	// offer this package to all active handlers
 	PacketHandler* ph = mFirstPacketHandler;
@@ -2841,6 +2905,7 @@ void
 TUsermodeNetwork::Enqueue(Packet* inPacket)
 {
 	Trace("  reply queued, %d bytes", (int) inPacket->Size());
+	TraceTCP("E>N", inPacket);
 	mLastActivity = std::chrono::steady_clock::now();
 	// Tell NewtonOS through the card interrupt that a packet waits: the
 	// driver receives it in its InterruptHandler without waiting for its
@@ -2891,6 +2956,7 @@ TUsermodeNetwork::EnqueueAck(Packet* inPacket)
 			&& p->GetTCPDstPort() == inPacket->GetTCPDstPort())
 		{
 			Trace("  ACK replaces a queued ACK");
+			TraceTCP("E>N", inPacket);
 			memcpy(p->Data(), inPacket->Data(), inPacket->Size());
 			delete inPacket;
 			return;

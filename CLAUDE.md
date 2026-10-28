@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | A1–A7, B1, B2, N1, N2, tick done (2026-10-28) |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | done (2026-10-28), Dock over NIE works |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -1226,6 +1226,21 @@ instead of on the next tick (20–50 ms before). The tick stays adaptive; it
 still finds new server data while the Newton ACKs nothing. Idea for later:
 a thread that watches the sockets and raises the interrupt.
 
+*Docking over NIE (Claude, 2026-10-28; tested by Matt):* Dock_TCP (an
+extension by Paul Guyot) connects from the Newton to NCX on port 3679.
+The session stopped after the password: NCX sent its `pass` answer and its
+next request right after each other, the host's TCP merged them, Einstein
+read both into one segment, and Dock_TCP takes only one Dock command per
+segment, so the request was lost; the Newton then sent `helo` every 5 s
+until it gave up. Workaround in `TCPPacketHandler::receive()`: a
+connection whose first Newton data starts with `newtdock` is a Dock
+connection (`mDock`), and Einstein cuts the server data before the next
+`newtdock` (`MSG_PEEK`), one Dock command per segment. A cut inside a
+command's data would be harmless. Matt: a screenshot (a few KB from the
+Newton to NCX) comes through almost at once. The trace prints every TCP
+packet with flags, numbers, window and the first 64 payload bytes
+(`TraceTCP()`), and when the host does not take all of the Newton's data.
+
 Seen after A4 (Matt, 2026-10-28): NIE releases the link (DHCP type 7) about
 6.6 s after a clean close, 0.6 s after the old RST. Nothing waits in
 Einstein meanwhile, no packets either way; 6.5–7.0 s in every test (page,
@@ -1236,10 +1251,7 @@ it releases the link (not looked up in the disassembly).
 (`b4efe073`), A2 (`2bf52396`), A3 (`6a4a5fc5`) and the stray-packet fix
 are pushed; A4, A5, A6 too; B2 committed. Open: N3
 (NE2K.pkg in the REx) dropped (Matt: not important), the "Broken pipe"
-case of A3 (timing), an upload test of the send buffer. Matt: A3 matters
-only for docking over NIE Ethernet: Dock_TCP (an extension by Paul Guyot)
-with NCX, which is not very reliable; a try showed some data exchange, but
-nothing useful happened (not looked into yet).
+case of A3 (timing). Docking over NIE Ethernet works now, see below.
 
 *Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
 (`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`
