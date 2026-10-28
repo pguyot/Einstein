@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2, tick, A7, A2 done, A3 partly tested (2026-10-28) |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2, tick, A7, A2, A3, A4 done (2026-10-28); next A5 |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -980,14 +980,14 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
   `EAGAIN` loses data that the Newton was already ACKed for. No
   `MSG_NOSIGNAL`/`SO_NOSIGPIPE`: a send to a closed socket kills Einstein,
   unless the TCP serial driver happens to have set `SIGPIPE` to a handler.
-- Sequence numbers are never checked: a Newton retransmission (likely with
-  300 ms per packet) reaches the server twice.
-- `recv()` errors other than "no data" and RST from the Newton are
-  ignored; the connection stays forever.
+- ~~Sequence numbers are never checked: a Newton retransmission (likely with
+  300 ms per packet) reaches the server twice.~~ (A3)
+- ~~`recv()` errors other than "no data" and RST from the Newton are
+  ignored; the connection stays forever.~~ (A3, A4)
 - ~~Any TCP packet that matches no handler (a stray ACK or RST) creates one
   and opens an outgoing connection (with the 10 s wait).~~ (2026-10-28)
-- A failed connect leaks its socket and keeps the handler; no RST to the
-  Newton. No timeouts in the closing states.
+- ~~A failed connect leaks its socket and keeps the handler; no RST to the
+  Newton. No timeouts in the closing states.~~ (A2, A4)
 
 *Parsing*
 - TCP and UDP payload sizes come from the frame size, not the IP total
@@ -1009,7 +1009,7 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | A7 | ~~Several segments in flight, up to the window the Newton advertises~~ done 2026-10-28 | 0.5–1 |
 | A2 | ~~Non-blocking connect: "connecting" state checked in `timer()`, SYN-ACK when connected, RST on failure or after 10 s~~ done 2026-10-28 | 0.5 |
 | A3 | Send buffer per connection: keep what `send()` did not take, flush on the next ticks, ACK only what the host accepted; `MSG_NOSIGNAL`/`SO_NOSIGPIPE` (in the code, partly tested, see below) | 0.5–1 |
-| A4 | Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, ~~RST for unknown packets instead of connecting~~ (done), timeouts for the closing states | 1 |
+| A4 | ~~Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, RST for unknown packets instead of connecting, timeouts for the closing states~~ done 2026-10-28 | 1 |
 | A5 | DNS in a worker thread (`getaddrinfo`), replies queued and delivered in `TimerExpired()`; fix the name parser | 0.5–1 |
 | A6 | Length checks, payload sizes from the IP header, the two natives | 0.5 |
 | N1 | NE2K.pkg built by the `Drivers` CMake (gcc, `ELFtoPKG`, the NewtonScript part added by `NE2000Driver/AddNSPart.py`), installed to `_Data_/NE2K.pkg` | 1 |
@@ -1073,8 +1073,8 @@ web site. Whether it belongs in the REx is tested last.
 - Still limited: TCP sends one segment and waits for its ACK, so a download
   gets one segment per tick (at most about 14 KB/s). Next ideas: a shorter
   tick (one line in the driver), several segments in flight (with A3/A4).
-- Seen for A4: Einstein answers the Newton's FIN with an RST instead of an
-  ACK (`kStatePeerDiscWaitForFIN`).
+- ~~Seen for A4: Einstein answers the Newton's FIN with an RST instead of an
+  ACK (`kStatePeerDiscWaitForFIN`).~~ (A4)
 
 *N2 (Claude, 2026-10-28; tested by Matt):* CMake embeds `_Data_/NE2K.pkg`
 as `gNE2KPackage` (`app/FLTK/TFLNE2KImage.cpp/.h`, generated like the REx
@@ -1175,11 +1175,19 @@ while True:
     c.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0)); c.close()
 ```
 
+*A4, the rest (Claude, 2026-10-28; tested by Matt with the unna.org
+download):* an RST from the Newton removes the handler ("Newton reset the
+connection"). When the server closes first, the Newton's FIN gets an ACK
+instead of an RST, also when it comes with the ACK of our FIN in one packet
+("closed by the server"); the handler no longer overwrites its ACK number
+with the Newton's ACK. The closing states (`closing()`) end after 30 s
+(`kCloseTimeout`) at the latest ("Newton did not finish closing,
+removed"). The Newton now sends its FIN 0.2 s after the server's, not
+3–4 s.
+
 **State** (2026-10-28, Matt offline): pushed up to `8ea69f03`; A7
 (`b4efe073`), A2 (`2bf52396`), A3 (`6a4a5fc5`) and the stray-packet fix
-are committed, not pushed. Next: A4 (the rest: RST from the Newton, timeouts
-for the closing states, the RST answer to the Newton's FIN seen on
-2026-10-27), A5 (DNS), A6, B2, N3.
+are committed, not pushed; A4 too. Next: A5 (DNS), A6, B2, N3.
 
 *Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
 (`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`

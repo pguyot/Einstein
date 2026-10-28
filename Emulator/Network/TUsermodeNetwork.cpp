@@ -1063,6 +1063,16 @@ public:
 	}
 
 	/**
+	 * Go to one of the states that close the connection.
+	 */
+	void
+	closing(State inState)
+	{
+		state = inState;
+		mCloseStart = std::chrono::steady_clock::now();
+	}
+
+	/**
 	 * Take the payload of a Newton segment into the send buffer.
 	 * A segment that we have already (the Newton sent it again) is not taken
 	 * twice; a segment after a gap is dropped, the Newton sends it again
@@ -1336,6 +1346,13 @@ public:
 				mNet->Trace("  TCP port %u: Newton's window %u bytes", myPort, packet.GetTCPWindow());
 			mNewtonWindow = packet.GetTCPWindow();
 		}
+		// The Newton gave up on this connection: so do we.
+		if ((packet.GetTCPFlags() & Packet::kTCPFlagRST) && state != kStateDisconnected)
+		{
+			mNet->Trace("  TCP port %u: Newton reset the connection", myPort);
+			mNet->RemovePacketHandler(this);
+			return 1;
+		}
 		switch (state)
 		{
 			case kStateDisconnected:
@@ -1391,12 +1408,13 @@ public:
 					LOG_HEADER_DO(mNet->Log(reply, "| W E>N", __LINE__, 0, mSeqBase);)
 					mNet->Enqueue(reply);
 					// Wait for the newton to acknowledge the FIN and close on its side.
-					state = kStateNewwtonDiscWaitForACK;
+					closing(kStateNewwtonDiscWaitForACK);
 				}
 				return 1;
 			case kStateNewwtonDiscWaitForACK:
 				// Just close down.
 				// FIXME: we assume that this is an ACK packet
+				mNet->Trace("  TCP port %u: closed by the Newton", myPort);
 				LOG_PROTOCOL("| Newton closed. Removing TCP handler for port %u to %u.%u.%u.%u.",
 					theirPort,
 					(unsigned int) ((theirIP >> 24) & 0xff),
@@ -1406,30 +1424,21 @@ public:
 				mNet->RemovePacketHandler(this);
 				return 1;
 			case kStatePeerDiscWaitForACK:
-				// Peer sent a FIN, we forewarded if to Newton.
-				// Newton should send an ACK.
-				if ((packet.GetTCPFlags() & Packet::kTCPFlagACK))
-				{
-					mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
-				}
-				state = kStatePeerDiscWaitForFIN;
-				return 1;
 			case kStatePeerDiscWaitForFIN:
-				// Peer sent a FIN, we forewarded if to Newton.
-				// Newton did send an ACK.
-				// Newton should now send a FIN.
-				if ((packet.GetTCPFlags() & Packet::kTCPFlagFIN))
+				// The server closed, we sent a FIN to the Newton. The Newton
+				// ACKs it, and sends its own FIN, maybe in the same packet.
+				if (packet.GetTCPFlags() & Packet::kTCPFlagFIN)
 				{
-					mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
-					// Acknowldge
+					// ACK the Newton's FIN; then the connection is closed on
+					// both sides.
+					mNewtonPacketsSeq = packet.GetTCPSeq() + (KUInt32) packet.GetTCPPayloadSize() + 1;
 					Packet* reply = NewPacket(0);
-					//                    reply->SetTCPFlags(Packet::kTCPFlagACK);
-					reply->SetTCPFlags(Packet::kTCPFlagRST);
+					reply->SetTCPFlags(Packet::kTCPFlagACK);
 					UpdateChecksums(reply);
 					LOG_HEADER_DO(mNet->Log(reply, "| W E>N", __LINE__, 0, mSeqBase);)
 					mNet->Enqueue(reply);
-					// And now all communication on this socket should be done
 					close_socket();
+					mNet->Trace("  TCP port %u: closed by the server", myPort);
 					LOG_PROTOCOL("| Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u.",
 						theirPort,
 						(unsigned int) ((theirIP >> 24) & 0xff),
@@ -1437,6 +1446,12 @@ public:
 						(unsigned int) ((theirIP >> 8) & 0xff),
 						(unsigned int) (theirIP & 0xff));
 					mNet->RemovePacketHandler(this);
+				} else if (state == kStatePeerDiscWaitForACK
+					&& (packet.GetTCPFlags() & Packet::kTCPFlagACK)
+					&& packet.GetTCPAck() == mEinsteinPacketsSeq)
+				{
+					// The Newton has our FIN, its own FIN follows.
+					state = kStatePeerDiscWaitForFIN;
 				}
 				return 1;
 			default:
@@ -1459,7 +1474,15 @@ public:
 		switch (state)
 		{
 			case kStateNewwtonDiscWaitForACK:
-				// TODO: count down the timer and remove myself if expired
+			case kStatePeerDiscWaitForACK:
+			case kStatePeerDiscWaitForFIN:
+				// A Newton that never sends its last ACK or FIN must not keep
+				// the handler forever.
+				if (std::chrono::steady_clock::now() - mCloseStart > std::chrono::seconds(kCloseTimeout))
+				{
+					mNet->Trace("  TCP port %u: Newton did not finish closing, removed", myPort);
+					mNet->RemovePacketHandler(this);
+				}
 				return;
 			case kStateDisconnected:
 				// TODO: this should not happen
@@ -1541,7 +1564,7 @@ public:
 			mEinsteinPacketsSeq++;
 			LOG_PROTOCOL("  `---- Einstein > Newton -- done ---------");
 			// Wait for the newton to acknowledge the FIN and and send a FIN to peer.
-			state = kStatePeerDiscWaitForACK;
+			closing(kStatePeerDiscWaitForACK);
 			return false;
 		}
 		LOG_PROTOCOL("  ,---- Einstein > Newton -- TCP ----------");
@@ -1627,6 +1650,8 @@ public:
 	static const KUInt32 kMinSegment = 256; ///<! no smaller segments while others are in flight
 	static constexpr int kConnectTimeout = 10; ///<! seconds until a connect that gets no answer fails
 	std::chrono::steady_clock::time_point mConnectStart {}; ///<! when the host started to connect
+	static constexpr int kCloseTimeout = 30; ///<! seconds until a connection that does not finish closing is removed
+	std::chrono::steady_clock::time_point mCloseStart {}; ///<! when the connection started to close
 	static constexpr size_t kMaxSendBuffer = 16384; ///<! Newton data that the server did not take yet
 	std::vector<KUInt8> mSendBuffer; ///<! Newton data that the server did not take yet
 	KUInt32 mWindow = kMaxSendBuffer; ///<! the window in our last packet to the Newton
