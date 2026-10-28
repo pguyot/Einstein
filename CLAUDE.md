@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2, tick, A7 done (2026-10-28); next A2 |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2, tick, A7, A2 done (2026-10-28); next A3 |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -967,8 +967,8 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
   slow", Matt 2010, `dddd9e4e`).
 
 *Blocking calls (freezes)*
-- `TCPPacketHandler::connect()` waits in `select()` up to 10 s, again for
-  every SYN the Newton retries.
+- ~~`TCPPacketHandler::connect()` waits in `select()` up to 10 s, again for
+  every SYN the Newton retries.~~ (A2)
 - DNS: `gethostbyname()` blocks for the whole lookup (deprecated, not
   thread-safe).
 - `TNetworkManager::Run()` holds `mSelectMutex` during a `select()` without
@@ -1007,7 +1007,7 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | A1 | ~~Remove the 0.25 s throttle; a newer pure ACK of a connection replaces a queued one~~ done 2026-10-28 | 0.5 |
 | T | ~~Adaptive tick: 20 ms for a second after the last packet, 100 ms otherwise~~ done 2026-10-28 | 0.5 |
 | A7 | ~~Several segments in flight, up to the window the Newton advertises~~ done 2026-10-28 | 0.5–1 |
-| A2 | Non-blocking connect: "connecting" state checked in `timer()`, SYN-ACK when connected, RST on failure or after 10 s | 0.5 |
+| A2 | ~~Non-blocking connect: "connecting" state checked in `timer()`, SYN-ACK when connected, RST on failure or after 10 s~~ done 2026-10-28 | 0.5 |
 | A3 | Send buffer per connection: keep what `send()` did not take, flush on the next ticks, ACK only what the host accepted; `MSG_NOSIGNAL`/`SO_NOSIGPIPE` | 0.5–1 |
 | A4 | Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, RST for unknown packets instead of connecting, timeouts for the closing states | 1 |
 | A5 | DNS in a worker thread (`getaddrinfo`), replies queued and delivered in `TimerExpired()`; fix the name parser | 0.5–1 |
@@ -1114,6 +1114,16 @@ No retransmission: packets go straight to Lantern (A4).
 a burst. Before: 4 KB/s. fltk.org: 3.2 s instead of 4.9 s, there Courier's
 drawing is the limit (the Newton ACKs after 400–940 ms). The connect to
 www.unna.org froze the emulator for 1.14 s (A2).
+
+*A2 (Claude, 2026-10-28; tested by Matt: unna.org, and an address that
+does not exist):* `connect()` starts a non-blocking connect and goes to
+`kStateConnecting`; `checkConnecting()` in `timer()` polls with a zero
+timeout `select()` (write set, and the exception set for Windows) and
+`SO_ERROR`. Connected: `accept()` sends the SYN-ACK. Error, or no answer
+in 10 s (`kConnectTimeout`): `refuse()` answers the Newton's SYN with
+RST+ACK and removes the handler (before, it stayed with its socket, and
+every repeated SYN blocked again). SYNs the Newton repeats meanwhile are
+ignored.
 
 *Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
 (`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`

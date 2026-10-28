@@ -918,6 +918,7 @@ public:
 		kStatePeerDiscWaitForACK, // Peer disconnected, we sent a FIN, wait for an ACK from Newton
 		kStatePeerDiscWaitForFIN, // Peer disconnected, we got the ACK, now we wait for a FIN from Newton
 		kStateNewwtonDiscWaitForACK, // Newton requested a disconnect, we sent a FIN+ACK, waiting for final ACK
+		kStateConnecting, // the host connects to the server, the Newton waits for the SYN ACK
 		kStateError,
 
 		kStateClosed, // States according to TCP State Transition Diagram
@@ -1063,9 +1064,9 @@ public:
 	 * Connect to a client.
 	 * The class was just created. The first package that we expect
 	 * is the SYN package that opens the socket and connects to the
-	 * remote system.
-	 * \return  1 if the connection was established
-	 * \return -1 if no connection could be established
+	 * remote system. The socket connects without blocking; timer() checks
+	 * when it is done and answers the Newton then.
+	 * \return  1 if the SYN was handled (the handler may be gone already)
 	 */
 	int
 	connect(Packet& packet)
@@ -1074,9 +1075,7 @@ public:
 		// create a socket
 		mSocket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (mSocket == INVALID_SOCKET)
-			return -1;
-		// FIXME: should we remove the handler? Should we remove some kind of not-ACK package?
-		// TODO: send a NACK package to the Newton
+			return refuse("can't create a socket");
 
 		// tell the socket who to connect to and connect
 		struct sockaddr_in sa;
@@ -1085,9 +1084,7 @@ public:
 		sa.sin_port = htons(theirPort);
 		sa.sin_addr.s_addr = htonl(theirIP);
 
-		// perform some presets for the socket
-		// - connect() will block. Put this socket into non-blocking first
-		// - get the current settings and add the flag to avoid blocking
+		// connect() would block. Put this socket into non-blocking mode first.
 		int err;
 #if TARGET_OS_WIN32
 		u_long arg = 1;
@@ -1096,51 +1093,75 @@ public:
 		int fl = fcntl(mSocket, F_GETFL);
 		err = fcntl(mSocket, F_SETFL, fl | O_NONBLOCK);
 		if (err == -1)
-			return -1;
+			return refuse(strerror(errno));
 #endif
 
-		// Since we are in non-blocking mode, ::connect will return with an error
+		// Since we are in non-blocking mode, ::connect usually returns with an
+		// error that says it is in progress.
 		err = ::connect(mSocket, (struct sockaddr*) &sa, sizeof(sa));
-		// We expect an error
-		if (err == -1)
-		{
-			// ::connect is initiated, but we have no reply yet
+		if (err == 0)
+			return accept();
 #if TARGET_OS_WIN32
-			if (WSAGetLastError() == WSAEWOULDBLOCK)
+		if (WSAGetLastError() != WSAEWOULDBLOCK)
+			return refuse("can't connect");
 #else
-			if (errno == EINPROGRESS)
+		if (errno != EINPROGRESS)
+			return refuse(strerror(errno));
 #endif
-			{
-				struct timeval timeout = { };
-				timeout.tv_sec = 10;
-				timeout.tv_usec = 0;
-				fd_set set;
-				FD_ZERO(&set);
-				FD_SET(mSocket, &set);
-				// wait for a few seconds for a reply
-				err = ::select(mSocket + 1, NULL, &set, NULL, &timeout);
-				// if ::select failed, it return -1
-				// if there was a timout, ::select returns 0
-				// if the connection was established, ::select returns 1
-			} else
-			{
-				LOG_PROTOCOL("| TTCPPacketHandler::connect: Can't connect (%d.%d.%d.%d:%d): %s.",
-					theirIP >> 24, (theirIP >> 16) & 255, (theirIP >> 8) & 255, theirIP & 255, theirPort,
-					strerror(errno));
-				return -1;
-			}
-			// No connection could be established
-			if (err == -1 || err == 0)
-			{ // error or timeout
-				LOG_PROTOCOL("| TTCPPacketHandler::connect: Can't connect (::select) (%d.%d.%d.%d:%d): %s.",
-					theirIP >> 24, (theirIP >> 16) & 255, (theirIP >> 8) & 255, theirIP & 255, theirPort,
-					strerror(errno));
-				return -1;
-			}
-			// no error, we are connected. Fall through.
-		}
+		mConnectStart = std::chrono::steady_clock::now();
+		state = kStateConnecting;
+		return 1;
+	}
 
-		// succesful connection, return a SYN ACK to the Newton.
+	/**
+	 * Check if the socket that connects without blocking is done.
+	 * Called by timer() in kStateConnecting. The handler may be gone when
+	 * this returns.
+	 */
+	void
+	checkConnecting()
+	{
+		fd_set wset, eset;
+		FD_ZERO(&wset);
+		FD_SET(mSocket, &wset);
+		FD_ZERO(&eset);
+		FD_SET(mSocket, &eset);
+		struct timeval timeout = {};
+		// Writable when connected or failed, on Windows a failure is an exception.
+		int n = ::select((int) mSocket + 1, NULL, &wset, &eset, &timeout);
+		if (n == 0)
+		{
+			if (std::chrono::steady_clock::now() - mConnectStart > std::chrono::seconds(kConnectTimeout))
+				refuse("no answer");
+			return;
+		}
+		if (n < 0)
+		{
+			refuse("select failed");
+			return;
+		}
+		int sockErr = 0;
+		socklen_t len = sizeof(sockErr);
+		if (::getsockopt(mSocket, SOL_SOCKET, SO_ERROR, (char*) &sockErr, &len) != 0 || sockErr != 0)
+		{
+			refuse(sockErr ? strerror(sockErr) : "can't connect");
+			return;
+		}
+		accept();
+	}
+
+	/**
+	 * The host is connected to the server: return a SYN ACK to the Newton.
+	 * \return 1
+	 */
+	int
+	accept()
+	{
+		if (state == kStateConnecting)
+		{
+			std::chrono::duration<double> t = std::chrono::steady_clock::now() - mConnectStart;
+			mNet->Trace("  TCP port %u: connected after %.3f s", myPort, t.count());
+		}
 		Packet* reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
 		reply->SetTCPFlags(Packet::kTCPFlagACK | Packet::kTCPFlagSYN);
 		reply->SetTCPHeaderLength(24);
@@ -1153,6 +1174,35 @@ public:
 		LOG_HEADER_DO(mNet->Log(reply, "| W E>N", __LINE__, 0, mSeqBase);)
 		mNet->Enqueue(reply);
 		state = kStateConnectionWaitACK;
+		return 1;
+	}
+
+	/**
+	 * The host could not connect: answer the Newton's SYN with a reset, so
+	 * NewtonOS reports the error instead of trying again, and remove this
+	 * handler. `this` is gone when this returns.
+	 * \param inReason for the trace
+	 * \return 1
+	 */
+	int
+	refuse(const char* inReason)
+	{
+		mNet->Trace("  TCP port %u: can't connect to %u.%u.%u.%u:%u (%s), reset",
+			myPort,
+			(unsigned int) ((theirIP >> 24) & 0xff),
+			(unsigned int) ((theirIP >> 16) & 0xff),
+			(unsigned int) ((theirIP >> 8) & 0xff),
+			(unsigned int) (theirIP & 0xff),
+			theirPort, inReason);
+		LOG_PROTOCOL("| TTCPPacketHandler::connect: Can't connect: %s.", inReason);
+		Packet* reply = NewPacket(0);
+		reply->SetTCPFlags(Packet::kTCPFlagRST | Packet::kTCPFlagACK);
+		reply->SetTCPSeq(0);
+		reply->SetTCPAck(mSeqBase + 1);
+		UpdateChecksums(reply);
+		LOG_HEADER_DO(mNet->Log(reply, "| W E>N", __LINE__, 0, mSeqBase);)
+		mNet->Enqueue(reply);
+		mNet->RemovePacketHandler(this);
 		return 1;
 	}
 
@@ -1189,6 +1239,9 @@ public:
 			case kStateDisconnected:
 				// FIXME: we assume that the original packet is a correct SYN packet
 				return connect(packet);
+			case kStateConnecting:
+				// The Newton sends its SYN again while the host still connects.
+				return 1;
 			case kStateConnectionWaitACK:
 				mEinsteinPacketsSeq = packet.GetTCPAck();
 				state = kStateConnected;
@@ -1305,6 +1358,9 @@ public:
 				return;
 			case kStateDisconnected:
 				// TODO: this should not happen
+				return;
+			case kStateConnecting:
+				checkConnecting();
 				return;
 			case kStateConnected:
 			case kStateConnectedWaitACK:
@@ -1424,6 +1480,8 @@ public:
 	KUInt32 mNewtonWindow = 0; ///<! the Newton takes this many bytes after mNewtonAck
 	static const int kMaxSegmentsPerTick = 4; ///<! not more segments per connection and tick
 	static const KUInt32 kMinSegment = 256; ///<! no smaller segments while others are in flight
+	static constexpr int kConnectTimeout = 10; ///<! seconds until a connect that gets no answer fails
+	std::chrono::steady_clock::time_point mConnectStart {}; ///<! when the host started to connect
 	KUInt16 theirID = 0;
 	enum State state = kStateDisconnected;
 	int mSocket = INVALID_SOCKET;
@@ -1437,6 +1495,7 @@ const char* TCPPacketHandler::kStateNameList[] {
 	"kStatePeerDiscWaitForACK",
 	"kStatePeerDiscWaitForFIN",
 	"kStateNewtonDiscWaitForACK",
+	"kStateConnecting",
 	"kStateError"
 };
 
