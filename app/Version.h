@@ -29,13 +29,13 @@
 #include "Version_CMake.h"
 #else
 #define PROJECT_NAME "Einstein"
-#define PROJECT_VER "2026.10.26"
+#define PROJECT_VER "2026.10.28"
 #define PROJECT_VER_MAJOR "2026"
 #define PROJECT_VER_MINOR "10"
-#define PROJECT_VER_PATCH "26"
+#define PROJECT_VER_PATCH "28"
 #define COMPILE_TIME_YYYY 2026
 #define COMPILE_TIME_MM 10
-#define COMPILE_TIME_DD 26
+#define COMPILE_TIME_DD 28
 #endif
 
 #define VERSION_STRING PROJECT_NAME " " PROJECT_VER

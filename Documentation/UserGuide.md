@@ -333,6 +333,9 @@ the Extras drawer) and tap
 
 <!-- TODO(Matt): which Dock programs work with Einstein (and the Network Client), and how to set them up -->
 
+Dock also works over the emulated network card, see
+[Docking over the network](#docking-over-the-network).
+
 
 ## 10. Networking
 
@@ -353,6 +356,26 @@ card:
    - Configuration > **DHCP Server**
    - Card > **PCMCIA Ethernet**
    - Domain Name > **einstein.net**
+
+The driver of the network card is built into Einstein. After updating
+Einstein, install it again with **Help › Install Essentials...**, so it
+matches the new version.
+
+### Docking over the network
+
+With the network card, the Newton can dock with **NCX** on your computer
+over TCP/IP instead of the serial port:
+
+1. Install **DockTCP** by Paul Guyot on the Newton, a TCP/IP plug-in for
+   the Dock with a Bonjour browser: download
+   [Dock_TCP-1.3-en.pkg](http://www.kallisys.com/files/newton/DCL/Dock_TCP-1.3-en.pkg)
+   (from [kallisys.com](http://www.kallisys.com)) and drop it onto the
+   Einstein window.
+2. Set NCX to wait for a connection over TCP/IP. It uses port 3679.
+   <!-- TODO(Matt): the name of this setting in NCX -->
+3. In the Newton's Dock, connect over TCP/IP to your computer. If it is the
+   computer Einstein runs on, `127.0.0.1` works even when the macOS firewall
+   blocks other incoming connections.
 
 ## 11. For developers: Toolkit and Monitor
 
