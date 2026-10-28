@@ -1145,7 +1145,8 @@ ignored.
 - Tested by Matt: downloads as before; a server that resets every
   connection (`reset_server.py`: accept, `SO_LINGER` 0, close): trace
   "connection failed (Connection reset by peer), reset", Courier gives up.
-  That server reset about 3 s late, so Courier's sends had gone through.
+  That server reset about 3 s late (macOS asked first whether Python may
+  take incoming connections), so Courier's sends had gone through.
 - Not tested yet: a send into a socket that is already reset (locally,
   macOS answers the first `send()` with "Broken pipe" at once; that is the
   `SIGPIPE` case; test with a serial driver other than TCP, so its
