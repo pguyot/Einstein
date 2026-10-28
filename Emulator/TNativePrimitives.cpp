@@ -2890,6 +2890,28 @@ TNativePrimitives::ExecuteHostCallNative(KUInt32 inInstruction)
 void
 TNativePrimitives::ExecuteNetworkManagerNative(KUInt32 inInstruction)
 {
+	// With EINSTEIN_NET_TRACE set, trace the calls of the NE2000 driver:
+	// every 10th timer tick, the packet sizes, and all other natives except
+	// DataAvailable (0x14), which is traced below when a packet waits.
+	if (TNetworkManager::sTrace)
+	{
+		static unsigned sTicks = 0;
+		KUInt32 id = inInstruction & 0xFF;
+		if (id == 0x11)
+		{
+			if ((sTicks++ % 10) == 0)
+				TNetworkManager::Trace("timer tick %u", sTicks);
+		} else if (id == 0x0a)
+		{
+			TNetworkManager::Trace("SendPacket %u bytes", (unsigned) mProcessor->GetRegister(2));
+		} else if (id == 0x15)
+		{
+			TNetworkManager::Trace("ReceiveData %u bytes", (unsigned) mProcessor->GetRegister(2));
+		} else if (id != 0x14)
+		{
+			TNetworkManager::Trace("native 0x%02x", (unsigned) id);
+		}
+	}
 	switch (inInstruction & 0xFF)
 	{
 			// Debugging Helpers
@@ -3098,6 +3120,8 @@ TNativePrimitives::ExecuteNetworkManagerNative(KUInt32 inInstruction)
 			{
 				size = mNetworkManager->DataAvailable();
 			}
+			if (size)
+				TNetworkManager::Trace("DataAvailable %u bytes", (unsigned) size);
 			mProcessor->SetRegister(0, size);
 			if (LOG_NETWORKMANAGER)
 			{

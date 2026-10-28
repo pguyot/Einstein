@@ -117,6 +117,12 @@ public:
 	void Enqueue(Packet*);
 
 	///
+	/// Add a pure TCP ACK to the Fifo, or let it replace a pure ACK of the
+	/// same connection that is still waiting there.
+	///
+	void EnqueueAck(Packet*);
+
+	///
 	/// Remove the oldest packet from the Fifo.
 	///
 	void DropPacket();

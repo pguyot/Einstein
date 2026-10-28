@@ -37,6 +37,7 @@
 
 #define kPacketAddrSize 					(6)
 #define kTimerTime							(100)				// Milliseconds
+#define kMaxRxPerTick						(16)				// Packets handed to Lantern per timer tick
 //
 //	TTemplateDriver	Template Ethernet Driver driver
 //

@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1 done (2026-10-27); next B + A1, N2 |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1 done (2026-10-28); next N2 |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -937,13 +937,14 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 
 **How it works**
 - Single-threaded and polled: every call comes from the NE2000 driver
-  package (not part of the REx) (`NE2K.pkg`, source `Drivers/NE2000Driver/NE2000.cpp`, old
-  Mac line endings) through the natives 0x0a00…0x0a15
+  package (not part of the REx) (`NE2K.pkg`, source
+  `Drivers/NE2000Driver/NE2000.cpp`) through the natives 0x0a00…0x0a15
   (`TNativePrimitives.cpp` around line 2970), on the emulator thread. A
   blocking socket call freezes the Newton.
 - The driver's timer runs every 100 ms (`kTimerTime`). Each tick calls
   `EinsteinNetTimerExpired` (all handlers poll their sockets), then
-  `EinsteinNetDataAvailable` and receives at most one packet. The card
+  `EinsteinNetDataAvailable` and receives the waiting packets, at most 16
+  (`kMaxRxPerTick`; one before B1). The card
   interrupt is not used for receiving (`InterruptHandler` only calls a
   native that does nothing).
 - Handlers: DHCP and ARP (answered at once, fixed addresses), DNS to
@@ -953,12 +954,12 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 **Findings** (Claude, 2026-10-27)
 
 *Throttling*
-- `DataAvailable()` hands out a packet only every 0.25 s; with 100 ms ticks
+- ~~`DataAvailable()` hands out a packet only every 0.25 s~~ (A1); with 100 ms ticks
   one packet per 300 ms, ACKs included. Added in 2021 (`cdab4332`). Matt: a
   proof of concept, when the emulation was slow and NewtonOS was easily
   overwhelmed, probably also because of handshake bugs; never redone.
-- The driver takes at most one packet per tick: 10 packets/s, about
-  14 KB/s, at best.
+- ~~The driver takes at most one packet per tick: 10 packets/s, about
+  14 KB/s, at best.~~ (B1)
 - TCP `timer()` reads the socket only when the whole FIFO is empty and then
   waits for the Newton's ACK of that one segment; every Newton segment gets
   its own ACK packet, which waits for its slot. Download and upload are
@@ -1003,7 +1004,7 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 
 | Step | What | Days |
 |---|---|---|
-| A1 | Remove the 0.25 s throttle; a newer pure ACK of a connection replaces a queued one | 0.5 |
+| A1 | ~~Remove the 0.25 s throttle; a newer pure ACK of a connection replaces a queued one~~ done 2026-10-28 | 0.5 |
 | A2 | Non-blocking connect: "connecting" state checked in `timer()`, SYN-ACK when connected, RST on failure or after 10 s | 0.5 |
 | A3 | Send buffer per connection: keep what `send()` did not take, flush on the next ticks, ACK only what the host accepted; `MSG_NOSIGNAL`/`SO_NOSIGPIPE` | 0.5–1 |
 | A4 | Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, RST for unknown packets instead of connecting, timeouts for the closing states | 1 |
@@ -1011,7 +1012,8 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | A6 | Length checks, payload sizes from the IP header, the two natives | 0.5 |
 | N1 | NE2K.pkg built by the `Drivers` CMake (gcc, `ELFtoPKG`, the NewtonScript part added by `NE2000Driver/AddNSPart.py`), installed to `_Data_/NE2K.pkg` | 1 |
 | N2 | NE2K.pkg embedded in Einstein; Install Essentials installs it from there instead of the server | 0.5 |
-| B | NE2K.pkg receives all queued packets per tick, and on the card interrupt instead of only the timer | 1 |
+| B1 | ~~NE2K.pkg receives all queued packets per tick~~ done 2026-10-28 | 0.5 |
+| B2 | NE2K.pkg also receives on the card interrupt; first find out whether NewtonOS passes the card's IREQ to Lantern's `InterruptHandler` (`TPCMCIAController::RaiseInterrupt()` exists) | 0.5–1 |
 | N3 | Last: NE2K.pkg in the REx? First test what it does to an installed NE2K.pkg and to a NewtonOS without NIE (Matt, 2026-10-27) | ? |
 
 A1–A6 change only the emulator and can be tested one by one (Courier,
@@ -1054,16 +1056,30 @@ web site. Whether it belongs in the REx is tested last.
   removed. The new package is `_Data_/NE2K.pkg` (target `NE2K.pkg`,
   installed with the REx).
 
-**State** (2026-10-27, Matt on a break): N1 committed (`d885b2df`), not
-pushed. In the working tree, not committed: a temporary trace with
-`EINSTEIN_NET_TRACE` (every NE2000 native in
-`TNativePrimitives::ExecuteNetworkManagerNative`, every 10th timer tick,
-`SendPacket`/`DataAvailable`/`ReceiveData` sizes; in `TUsermodeNetwork`
-the type of each Newton packet, DHCP request types, queued replies). Keep
-it for B and A1 (it shows about one packet per tick, queued ACKs waiting,
-and four seconds of idle ticks at the end of a page), then decide whether
-it stays like `EINSTEIN_SOUND_TRACE`. Proposed next: B and A1 together
-(their effect shows best in the trace), then N2.
+*A1 and B1 (Claude, 2026-10-28; tested by Matt: DHCP, DNS, Courier loads a page):*
+- The driver hands Lantern all waiting packets per tick, at most 16
+  (`kMaxRxPerTick`); a packet that gets no buffer from `NewPacketPtr()`
+  waits for the next tick (the old code would have written to address 0).
+- `DataAvailable()` has no throttle any more.
+  `TUsermodeNetwork::EnqueueAck()`: the ACK for a Newton segment replaces a
+  pure ACK of the same connection that still waits in the FIFO (ACK numbers
+  are cumulative). Courier sends a request in three segments and gets one
+  ACK.
+- The trace showed every reply handed over in the tick it was queued; from
+  DHCP to the answer of the server took about two seconds. The three
+  seconds before the Newton's FIN are Courier's own, nothing waited.
+- Still limited: TCP sends one segment and waits for its ACK, so a download
+  gets one segment per tick (at most about 14 KB/s). Next ideas: a shorter
+  tick (one line in the driver), several segments in flight (with A3/A4).
+- Seen for A4: Einstein answers the Newton's FIN with an RST instead of an
+  ACK (`kStatePeerDiscWaitForFIN`).
+
+*Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
+(`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`
+without a packet, every 10th timer tick, the packet sizes; in
+`TUsermodeNetwork` the type of each Newton packet, DHCP request types,
+queued replies and replaced ACKs. It stays (Matt, 2026-10-28), like
+`EINSTEIN_SOUND_TRACE`.
 
 **To clarify**
 - ~~**Q11.1** Build NE2K.pkg with the MPW Makefile through mosrun, or move it

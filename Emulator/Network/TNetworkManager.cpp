@@ -28,10 +28,34 @@
 #include <K/Threads/TCondVar.h>
 #include <K/Threads/TMutex.h>
 #include <K/Threads/TThread.h>
+#include <chrono>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #if TARGET_OS_WIN32
 #else
 #include <sys/select.h>
 #endif
+
+const bool TNetworkManager::sTrace = (getenv("EINSTEIN_NET_TRACE") != nullptr);
+
+// -------------------------------------------------------------------------- //
+//  * Trace(const char* inFormat, ...)
+// -------------------------------------------------------------------------- //
+void
+TNetworkManager::Trace(const char* inFormat, ...)
+{
+	if (!sTrace)
+		return;
+	static const auto sStart = std::chrono::steady_clock::now();
+	std::chrono::duration<double> t = std::chrono::steady_clock::now() - sStart;
+	fprintf(stderr, "net %8.3f ", t.count());
+	va_list args;
+	va_start(args, inFormat);
+	vfprintf(stderr, inFormat, args);
+	va_end(args);
+	fprintf(stderr, "\n");
+}
 
 // -------------------------------------------------------------------------- //
 //  * TNetworkManager(TLog* inLog)

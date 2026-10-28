@@ -314,10 +314,16 @@ void TNE2000Sample::TimerExpired(void)
 	{
 		EinsteinNetTimerExpired(this);
 		
-		// packetSize is the size of the Ethernet package *excluding* the CRC checksum
-		ULong packetSize = EinsteinNetDataAvailable(this);
-		if (packetSize) {
+		// Hand all waiting packets to Lantern, at most kMaxRxPerTick. packetSize
+		// is the size of the Ethernet package *excluding* the CRC checksum. A
+		// packet that gets no buffer stays in Einstein until the next tick.
+		for (int i = 0; i < kMaxRxPerTick; i++) {
+			ULong packetSize = EinsteinNetDataAvailable(this);
+			if (!packetSize)
+				break;
 			Ptr packetBuffer = fDriverAPI->NewPacketPtr(packetSize);
+			if (!packetBuffer)
+				break;
 			EinsteinNetReceiveData(this, packetBuffer, packetSize);
 			fDriverAPI->RxReady(packetBuffer, packetSize);
 		}

@@ -140,6 +140,17 @@ public:
 		return mLog;
 	}
 
+	///
+	/// Set when Einstein runs with EINSTEIN_NET_TRACE set.
+	///
+	static const bool sTrace;
+
+	///
+	/// With EINSTEIN_NET_TRACE set, print one line about the NE2000 driver
+	/// or a packet to stderr, with the time in seconds.
+	///
+	static void Trace(const char* inFormat, ...);
+
 	void LogBuffer(KUInt8* data, ssize_t size);
 	void LogPacket(KUInt8* data, ssize_t size);
 	void LogARPPacket(KUInt8* data, ssize_t size);

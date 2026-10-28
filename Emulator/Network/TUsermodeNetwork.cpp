@@ -159,7 +159,6 @@
 #include "TUsermodeNetwork.h"
 #include "Emulator/Log/TLog.h"
 
-#include <chrono>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1205,7 +1204,7 @@ public:
 					reply->SetTCPAck(mNewtonPacketsSeq);
 					UpdateChecksums(reply);
 					LOG_HEADER_DO(mNet->Log(reply, "| W E>N", __LINE__, 0, mSeqBase);)
-					mNet->Enqueue(reply);
+					mNet->EnqueueAck(reply);
 				}
 				if (packet.GetTCPFlags() & Packet::kTCPFlagFIN)
 				{
@@ -1956,6 +1955,7 @@ public:
 		(void) mLog;
 		//        LOG_PROTOCOL(",---- Einstein < Newton -----------------");
 		LOG_PROTOCOL("| DHCP request %d:", packet.Get8(0x011c));
+		TNetworkManager::Trace("  DHCP request type %d", packet.Get8(0x011c));
 		LOG_HEADER_DO(net->Log(&packet, "| W E<N", __LINE__);)
 
 		// For Newton packages, Option 53 seems to be locked at this offset
@@ -2126,6 +2126,9 @@ TUsermodeNetwork::SendPacket(KUInt8* data, KUInt32 size)
 	int result = 0;
 	Packet packet(data, size, 0); // convert data into a packet
 	LOG_PROTOCOL(",---- Einstein < Newton -----------------");
+	Trace("  Newton sends type 0x%04x, IP protocol %d, to port %d, %u bytes",
+		packet.GetType(), size > 23 ? packet.GetIPProtocol() : -1,
+		size > 37 ? packet.GetUDPDstPort() : -1, (unsigned) size);
 
 	// offer this package to all active handlers
 	PacketHandler* ph = mFirstPacketHandler;
@@ -2224,22 +2227,10 @@ TUsermodeNetwork::GetDeviceAddress(KUInt8* data, KUInt32 size)
 KUInt32
 TUsermodeNetwork::DataAvailable()
 {
-	// static std::chrono::time_point<std::chrono::steady_clock> delayBase = 0;
-	static auto delayBase = std::chrono::steady_clock::now();
-
 	if (mLastPacket)
-	{
-		auto now = std::chrono::steady_clock::now();
-		std::chrono::duration<double> delayDelta = now - delayBase;
-		auto seconds = std::chrono::duration_cast<std::chrono::duration<double>>(delayDelta);
-		if (seconds.count() < 0.25)
-			return 0;
-		delayBase = now;
 		return (KUInt32) mLastPacket->Size();
-	} else
-	{
+	else
 		return 0;
-	}
 }
 
 /**
@@ -2316,6 +2307,7 @@ TUsermodeNetwork::RemovePacketHandler(PacketHandler* ph)
 void
 TUsermodeNetwork::Enqueue(Packet* inPacket)
 {
+	Trace("  reply queued, %d bytes", (int) inPacket->Size());
 	Packet* n = mFirstPacket;
 	if (n)
 		n->mPrev = inPacket;
@@ -2324,6 +2316,39 @@ TUsermodeNetwork::Enqueue(Packet* inPacket)
 	inPacket->mNext = n;
 	inPacket->mPrev = NULL;
 	mFirstPacket = inPacket;
+}
+
+/**
+ * Add a pure TCP ACK to the pipe.
+ * ACK numbers count all data received so far, so a newer ACK of a connection
+ * says everything an older one says. If an ACK of the same connection still
+ * waits in the pipe, the new one takes its place, and NewtonOS gets one ACK
+ * instead of one per segment it sent.
+ *
+ * \param inPacket a TCP packet with only the ACK flag and no payload
+ */
+void
+TUsermodeNetwork::EnqueueAck(Packet* inPacket)
+{
+	for (Packet* p = mFirstPacket; p; p = p->mNext)
+	{
+		if (p->Size() == inPacket->Size()
+			&& p->GetType() == Packet::kNetTypeIP
+			&& p->GetIPProtocol() == Packet::kIPProtocolTCP
+			&& p->GetTCPFlags() == Packet::kTCPFlagACK
+			&& p->GetTCPPayloadSize() == 0
+			&& p->GetIPSrcIP() == inPacket->GetIPSrcIP()
+			&& p->GetIPDstIP() == inPacket->GetIPDstIP()
+			&& p->GetTCPSrcPort() == inPacket->GetTCPSrcPort()
+			&& p->GetTCPDstPort() == inPacket->GetTCPDstPort())
+		{
+			Trace("  ACK replaces a queued ACK");
+			memcpy(p->Data(), inPacket->Data(), inPacket->Size());
+			delete inPacket;
+			return;
+		}
+	}
+	Enqueue(inPacket);
 }
 
 /**
