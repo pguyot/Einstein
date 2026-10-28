@@ -146,6 +146,12 @@ public:
 	///
 	void Log(class Packet* p, const char* label, int line, int adjSeq = 0, int adjAck = 0);
 
+	///
+	/// The resolver of the DNS handler, which looks up names in a thread of
+	/// its own.
+	///
+	class DNSResolver* GetDNSResolver();
+
 private:
 	// Linked list of packet handlers.
 	PacketHandler* mFirstPacketHandler { nullptr };
@@ -154,6 +160,9 @@ private:
 	// Double linked list of packets, used as a Fifo.
 	Packet* mFirstPacket { nullptr };
 	Packet* mLastPacket { nullptr };
+
+	// Looks up host names for the Newton, nullptr until the first query.
+	class DNSResolver* mDNSResolver { nullptr };
 
 	// When the last packet was sent by the Newton or queued for it.
 	std::chrono::steady_clock::time_point mLastActivity {};

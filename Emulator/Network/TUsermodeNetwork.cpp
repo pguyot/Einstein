@@ -159,9 +159,16 @@
 #include "TUsermodeNetwork.h"
 #include "Emulator/Log/TLog.h"
 
+#include <condition_variable>
+#include <list>
+#include <memory>
+#include <mutex>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
+#include <thread>
+#include <vector>
 
 #if TARGET_OS_WIN32
 #include <WinSock2.h>
@@ -173,7 +180,6 @@ typedef int socklen_t;
 #else
 #include <arpa/inet.h>
 #include <errno.h>
-#include <vector>
 #include <fcntl.h>
 #include <net/if.h>
 #include <netdb.h>
@@ -2019,6 +2025,137 @@ void GetPrimaryIp(char* buffer, size_t buflen)
  * Check if this UDP request is a name lookup for our non-existing
  * Nameserver and use the Host network interface to synthesize a reply.
  */
+/**
+ * Looks up host names for the DNS handler in a thread of its own, so a slow
+ * name server does not stop the emulator. The emulator thread adds queries
+ * and collects the answers in TUsermodeNetwork::TimerExpired(). The thread
+ * keeps the shared state alive, so the resolver can go away while a lookup
+ * still runs.
+ */
+class DNSResolver
+{
+public:
+	struct Query {
+		std::vector<KUInt8> request; ///< the Newton's frame up to the end of the question
+		std::string name;
+		KUInt16 id = 0;
+		KUInt16 port = 0; ///< the Newton's UDP port
+		bool started = false;
+		bool done = false;
+		bool found = false;
+		KUInt32 ip = 0;
+		std::chrono::steady_clock::time_point start;
+	};
+
+	~DNSResolver()
+	{
+		{
+			std::lock_guard<std::mutex> lock(mShared->mutex);
+			mShared->quit = true;
+		}
+		mShared->cv.notify_all();
+	}
+
+	/**
+	 * Add a query, unless the same one is still waiting for its answer (the
+	 * Newton asks again when the answer takes long).
+	 */
+	void
+	Add(Query&& inQuery)
+	{
+		{
+			std::lock_guard<std::mutex> lock(mShared->mutex);
+			for (auto& q : mShared->queries)
+				if (q.id == inQuery.id && q.port == inQuery.port && q.name == inQuery.name)
+					return;
+			inQuery.start = std::chrono::steady_clock::now();
+			mShared->queries.push_back(std::move(inQuery));
+			if (!mThreadStarted)
+			{
+				mThreadStarted = true;
+				std::thread(Run, mShared).detach();
+			}
+		}
+		mShared->cv.notify_all();
+	}
+
+	/**
+	 * Take the queries that have their answer.
+	 */
+	std::list<Query>
+	TakeDone()
+	{
+		std::list<Query> done;
+		std::lock_guard<std::mutex> lock(mShared->mutex);
+		for (auto it = mShared->queries.begin(); it != mShared->queries.end();)
+		{
+			auto next = std::next(it);
+			if (it->done)
+				done.splice(done.end(), mShared->queries, it);
+			it = next;
+		}
+		return done;
+	}
+
+private:
+	struct Shared {
+		std::mutex mutex;
+		std::condition_variable cv;
+		std::list<Query> queries;
+		bool quit = false;
+	};
+
+	static void
+	Run(std::shared_ptr<Shared> shared)
+	{
+		std::unique_lock<std::mutex> lock(shared->mutex);
+		for (;;)
+		{
+			Query* q = nullptr;
+			shared->cv.wait(lock, [&] {
+				if (shared->quit)
+					return true;
+				for (auto& query : shared->queries)
+					if (!query.started)
+					{
+						q = &query;
+						return true;
+					}
+				return false;
+			});
+			if (shared->quit)
+				return;
+			q->started = true;
+			std::string name = q->name;
+			lock.unlock();
+			// getaddrinfo() is thread safe, gethostbyname() is not.
+			struct addrinfo hints = {};
+			hints.ai_family = AF_INET;
+			hints.ai_socktype = SOCK_STREAM;
+			struct addrinfo* res = nullptr;
+			int err = ::getaddrinfo(name.c_str(), nullptr, &hints, &res);
+			KUInt32 ip = 0;
+			if (err == 0 && res)
+				ip = ntohl(((struct sockaddr_in*) res->ai_addr)->sin_addr.s_addr);
+			if (res)
+				::freeaddrinfo(res);
+			lock.lock();
+			// The list only changes under the lock, and only done queries
+			// are taken out, so q is still valid.
+			q->found = (err == 0 && ip != 0);
+			q->ip = ip;
+			q->done = true;
+		}
+	}
+
+	std::shared_ptr<Shared> mShared { std::make_shared<Shared>() };
+	bool mThreadStarted = false;
+};
+
+/**
+ * This class handles DNS requests to the name server that DHCP gave the
+ * Newton. The host looks up the names (DNSResolver).
+ */
 class DNSPacketHandler : public UDPPacketHandler
 {
 public:
@@ -2036,7 +2173,7 @@ public:
 		// DNS: Transaction ID: 0x241a
 		if (packet.GetType() != Packet::kNetTypeIP)
 			return 0;
-		if (packet.GetIPProtocol() != Packet::kIPProtocolUDP)
+		if (packet.Size() < 0x36 || packet.GetIPProtocol() != Packet::kIPProtocolUDP)
 			return 0;
 		if (packet.GetUDPDstPort() != 53) // DNS requests are sent to port 53
 			return 0;
@@ -2048,7 +2185,6 @@ public:
 		LOG_PROTOCOL("| DNS request.");
 		LOG_HEADER_DO(net->Log(&packet, "| W E<N", __LINE__);)
 
-		//      KUInt16 queryID = packet.Get16(0x0028);
 		KUInt16 flags = packet.Get16(0x002C);
 		if ((flags & 0x8b50) != 0x0100)
 		{
@@ -2061,59 +2197,90 @@ public:
 			LOG_PROTOCOL("| No queries found.");
 			return 0;
 		}
-		KUInt8 name[128]; // Size limit is 64...
-		KUInt8 space = 126;
-		KUInt8 *d = name, *s = packet.Data() + 0x0036;
+
+		// The name of the first question, as labels with their length. The
+		// end of the data is given by the IP header; the frame may have
+		// padding after it.
+		size_t end = 14 + (size_t) packet.GetIPTotalLength();
+		if (end > (size_t) packet.Size())
+			end = (size_t) packet.Size();
+		const KUInt8* data = packet.Data();
+		size_t ix = 0x0036;
+		std::string name;
 		for (;;)
 		{
-			KUInt8 n = *s++;
+			if (ix >= end)
+				return 1; // cut off: drop it
+			KUInt8 n = data[ix++];
 			if (n == 0)
 				break;
-			for (KUInt8 i = 0; i < n; i++)
-			{
-				*d++ = *s++;
-				if (space-- == 0)
-					break;
-			}
-			if (*s)
-			{
-				*d++ = '.';
-				if (space-- == 0)
-					break;
-			}
+			// No compression in a question, names have 255 bytes at most.
+			if ((n & 0xc0) || ix + n > end || name.size() + n + 1 > 255)
+				return 1;
+			if (!name.empty())
+				name += '.';
+			name.append((const char*) data + ix, n);
+			ix += n;
 		}
-		*d++ = 0;
-		ssize_t ix = s - packet.Data();
+		if (ix + 4 > end)
+			return 1;
 		KUInt16 qType = packet.Get16((KUInt32) ix);
-		ix += 2;
-		KUInt16 qClass = packet.Get16((KUInt32) ix);
-		ix += 2;
-		if (qType != 1 && qClass != 1)
+		KUInt16 qClass = packet.Get16((KUInt32) ix + 2);
+		ix += 4;
+
+		std::vector<KUInt8> request(data, data + ix);
+		if (qType != 1 || qClass != 1)
 		{
-			LOG_PROTOCOL("| Unsupported query type %d %d.", qType, qClass);
-			return 0;
+			// Only A records of the Internet class: answer "not implemented".
+			net->Trace("  DNS %s: type %d class %d not supported", name.c_str(), qType, qClass);
+			net->Enqueue(MakeReply(net, request, 4, 0));
+			return 1;
 		}
 
-		KUInt32 ip = MakeIP(127, 0, 0, 1);
-		struct hostent* host = gethostbyname((char*) name);
-		int err = 0;
-		if (host && (host->h_addrtype == AF_INET))
-		{
-			// dwError = WSAGetLastError(), h_errno
-			KUInt8* ipp = (KUInt8*) host->h_addr_list[0];
-			ip = (ipp[0] << 24) | (ipp[1] << 16) | (ipp[2] << 8) | (ipp[3]);
-			LOG_PROTOCOL("| Host \"%s\" ip at %d.%d.%d.%d.", name, ipp[0], ipp[1], ipp[2], ipp[3]);
-		} else
-		{
-			LOG_PROTOCOL("| Host \"%s\" not found!", name);
-			err = 1;
-		}
+		DNSResolver::Query q;
+		q.request = std::move(request);
+		q.name = name;
+		q.id = packet.Get16(0x002a);
+		q.port = packet.GetUDPSrcPort();
+		net->GetDNSResolver()->Add(std::move(q));
+		return 1;
+	}
 
-		KUInt32 replySize = (KUInt32) packet.Size();
-		if (!err)
-			replySize += 16;
+	/**
+	 * Hand the answers that the resolver found to the Newton.
+	 */
+	static void
+	Deliver(TUsermodeNetwork* net, DNSResolver* resolver)
+	{
+		for (auto& q : resolver->TakeDone())
+		{
+			std::chrono::duration<double> t = std::chrono::steady_clock::now() - q.start;
+			if (q.found)
+				net->Trace("  DNS %s: %u.%u.%u.%u after %.3f s", q.name.c_str(),
+					(unsigned) (q.ip >> 24), (unsigned) ((q.ip >> 16) & 255),
+					(unsigned) ((q.ip >> 8) & 255), (unsigned) (q.ip & 255), t.count());
+			else
+				net->Trace("  DNS %s: not found after %.3f s", q.name.c_str(), t.count());
+			net->Enqueue(MakeReply(net, q.request, q.found ? 0 : 3, q.ip));
+		}
+	}
+
+	/**
+	 * Build the reply to a DNS request.
+	 * \param request the Newton's frame up to the end of the first question
+	 * \param rcode 0 with an answer, 3 for no such name, 4 for not implemented
+	 * \param ip the address in the answer
+	 */
+	static Packet*
+	MakeReply(TUsermodeNetwork* net, const std::vector<KUInt8>& request, int rcode, KUInt32 ip)
+	{
+		auto mLog = net->GetLog();
+		(void) mLog;
+		KUInt32 ix = (KUInt32) request.size();
+		KUInt32 replySize = ix + (rcode == 0 ? 16 : 0);
 		Packet* reply = new Packet(nullptr, replySize);
-		memcpy(reply->Data(), packet.Data(), packet.Size());
+		memcpy(reply->Data(), request.data(), request.size());
+		Packet packet((KUInt8*) request.data(), (ssize_t) request.size(), 0);
 		KUInt32 size = replySize - 42;
 
 		/* --- Sample request and reply.
@@ -2152,40 +2319,33 @@ public:
 		reply->SetUDPDstPort(packet.GetUDPSrcPort());
 		reply->SetUDPLength(size + 8);
 
-		if (err)
+		// DNS: a reply with the first question, and the answer if there is one
+		reply->Set16(0x002c, (KUInt16) (0x8180 | rcode));
+		reply->Set16(0x002e, 0x0001); // one question
+		reply->Set16(0x0030, rcode == 0 ? 0x0001 : 0x0000); // answers
+		reply->Set16(0x0032, 0x0000); // no authority records
+		reply->Set16(0x0034, 0x0000); // no additional records
+		if (rcode == 0)
 		{
-			// 3 = no such name
-			reply->Set16(0x002c, 0x8183);
-			reply->Set16(0x0030, 0x0000); // no reply
-		} else
-		{
-			reply->Set16(0x002c, 0x8180);
-			reply->Set16(0x0030, 0x0001); // one reply
-			// ix was calculated when we read the incomming package
-			reply->Set16((KUInt32) ix, 0xc00c);
+			reply->Set16(ix, 0xc00c);
 			ix += 2; // Name
-			reply->Set16((KUInt32) ix, 0x0001);
+			reply->Set16(ix, 0x0001);
 			ix += 2; // Type
-			reply->Set16((KUInt32) ix, 0x0001);
+			reply->Set16(ix, 0x0001);
 			ix += 2; // Class
-			reply->Set32((KUInt32) ix, 0x00000e10);
+			reply->Set32(ix, 0x00000e10);
 			ix += 4; // TTL
-			reply->Set16((KUInt32) ix, 0x0004);
+			reply->Set16(ix, 0x0004);
 			ix += 2; // Record Length
-			reply->Set32((KUInt32) ix, ip);
+			reply->Set32(ix, ip);
 			ix += 4; // IP
 		}
 		net->SetIPv4Checksum(reply->Data(), reply->Size());
 		net->SetUDPChecksum(reply->Data(), reply->Size());
 
-		//        net->LogBuffer(reply->Data(), reply->Size());
-
 		LOG_PROTOCOL("| DNS reply.");
 		LOG_HEADER_DO(net->Log(reply, "| W E>N", __LINE__);)
-
-		net->Enqueue(reply);
-
-		return 1;
+		return reply;
 	}
 };
 
@@ -2386,6 +2546,8 @@ TUsermodeNetwork::~TUsermodeNetwork()
 	// release all package handlers
 	while (mFirstPacketHandler)
 		RemovePacketHandler(mFirstPacketHandler);
+	// a lookup that still runs ends on its own
+	delete mDNSResolver;
 	// release all other resources
 #if TARGET_OS_WIN32
 	WSACleanup();
@@ -2485,9 +2647,22 @@ TUsermodeNetwork::TimerExpired()
 		ph->timer();
 		ph = pNext;
 	}
+	if (mDNSResolver)
+		DNSPacketHandler::Deliver(this, mDNSResolver);
 	if (std::chrono::steady_clock::now() - mLastActivity < std::chrono::seconds(1))
 		return kFastTickMS;
 	return kSlowTickMS;
+}
+
+/**
+ * The resolver of the DNS handler, created with the first query.
+ */
+DNSResolver*
+TUsermodeNetwork::GetDNSResolver()
+{
+	if (!mDNSResolver)
+		mDNSResolver = new DNSResolver();
+	return mDNSResolver;
 }
 
 /**

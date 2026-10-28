@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2, tick, A7, A2, A3, A4 done (2026-10-28); next A5 |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2, tick, A7, A2, A3, A4, A5 done (2026-10-28); next A6 |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -969,8 +969,8 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 *Blocking calls (freezes)*
 - ~~`TCPPacketHandler::connect()` waits in `select()` up to 10 s, again for
   every SYN the Newton retries.~~ (A2)
-- DNS: `gethostbyname()` blocks for the whole lookup (deprecated, not
-  thread-safe).
+- ~~DNS: `gethostbyname()` blocks for the whole lookup (deprecated, not
+  thread-safe).~~ (A5)
 - `TNetworkManager::Run()` holds `mSelectMutex` during a `select()` without
   timeout; `TTapNetwork::ReceiveData()` then blocks the emulator until the
   next packet (Cocoa only).
@@ -994,9 +994,9 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
   length (padding would become data).
 - No length checks before reading fields (DHCP reads offset 0x116 of any
   UDP packet to port 67, the DNS name parser reads past the packet).
-- The DNS name parser can overflow its 128-byte stack buffer (the counter
+- ~~The DNS name parser can overflow its 128-byte stack buffer (the counter
   wraps, only the inner loop stops); the type check uses `&&` instead of
-  `||`, so AAAA queries get an A answer.
+  `||`, so AAAA queries get an A answer.~~ (A5)
 - Natives: `TimerExpired` (0x11) has no null check; `GetDeviceAddress`
   copies `size` bytes from a 6-byte array.
 
@@ -1010,7 +1010,7 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | A2 | ~~Non-blocking connect: "connecting" state checked in `timer()`, SYN-ACK when connected, RST on failure or after 10 s~~ done 2026-10-28 | 0.5 |
 | A3 | Send buffer per connection: keep what `send()` did not take, flush on the next ticks, ACK only what the host accepted; `MSG_NOSIGNAL`/`SO_NOSIGPIPE` (in the code, partly tested, see below) | 0.5–1 |
 | A4 | ~~Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, RST for unknown packets instead of connecting, timeouts for the closing states~~ done 2026-10-28 | 1 |
-| A5 | DNS in a worker thread (`getaddrinfo`), replies queued and delivered in `TimerExpired()`; fix the name parser | 0.5–1 |
+| A5 | ~~DNS in a worker thread (`getaddrinfo`), replies queued and delivered in `TimerExpired()`; fix the name parser~~ done 2026-10-28 | 0.5–1 |
 | A6 | Length checks, payload sizes from the IP header, the two natives | 0.5 |
 | N1 | NE2K.pkg built by the `Drivers` CMake (gcc, `ELFtoPKG`, the NewtonScript part added by `NE2000Driver/AddNSPart.py`), installed to `_Data_/NE2K.pkg` | 1 |
 | N2 | ~~NE2K.pkg embedded in Einstein; Install Essentials installs it from there instead of the server~~ done 2026-10-28 | 0.5 |
@@ -1185,9 +1185,23 @@ with the Newton's ACK. The closing states (`closing()`) end after 30 s
 removed"). The Newton now sends its FIN 0.2 s after the server's, not
 3–4 s.
 
+*A5 (Claude, 2026-10-28; tested by Matt: fltk.org, a name that does not
+exist):* `DNSResolver` looks names up with `getaddrinfo()` (IPv4) in one
+detached worker thread, started with the first query; thread and resolver
+share their state through a `shared_ptr`, so quitting does not wait for a
+slow lookup. `DNSPacketHandler::canHandle()` parses the query (every length
+checked against the IP length, names up to 255 bytes) and hands it over; a
+repeated query with the same ID, port and name is ignored while it runs.
+`TimerExpired()` delivers the answers (`DNSPacketHandler::Deliver()`).
+Other types than A/IN get "not implemented" (RCODE 4). The reply is built
+from the request up to the end of the question (one question, no other
+records), so padding no longer ends up in it. Seen: lookups of 56–379 ms
+while the ticks went on; NIE tries the domain from its Internet Setup as a
+suffix (Matt's: `some.net`; Einstein's DHCP says `Einstein.local`).
+
 **State** (2026-10-28, Matt offline): pushed up to `8ea69f03`; A7
 (`b4efe073`), A2 (`2bf52396`), A3 (`6a4a5fc5`) and the stray-packet fix
-are committed, not pushed; A4 too. Next: A5 (DNS), A6, B2, N3.
+are committed, not pushed; A4 and A5 too. Next: A6, B2, N3.
 
 *Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
 (`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`
