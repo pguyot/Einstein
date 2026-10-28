@@ -964,6 +964,8 @@ public:
 
 		// SYN-ACK packet should have ACK set to client SEQ + 1
 		mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
+		mNewtonWindow = packet.GetTCPWindow();
+		mNet->Trace("  TCP port %u: Newton's window %u bytes", myPort, mNewtonWindow);
 		LOG_PROTOCOL("| Adding TCP handler for port %u to %u.%u.%u.%u.",
 			theirPort,
 			(unsigned int) ((theirIP >> 24) & 0xff),
@@ -1172,6 +1174,16 @@ public:
 			return 0;
 		LOG_PROTOCOL("|       Send: state=%s.", StateName());
 		LOG_HEADER_DO(mNet->Log(&packet, "| W E<N", __LINE__, mSeqBase, 0);)
+		// Remember how far the Newton has received our data, and how much
+		// more it takes (an older ACK that arrives late changes nothing).
+		if ((packet.GetTCPFlags() & Packet::kTCPFlagACK)
+			&& (KSInt32) (packet.GetTCPAck() - mNewtonAck) >= 0)
+		{
+			mNewtonAck = packet.GetTCPAck();
+			if (packet.GetTCPWindow() != mNewtonWindow)
+				mNet->Trace("  TCP port %u: Newton's window %u bytes", myPort, packet.GetTCPWindow());
+			mNewtonWindow = packet.GetTCPWindow();
+		}
 		switch (state)
 		{
 			case kStateDisconnected:
@@ -1286,9 +1298,6 @@ public:
 	void
 	timer() override
 	{
-		// Don't do anything until Newton picked up all packages.
-		if (mNet->PacketAvailable()) // DataAvailable())
-			return;
 		switch (state)
 		{
 			case kStateNewwtonDiscWaitForACK:
@@ -1297,56 +1306,84 @@ public:
 			case kStateDisconnected:
 				// TODO: this should not happen
 				return;
-			case kStateConnected: {
-				KUInt8 buf[TUsermodeNetwork::kMaxRxBuffer];
-				ssize_t avail = ::recv(mSocket, (char*) buf, sizeof(buf), 0);
-				if (avail == -1)
+			case kStateConnected:
+			case kStateConnectedWaitACK:
+				// Send segments as long as the Newton's window has room for
+				// them. With only one segment in flight, the Newton would ACK
+				// each one after its delayed ACK timer (200 ms and more); with
+				// two, it ACKs at once.
+				for (int i = 0; i < kMaxSegmentsPerTick; i++)
 				{
-					// FIXME: do stuff depending on the error that occured
-				} else if (avail == 0)
-				{
-					// Peer has closed connection.
-					LOG_PROTOCOL("  ,---- Einstein > Newton -- TCP ----------");
-					LOG_PROTOCOL("  | Peer is closing the connection. Send FIN.");
-					// Foreward a FIN request to the Newton
-					Packet* reply = NewPacket(0);
-					reply->SetTCPFlags(Packet::kTCPFlagFIN | Packet::kTCPFlagACK);
-					reply->SetTCPAck(mNewtonPacketsSeq);
-					UpdateChecksums(reply);
-					LOG_HEADER_DO(mNet->Log(reply, "  | W E>N", __LINE__, 0, mSeqBase);)
-					mNet->Enqueue(reply);
-					// Increment sequence number for last packet.
-					mEinsteinPacketsSeq++;
-					LOG_PROTOCOL("  `---- Einstein > Newton -- done ---------");
-					// Wait for the newton to acknowledge the FIN and and send a FIN to peer.
-					state = kStatePeerDiscWaitForACK;
-					break;
-				} else if (avail > 0)
-				{
-					LOG_PROTOCOL("  ,---- Einstein > Newton -- TCP ----------");
-					LOG_PROTOCOL("  | W>E N Received %d bytes payload.", (int) avail);
-					Packet* reply = NewPacket(avail);
-					memcpy(reply->GetTCPPayloadStart(), buf, avail);
-					reply->SetTCPFlags(Packet::kTCPFlagACK /*|Packet::kTCPFlagPSH*/);
-					reply->SetTCPAck(mNewtonPacketsSeq);
-					UpdateChecksums(reply);
-					LOG_PROTOCOL("  | W E N Forwarding %d bytes total, %d bytes payload.",
-						34 + reply->GetTCPHeaderLength() + reply->GetTCPPayloadSize(),
-						reply->GetTCPPayloadSize());
-					LOG_HEADER_DO(mNet->Log(reply, "  | W E>N", __LINE__, 0, mSeqBase);)
-					mNet->Enqueue(reply);
-					mEinsteinPacketsSeq += avail;
-					LOG_PROTOCOL("  `---- Einstein > Newton -- done ---------");
-					// The following line blocks the handler from sending new
-					// packages until the last sent package was acknowledged
-					// bei NewtonOS.
-					state = kStateConnectedWaitACK;
+					KUInt32 inFlight = mEinsteinPacketsSeq - mNewtonAck;
+					KUInt32 room = (mNewtonWindow > inFlight) ? mNewtonWindow - inFlight : 0;
+					// Fill the window, but no tiny segments while others are in
+					// flight: they cost the Newton more than they bring. The
+					// next ACK opens the window again.
+					if (room == 0 || (room < kMinSegment && inFlight > 0))
+						break;
+					if (!receive(room < TUsermodeNetwork::kMaxRxBuffer ? room : TUsermodeNetwork::kMaxRxBuffer, inFlight))
+						break;
 				}
 				break;
-			}
 			default:
 				break;
 		}
+	}
+
+	/**
+	 * Read up to \p inSize bytes from the socket and queue them for the
+	 * Newton. When the peer closed the connection, send a FIN after the
+	 * Newton has ACKed all data.
+	 * \param inSize read at most this many bytes
+	 * \param inFlight bytes sent to the Newton and not ACKed yet
+	 * \return true if a segment was queued and the socket may have more
+	 */
+	bool
+	receive(KUInt32 inSize, KUInt32 inFlight)
+	{
+		KUInt8 buf[TUsermodeNetwork::kMaxRxBuffer];
+		ssize_t avail = ::recv(mSocket, (char*) buf, inSize, 0);
+		if (avail == -1)
+		{
+			// FIXME: do stuff depending on the error that occured
+			return false;
+		} else if (avail == 0)
+		{
+			// Peer has closed connection. The socket keeps reporting that,
+			// so the FIN waits until the Newton has all data.
+			if (inFlight > 0)
+				return false;
+			LOG_PROTOCOL("  ,---- Einstein > Newton -- TCP ----------");
+			LOG_PROTOCOL("  | Peer is closing the connection. Send FIN.");
+			// Foreward a FIN request to the Newton
+			Packet* reply = NewPacket(0);
+			reply->SetTCPFlags(Packet::kTCPFlagFIN | Packet::kTCPFlagACK);
+			reply->SetTCPAck(mNewtonPacketsSeq);
+			UpdateChecksums(reply);
+			LOG_HEADER_DO(mNet->Log(reply, "  | W E>N", __LINE__, 0, mSeqBase);)
+			mNet->Enqueue(reply);
+			// Increment sequence number for last packet.
+			mEinsteinPacketsSeq++;
+			LOG_PROTOCOL("  `---- Einstein > Newton -- done ---------");
+			// Wait for the newton to acknowledge the FIN and and send a FIN to peer.
+			state = kStatePeerDiscWaitForACK;
+			return false;
+		}
+		LOG_PROTOCOL("  ,---- Einstein > Newton -- TCP ----------");
+		LOG_PROTOCOL("  | W>E N Received %d bytes payload.", (int) avail);
+		Packet* reply = NewPacket(avail);
+		memcpy(reply->GetTCPPayloadStart(), buf, avail);
+		reply->SetTCPFlags(Packet::kTCPFlagACK /*|Packet::kTCPFlagPSH*/);
+		reply->SetTCPAck(mNewtonPacketsSeq);
+		UpdateChecksums(reply);
+		LOG_PROTOCOL("  | W E N Forwarding %d bytes total, %d bytes payload.",
+			34 + reply->GetTCPHeaderLength() + reply->GetTCPPayloadSize(),
+			reply->GetTCPPayloadSize());
+		LOG_HEADER_DO(mNet->Log(reply, "  | W E>N", __LINE__, 0, mSeqBase);)
+		mNet->Enqueue(reply);
+		mEinsteinPacketsSeq += avail;
+		LOG_PROTOCOL("  `---- Einstein > Newton -- done ---------");
+		return true;
 	}
 
 	/**
@@ -1383,6 +1420,10 @@ public:
 	KUInt32 mEinsteinPacketsSeq = 0; ///<! sequence number of our packets, incremented after each send
 	KUInt32 mSeqBase = 0;
 	KUInt32 mNewtonPacketsSeq = 0; ///<! sequence number of Newton packets for our ACKs
+	KUInt32 mNewtonAck = 0; ///<! the Newton received our data up to here
+	KUInt32 mNewtonWindow = 0; ///<! the Newton takes this many bytes after mNewtonAck
+	static const int kMaxSegmentsPerTick = 4; ///<! not more segments per connection and tick
+	static const KUInt32 kMinSegment = 256; ///<! no smaller segments while others are in flight
 	KUInt16 theirID = 0;
 	enum State state = kStateDisconnected;
 	int mSocket = INVALID_SOCKET;
