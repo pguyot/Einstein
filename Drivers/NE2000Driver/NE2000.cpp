@@ -318,19 +318,7 @@ void TNE2000Sample::TimerExpired(void)
 		if (tickTime < kMinTimerTime || tickTime > kMaxTimerTime)
 			tickTime = kTimerTime;
 		
-		// Hand all waiting packets to Lantern, at most kMaxRxPerTick. packetSize
-		// is the size of the Ethernet package *excluding* the CRC checksum. A
-		// packet that gets no buffer stays in Einstein until the next tick.
-		for (int i = 0; i < kMaxRxPerTick; i++) {
-			ULong packetSize = EinsteinNetDataAvailable(this);
-			if (!packetSize)
-				break;
-			Ptr packetBuffer = fDriverAPI->NewPacketPtr(packetSize);
-			if (!packetBuffer)
-				break;
-			EinsteinNetReceiveData(this, packetBuffer, packetSize);
-			fDriverAPI->RxReady(packetBuffer, packetSize);
-		}
+		ReceivePackets();
 
 		// Should grab the link Integrity and post it here
 		//Boolean linkIntegrity = GetLinkIntegrity();
@@ -348,6 +336,31 @@ void TNE2000Sample::TimerExpired(void)
 	{
 		// else timer services are cancelled.
 		fTimerPosted = false;
+	}
+}
+
+
+//
+//	void TNE2000Sample::ReceivePackets()
+//
+//		Hand all packets that Einstein has for us to Lantern, at most
+//		kMaxRxPerTick. Called by the timer and by the card interrupt.
+//
+
+void TNE2000Sample::ReceivePackets(void)
+{
+	// packetSize is the size of the Ethernet package *excluding* the CRC
+	// checksum. A packet that gets no buffer stays in Einstein until the
+	// next tick.
+	for (int i = 0; i < kMaxRxPerTick; i++) {
+		ULong packetSize = EinsteinNetDataAvailable(this);
+		if (!packetSize)
+			break;
+		Ptr packetBuffer = fDriverAPI->NewPacketPtr(packetSize);
+		if (!packetBuffer)
+			break;
+		EinsteinNetReceiveData(this, packetBuffer, packetSize);
+		fDriverAPI->RxReady(packetBuffer, packetSize);
 	}
 }
 
@@ -377,6 +390,10 @@ void TNE2000Sample::InterruptHandler()
 	NewtonErr err = noErr;
 
 	EinsteinNetInterruptHandler(this);
+
+	// Einstein raises the card interrupt when it has a packet for us.
+	if (fStatus & kStatusCardPowerOn)
+		ReceivePackets();
 	
 	fDriverAPI->InterruptDone();									// This call is optional (here it's not really needed)
 }

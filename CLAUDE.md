@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | A1–A7, B1, N1, N2, tick done (2026-10-28); open B2, N3 |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | A1–A7, B1, B2, N1, N2, tick done (2026-10-28) |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -944,9 +944,9 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 - The driver's timer runs every 100 ms (`kTimerTime`). Each tick calls
   `EinsteinNetTimerExpired` (all handlers poll their sockets), then
   `EinsteinNetDataAvailable` and receives the waiting packets, at most 16
-  (`kMaxRxPerTick`; one before B1). The card
-  interrupt is not used for receiving (`InterruptHandler` only calls a
-  native that does nothing).
+  (`kMaxRxPerTick`; one before B1). Since B2, every packet queued for the
+  Newton also raises the card interrupt, and `InterruptHandler` receives
+  too (`ReceivePackets()`).
 - Handlers: DHCP and ARP (answered at once, fixed addresses), DNS to
   127.0.0.53 (answered with `gethostbyname`), TCP and UDP (one host socket
   per connection). Packets for the Newton wait in a FIFO.
@@ -1015,7 +1015,7 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | N1 | NE2K.pkg built by the `Drivers` CMake (gcc, `ELFtoPKG`, the NewtonScript part added by `NE2000Driver/AddNSPart.py`), installed to `_Data_/NE2K.pkg` | 1 |
 | N2 | ~~NE2K.pkg embedded in Einstein; Install Essentials installs it from there instead of the server~~ done 2026-10-28 | 0.5 |
 | B1 | ~~NE2K.pkg receives all queued packets per tick~~ done 2026-10-28 | 0.5 |
-| B2 | NE2K.pkg also receives on the card interrupt; first find out whether NewtonOS passes the card's IREQ to Lantern's `InterruptHandler` (`TPCMCIAController::RaiseInterrupt()` exists) | 0.5–1 |
+| B2 | ~~NE2K.pkg also receives on the card interrupt~~ done 2026-10-28 | 0.5–1 |
 | N3 | ~~Last: NE2K.pkg in the REx? First test what it does to an installed NE2K.pkg and to a NewtonOS without NIE (Matt, 2026-10-27)~~ dropped (Matt, 2026-10-28: not important) | ? |
 
 A1–A6 change only the emulator and can be tested one by one (Courier,
@@ -1212,13 +1212,29 @@ bytes, GetDeviceAddress copies at most 6, TimerExpired works without a
 network manager, ReceiveData copies only after a successful
 `ReceiveData()`.
 
+*B2 (Claude, 2026-10-28; tested by Matt with the unna.org download):*
+Experiment first: raising the IREQ (`TPCMCIAController::RaiseInterrupt()`,
+bit 0x0400) of the socket that holds the `TNE2000Card` (socket 1 in Matt's
+setup; the old TAP code assumed 0) reaches the driver's `InterruptHandler`
+within a millisecond when it is raised outside the timer, and once after
+the tick when raised inside it; NewtonOS clears it, no interrupt storm. Now
+`TUsermodeNetwork::Enqueue()` always raises it, and the driver receives in
+`InterruptHandler` as in its timer (`ReceivePackets()`; an older NE2K.pkg
+ignores the interrupt). TCP `send()` calls `fillWindow()` after every
+Newton packet, so the burst after an ACK goes out in the same millisecond
+instead of on the next tick (20–50 ms before). The tick stays adaptive; it
+still finds new server data while the Newton ACKs nothing. Idea for later:
+a thread that watches the sockets and raises the interrupt.
+
 Seen after A4 (Matt, 2026-10-28): NIE releases the link (DHCP type 7) about
 6.6 s after a clean close, 0.6 s after the old RST. Nothing waits in
-Einstein meanwhile; probably an idle timer in NIE (not checked).
+Einstein meanwhile, no packets either way; 6.5–7.0 s in every test (page,
+download, before and after B2), so a fixed timer in NIE or Courier before
+it releases the link (not looked up in the disassembly).
 
 **State** (2026-10-28, Matt offline): pushed up to `8ea69f03`; A7
 (`b4efe073`), A2 (`2bf52396`), A3 (`6a4a5fc5`) and the stray-packet fix
-are committed, not pushed; A4, A5 and A6 too. Open: B2 (card interrupt), N3
+are pushed; A4, A5, A6 too; B2 committed. Open: N3
 (NE2K.pkg in the REx) dropped (Matt: not important), the "Broken pipe"
 case of A3 (timing), an upload test of the send buffer. Matt: A3 matters
 only for docking over NIE Ethernet: Dock_TCP (an extension by Paul Guyot)

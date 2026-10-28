@@ -158,6 +158,9 @@
 
 #include "TUsermodeNetwork.h"
 #include "Emulator/Log/TLog.h"
+#include "Emulator/PCMCIA/TNE2000Card.h"
+#include "Emulator/PCMCIA/TPCMCIAController.h"
+#include "Emulator/TMemory.h"
 
 #include <condition_variable>
 #include <list>
@@ -1463,7 +1466,11 @@ public:
 					mNet->Enqueue(reply);
 					// Wait for the newton to acknowledge the FIN and close on its side.
 					closing(kStateNewwtonDiscWaitForACK);
+					return 1;
 				}
+				// An ACK may have opened the window: send at once. Last, since
+				// the handler is gone if the server reset the connection.
+				fillWindow();
 				return 1;
 			case kStateNewwtonDiscWaitForACK:
 				// Just close down.
@@ -1559,24 +1566,34 @@ public:
 						mNet->EnqueueAck(reply);
 					}
 				}
-				// Send segments as long as the Newton's window has room for
-				// them. With only one segment in flight, the Newton would ACK
-				// each one after its delayed ACK timer (200 ms and more); with
-				// two, it ACKs at once.
-				for (int i = 0; i < kMaxSegmentsPerTick; i++)
-				{
-					KUInt32 inFlight = mEinsteinPacketsSeq - mNewtonAck;
-					KUInt32 room = (mNewtonWindow > inFlight) ? mNewtonWindow - inFlight : 0;
-					// Fill the window, but no tiny segments while others are in
-					// flight: they cost the Newton more than they bring. The
-					// next ACK opens the window again.
-					if (room == 0 || (room < kMinSegment && inFlight > 0))
-						break;
-					if (!receive(room < TUsermodeNetwork::kMaxRxBuffer ? room : TUsermodeNetwork::kMaxRxBuffer, inFlight))
-						break;
-				}
+				fillWindow();
 				break;
 			default:
+				break;
+		}
+	}
+
+	/**
+	 * Send segments as long as the Newton's window has room for them. With
+	 * only one segment in flight, the Newton would ACK each one after its
+	 * delayed ACK timer (200 ms and more); with two, it ACKs at once.
+	 * Called on every tick, and by send() when an ACK of the Newton opened
+	 * the window, so the next segments don't wait for the next tick. The
+	 * handler may be gone when this returns.
+	 */
+	void
+	fillWindow()
+	{
+		for (int i = 0; i < kMaxSegmentsPerTick; i++)
+		{
+			KUInt32 inFlight = mEinsteinPacketsSeq - mNewtonAck;
+			KUInt32 room = (mNewtonWindow > inFlight) ? mNewtonWindow - inFlight : 0;
+			// Fill the window, but no tiny segments while others are in
+			// flight: they cost the Newton more than they bring. The next
+			// ACK opens the window again.
+			if (room == 0 || (room < kMinSegment && inFlight > 0))
+				break;
+			if (!receive(room < TUsermodeNetwork::kMaxRxBuffer ? room : TUsermodeNetwork::kMaxRxBuffer, inFlight))
 				break;
 		}
 	}
@@ -2825,6 +2842,20 @@ TUsermodeNetwork::Enqueue(Packet* inPacket)
 {
 	Trace("  reply queued, %d bytes", (int) inPacket->Size());
 	mLastActivity = std::chrono::steady_clock::now();
+	// Tell NewtonOS through the card interrupt that a packet waits: the
+	// driver receives it in its InterruptHandler without waiting for its
+	// next tick. Several interrupts before the handler runs make one call.
+	if (mMemory)
+	{
+		for (int i = 0; i < kNbSockets; i++)
+		{
+			TPCMCIAController* ctrl = mMemory->GetPCMCIAController(i);
+			if (ctrl && dynamic_cast<TNE2000Card*>(ctrl->CurrentCard()))
+			{
+				ctrl->RaiseInterrupt(TPCMCIAController::kSocketCardIREQIntVector);
+			}
+		}
+	}
 	Packet* n = mFirstPacket;
 	if (n)
 		n->mPrev = inPacket;

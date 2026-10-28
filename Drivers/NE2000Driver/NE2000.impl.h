@@ -82,6 +82,7 @@ PROTOCOL TNE2000Sample : public TLanternDriver					// Protocol class
 		// Private Template Services
 
 		void			TimerExpired(void);						// Called when driver timer expires
+		void			ReceivePackets(void);					// Hand waiting packets to Lantern
 		
 		//	Template routines
 
