@@ -542,7 +542,8 @@ public:
 	ssize_t
 	GetTCPPayloadSize()
 	{
-		return mSize - GetTCPHeaderLength() - 34;
+		ssize_t n = GetIPEnd() - GetTCPHeaderLength() - 34;
+		return n > 0 ? n : 0;
 	}
 
 	KUInt16
@@ -573,7 +574,54 @@ public:
 	ssize_t
 	GetUDPPayloadSize()
 	{
-		return mSize - 42;
+		ssize_t n = GetIPEnd() - 42;
+		return n > 0 ? n : 0;
+	}
+
+	/**
+	 * The end of the IP packet in the frame. A short frame is padded to 60
+	 * bytes, and the padding is no data.
+	 */
+	ssize_t
+	GetIPEnd()
+	{
+		ssize_t end = 14 + (ssize_t) GetIPTotalLength();
+		return end < mSize ? end : mSize;
+	}
+
+	/**
+	 * Check that the headers of a frame from the Newton are complete, so
+	 * the handlers can read their fields. All TCP and UDP fields are read
+	 * at the offsets of an IP header without options; NIE sends none.
+	 * \return nullptr if the frame is fine, otherwise what is wrong
+	 */
+	const char*
+	CheckHeaders()
+	{
+		if (mSize < 14)
+			return "frame too short";
+		if (GetType() == kNetTypeARP)
+			return (mSize < 42) ? "ARP packet too short" : nullptr;
+		if (GetType() != kNetTypeIP)
+			return nullptr; // not ours, no handler takes it
+		if (mSize < 34)
+			return "IP header cut off";
+		if (GetIPVersion() != 4 || GetIPHeaderLength() != 20)
+			return "not IPv4 without options";
+		if (GetIPTotalLength() < 20 || 14 + (ssize_t) GetIPTotalLength() > mSize)
+			return "IP length does not fit the frame";
+		if (GetIPProtocol() == kIPProtocolTCP)
+		{
+			if (GetIPEnd() < 54)
+				return "TCP header cut off";
+			if (GetTCPHeaderLength() < 20 || 34 + GetTCPHeaderLength() > GetIPEnd())
+				return "TCP header length does not fit";
+		} else if (GetIPProtocol() == kIPProtocolUDP)
+		{
+			if (GetIPEnd() < 42)
+				return "UDP header cut off";
+		}
+		return nullptr;
 	}
 
 	KUInt16
@@ -2382,6 +2430,9 @@ public:
 			return 0;
 		if (packet.GetUDPDstPort() != 67) // DHCP requests are sent to port 67
 			return 0;
+		// The fields up to the message type (option 53, see below)
+		if (packet.GetIPEnd() <= 0x011c)
+			return 0;
 		if (packet.Get8(42) != 1)
 			return 0;
 		//      if (packet.GetIPDstIP()!=0xffffffff) // DHCP are broadcast to 255.255.255.255
@@ -2566,6 +2617,12 @@ TUsermodeNetwork::SendPacket(KUInt8* data, KUInt32 size)
 	int result = 0;
 	Packet packet(data, size, 0); // convert data into a packet
 	mLastActivity = std::chrono::steady_clock::now();
+	// After this check, the handlers can read every header field.
+	if (const char* problem = packet.CheckHeaders())
+	{
+		Trace("  Newton sends a broken frame (%s), %u bytes, dropped", problem, (unsigned) size);
+		return -1;
+	}
 	LOG_PROTOCOL(",---- Einstein < Newton -----------------");
 	Trace("  Newton sends type 0x%04x, IP protocol %d, to port %d, %u bytes",
 		packet.GetType(), size > 23 ? packet.GetIPProtocol() : -1,
@@ -2882,6 +2939,7 @@ TUsermodeNetwork::Log(Packet* p, const char* label, int line, int adjSeq, int ad
 	} else if (p->GetType() == Packet::kNetTypeIP
 		&& p->GetIPProtocol() == Packet::kIPProtocolUDP
 		&& p->GetUDPDstPort() == 67
+		&& p->Size() > 0x011c
 		&& p->Get8(42) == 1
 		&& p->GetIPDstIP() == 0xffffffff
 		&& p->Get32(0x0116) == 0x63825363)

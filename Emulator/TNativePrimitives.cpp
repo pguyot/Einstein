@@ -3015,7 +3015,8 @@ TNativePrimitives::ExecuteNetworkManagerNative(KUInt32 inInstruction)
 			{
 				mLog->FLogLine("TNetworkManager::SendPacket(0x%08x, %d)", (unsigned int) addr, (int) size);
 			}
-			if (mNetworkManager && size)
+			// 1514 bytes: the largest Ethernet frame without its CRC
+			if (mNetworkManager && size && size <= 1514)
 			{
 				KUInt8 *data = (KUInt8*) malloc(size), v;
 				for (i = 0; i < size; i++)
@@ -3040,6 +3041,8 @@ TNativePrimitives::ExecuteNetworkManagerNative(KUInt32 inInstruction)
 			if (mNetworkManager && dstBufferSize)
 			{
 				KUInt8 mac[6] = { 0 };
+				if (dstBufferSize > sizeof(mac))
+					dstBufferSize = sizeof(mac);
 				err = (KUInt32) mNetworkManager->GetDeviceAddress(mac, dstBufferSize);
 				for (i = 0; i < dstBufferSize; i++)
 					mMemory->WriteB(dstBuffer + i, mac[i]);
@@ -3097,7 +3100,8 @@ TNativePrimitives::ExecuteNetworkManagerNative(KUInt32 inInstruction)
 			{
 				// Return the time until the next tick in milliseconds.
 				static KUInt32 sLastTick = 0;
-				KUInt32 tick = (KUInt32) mNetworkManager->TimerExpired();
+				KUInt32 tick = mNetworkManager ? (KUInt32) mNetworkManager->TimerExpired()
+											   : (KUInt32) TNetworkManager::kSlowTickMS;
 				if (tick != sLastTick)
 					TNetworkManager::Trace("tick now %u ms", (unsigned) tick);
 				sLastTick = tick;
@@ -3148,10 +3152,14 @@ TNativePrimitives::ExecuteNetworkManagerNative(KUInt32 inInstruction)
 			}
 			if (mNetworkManager && n)
 			{
+				// Only a packet of the size that DataAvailable reported
+				// reaches the Newton, nothing uninitialized.
 				KUInt8* buffer = (KUInt8*) malloc(n);
-				mNetworkManager->ReceiveData(buffer, n);
-				for (i = 0; i < n; i++)
-					mMemory->WriteB(dst + i, buffer[i]);
+				if (buffer && mNetworkManager->ReceiveData(buffer, n) == 0)
+				{
+					for (i = 0; i < n; i++)
+						mMemory->WriteB(dst + i, buffer[i]);
+				}
 				free(buffer);
 			}
 			break;

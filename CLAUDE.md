@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2, tick, A7, A2, A3, A4, A5 done (2026-10-28); next A6 |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | A1–A7, B1, N1, N2, tick done (2026-10-28); open B2, N3 |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -990,15 +990,15 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
   Newton. No timeouts in the closing states.~~ (A2, A4)
 
 *Parsing*
-- TCP and UDP payload sizes come from the frame size, not the IP total
-  length (padding would become data).
-- No length checks before reading fields (DHCP reads offset 0x116 of any
-  UDP packet to port 67, the DNS name parser reads past the packet).
+- ~~TCP and UDP payload sizes come from the frame size, not the IP total
+  length (padding would become data).~~ (A6)
+- ~~No length checks before reading fields (DHCP reads offset 0x116 of any
+  UDP packet to port 67, the DNS name parser reads past the packet).~~ (A5, A6)
 - ~~The DNS name parser can overflow its 128-byte stack buffer (the counter
   wraps, only the inner loop stops); the type check uses `&&` instead of
   `||`, so AAAA queries get an A answer.~~ (A5)
-- Natives: `TimerExpired` (0x11) has no null check; `GetDeviceAddress`
-  copies `size` bytes from a 6-byte array.
+- ~~Natives: `TimerExpired` (0x11) has no null check; `GetDeviceAddress`
+  copies `size` bytes from a 6-byte array.~~ (A6)
 
 **Plan** (proposed)
 
@@ -1011,7 +1011,7 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | A3 | Send buffer per connection: keep what `send()` did not take, flush on the next ticks, ACK only what the host accepted; `MSG_NOSIGNAL`/`SO_NOSIGPIPE` (in the code, partly tested, see below) | 0.5–1 |
 | A4 | ~~Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, RST for unknown packets instead of connecting, timeouts for the closing states~~ done 2026-10-28 | 1 |
 | A5 | ~~DNS in a worker thread (`getaddrinfo`), replies queued and delivered in `TimerExpired()`; fix the name parser~~ done 2026-10-28 | 0.5–1 |
-| A6 | Length checks, payload sizes from the IP header, the two natives | 0.5 |
+| A6 | ~~Length checks, payload sizes from the IP header, the two natives~~ done 2026-10-28 | 0.5 |
 | N1 | NE2K.pkg built by the `Drivers` CMake (gcc, `ELFtoPKG`, the NewtonScript part added by `NE2000Driver/AddNSPart.py`), installed to `_Data_/NE2K.pkg` | 1 |
 | N2 | ~~NE2K.pkg embedded in Einstein; Install Essentials installs it from there instead of the server~~ done 2026-10-28 | 0.5 |
 | B1 | ~~NE2K.pkg receives all queued packets per tick~~ done 2026-10-28 | 0.5 |
@@ -1199,9 +1199,28 @@ records), so padding no longer ends up in it. Seen: lookups of 56–379 ms
 while the ticks went on; NIE tries the domain from its Internet Setup as a
 suffix (Matt's: `some.net`; Einstein's DHCP says `Einstein.local`).
 
+*A6 (Claude, 2026-10-28; tested by Matt: fltk.org and the unna.org
+download, no broken frames):* TCP and UDP payload sizes end at the end of
+the IP packet (`Packet::GetIPEnd()`), so the padding of short frames is no
+longer data (UDP forwarded it to the server). `Packet::CheckHeaders()` at
+the start of `SendPacket()` drops frames whose headers are not complete
+(ARP 42 bytes; IPv4 without options, since all TCP/UDP offsets assume a
+20-byte IP header; IP length within the frame; complete TCP and UDP
+headers), so the handlers can read every header field. DHCP checks the
+length before the magic number. Natives: SendPacket takes at most 1514
+bytes, GetDeviceAddress copies at most 6, TimerExpired works without a
+network manager, ReceiveData copies only after a successful
+`ReceiveData()`.
+
+Seen after A4 (Matt, 2026-10-28): NIE releases the link (DHCP type 7) about
+6.6 s after a clean close, 0.6 s after the old RST. Nothing waits in
+Einstein meanwhile; probably an idle timer in NIE (not checked).
+
 **State** (2026-10-28, Matt offline): pushed up to `8ea69f03`; A7
 (`b4efe073`), A2 (`2bf52396`), A3 (`6a4a5fc5`) and the stray-packet fix
-are committed, not pushed; A4 and A5 too. Next: A6, B2, N3.
+are committed, not pushed; A4, A5 and A6 too. Open: B2 (card interrupt), N3
+(NE2K.pkg in the REx), the "Broken pipe" case of A3 (timing), an upload
+test of the send buffer.
 
 *Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
 (`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`
