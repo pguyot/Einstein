@@ -984,8 +984,8 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
   300 ms per packet) reaches the server twice.
 - `recv()` errors other than "no data" and RST from the Newton are
   ignored; the connection stays forever.
-- Any TCP packet that matches no handler (a stray ACK or RST) creates one
-  and opens an outgoing connection (with the 10 s wait).
+- ~~Any TCP packet that matches no handler (a stray ACK or RST) creates one
+  and opens an outgoing connection (with the 10 s wait).~~ (2026-10-28)
 - A failed connect leaks its socket and keeps the handler; no RST to the
   Newton. No timeouts in the closing states.
 
@@ -1009,7 +1009,7 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | A7 | ~~Several segments in flight, up to the window the Newton advertises~~ done 2026-10-28 | 0.5–1 |
 | A2 | ~~Non-blocking connect: "connecting" state checked in `timer()`, SYN-ACK when connected, RST on failure or after 10 s~~ done 2026-10-28 | 0.5 |
 | A3 | Send buffer per connection: keep what `send()` did not take, flush on the next ticks, ACK only what the host accepted; `MSG_NOSIGNAL`/`SO_NOSIGPIPE` (in the code, partly tested, see below) | 0.5–1 |
-| A4 | Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, RST for unknown packets instead of connecting, timeouts for the closing states | 1 |
+| A4 | Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, ~~RST for unknown packets instead of connecting~~ (done), timeouts for the closing states | 1 |
 | A5 | DNS in a worker thread (`getaddrinfo`), replies queued and delivered in `TimerExpired()`; fix the name parser | 0.5–1 |
 | A6 | Length checks, payload sizes from the IP header, the two natives | 0.5 |
 | N1 | NE2K.pkg built by the `Drivers` CMake (gcc, `ELFtoPKG`, the NewtonScript part added by `NE2000Driver/AddNSPart.py`), installed to `_Data_/NE2K.pkg` | 1 |
@@ -1147,12 +1147,21 @@ ignored.
   "connection failed (Connection reset by peer), reset", Courier gives up.
   That server reset about 3 s late (macOS asked first whether Python may
   take incoming connections), so Courier's sends had gone through.
-- Not tested yet: a send into a socket that is already reset (locally,
-  macOS answers the first `send()` with "Broken pipe" at once; that is the
-  `SIGPIPE` case; test with a serial driver other than TCP, so its
-  `SIGPIPE` handler is not running); the send buffer itself (Courier only
+- Not hit yet: a send into a socket that is already reset ("Broken pipe",
+  the `SIGPIPE` case). With `reset_server.py --after-data` (reset after the
+  first data) at `http://127.0.0.1:8080/` (the firewall does not filter
+  the loopback; the Mac's own address needs Python allowed in the
+  firewall), the reset always reached `recv()` in the tick between
+  Courier's segments first. Einstein kept running with a serial driver
+  other than TCP. Also untested: the send buffer itself (Courier only
   sends small requests; it needs an app that uploads more than the host's
   socket buffer takes).
+- Found in that test, fixed (part of A4): a segment the Newton sent before
+  it got our reset matched no handler, so `canHandle()` made a new one and
+  connected again. Now only a SYN without ACK creates a handler, an RST
+  without one is ignored, anything else gets an RST (RFC 793: sequence =
+  the segment's ACK). Tested by Matt: one connection, "packet for no
+  connection, reset".
 
 The test server, for next time (port as argument, the Mac's address in
 Courier, e.g. `http://192.168.178.122:8080/`):
@@ -1167,10 +1176,10 @@ while True:
 ```
 
 **State** (2026-10-28, Matt offline): pushed up to `8ea69f03`; A7
-(`b4efe073`), A2 (`2bf52396`) and A3 are committed, not pushed. Next: the
-"Broken pipe" test of A3, then A4 (sequence checks, RST both ways, RST for
-unknown packets instead of connecting, timeouts for the closing states; the
-RST answer to the Newton's FIN seen on 2026-10-27), A5 (DNS), A6, B2, N3.
+(`b4efe073`), A2 (`2bf52396`), A3 (`6a4a5fc5`) and the stray-packet fix
+are committed, not pushed. Next: A4 (the rest: RST from the Newton, timeouts
+for the closing states, the RST answer to the Newton's FIN seen on
+2026-10-27), A5 (DNS), A6, B2, N3.
 
 *Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
 (`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`

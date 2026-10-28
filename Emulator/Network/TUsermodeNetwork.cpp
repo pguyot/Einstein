@@ -967,7 +967,6 @@ public:
 		// SYN-ACK packet should have ACK set to client SEQ + 1
 		mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
 		mNewtonWindow = packet.GetTCPWindow();
-		mNet->Trace("  TCP port %u: Newton's window %u bytes", myPort, mNewtonWindow);
 		LOG_PROTOCOL("| Adding TCP handler for port %u to %u.%u.%u.%u.",
 			theirPort,
 			(unsigned int) ((theirIP >> 24) & 0xff),
@@ -1168,6 +1167,7 @@ public:
 	int
 	connect(Packet& packet)
 	{
+		mNet->Trace("  TCP port %u: Newton's window %u bytes", myPort, mNewtonWindow);
 		mSeqBase = mNewtonPacketsSeq = packet.GetTCPSeq();
 		// create a socket
 		mSocket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -1579,8 +1579,34 @@ public:
 			return 0;
 		if (packet.GetIPProtocol() != Packet::kIPProtocolTCP)
 			return 0;
-		// if ( packet.GetTCPFlags() != Packet::TCPFlagSYN && packet.GetTCPFlags() != Packet::TCPFlagRST)
-		//     return 0; // only SYN is set
+		KUInt16 flags = packet.GetTCPFlags();
+		// A reset for a connection that we don't know: nothing to do.
+		if (flags & Packet::kTCPFlagRST)
+			return 1;
+		// Anything but a SYN belongs to a connection that is gone (for example
+		// a segment that the Newton sent before it got our reset). Answer
+		// with a reset, as TCP does, instead of connecting again.
+		if (!(flags & Packet::kTCPFlagSYN) || (flags & Packet::kTCPFlagACK))
+		{
+			TCPPacketHandler gone(net, packet);
+			Packet* reply = gone.NewPacket(0);
+			if (flags & Packet::kTCPFlagACK)
+			{
+				reply->SetTCPFlags(Packet::kTCPFlagRST);
+				reply->SetTCPSeq(packet.GetTCPAck());
+				reply->SetTCPAck(0);
+			} else
+			{
+				reply->SetTCPFlags(Packet::kTCPFlagRST | Packet::kTCPFlagACK);
+				reply->SetTCPSeq(0);
+				reply->SetTCPAck(packet.GetTCPSeq() + (KUInt32) packet.GetTCPPayloadSize()
+					+ ((flags & Packet::kTCPFlagFIN) ? 1 : 0));
+			}
+			gone.UpdateChecksums(reply);
+			net->Trace("  TCP port %u: packet for no connection, reset", packet.GetTCPSrcPort());
+			net->Enqueue(reply);
+			return 1;
+		}
 		PacketHandler* ph = new TCPPacketHandler(net, packet);
 		net->AddPacketHandler(ph);
 		return ph->send(packet);
