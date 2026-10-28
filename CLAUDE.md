@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2, tick, A7, A2 done (2026-10-28); next A3 |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2, tick, A7, A2 done, A3 partly tested (2026-10-28) |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -1008,7 +1008,7 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | T | ~~Adaptive tick: 20 ms for a second after the last packet, 100 ms otherwise~~ done 2026-10-28 | 0.5 |
 | A7 | ~~Several segments in flight, up to the window the Newton advertises~~ done 2026-10-28 | 0.5–1 |
 | A2 | ~~Non-blocking connect: "connecting" state checked in `timer()`, SYN-ACK when connected, RST on failure or after 10 s~~ done 2026-10-28 | 0.5 |
-| A3 | Send buffer per connection: keep what `send()` did not take, flush on the next ticks, ACK only what the host accepted; `MSG_NOSIGNAL`/`SO_NOSIGPIPE` | 0.5–1 |
+| A3 | Send buffer per connection: keep what `send()` did not take, flush on the next ticks, ACK only what the host accepted; `MSG_NOSIGNAL`/`SO_NOSIGPIPE` (in the code, partly tested, see below) | 0.5–1 |
 | A4 | Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, RST for unknown packets instead of connecting, timeouts for the closing states | 1 |
 | A5 | DNS in a worker thread (`getaddrinfo`), replies queued and delivered in `TimerExpired()`; fix the name parser | 0.5–1 |
 | A6 | Length checks, payload sizes from the IP header, the two natives | 0.5 |
@@ -1124,6 +1124,52 @@ in 10 s (`kConnectTimeout`): `refuse()` answers the Newton's SYN with
 RST+ACK and removes the handler (before, it stayed with its socket, and
 every repeated SYN blocked again). SYNs the Newton repeats meanwhile are
 ignored.
+
+*A3 (Claude, 2026-10-28, committed, partly tested):*
+- TCP sockets get `SO_NOSIGPIPE` (macOS), `send()` uses `MSG_NOSIGNAL`
+  (Linux). Before, only the TCP serial driver's process-wide `SIGPIPE`
+  handler (TSerialPortDriverTcpClient.cpp, only while that driver runs)
+  kept a send to a closed socket from killing Einstein.
+- Newton data goes into a 16 KB send buffer per connection
+  (`mSendBuffer`, `takeData()`, `flush()`); `timer()` sends the rest on the
+  next ticks. Every packet to the Newton advertises the free space as the
+  window (was a fixed 4096), and a window update goes out when a nearly
+  full buffer drains. Data that Einstein already has is ACKed again but not
+  sent twice; a segment after a gap is dropped (part of A4).
+- The Newton's FIN is taken only when the send buffer is empty (the Newton
+  repeats it); a FIN with data gets the right ACK; the FIN path no longer
+  returns -1 to `SendPacket`.
+- A failed `send()` or a `recv()` error (reset by the server) sends RST to
+  the Newton and removes the handler (`reset()`); before, the connection
+  stayed forever.
+- Tested by Matt: downloads as before; a server that resets every
+  connection (`reset_server.py`: accept, `SO_LINGER` 0, close): trace
+  "connection failed (Connection reset by peer), reset", Courier gives up.
+  That server reset about 3 s late, so Courier's sends had gone through.
+- Not tested yet: a send into a socket that is already reset (locally,
+  macOS answers the first `send()` with "Broken pipe" at once; that is the
+  `SIGPIPE` case; test with a serial driver other than TCP, so its
+  `SIGPIPE` handler is not running); the send buffer itself (Courier only
+  sends small requests; it needs an app that uploads more than the host's
+  socket buffer takes).
+
+The test server, for next time (port as argument, the Mac's address in
+Courier, e.g. `http://192.168.178.122:8080/`):
+```
+import socket, struct, sys
+port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
+s = socket.socket(); s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind(("0.0.0.0", port)); s.listen()
+while True:
+    c, addr = s.accept(); print("Connection from", addr, "- reset")
+    c.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0)); c.close()
+```
+
+**State** (2026-10-28, Matt offline): pushed up to `8ea69f03`; A7
+(`b4efe073`), A2 (`2bf52396`) and A3 are committed, not pushed. Next: the
+"Broken pipe" test of A3, then A4 (sequence checks, RST both ways, RST for
+unknown packets instead of connecting, timeouts for the closing states; the
+RST answer to the Newton's FIN seen on 2026-10-27), A5 (DNS), A6, B2, N3.
 
 *Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
 (`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`

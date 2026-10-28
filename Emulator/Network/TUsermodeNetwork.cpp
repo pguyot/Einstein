@@ -173,6 +173,7 @@ typedef int socklen_t;
 #else
 #include <arpa/inet.h>
 #include <errno.h>
+#include <vector>
 #include <fcntl.h>
 #include <net/if.h>
 #include <netdb.h>
@@ -1045,7 +1046,9 @@ public:
 		p->SetTCPAck(mNewtonPacketsSeq);
 		p->SetTCPHeaderLength(20);
 		p->SetTCPFlags(Packet::kTCPFlagACK);
-		p->SetTCPWindow(0x1000);
+		// The window tells the Newton how much more data we take.
+		mWindow = (KUInt32) (kMaxSendBuffer - mSendBuffer.size());
+		p->SetTCPWindow((KUInt16) mWindow);
 
 		return p;
 	}
@@ -1058,6 +1061,100 @@ public:
 	{
 		mNet->SetIPv4Checksum(p->Data(), p->Size());
 		mNet->SetTCPChecksum(p->Data(), p->Size());
+	}
+
+	/**
+	 * Take the payload of a Newton segment into the send buffer.
+	 * A segment that we have already (the Newton sent it again) is not taken
+	 * twice; a segment after a gap is dropped, the Newton sends it again
+	 * after our ACK. More than the buffer takes is dropped too, but the
+	 * window keeps the Newton from sending that much.
+	 */
+	void
+	takeData(Packet& packet)
+	{
+		KUInt32 seq = packet.GetTCPSeq();
+		KUInt32 size = (KUInt32) packet.GetTCPPayloadSize();
+		KUInt32 known = mNewtonPacketsSeq - seq; // bytes of this segment that we have
+		if ((KSInt32) known < 0 || known >= size)
+			return;
+		KUInt32 n = size - known;
+		if (n > kMaxSendBuffer - mSendBuffer.size())
+			n = (KUInt32) (kMaxSendBuffer - mSendBuffer.size());
+		const KUInt8* data = packet.GetTCPPayloadStart() + known;
+		mSendBuffer.insert(mSendBuffer.end(), data, data + n);
+		mNewtonPacketsSeq += n;
+	}
+
+	/**
+	 * Send as much of the send buffer as the server takes now.
+	 * \return false if the connection failed and the handler is gone
+	 */
+	bool
+	flush()
+	{
+		while (!mSendBuffer.empty())
+		{
+			ssize_t n = ::send(mSocket, (const char*) mSendBuffer.data(), mSendBuffer.size(), kSendFlags);
+			if (n > 0)
+			{
+				mSendBuffer.erase(mSendBuffer.begin(), mSendBuffer.begin() + n);
+			} else if (n < 0 && wouldBlock())
+			{
+				break;
+			} else
+			{
+				reset(lastError());
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * True if the last socket call failed only because it would block.
+	 */
+	static bool
+	wouldBlock()
+	{
+#if TARGET_OS_WIN32
+		return WSAGetLastError() == WSAEWOULDBLOCK;
+#else
+		return errno == EAGAIN || errno == EWOULDBLOCK;
+#endif
+	}
+
+	/**
+	 * The text of the last socket error, for the trace.
+	 */
+	static const char*
+	lastError()
+	{
+#if TARGET_OS_WIN32
+		static char buf[32];
+		snprintf(buf, sizeof(buf), "error %d", WSAGetLastError());
+		return buf;
+#else
+		return strerror(errno);
+#endif
+	}
+
+	/**
+	 * The connection to the server failed: reset the connection to the
+	 * Newton and remove this handler. `this` is gone when this returns.
+	 * \param inReason for the trace
+	 */
+	void
+	reset(const char* inReason)
+	{
+		mNet->Trace("  TCP port %u: connection failed (%s), reset", myPort, inReason);
+		LOG_PROTOCOL("| TTCPPacketHandler: connection failed: %s.", inReason);
+		Packet* reply = NewPacket(0);
+		reply->SetTCPFlags(Packet::kTCPFlagRST | Packet::kTCPFlagACK);
+		UpdateChecksums(reply);
+		LOG_HEADER_DO(mNet->Log(reply, "| W E>N", __LINE__, 0, mSeqBase);)
+		mNet->Enqueue(reply);
+		mNet->RemovePacketHandler(this);
 	}
 
 	/**
@@ -1076,6 +1173,11 @@ public:
 		mSocket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (mSocket == INVALID_SOCKET)
 			return refuse("can't create a socket");
+#ifdef SO_NOSIGPIPE
+		// A send to a socket that the server closed must not kill Einstein.
+		int noSigPipe = 1;
+		setsockopt(mSocket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));
+#endif
 
 		// tell the socket who to connect to and connect
 		struct sockaddr_in sa;
@@ -1259,9 +1361,9 @@ public:
 				{
 					// this is a data packet: send data to the socket
 					LOG_HEADER_DO(mNet->Log(&packet, "| W<E N", __LINE__, mSeqBase, 0);)
-					::send(mSocket, (char*) packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize(), 0);
-					// FIXME: use return value
-					mNewtonPacketsSeq = packet.GetTCPSeq() + (KUInt32) packet.GetTCPPayloadSize();
+					takeData(packet);
+					if (!flush())
+						return 1; // the connection was reset, the handler is gone
 					// return an ACK to Newton
 					Packet* reply = NewPacket(0);
 					reply->SetTCPFlags(Packet::kTCPFlagACK);
@@ -1271,13 +1373,17 @@ public:
 					LOG_HEADER_DO(mNet->Log(reply, "| W E>N", __LINE__, 0, mSeqBase);)
 					mNet->EnqueueAck(reply);
 				}
-				if (packet.GetTCPFlags() & Packet::kTCPFlagFIN)
+				// Take the FIN only after all data of the Newton is with the
+				// server. Until then, the Newton sends its FIN again.
+				if ((packet.GetTCPFlags() & Packet::kTCPFlagFIN)
+					&& mSendBuffer.empty()
+					&& packet.GetTCPSeq() + (KUInt32) packet.GetTCPPayloadSize() == mNewtonPacketsSeq)
 				{
 					// Newton initiates a disconnection.
 					// We don't support half-duplex
 					close_socket();
 					// Peer has closed connection.
-					mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
+					mNewtonPacketsSeq++;
 					Packet* reply = NewPacket(0);
 					// Send a FIN request to the Newton
 					reply->SetTCPFlags(Packet::kTCPFlagFIN | Packet::kTCPFlagACK);
@@ -1286,7 +1392,6 @@ public:
 					mNet->Enqueue(reply);
 					// Wait for the newton to acknowledge the FIN and close on its side.
 					state = kStateNewwtonDiscWaitForACK;
-					break;
 				}
 				return 1;
 			case kStateNewwtonDiscWaitForACK:
@@ -1364,6 +1469,19 @@ public:
 				return;
 			case kStateConnected:
 			case kStateConnectedWaitACK:
+				// Send what the server did not take yet. When that opens our
+				// window again, tell the Newton.
+				if (!mSendBuffer.empty())
+				{
+					if (!flush())
+						return; // the connection was reset, the handler is gone
+					if (mWindow < kMaxSendBuffer / 2 && kMaxSendBuffer - mSendBuffer.size() >= kMaxSendBuffer / 2)
+					{
+						Packet* reply = NewPacket(0);
+						UpdateChecksums(reply);
+						mNet->EnqueueAck(reply);
+					}
+				}
 				// Send segments as long as the Newton's window has room for
 				// them. With only one segment in flight, the Newton would ACK
 				// each one after its delayed ACK timer (200 ms and more); with
@@ -1401,7 +1519,8 @@ public:
 		ssize_t avail = ::recv(mSocket, (char*) buf, inSize, 0);
 		if (avail == -1)
 		{
-			// FIXME: do stuff depending on the error that occured
+			if (!wouldBlock())
+				reset(lastError());
 			return false;
 		} else if (avail == 0)
 		{
@@ -1482,6 +1601,14 @@ public:
 	static const KUInt32 kMinSegment = 256; ///<! no smaller segments while others are in flight
 	static constexpr int kConnectTimeout = 10; ///<! seconds until a connect that gets no answer fails
 	std::chrono::steady_clock::time_point mConnectStart {}; ///<! when the host started to connect
+	static constexpr size_t kMaxSendBuffer = 16384; ///<! Newton data that the server did not take yet
+	std::vector<KUInt8> mSendBuffer; ///<! Newton data that the server did not take yet
+	KUInt32 mWindow = kMaxSendBuffer; ///<! the window in our last packet to the Newton
+#ifdef MSG_NOSIGNAL
+	static constexpr int kSendFlags = MSG_NOSIGNAL; ///<! Linux: no SIGPIPE when the server closed
+#else
+	static constexpr int kSendFlags = 0; ///<! macOS has SO_NOSIGPIPE, Windows no SIGPIPE
+#endif
 	KUInt16 theirID = 0;
 	enum State state = kStateDisconnected;
 	int mSocket = INVALID_SOCKET;
