@@ -18,7 +18,7 @@ can be answered inline.
 | Multiple Configurations       | M–L (8–9 days, parallel processes included) | medium | –                       | done (steps 1–7, 2026-10-24); later items open |
 | IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
 | Event forwarding on slow machines | not assessed                          | –          | –                              | open |
-| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2 done (2026-10-28); next A2 |
+| Usermode network              | M (about 4 days, plus 1–2 for the driver) | medium     | –                              | N1, A1, B1, N2, tick done (2026-10-28); next A7 |
 | Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
@@ -1005,6 +1005,8 @@ The FLTK app only uses `TUsermodeNetwork` (or `TNullNetworkManager`);
 | Step | What | Days |
 |---|---|---|
 | A1 | ~~Remove the 0.25 s throttle; a newer pure ACK of a connection replaces a queued one~~ done 2026-10-28 | 0.5 |
+| T | ~~Adaptive tick: 20 ms for a second after the last packet, 100 ms otherwise~~ done 2026-10-28 | 0.5 |
+| A7 | Several segments in flight, up to the window the Newton advertises (TCP `timer()` today sends one and waits for its ACK) | 0.5–1 |
 | A2 | Non-blocking connect: "connecting" state checked in `timer()`, SYN-ACK when connected, RST on failure or after 10 s | 0.5 |
 | A3 | Send buffer per connection: keep what `send()` did not take, flush on the next ticks, ACK only what the host accepted; `MSG_NOSIGNAL`/`SO_NOSIGPIPE` | 0.5–1 |
 | A4 | Sequence checks (re-ACK retransmissions, drop out-of-order), RST both ways, RST for unknown packets instead of connecting, timeouts for the closing states | 1 |
@@ -1080,6 +1082,21 @@ image, not in git). Install Essentials links starting with `E` are built
 into Einstein (`expand()` in TFLSettingsUI.fl makes them `einstein:NE2K.pkg`),
 and `TFLApp::InstallPackagesFromURI()` installs them from memory. The
 messagepad.org download of NE2K.pkg is no longer used.
+
+*Adaptive tick (Claude, 2026-10-28; tested by Matt):* native 0x11 returns
+the time until the next tick, `TUsermodeNetwork::TimerExpired()` asks for
+20 ms (`kFastTickMS`) for a second after the last packet in either
+direction (`mLastActivity`), 100 ms (`kSlowTickMS`) otherwise. The driver
+takes values from 10 to 1000 ms (an older Einstein leaves a pointer in r0,
+so it gets 100 ms) and counts the next tick from now, so a Newton that fell
+behind gets no burst of late ticks. The Newton manages about 30–45 ms per
+tick on an M5 Max.
+
+*Measured* (fltk.org, about 19.5 KB): 4 KB/s. Einstein queues the next
+segment 20–50 ms after the Newton's ACK, but the Newton ACKs each segment
+only after 210–520 ms: stop-and-wait against the receiver's delayed ACK
+(a receiver ACKs at once only every second segment). Hence A7. The connect
+blocked the emulator for 165 ms (A2).
 
 *Trace:* `EINSTEIN_NET_TRACE` set prints to stderr, with the time in seconds
 (`TNetworkManager::Trace()`): every NE2000 native except `DataAvailable`

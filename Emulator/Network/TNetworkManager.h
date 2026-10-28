@@ -128,11 +128,19 @@ public:
 	///
 	/// Newton device driver timer expired.
 	///
+	/// \return the time in milliseconds until the driver's next tick
+	///
 	virtual int
 	TimerExpired()
 	{
-		return 0;
+		return kSlowTickMS;
 	}
+
+	/// The driver's tick while nothing happens on the network.
+	static const int kSlowTickMS = 100;
+
+	/// The driver's tick while packets flow.
+	static const int kFastTickMS = 20;
 
 	TLog*
 	GetLog()

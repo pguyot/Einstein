@@ -37,6 +37,8 @@
 
 #define kPacketAddrSize 					(6)
 #define kTimerTime							(100)				// Milliseconds
+#define kMinTimerTime						(10)				// Shortest tick Einstein may ask for
+#define kMaxTimerTime						(1000)				// Longest tick Einstein may ask for
 #define kMaxRxPerTick						(16)				// Packets handed to Lantern per timer tick
 //
 //	TTemplateDriver	Template Ethernet Driver driver

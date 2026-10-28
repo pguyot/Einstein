@@ -27,6 +27,8 @@
 #include <K/Defines/KDefinitions.h>
 #include "TNetworkManager.h"
 
+#include <chrono>
+
 class TLog;
 class TInterruptManager;
 class TMemoryManager;
@@ -100,6 +102,9 @@ public:
 	/// Out of lazyness and for testing only, we use this timer to poll the open
 	/// sockets of all active protocols.
 	///
+	/// \return kFastTickMS for a second after the last packet in either
+	///         direction, kSlowTickMS otherwise
+	///
 	int TimerExpired() override;
 
 	///
@@ -149,6 +154,9 @@ private:
 	// Double linked list of packets, used as a Fifo.
 	Packet* mFirstPacket { nullptr };
 	Packet* mLastPacket { nullptr };
+
+	// When the last packet was sent by the Newton or queued for it.
+	std::chrono::steady_clock::time_point mLastActivity {};
 };
 
 #endif

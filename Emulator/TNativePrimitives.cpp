@@ -3094,7 +3094,15 @@ TNativePrimitives::ExecuteNetworkManagerNative(KUInt32 inInstruction)
 			{
 				// mLog->LogLine( "TNetworkManager::TimerExpired" );
 			}
-			mNetworkManager->TimerExpired();
+			{
+				// Return the time until the next tick in milliseconds.
+				static KUInt32 sLastTick = 0;
+				KUInt32 tick = (KUInt32) mNetworkManager->TimerExpired();
+				if (tick != sLastTick)
+					TNetworkManager::Trace("tick now %u ms", (unsigned) tick);
+				sLastTick = tick;
+				mProcessor->SetRegister(0, tick);
+			}
 			break;
 
 			// NE2000 Template driver specific

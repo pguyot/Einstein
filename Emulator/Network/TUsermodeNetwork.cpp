@@ -2125,6 +2125,7 @@ TUsermodeNetwork::SendPacket(KUInt8* data, KUInt32 size)
 {
 	int result = 0;
 	Packet packet(data, size, 0); // convert data into a packet
+	mLastActivity = std::chrono::steady_clock::now();
 	LOG_PROTOCOL(",---- Einstein < Newton -----------------");
 	Trace("  Newton sends type 0x%04x, IP protocol %d, to port %d, %u bytes",
 		packet.GetType(), size > 23 ? packet.GetIPProtocol() : -1,
@@ -2192,6 +2193,9 @@ done:
 
 /**
  * We forward the timer of the Newton driver to all packet handlers.
+ * While packets flow, the driver ticks faster, so a TCP connection, which
+ * sends one segment per tick, gets more segments through. When the network
+ * is quiet, it ticks slowly again, so NewtonOS has less work on slow hosts.
  */
 int
 TUsermodeNetwork::TimerExpired()
@@ -2203,7 +2207,9 @@ TUsermodeNetwork::TimerExpired()
 		ph->timer();
 		ph = pNext;
 	}
-	return 0;
+	if (std::chrono::steady_clock::now() - mLastActivity < std::chrono::seconds(1))
+		return kFastTickMS;
+	return kSlowTickMS;
 }
 
 /**
@@ -2308,6 +2314,7 @@ void
 TUsermodeNetwork::Enqueue(Packet* inPacket)
 {
 	Trace("  reply queued, %d bytes", (int) inPacket->Size());
+	mLastActivity = std::chrono::steady_clock::now();
 	Packet* n = mFirstPacket;
 	if (n)
 		n->mPrev = inPacket;

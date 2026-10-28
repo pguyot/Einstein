@@ -77,7 +77,7 @@ extern "C" void EinsteinNetGetLinkIntegrity(TNE2000Sample*);
 extern "C" void EinsteinNetSetPromiscuous(TNE2000Sample*);
 extern "C" void EinsteinNetGetThroughput(TNE2000Sample*);
 
-extern "C" void EinsteinNetTimerExpired(TNE2000Sample*);
+extern "C" ULong EinsteinNetTimerExpired(TNE2000Sample*);
 
 extern "C" void EinsteinNetInitCard(TNE2000Sample*);
 extern "C" void EinsteinNetSetCardInfo(TNE2000Sample*);
@@ -312,7 +312,11 @@ void TNE2000Sample::TimerExpired(void)
 {
 	if (fStatus & kStatusCardPowerOn)
 	{
-		EinsteinNetTimerExpired(this);
+		// Einstein says when it wants the next tick: sooner while packets
+		// flow. An older Einstein leaves a pointer in r0, out of range.
+		ULong tickTime = EinsteinNetTimerExpired(this);
+		if (tickTime < kMinTimerTime || tickTime > kMaxTimerTime)
+			tickTime = kTimerTime;
 		
 		// Hand all waiting packets to Lantern, at most kMaxRxPerTick. packetSize
 		// is the size of the Ethernet package *excluding* the CRC checksum. A
@@ -335,7 +339,9 @@ void TNE2000Sample::TimerExpired(void)
 		
 		// This posts the event to our own task so we get the event
 		fTimerPosted = true;
-		*fTickTime = *fTickTime + TTime(kTimerTime, kMilliseconds);
+		// Counted from now: a Newton that fell behind gets no burst of
+		// late ticks.
+		*fTickTime = GetGlobalTime() + TTime(tickTime, kMilliseconds);
 		fDriverAPI->PostLocalEvent(fTickTime, kTemplateTimerEvent);
 	}
 	else
