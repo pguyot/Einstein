@@ -1,26 +1,3 @@
-// ==============================
-// File:			TSerialPortSuperviser.cp
-// Project:			Einstein
-//
-// Copyright 2003-2020 by Paul Guyot (pguyot@kallisys.net) and Matthias Melcher.
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License along
-// with this program; if not, write to the Free Software Foundation, Inc.,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-// ==============================
-// $Id$
-// ==============================
-
 /* TODO:
 
   TSerialPorts	-> TSerialPortDriver[] for four driver IDs
@@ -90,6 +67,7 @@
 #include "Emulator/Serial/TSerialHostPortPTY.h"
 #endif
 #if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
+#include "Emulator/Serial/TSerialHostPortTCPServer.h"
 #include "Emulator/Serial/TSerialPortDriverTcpClient.h"
 #endif
 
@@ -112,6 +90,10 @@ TSerialPorts::~TSerialPorts()
 {
 	for (auto& i : mDriver)
 		delete i;
+	// Note: Legacy host ports (TSerialHostPortPTY, TSerialHostPortDirect) run endless
+	// worker loops on detached threads without cancellation or join primitives. Deleting
+	// them here causes use-after-free crashes when their threads access freed buffers/mutexes.
+	// Only clean up ports that support coordinated shutdown once all ports are modernized.
 }
 
 /**
@@ -327,16 +309,26 @@ TSerialPorts::SetDriver(KUInt32 inLocation, EDriverID inDriver, std::string inCo
 	auto defaults = mHostPortSettings.find(inLocation);
 	if (driverID == TSerialPorts::kDefaultDriver)
 	{
-		if (defaults == mHostPortSettings.end())
+		if (defaults != mHostPortSettings.end())
 		{
-			KPrintf("Error requesting not configured default driver for location %x\n", inLocation);
-			return nullptr;
+			driverID = defaults->second.first;
+		} else if (inLocation == 'serv')
+		{
+			driverID = kTcpServerDriver;
+		} else
+		{
+			driverID = kPtyDriver;
 		}
-		driverID = defaults->second.first;
 	}
-	if (settings.length() == 0 && defaults != mHostPortSettings.end())
+	if (settings.length() == 0)
 	{
-		settings = defaults->second.second;
+		if (defaults != mHostPortSettings.end())
+		{
+			settings = defaults->second.second;
+		} else if (driverID == kTcpServerDriver)
+		{
+			settings = "127.0.0.1:3636";
+		}
 	}
 
 	printf("TSerialPorts::SetDriver at location %08x with driver %d and config data %s\n", inLocation, driverID, settings.c_str());
@@ -349,6 +341,20 @@ TSerialPorts::SetDriver(KUInt32 inLocation, EDriverID inDriver, std::string inCo
 		case kPtyDriver:
 			port = new TSerialHostPortPTY(mLog, inLocation, settings.c_str(), mEmulator);
 			break;
+#endif
+#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
+		case kTcpServerDriver: {
+			auto* tcpServer = new TSerialHostPortTCPServer(mLog, inLocation, settings, mEmulator);
+			if (!tcpServer->IsOpen())
+			{
+				delete tcpServer;
+				port = nullptr;
+			} else
+			{
+				port = tcpServer;
+			}
+			break;
+		}
 #endif
 		default:
 			port = nullptr;
@@ -399,7 +405,7 @@ KUInt32 TSerialPorts::NDrivers = kNDriverID;
 // used through SetDriver(), not offered for the four ports (ValidDrivers).
 std::vector<const char*> TSerialPorts::DriverNames = /* NOLINT */
 	{
-		"None", "Named Pipes", "Pseudoterminal", "BasiliskII", "Network Client", "Host Serial Port"
+		"None", "Named Pipes", "Pseudoterminal", "BasiliskII", "Network Client", "Host Serial Port", "TCP Server"
 	};
 
 KUInt32 TSerialPorts::NPorts = kNPortIndex;

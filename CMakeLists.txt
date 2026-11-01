@@ -577,6 +577,7 @@ elseif ( WIN32 )
 			EinsteinFLGUI
 			winmm
 		gdiplus
+			ws2_32
 		)
 		target_link_libraries ( EinsteinFLGUI
 			fltk::images fltk::png fltk::z

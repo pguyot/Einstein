@@ -66,6 +66,7 @@ public:
 		kBasiliskIIDriver,
 		kTcpClientDriver,
 		kDirectDriver,
+		kTcpServerDriver,
 		kNDriverID
 	};
 

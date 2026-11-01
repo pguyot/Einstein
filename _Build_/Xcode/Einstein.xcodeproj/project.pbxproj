@@ -102,6 +102,9 @@
 		A78AB26B278074400047B122 /* TSerialHostPortPTY.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB266278074400047B122 /* TSerialHostPortPTY.cpp */; };
 		A78AB26C278074400047B122 /* TSerialHostPortPTY.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB266278074400047B122 /* TSerialHostPortPTY.cpp */; };
 		A78AB26D278074400047B122 /* TSerialHostPortPTY.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB266278074400047B122 /* TSerialHostPortPTY.cpp */; };
+		A78AB26E278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */; };
+		A78AB26F278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */; };
+		A78AB272278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */; };
 		C901E51A132655D50074513E /* UUTF16CStr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334F111B7570002165EC /* UUTF16CStr.cpp */; };
 		C901E51D132655E00074513E /* UUTF16Conv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334D111B7570002165EC /* UUTF16Conv.cpp */; };
 		C901E5221326560B0074513E /* TStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3333111B7570002165EC /* TStream.cpp */; };
@@ -468,6 +471,8 @@
 		A78AB265278074400047B122 /* TSerialHostPortDirect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSerialHostPortDirect.cpp; sourceTree = "<group>"; };
 		A78AB266278074400047B122 /* TSerialHostPortPTY.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSerialHostPortPTY.cpp; sourceTree = "<group>"; };
 		A78AB267278074400047B122 /* TSerialHostPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSerialHostPort.h; sourceTree = "<group>"; };
+		A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSerialHostPortTCPServer.cpp; sourceTree = "<group>"; };
+		A78AB271278074400047B122 /* TSerialHostPortTCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSerialHostPortTCPServer.h; sourceTree = "<group>"; };
 		B81D5BEA2FA72ED700897E37 /* BUILDING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = BUILDING.md; path = ../BUILDING.md; sourceTree = "<group>"; };
 		B82DAEB12FA5CEB900DC1F4A /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		C92FC717209374B500EF4BB1 /* TPipesSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPipesSerialPortManager.h; sourceTree = "<group>"; };
@@ -490,11 +495,11 @@
 		C94ADB3E123E9AEC00406839 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		C94C96DB20937E780099001D /* TPtySerialPortManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPtySerialPortManager.cpp; sourceTree = "<group>"; };
 		C94C96DC20937E780099001D /* TPtySerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPtySerialPortManager.h; sourceTree = "<group>"; };
-		C950C22120A6536B00D8096B /* DumpROMMenuItem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Historic/DumpROMMenuItem.png; sourceTree = "<group>"; };
-		C950C22220A6536B00D8096B /* UserManual.html */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text.html.documentation; path = Historic/UserManual.html; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
-		C950C22420A6536B00D8096B /* SetupWindow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Historic/SetupWindow.png; sourceTree = "<group>"; };
-		C950C22520A6536B00D8096B /* DumpROMPanel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Historic/DumpROMPanel.png; sourceTree = "<group>"; };
-		C950C22720A6536B00D8096B /* ROMDumper.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Historic/ROMDumper.png; sourceTree = "<group>"; };
+		C950C22120A6536B00D8096B /* Historic/DumpROMMenuItem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Historic/DumpROMMenuItem.png; sourceTree = "<group>"; };
+		C950C22220A6536B00D8096B /* Historic/UserManual.html */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text.html.documentation; path = Historic/UserManual.html; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		C950C22420A6536B00D8096B /* Historic/SetupWindow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Historic/SetupWindow.png; sourceTree = "<group>"; };
+		C950C22520A6536B00D8096B /* Historic/DumpROMPanel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Historic/DumpROMPanel.png; sourceTree = "<group>"; };
+		C950C22720A6536B00D8096B /* Historic/ROMDumper.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Historic/ROMDumper.png; sourceTree = "<group>"; };
 		C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TUsermodeNetwork.cpp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TUsermodeNetwork.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429E11B6A20A00EE66F3 /* TNetworkManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNetworkManager.cpp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -963,11 +968,11 @@
 			children = (
 				B81D5BEA2FA72ED700897E37 /* BUILDING.md */,
 				C99656A42427804700D216A2 /* README.md */,
-				C950C22220A6536B00D8096B /* UserManual.html */,
-				C950C22120A6536B00D8096B /* DumpROMMenuItem.png */,
-				C950C22420A6536B00D8096B /* SetupWindow.png */,
-				C950C22520A6536B00D8096B /* DumpROMPanel.png */,
-				C950C22720A6536B00D8096B /* ROMDumper.png */,
+				C950C22220A6536B00D8096B /* Historic/UserManual.html */,
+				C950C22120A6536B00D8096B /* Historic/DumpROMMenuItem.png */,
+				C950C22420A6536B00D8096B /* Historic/SetupWindow.png */,
+				C950C22520A6536B00D8096B /* Historic/DumpROMPanel.png */,
+				C950C22720A6536B00D8096B /* Historic/ROMDumper.png */,
 			);
 			name = Documentation;
 			path = ../../Documentation;
@@ -1498,6 +1503,8 @@
 				A78AB263278074400047B122 /* TSerialHostPortDirect.h */,
 				A78AB266278074400047B122 /* TSerialHostPortPTY.cpp */,
 				A78AB264278074400047B122 /* TSerialHostPortPTY.h */,
+				A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */,
+				A78AB271278074400047B122 /* TSerialHostPortTCPServer.h */,
 			);
 			path = Serial;
 			sourceTree = "<group>";
@@ -1913,6 +1920,7 @@
 				C99E34E5111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
 				C94C96DD20937E780099001D /* TPtySerialPortManager.cpp in Sources */,
 				A78AB26B278074400047B122 /* TSerialHostPortPTY.cpp in Sources */,
+				A78AB26E278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */,
 				C99E34E7111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MRS.cpp in Sources */,
 				C99E34E9111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MSR.cpp in Sources */,
 				C99E34EB111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp in Sources */,
@@ -2027,6 +2035,7 @@
 				DA4BA4191A3A028C002BDB80 /* TEmulator.cpp in Sources */,
 				DA4BA42B1A3A02FD002BDB80 /* TStdOutLog.cpp in Sources */,
 				A78AB26D278074400047B122 /* TSerialHostPortPTY.cpp in Sources */,
+				A78AB26F278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */,
 				DA4BA4341A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp in Sources */,
 				DA4BA4551A3A03EF002BDB80 /* TEOFException.cpp in Sources */,
 				DAD09658246F61D500CADBF3 /* TPathHelper.cpp in Sources */,
@@ -2124,6 +2133,7 @@
 				DA4FF11E1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
 				DA4FF1481A35EC4300092B5A /* UDisasm.cpp in Sources */,
 				A78AB26C278074400047B122 /* TSerialHostPortPTY.cpp in Sources */,
+				A78AB272278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */,
 				DA4FF10C1A35EA8800092B5A /* TInterruptManager.cpp in Sources */,
 				DA4FF1301A35EB4900092B5A /* TMappedFile.cpp in Sources */,
 				DA4FF11D1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp in Sources */,
