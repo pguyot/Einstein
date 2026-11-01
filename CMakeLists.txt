@@ -32,6 +32,10 @@ option (EINSTEIN_BUILD_FLUID "Build the FLTK fluid UI designer" ON)
 # Turning this on downloads googletest and adds the EinsteinTests target.
 option (EINSTEIN_BUILD_TESTS "Build the EinsteinTests unit tests" OFF)
 
+# Build the NewtonOS ROM Extension (REx) drivers as part of Einstein.
+# Requires an ARM cross-compiler (arm-none-eabi-gcc or arm-eabi-gcc) supporting armv4.
+option (EINSTEIN_BUILD_DRIVERS "Build NewtonOS REx drivers as part of Einstein" OFF)
+
 if ( EINSTEIN_FLTK_FRONTEND AND EINSTEIN_SDL3_FRONTEND )
 	message( FATAL_ERROR "Cannot select the FLTK and SDL3 frontend at the same time. Please choose either EINSTEIN_FLTK_FRONTEND or EINSTEIN_SDL3_FRONTEND." )
 elseif ( NOT EINSTEIN_FLTK_FRONTEND AND NOT EINSTEIN_SDL3_FRONTEND )
@@ -291,6 +295,16 @@ if ( NEWT64_FOUND MATCHES true )
 	include( Toolkit/CMakeLists.txt )
 endif ()
 include( _Tests_/CMakeLists.txt )
+
+# ---- NewtonOS Drivers / REx --------------------------------------------------
+
+if ( EINSTEIN_BUILD_DRIVERS )
+	find_program ( ARM_GCC NAMES arm-none-eabi-gcc arm-eabi-gcc )
+	if ( NOT ARM_GCC )
+		message ( FATAL_ERROR "EINSTEIN_BUILD_DRIVERS is ON, but arm-none-eabi-gcc or arm-eabi-gcc was not found." )
+	endif ()
+	add_subdirectory ( Drivers )
+endif ()
 
 if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	# additional source code
@@ -603,6 +617,15 @@ endif ()
 
 if ( EINSTEIN_BUILD_TESTS AND NOT ANDROID )
 	include( _Tests_/EinsteinTests.cmake )
+endif ()
+
+if ( TARGET EinsteinDrivers )
+	if ( TARGET Einstein )
+		add_dependencies ( Einstein EinsteinDrivers )
+	endif ()
+	if ( TARGET einstein )
+		add_dependencies ( einstein EinsteinDrivers )
+	endif ()
 endif ()
 
 
