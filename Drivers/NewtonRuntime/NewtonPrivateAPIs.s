@@ -60,7 +60,7 @@ New__\class\()Fv:
     JT _ZN11TSerialChip7GetByteEv, 00384B84
     JT _ZN11TSerialChip18SetInterruptEnableEh, 00384C14
     JT _ZN11TSerialChip6DeleteEv, 00384B38
-    JT _ZN7TOptionC2Em, 0014AA38
+    JT _ZN7TOptionC2Em, 018001f4
     JT _ZN11TUTaskWorldC2Ev, 01BCC670
     JT _ZN11TUTaskWorld9StartTaskEhhmmmm, 01BDCE4C
     JT _ZN14TUAsyncMessageC1Emm, 01BCD6A8

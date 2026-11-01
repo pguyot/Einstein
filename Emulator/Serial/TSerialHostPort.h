@@ -22,6 +22,8 @@
 #ifndef _TSERIAL_HOST_PORT
 #define _TSERIAL_HOST_PORT
 
+#include <atomic>
+
 #include <K/Defines/KDefinitions.h>
 #include "Emulator/TInterruptManager.h"
 #include "Emulator/Platform/TNewt.h"
@@ -191,7 +193,7 @@ protected:
 	TEmulator* mEmulator;
 	KUInt32 mLocation;
 	KUInt32 mInterruptID;
-	SerialStatus mSerialStatus;
+	std::atomic<SerialStatus> mSerialStatus;
 	SerialOutputControl mSerialOutputs;
 
 	static inline KUInt32 mCurrentInterruptID = TInterruptManager::kPCMCIA0IntMask << 1;

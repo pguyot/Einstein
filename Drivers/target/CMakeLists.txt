@@ -40,7 +40,7 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../obj)
 
 # -- Shared runtime
 add_library(Runtime STATIC
-    ../Glue.s ../UGlue.cpp ../NewtonRuntime/NewtonRuntime.cpp ../NewtonRuntime/NewtonPublicAPIs.s ../NativePrimitives.s)
+    ../Glue.s ../UGlue.cpp ../NewtonRuntime/NewtonRuntime.cpp ../NewtonRuntime/NewtonPublicAPIs.s ../NewtonRuntime/NewtonPrivateAPIs.s ../NativePrimitives.s)
 target_include_directories(Runtime PRIVATE ${INCLUDE_DIRECTORIES})
 target_link_options(Runtime PRIVATE ${LINK_OPTIONS})
 

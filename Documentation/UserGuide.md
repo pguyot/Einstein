@@ -214,6 +214,9 @@ file, or a PC Card. Your data is safe either way, because it is in the flash.
 You can turn fast start off in the **MessagePad** tab of the Settings
 (*Fast start: continue where Einstein was quit*).
 
+For now, fast start is not compatible with the TCP to serial bridge: the TCP
+listener is not started again after a fast start.
+
 ### Saving and restoring a state
 
 You can save the complete state of the Newton and return to it later. For

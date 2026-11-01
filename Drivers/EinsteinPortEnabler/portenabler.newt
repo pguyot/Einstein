@@ -1,4 +1,5 @@
 constant kAppSymbol := '|Port Enabler:40Hz|;
+constant kDockAppSymbol := '|HostTCPDock:40Hz|;
 constant kPrefsFrame := {
     extr: true,
     mdem: nil,
@@ -18,6 +19,74 @@ constant enablerTemplate := {
     end,
     ValueChanged: func () begin
         prefsEntry.(port) := viewValue;
+    end,
+};
+
+constant kHostTCPDockTransport := {
+    name: "TCP Listener",
+    openOptions: func() begin
+        return [
+            {
+                label: "aser",
+                type: 'service,
+                opCode: 512,
+            },
+            {
+                label: "schp",
+                type: 'option,
+                opCode: 512,
+                form: 'template,
+                data: {
+                    arglist: ["serv", 0],
+                    typelist: ['struct, ['array, 'char, 4], 'ulong],
+                },
+            },
+            {
+                label: "siop",
+                type: 'option,
+                opCode: 256,
+                data: {
+                    arglist: [0, 0, 8, 57600],
+                    typelist: [10, 1, 2, 1, 1],
+                },
+            },
+            {
+                label: "mnpn",
+                type: 'option,
+                opCode: 256,
+                data: {
+                    arglist: [57600],
+                    typelist: [10, 1],
+                },
+            },
+            {
+                label: "mnpc",
+                type: 'option,
+                opCode: 512,
+                data: {
+                    arglist: [11],
+                    typelist: [10, 1],
+                },
+            },
+            {
+                label: "mnpa",
+                type: 'option,
+                opCode: 512,
+                data: {
+                    arglist: [true],
+                    typelist: [10, 5],
+                },
+            },
+            {
+                label: "eter",
+                type: 'option,
+                opCode: 256,
+                data: {
+                    arglist: [57600],
+                    typelist: [10, 1],
+                },
+            },
+        ];
     end,
 };
 
@@ -65,11 +134,18 @@ constant enablerTemplate := {
         prefsEntry := GetAppPrefs(kAppSymbol, kPrefsFrame);
         foreach port, default in kPrefsFrame do
           if prefsEntry.(port) then partFrame:enable(SPrintObject(port), nil, nil);
+        local err := partFrame:enable("serv", nil, nil);
+        if err = 0 and GlobalFnExists('RegDesktopConnTransport) then
+            RegDesktopConnTransport(kDockAppSymbol, kHostTCPDockTransport);
         return removeFrame;
     end,
 
     devRemoveScript: func (partFrame) begin
-        partFrame:disable("extr");
+        if GlobalFnExists('UnregDesktopConnTransport) then
+            UnregDesktopConnTransport(kDockAppSymbol);
+        foreach port, default in kPrefsFrame do
+            partFrame:disable(SPrintObject(port));
+        partFrame:disable("serv");
         UnRegPrefs(kAppSymbol);
     end,
 

@@ -96,11 +96,10 @@ extern "C" Ref Disable(RefArg inRcvr, RefArg inLocation)
     TSerialChip *einsteinChip = registry->GetChipPtr(id);
     if (einsteinChip != NULL) {
         registry->UnRegister(einsteinChip);
+        einsteinChip->Delete();
     }
     TUNameServer nameServer;
     nameServer.UnRegisterName(name, "TSerialChip");
-
-    einsteinChip->Delete();
 
     return MakeInt(0);
 }
