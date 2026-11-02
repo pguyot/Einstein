@@ -26,6 +26,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		Emulator/Serial/TSerialHostPortDirect.cpp
 		Emulator/Serial/TSerialHostPortPTY.h
 		Emulator/Serial/TSerialHostPortPTY.cpp
+		Emulator/Serial/TSerialHostPortPTYBasilisk.h
+		Emulator/Serial/TSerialHostPortPTYBasilisk.cpp
 		Emulator/Serial/TBasiliskIISerialPortManager.cpp
 		Emulator/Serial/TBasiliskIISerialPortManager.h
 		Emulator/Serial/TPipesSerialPortManager.cpp
@@ -39,6 +41,8 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "
 		Emulator/Serial/TSerialHostPortDirect.cpp
 		Emulator/Serial/TSerialHostPortPTY.h
 		Emulator/Serial/TSerialHostPortPTY.cpp
+		Emulator/Serial/TSerialHostPortPTYBasilisk.h
+		Emulator/Serial/TSerialHostPortPTYBasilisk.cpp
 		Emulator/Serial/TBasiliskIISerialPortManager.cpp
 		Emulator/Serial/TBasiliskIISerialPortManager.h
 		Emulator/Serial/TPipesSerialPortManager.cpp

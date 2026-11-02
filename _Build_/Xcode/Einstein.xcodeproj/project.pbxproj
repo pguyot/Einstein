@@ -105,6 +105,9 @@
 		A78AB26E278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */; };
 		A78AB26F278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */; };
 		A78AB272278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */; };
+		B8189DC9309B416800165835 /* TSerialHostPortPTYBasilisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8189DC8309B416800165835 /* TSerialHostPortPTYBasilisk.cpp */; };
+		B8189DCA309B416800165835 /* TSerialHostPortPTYBasilisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8189DC8309B416800165835 /* TSerialHostPortPTYBasilisk.cpp */; };
+		B8189DCB309B416800165835 /* TSerialHostPortPTYBasilisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8189DC8309B416800165835 /* TSerialHostPortPTYBasilisk.cpp */; };
 		C901E51A132655D50074513E /* UUTF16CStr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334F111B7570002165EC /* UUTF16CStr.cpp */; };
 		C901E51D132655E00074513E /* UUTF16Conv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334D111B7570002165EC /* UUTF16Conv.cpp */; };
 		C901E5221326560B0074513E /* TStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3333111B7570002165EC /* TStream.cpp */; };
@@ -473,6 +476,8 @@
 		A78AB267278074400047B122 /* TSerialHostPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSerialHostPort.h; sourceTree = "<group>"; };
 		A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSerialHostPortTCPServer.cpp; sourceTree = "<group>"; };
 		A78AB271278074400047B122 /* TSerialHostPortTCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSerialHostPortTCPServer.h; sourceTree = "<group>"; };
+		B8189DC7309B416800165835 /* TSerialHostPortPTYBasilisk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TSerialHostPortPTYBasilisk.h; sourceTree = "<group>"; };
+		B8189DC8309B416800165835 /* TSerialHostPortPTYBasilisk.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TSerialHostPortPTYBasilisk.cpp; sourceTree = "<group>"; };
 		B81D5BEA2FA72ED700897E37 /* BUILDING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = BUILDING.md; path = ../BUILDING.md; sourceTree = "<group>"; };
 		B82DAEB12FA5CEB900DC1F4A /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		C92FC717209374B500EF4BB1 /* TPipesSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPipesSerialPortManager.h; sourceTree = "<group>"; };
@@ -1505,6 +1510,8 @@
 				A78AB264278074400047B122 /* TSerialHostPortPTY.h */,
 				A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */,
 				A78AB271278074400047B122 /* TSerialHostPortTCPServer.h */,
+				B8189DC7309B416800165835 /* TSerialHostPortPTYBasilisk.h */,
+				B8189DC8309B416800165835 /* TSerialHostPortPTYBasilisk.cpp */,
 			);
 			path = Serial;
 			sourceTree = "<group>";
@@ -1960,6 +1967,7 @@
 				C99E3523111B7C08002165EC /* TSerialPortDriver.cpp in Sources */,
 				C99E3524111B7C08002165EC /* TBufferedSoundManager.cpp in Sources */,
 				C99E3525111B7C08002165EC /* TCoreAudioSoundManager.cpp in Sources */,
+				B8189DC9309B416800165835 /* TSerialHostPortPTYBasilisk.cpp in Sources */,
 				C99E3526111B7C08002165EC /* TNullSoundManager.cpp in Sources */,
 				C99E3528111B7C08002165EC /* TSoundManager.cpp in Sources */,
 				C945F6731E53180C002505E9 /* TBasicSerialPortManager.cpp in Sources */,
@@ -2016,6 +2024,7 @@
 				DA52C89F1A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */,
 				DA4BA4361A3A02FD002BDB80 /* TJITGeneric_MultiplyAndAccumulate.cpp in Sources */,
 				DA4BA4381A3A02FD002BDB80 /* TJITGeneric_SingleDataSwap.cpp in Sources */,
+				B8189DCB309B416800165835 /* TSerialHostPortPTYBasilisk.cpp in Sources */,
 				DA4BA41B1A3A028C002BDB80 /* TAIFROMImageWithREXes.cpp in Sources */,
 				DA4BA4641A3A37F8002BDB80 /* TSoundManager.cpp in Sources */,
 				DA4BA45F1A3A0407002BDB80 /* TMutex.cpp in Sources */,
@@ -2184,6 +2193,7 @@
 				DA4FF11F1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_MRS.cpp in Sources */,
 				DA4FF12B1A35EB3200092B5A /* TLinearCard.cpp in Sources */,
 				DA0CD1DD24A7845A00E8D593 /* TPtySerialPortManager.cpp in Sources */,
+				B8189DCA309B416800165835 /* TSerialHostPortPTYBasilisk.cpp in Sources */,
 				DA4FF13F1A35EC0A00092B5A /* TFlatROMImageWithREX.cpp in Sources */,
 				DA52C8961A409164008A17D0 /* TJITGenericROMPatch.cpp in Sources */,
 				DA4FF10E1A35EA8C00092B5A /* TEmulator.cpp in Sources */,

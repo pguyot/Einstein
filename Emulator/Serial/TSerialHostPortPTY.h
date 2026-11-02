@@ -24,7 +24,9 @@
 
 #include "TSerialHostPort.h"
 #include <K/Misc/TCircleBuffer.h>
-#include <K/Threads/TThread.h>
+#include <atomic>
+#include <mutex>
+#include <thread>
 
 ///
 /// Class to handle host emulated serial port
@@ -40,7 +42,8 @@ public:
 		TLog* inLog,
 		KUInt32 inLocation,
 		const std::string& inPath,
-		TEmulator* inEmulator);
+		TEmulator* inEmulator,
+		bool inStartWorker = true);
 
 	virtual ~TSerialHostPortPTY();
 
@@ -61,7 +64,7 @@ public:
 	virtual KSInt32 ProcessOption(TOption* opt) override;
 	virtual KSInt32 SetSerialMode(SerialMode mode) override;
 
-	virtual RxErrorStatus GetByteAndStatus(KUInt8* nextCharPtr) override;
+virtual RxErrorStatus GetByteAndStatus(KUInt8* nextCharPtr) override;
 	virtual bool AllSent() override;
 
 	virtual KSInt32 WaitForAllSent() override;
@@ -70,6 +73,11 @@ public:
 	void Run();
 
 protected:
+	void StartWorker();
+	virtual void ConfigureMaster();
+	virtual bool ProcessIncomingBytes(KUInt8* inData, int inCount, bool& outResetRequested);
+	void TeardownAndRecreatePTY();
+
 	/// Path to the PTY (could be std::filename)
 	std::string mPath { };
 
@@ -79,8 +87,12 @@ protected:
 	/// PTY file number to send data to the host
 	int mRemote { -1 };
 
-	/// Worker thread
-	TThread* mIOThread { nullptr };
+	/// PutByte and the PTY worker must not use a descriptor while it is replaced.
+	std::mutex mPortMutex;
+
+	/// Worker thread; joined before its PTY and buffers are destroyed.
+	std::thread mIOThread;
+	std::atomic<bool> mStopRequested { false };
 
 	/// Class wide mutex
 	TMutex* mReadMutex { nullptr };

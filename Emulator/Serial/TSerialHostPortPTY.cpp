@@ -38,7 +38,8 @@ TSerialHostPortPTY::TSerialHostPortPTY(
 	TLog* inLog,
 	KUInt32 inLocation,
 	const std::string& inPath,
-	TEmulator* inEmulator) :
+	TEmulator* inEmulator,
+	bool inStartWorker) :
 		TSerialHostPort(inLog, inLocation, inEmulator)
 {
 	if (inPath.length() > 0)
@@ -52,10 +53,30 @@ TSerialHostPortPTY::TSerialHostPortPTY(
 	}
 	AssignInterruptID();
 	CreatePTY();
+	mReadMutex = new TMutex();
+	mReadBuffer = new TCircleBuffer(8 * 1024);
+	mSerialStatus = kSerialTxBufferEmpty;
+	if (inStartWorker)
+	{
+		StartWorker();
+	}
+}
+
+void
+TSerialHostPortPTY::StartWorker()
+{
+	if (!mIOThread.joinable())
+	{
+		mIOThread = std::thread(&TSerialHostPortPTY::Run, this);
+	}
 }
 
 TSerialHostPortPTY::~TSerialHostPortPTY()
 {
+	mStopRequested = true;
+	if (mIOThread.joinable())
+		mIOThread.join();
+	unlink(mPath.c_str());
 	if (mMain != -1)
 	{
 		close(mMain);
@@ -66,7 +87,12 @@ TSerialHostPortPTY::~TSerialHostPortPTY()
 	}
 	delete mReadMutex;
 	delete mReadBuffer;
-	delete mIOThread;
+}
+
+void
+TSerialHostPortPTY::ConfigureMaster()
+{
+	// Base PTY runs in standard POSIX raw mode; no special packet mode.
 }
 
 void
@@ -74,11 +100,29 @@ TSerialHostPortPTY::CreatePTY()
 {
 	unlink(mPath.c_str());
 	mMain = posix_openpt(O_RDWR | O_NOCTTY | O_NONBLOCK);
-	grantpt(mMain);
-	unlockpt(mMain);
+	if (mMain == -1)
+	{
+		if (mLog) mLog->FLogLine("TSerialHostPortPTY: posix_openpt failed for %s", mPath.c_str());
+		return;
+	}
+	if (grantpt(mMain) == -1 || unlockpt(mMain) == -1)
+	{
+		if (mLog) mLog->FLogLine("TSerialHostPortPTY: grantpt/unlockpt failed for %s", mPath.c_str());
+		close(mMain);
+		mMain = -1;
+		return;
+	}
 	const char* remoteName = ptsname(mMain);
-	mRemote = open(remoteName, O_RDWR | O_NOCTTY);
-	symlink(remoteName, mPath.c_str());
+	if (remoteName != nullptr)
+		mRemote = open(remoteName, O_RDWR | O_NOCTTY);
+	if (mRemote == -1 || symlink(remoteName, mPath.c_str()) == -1)
+	{
+		if (mLog) mLog->FLogLine("TSerialHostPortPTY: slave open/link failed for %s", mPath.c_str());
+		if (mRemote != -1) close(mRemote);
+		close(mMain);
+		mMain = mRemote = -1;
+		return;
+	}
 
 	struct termios options;
 	tcgetattr(mMain, &options);
@@ -91,20 +135,63 @@ TSerialHostPortPTY::CreatePTY()
 	options.c_cflag |= HUPCL | CLOCAL;
 	tcsetattr(mRemote, TCSANOW, &options);
 
+	ConfigureMaster();
+
 	if (mLog)
 	{
-		mLog->FLogLine("TSerialHostPortPTY: port opened: %s", mPath.c_str());
+		mLog->FLogLine("TSerialHostPortPTY: PTY opened %s -> %s",
+			mPath.c_str(), remoteName);
 	}
-	mReadMutex = new TMutex();
-	mReadBuffer = new TCircleBuffer(8 * 1024);
-	mSerialStatus = kSerialTxBufferEmpty;
-	mIOThread = new TThread(this);
+}
+
+void
+TSerialHostPortPTY::TeardownAndRecreatePTY()
+{
+	if (mLog)
+		mLog->FLogLine("TSerialHostPortPTY: resetting %s", mPath.c_str());
+	{
+		std::lock_guard<std::mutex> lock(mPortMutex);
+		unlink(mPath.c_str());
+		close(mMain);
+		close(mRemote);
+		mMain = mRemote = -1;
+	}
+	{
+		mReadMutex->Lock();
+		if (mReadBuffer)
+		{
+			mReadBuffer->Discard(mReadBuffer->AvailableBytes());
+		}
+		mSerialStatus &= ~kSerialRxCharAvailable;
+		mReadMutex->Unlock();
+	}
+	usleep(500000);
+	if (mStopRequested)
+		return;
+	{
+		std::lock_guard<std::mutex> lock(mPortMutex);
+		CreatePTY();
+	}
+}
+
+bool
+TSerialHostPortPTY::ProcessIncomingBytes(KUInt8* inData, int inCount, bool& outResetRequested)
+{
+	outResetRequested = false;
+	if (inCount <= 0)
+		return false;
+	mReadBuffer->Produce(inData, inCount);
+	return true;
 }
 
 void
 TSerialHostPortPTY::PutByte(KUInt8 nextChar)
 {
-	write(mMain, &nextChar, 1);
+	{
+		std::lock_guard<std::mutex> lock(mPortMutex);
+		if (mMain != -1)
+			write(mMain, &nextChar, 1);
+	}
 	mSerialStatus |= kSerialTxBufferEmpty;
 	mEmulator->GetInterruptManager()->RaiseInterrupt(mInterruptID);
 }
@@ -207,30 +294,49 @@ void
 TSerialHostPortPTY::Run()
 {
 	fd_set fdSet;
-	while (true)
+	while (!mStopRequested)
 	{
-		if (mLog)
+		if (mMain == -1)
 		{
-			mLog->LogLine("TSerialHostPortPTY: Waiting for data...");
+			usleep(500000);
+			if (mStopRequested) break;
+			std::lock_guard<std::mutex> lock(mPortMutex);
+			CreatePTY();
+			continue;
 		}
 		FD_ZERO(&fdSet);
 		FD_SET(mMain, &fdSet);
-		if (select(FD_SETSIZE, &fdSet, 0, 0, 0) != -1 && FD_ISSET(mMain, &fdSet))
+		struct timeval timeout { 0, 100000 }; // allow destructor to join
+		if (select(mMain + 1, &fdSet, 0, 0, &timeout) > 0 && FD_ISSET(mMain, &fdSet))
 		{
-			KUInt8 data[128];
+			KUInt8 data[129];
 			int n;
+			bool receivedData = false;
+			bool resetPTY = false;
 			mReadMutex->Lock();
 			while ((n = (int) read(mMain, data, sizeof(data))) > 0)
 			{
-				mReadBuffer->Produce(data, n);
-			}
-			if (mLog)
-			{
-				mLog->LogLine("TSerialHostPortPTY: Sending data...");
+				bool resetRequested = false;
+				if (ProcessIncomingBytes(data, n, resetRequested))
+				{
+					receivedData = true;
+				}
+				if (resetRequested)
+				{
+					resetPTY = true;
+					break;
+				}
 			}
 			mReadMutex->Unlock();
-			mSerialStatus |= kSerialRxCharAvailable;
-			mEmulator->GetInterruptManager()->RaiseInterrupt(mInterruptID);
+			if (receivedData)
+			{
+				mSerialStatus |= kSerialRxCharAvailable;
+				mEmulator->GetInterruptManager()->RaiseInterrupt(mInterruptID);
+			}
+			if (resetPTY)
+			{
+				TeardownAndRecreatePTY();
+			}
 		}
 	}
 }
