@@ -65,6 +65,7 @@
 #include "Emulator/Serial/TPtySerialPortManager.h"
 #include "Emulator/Serial/TSerialHostPortDirect.h"
 #include "Emulator/Serial/TSerialHostPortPTY.h"
+#include "Emulator/Serial/TSerialHostPortPTYBasilisk.h"
 #endif
 #if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
 #include "Emulator/Serial/TSerialHostPortTCPServer.h"
@@ -340,6 +341,9 @@ TSerialPorts::SetDriver(KUInt32 inLocation, EDriverID inDriver, std::string inCo
 			break;
 		case kPtyDriver:
 			port = new TSerialHostPortPTY(mLog, inLocation, settings.c_str(), mEmulator);
+			break;
+		case kBasiliskIIDriver:
+			port = new TSerialHostPortPTYBasilisk(mLog, inLocation, settings.c_str(), mEmulator);
 			break;
 #endif
 #if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
