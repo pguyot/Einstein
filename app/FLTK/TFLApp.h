@@ -261,6 +261,9 @@ public:
 	// Start another Einstein that runs this machine (one machine per process).
 	void LaunchMachine(const char* inUUID);
 
+	// create a log file (used by the --log/-l command line option)
+	void CreateLog(const char* inPath);
+
 private:
 
 	// Find the card in the card list that was saved in a state file, -1 if none
@@ -313,9 +316,6 @@ private:
 		int inPortraitWidth,
 		int inPortraitHeight,
 		Boolean inFullScreen);
-
-	// create a log file
-	void CreateLog(const char* inPath);
 
 	// run the emulation in a new thread
 	void EmulatorThreadEntry(void);
