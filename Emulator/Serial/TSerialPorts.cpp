@@ -316,6 +316,9 @@ TSerialPorts::SetDriver(KUInt32 inLocation, EDriverID inDriver, std::string inCo
 		} else if (inLocation == 'serv')
 		{
 			driverID = kTcpServerDriver;
+		} else if (inLocation == 'basi')
+		{
+			driverID = kBasiliskIIDriver;
 		} else
 		{
 			driverID = kPtyDriver;
@@ -329,6 +332,9 @@ TSerialPorts::SetDriver(KUInt32 inLocation, EDriverID inDriver, std::string inCo
 		} else if (driverID == kTcpServerDriver)
 		{
 			settings = "127.0.0.1:3636";
+		} else if (driverID == kBasiliskIIDriver)
+		{
+			settings = "/tmp/einstein-basilisk.pty";
 		}
 	}
 

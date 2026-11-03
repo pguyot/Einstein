@@ -1,5 +1,6 @@
 constant kAppSymbol := '|Port Enabler:40Hz|;
 constant kDockAppSymbol := '|HostTCPDock:40Hz|;
+constant kDockBasiliskAppSymbol := '|HostBasiliskDock:40Hz|;
 constant kPrefsFrame := {
     extr: true,
     mdem: nil,
@@ -38,6 +39,74 @@ constant kHostTCPDockTransport := {
                 form: 'template,
                 data: {
                     arglist: ["serv", 0],
+                    typelist: ['struct, ['array, 'char, 4], 'ulong],
+                },
+            },
+            {
+                label: "siop",
+                type: 'option,
+                opCode: 256,
+                data: {
+                    arglist: [0, 0, 8, 57600],
+                    typelist: [10, 1, 2, 1, 1],
+                },
+            },
+            {
+                label: "mnpn",
+                type: 'option,
+                opCode: 256,
+                data: {
+                    arglist: [57600],
+                    typelist: [10, 1],
+                },
+            },
+            {
+                label: "mnpc",
+                type: 'option,
+                opCode: 512,
+                data: {
+                    arglist: [11],
+                    typelist: [10, 1],
+                },
+            },
+            {
+                label: "mnpa",
+                type: 'option,
+                opCode: 512,
+                data: {
+                    arglist: [true],
+                    typelist: [10, 5],
+                },
+            },
+            {
+                label: "eter",
+                type: 'option,
+                opCode: 256,
+                data: {
+                    arglist: [57600],
+                    typelist: [10, 1],
+                },
+            },
+        ];
+    end,
+};
+
+constant kHostBasiliskDockTransport := {
+    name: "Basilisk II",
+    openOptions: func() begin
+        return [
+            {
+                label: "mnps",
+                type: 'service,
+                opCode: 512,
+            },
+            {
+                label: "schp",
+                type: 'option,
+                opCode: 512,
+                form: 'template,
+                data: {
+                    arglist: ["basi", 0],
                     typelist: ['struct, ['array, 'char, 4], 'ulong],
                 },
             },
@@ -135,17 +204,27 @@ constant kHostTCPDockTransport := {
         foreach port, default in kPrefsFrame do
           if prefsEntry.(port) then partFrame:enable(SPrintObject(port), nil, nil);
         local err := partFrame:enable("serv", nil, nil);
-        if err = 0 and GlobalFnExists('RegDesktopConnTransport) then
-            RegDesktopConnTransport(kDockAppSymbol, kHostTCPDockTransport);
+        if GlobalFnExists('RegDesktopConnTransport) then begin
+            if err = 0 then
+                RegDesktopConnTransport(kDockAppSymbol, kHostTCPDockTransport);
+        end;
+        err := partFrame:enable("basi", nil, nil);
+        if GlobalFnExists('RegDesktopConnTransport) then begin
+            if err = 0 then
+                RegDesktopConnTransport(kDockBasiliskAppSymbol, kHostBasiliskDockTransport);
+        end;
         return removeFrame;
     end,
 
     devRemoveScript: func (partFrame) begin
-        if GlobalFnExists('UnregDesktopConnTransport) then
+        if GlobalFnExists('UnregDesktopConnTransport) then begin
             UnregDesktopConnTransport(kDockAppSymbol);
+            UnregDesktopConnTransport(kDockBasiliskAppSymbol);
+        end;
         foreach port, default in kPrefsFrame do
             partFrame:disable(SPrintObject(port));
         partFrame:disable("serv");
+        partFrame:disable("basi");
         UnRegPrefs(kAppSymbol);
     end,
 
