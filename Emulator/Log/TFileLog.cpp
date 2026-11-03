@@ -62,6 +62,10 @@ TFileLog::~TFileLog(void)
 void
 TFileLog::DoLogLine(const char* inLine)
 {
+	if (mFile == nullptr)
+	{
+		return;
+	}
 	(void) ::fprintf(mFile, "%s\n", inLine);
 	(void) ::fflush(mFile);
 }

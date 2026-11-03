@@ -1797,6 +1797,18 @@ HandleArgument(int argc, char** argv, int& i)
 		i += 2;
 		return 2;
 	}
+	if (strncmp(argv[i], "--log=", 6) == 0)
+	{
+		gApp->CreateLog(&argv[i][6]);
+		i += 1;
+		return 1;
+	}
+	if ((strcmp(argv[i], "--log") == 0 || strcmp(argv[i], "-l") == 0) && i + 1 < argc && argv[i + 1][0] != '-')
+	{
+		gApp->CreateLog(argv[i + 1]);
+		i += 2;
+		return 2;
+	}
 	return 0;
 }
 
@@ -1806,7 +1818,7 @@ TFLApp::InitFLTK(int argc, char** argv)
 	Fl::scheme("gtk+");
 	int i = 1;
 	if (Fl::args(argc, argv, i, HandleArgument) < argc)
-		Fl::error("Options are:\n --machine <uuid or name>\n%s", Fl::help);
+		Fl::error("Options are:\n --machine <uuid or name>\n --log=<path>, --log <path>, or -l <path>\n%s", Fl::help);
 	Fl::get_system_colors();
 	Fl::use_high_res_GL(1);
 	Fl::visual(FL_RGB);
