@@ -69,7 +69,11 @@ extern "C" Ref Enable(RefArg inRcvr, RefArg inLocation, RefArg inType, RefArg in
     } else {
         option.fType = -1;
     }
-    einsteinChip->ProcessOption(&option);
+    NewtonErr err = einsteinChip->ProcessOption(&option);
+    if (err != 0) {
+        einsteinChip->Delete();
+        return MakeInt(err);
+    }
     registry->Register(einsteinChip, location);
 
     return MakeInt(0);
