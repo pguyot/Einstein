@@ -38,6 +38,8 @@ class TEmulator;
 	// EOrientation			mOrientation;
 	// KUInt32					mPreviousMods;
 	bool applePencilMode;
+	bool applePencilPressureEnabled;
+	UITouch* currentApplePencilTouch;
 }
 
 - (void)reset;

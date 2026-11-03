@@ -80,11 +80,11 @@
 		</dict>
 		<dict>
 			<key>FooterText</key>
-			<string>Ignore touches that do not come from the stylus.</string>
+			<string>Ignore touches that do not come from the stylus. Requires an iPad with Apple Pencil support (iPad Pro, iPad Air 3, or later).</string>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
-			<string>Apple Pencil</string>
+			<string>Apple Pencil Input</string>
 		</dict>
 		<dict>
 			<key>Type</key>
@@ -93,6 +93,16 @@
 			<string>Apple Pencil Mode</string>
 			<key>Key</key>
 			<string>apple_pencil</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Enable Pressure Sensitivity</string>
+			<key>Key</key>
+			<string>apple_pencil_pressure</string>
 			<key>DefaultValue</key>
 			<false/>
 		</dict>
