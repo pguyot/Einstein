@@ -5,14 +5,31 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: Windows-native
+            generator: "MinGW Makefiles"
+          - os: ubuntu-latest
+            name: Linux-cross
+            generator: "Ninja"
+    runs-on: ${{ matrix.os }}
     steps:
+    - name: Install dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mingw-w64 ninja-build
+        sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+        sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
     - name: Get sources
       uses: actions/checkout@v4
     - name: Configure
       shell: bash
       run: |
-        cmake -G "MinGW Makefiles" -S . -B _Build_/Makefiles -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-mingw.cmake
+        cmake -G "${{ matrix.generator }}" -S . -B _Build_/Makefiles -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-mingw.cmake
     - name: Compile Einstein
       shell: bash
       run: |
@@ -20,5 +37,5 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Einstein-MinGW
+        name: Einstein-MinGW-${{ matrix.name }}
         path: _Build_/Makefiles/Einstein.exe
