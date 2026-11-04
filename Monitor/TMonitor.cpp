@@ -119,12 +119,14 @@ TMonitor::TMonitor(
 	mMemory = inEmulator->GetMemory();
 	UDisasm::setMemory(mMemory);
 	mROMImageDir = strdup(mMonitorStartupScriptPath);
-#if TARGET_OS_WIN32
-	char* pathEnd = strrchr(mROMImageDir, '\\');
-#else
 	char* pathEnd = strrchr(mROMImageDir, '/');
+#if TARGET_OS_WIN32
+	char* winPathEnd = strrchr(mROMImageDir, '\\');
+	if (winPathEnd > pathEnd)
+		pathEnd = winPathEnd;
 #endif
-	*pathEnd = 0;
+	if (pathEnd)
+		*pathEnd = 0;
 
 #if !TARGET_UI_FLTK && !TARGET_OS_WIN32 && !TARGET_UI_SDL
 	if (::socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, mSocketPair) != 0)
