@@ -40,7 +40,7 @@ static constexpr int kRxMicrosecondsPerByte = 90; // server to Newton
 #include <string>
 
 #if TARGET_OS_WIN32
-#include <WinSock2.h>
+#include <winsock2.h>
 #include <ws2tcpip.h>
 #else
 #include <arpa/inet.h>

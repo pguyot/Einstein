@@ -32,7 +32,7 @@
 #include <stdlib.h>
 
 #if TARGET_OS_WIN32
-#include <Winsock2.h>
+#include <winsock2.h>
 #include <string.h>
 #else
 #include <arpa/inet.h>

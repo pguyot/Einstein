@@ -67,7 +67,7 @@ KDefinitions_compile_time_assertions(void)
 
 #undef KPrintf
 
-#include <Windows.h>
+#include <windows.h>
 #include <malloc.h>
 #include <mutex>
 #include <stdio.h>
