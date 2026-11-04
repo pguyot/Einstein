@@ -12,16 +12,18 @@ jobs:
           - os: windows-latest
             name: Windows-native
             generator: "MinGW Makefiles"
+            build_drivers: "OFF"
           - os: ubuntu-latest
             name: Linux-cross
             generator: "Ninja"
+            build_drivers: "ON"
     runs-on: ${{ matrix.os }}
     steps:
     - name: Install dependencies (Linux)
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y mingw-w64 ninja-build
+        sudo apt-get install -y mingw-w64 ninja-build gcc-arm-none-eabi
         sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
         sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
     - name: Get sources
@@ -29,7 +31,7 @@ jobs:
     - name: Configure
       shell: bash
       run: |
-        cmake -G "${{ matrix.generator }}" -S . -B _Build_/Makefiles -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-mingw.cmake
+        cmake -G "${{ matrix.generator }}" -S . -B _Build_/Makefiles -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-mingw.cmake -DEINSTEIN_BUILD_DRIVERS=${{ matrix.build_drivers }}
     - name: Compile Einstein
       shell: bash
       run: |
