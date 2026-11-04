@@ -27,8 +27,8 @@
 #include "TBasicSerialPortManager.h"
 
 #if TARGET_OS_WIN32
-#include <Windows.h>
-#include <Winsock2.h>
+#include <windows.h>
+#include <winsock2.h>
 #endif
 #include <atomic>
 #include <chrono>

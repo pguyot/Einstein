@@ -43,7 +43,7 @@
 #include <sys/types.h>
 
 #if TARGET_OS_WIN32
-#include <Windows.h>
+#include <windows.h>
 #include <assert.h>
 #include <direct.h>
 #include <io.h>

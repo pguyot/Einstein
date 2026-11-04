@@ -27,7 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 // Windows Multimedia library waveOut interface
-#include <Windows.h>
+#include <windows.h>
 #include <mmeapi.h>
 
 #include <atomic>

@@ -32,7 +32,7 @@
 #include <time.h>
 
 #if TARGET_OS_WIN32
-#include <Windows.h>
+#include <windows.h>
 #include <io.h>
 #define PATH_MAX MAX_PATH
 #else

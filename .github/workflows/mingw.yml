@@ -1,4 +1,4 @@
-name: CI Windows / mingw (FLTK)
+name: CI MinGW (FLTK)
 
 on:
   workflow_dispatch:

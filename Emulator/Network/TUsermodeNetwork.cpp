@@ -174,8 +174,8 @@
 #include <vector>
 
 #if TARGET_OS_WIN32
-#include <WinSock2.h>
-#include <Ws2tcpip.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <fcntl.h>
 #include <io.h>
 #include <malloc.h>

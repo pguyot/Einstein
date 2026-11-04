@@ -29,7 +29,7 @@
 #ifdef _WINSOCKAPI_
 #error winsock.h included before winsock2.h - you must define WIN32_LEAN_AND_MEAN somewhere!
 #endif
-#include <WinSock2.h>
+#include <winsock2.h>
 #else
 #include <sys/select.h>
 

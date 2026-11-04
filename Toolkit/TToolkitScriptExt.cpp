@@ -47,7 +47,7 @@ extern "C" {
 #include <FL/fl_ask.H>
 
 #if TARGET_OS_WIN32
-#include <Winsock2.h>
+#include <winsock2.h>
 #include <direct.h>
 #include <io.h>
 #include <stdio.h>
