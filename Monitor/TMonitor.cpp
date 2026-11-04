@@ -1272,7 +1272,7 @@ TMonitor::ExecuteCommand(const char* inCommand)
 	} else if (::sscanf(inCommand, "du %X-%X", &theArgInt, &theArgInt2) == 2)
 	{
 		KUInt32 theData;
-		FILE *f = fopen("/tmp/dump", "w+");
+		FILE *f = fopen("/tmp/dump", "wb");
 		while (((KUInt32) theArgInt) < ((KUInt32) theArgInt2))
 		{
 			if (mMemory->Read(
