@@ -268,7 +268,8 @@
 	(void) ::fprintf(stderr, (str), (arg1), (arg2), (arg3), (arg4), (arg5))
 #define KDPRINTF_SETUP
 #endif
-#elif TARGET_OS_WIN32 && _MSC_VER
+#elif TARGET_OS_WIN32
+#if _MSC_VER
 // KDPRINTF to the VisualC debugging console
 #define KDPRINTF(str) \
 	_RPT0(_CRT_WARN, (str))
@@ -283,6 +284,21 @@
 #define KDPRINTF5(str, arg1, arg2, arg3, arg4, arg5) \
 	(void) ::printf((str), (arg1), (arg2), (arg3), (arg4), (arg5))
 #define KDPRINTF_SETUP
+#else
+#define KDPRINTF(str) \
+	(void) ::fprintf(stderr, (str))
+#define KDPRINTF1(str, arg1) \
+	(void) ::fprintf(stderr, (str), (arg1))
+#define KDPRINTF2(str, arg1, arg2) \
+	(void) ::fprintf(stderr, (str), (arg1), (arg2))
+#define KDPRINTF3(str, arg1, arg2, arg3) \
+	(void) ::fprintf(stderr, (str), (arg1), (arg2), (arg3))
+#define KDPRINTF4(str, arg1, arg2, arg3, arg4) \
+	(void) ::fprintf(stderr, (str), (arg1), (arg2), (arg3), (arg4))
+#define KDPRINTF5(str, arg1, arg2, arg3, arg4, arg5) \
+	(void) ::fprintf(stderr, (str), (arg1), (arg2), (arg3), (arg4), (arg5))
+#define KDPRINTF_SETUP
+#endif
 #else
 #if KDebugOn
 #warning KDPRINTF n´est pas défini
@@ -311,12 +327,21 @@
 		UPStrings::C2PStrCopy(theDebugStr, cstr); \
 		::DebugStr(theDebugStr);                  \
 	}
-#elif TARGET_OS_WIN32 && _MSC_VER
+#elif TARGET_OS_WIN32
+#if _MSC_VER
 // KDPRINTF to the VisualC debugging console
 #define KDEBUGSTR(cstr)          \
 	_RPT3(_CRT_ERROR,            \
 		"DebugStr - %s (%s:%i)", \
 		cstr, __FILE__, __LINE__);
+#else
+#define KDEBUGSTR(cstr)                    \
+	{                                      \
+		(void) ::fprintf(stderr,           \
+			"DebugStr - %s (%s:%i)\n",     \
+			cstr, __FILE__, __LINE__);     \
+	}
+#endif
 #else
 #if KDebugOn
 #warning KDEBUGSTR n´est pas défini
