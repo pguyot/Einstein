@@ -80,7 +80,9 @@ TSerialChipEinstein::New(void)
 void
 TSerialChipEinstein::Delete( void )
 {
-	DeregisterInterrupt(fInterruptObject);
+	if (fInterruptObject != NULL) {
+		DeregisterInterrupt(fInterruptObject);
+	}
 }
 
 NewtonErr
