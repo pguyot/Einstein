@@ -503,16 +503,6 @@ TSerialHostPortTCPServer::GetByte()
 }
 
 void
-TSerialHostPortTCPServer::SetSerialOutputs(SerialOutputControl)
-{
-}
-
-void
-TSerialHostPortTCPServer::ClearSerialOutputs(SerialOutputControl)
-{
-}
-
-void
 TSerialHostPortTCPServer::SetInterruptEnable(bool /* enable */)
 {
 }

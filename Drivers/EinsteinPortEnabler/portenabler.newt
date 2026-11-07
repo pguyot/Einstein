@@ -51,6 +51,19 @@ constant kHostTCPDockTransport := {
                     typelist: [10, 1, 2, 1, 1],
                 },
             },
+            // Hardware input flow control: the serial tool lowers RTS when
+            // its input buffer fills, and Einstein's TCP port then stops
+            // delivering bytes (and, in turn, reading from the socket).
+            {
+                label: "iflc",
+                type: 'option,
+                opCode: 512,
+                form: 'template,
+                data: {
+                    arglist: [$\11, $\13, nil, true, nil, nil],
+                    typelist: ['struct, 'byte, 'byte, 'boolean, 'boolean, 'boolean, 'boolean],
+                },
+            },
             {
                 label: "mnpn",
                 type: 'option,

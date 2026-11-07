@@ -49,8 +49,6 @@ public:
 
 	virtual void PutByte(KUInt8 nextChar) override;
 	virtual KUInt8 GetByte() override;
-	virtual void SetSerialOutputs(SerialOutputControl) override;
-	virtual void ClearSerialOutputs(SerialOutputControl) override;
 
 	virtual void SetInterruptEnable(bool enable) override;
 	virtual void Reset() override;
@@ -99,6 +97,8 @@ protected:
 
 	/// Circle buffer for incoming data
 	TCircleBuffer* mReadBuffer { nullptr };
+	/// Stop reading from the PTY once this many bytes wait for the Newton.
+	static constexpr KUInt32 kMaxReadBufferSize = 1024;
 };
 
 #endif
