@@ -601,6 +601,36 @@ TSerialPorts::NSSetDriverAndOptions(TNewt::RefArg arg)
 	return kNewtRefNIL;
 }
 
+// -------------------------------------------------------------------------- //
+//  * TSerialHostPort::SetSerialOutputs( SerialOutputControl )
+// -------------------------------------------------------------------------- //
+void
+TSerialHostPort::SetSerialOutputs(SerialOutputControl inOutputs)
+{
+	mSerialOutputs |= inOutputs;
+	if ((inOutputs & kSerialOutputRTS) && mRxHeld.exchange(false)
+		&& (mSerialStatus & kSerialRxCharAvailable))
+	{
+		// Deliver the bytes held back while RTS was low.
+		mEmulator->GetInterruptManager()->RaiseInterrupt(mInterruptID);
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * TSerialHostPort::ClearSerialOutputs( SerialOutputControl )
+// -------------------------------------------------------------------------- //
+void
+TSerialHostPort::ClearSerialOutputs(SerialOutputControl inOutputs)
+{
+	mSerialOutputs &= ~inOutputs;
+	if (inOutputs & kSerialOutputRTS)
+	{
+		// The Newton's input buffer is filling up (hardware input flow
+		// control): stop reporting received bytes until RTS is raised.
+		mRxHeld = true;
+	}
+}
+
 // ================================================================== //
 // Apple's port names are Thunderbolt and Lightning.                  //
 // They're starting to very, very frighten me.                        //

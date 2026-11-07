@@ -2204,7 +2204,9 @@ TNativePrimitives::ExecuteSerialDriverNative(KUInt32 inInstruction)
 			{
 				mLog->FLogLine("TSerialChipEinstein::GetRxErrorStatus %08x", chip);
 			}
-			r = -10000;
+			// SCC read register 1 bits: host ports never see parity,
+			// framing or overrun errors.
+			r = 0;
 			break;
 
 		case 0x3B:
@@ -2226,7 +2228,7 @@ TNativePrimitives::ExecuteSerialDriverNative(KUInt32 inInstruction)
 		case 0x3D:
 			if (LOG_SERIAL)
 			{
-				mLog->FLogLine("TSerialChipEinstein::SetSerialOutputs %08x", chip);
+				mLog->FLogLine("TSerialChipEinstein::SetSerialOutputs %08x %08x", chip, mProcessor->GetRegister(1));
 			}
 			port->SetSerialOutputs(mProcessor->GetRegister(1));
 			break;
@@ -2234,7 +2236,7 @@ TNativePrimitives::ExecuteSerialDriverNative(KUInt32 inInstruction)
 		case 0x3E:
 			if (LOG_SERIAL)
 			{
-				mLog->FLogLine("TSerialChipEinstein::ClearSerialOutputs %08x", chip);
+				mLog->FLogLine("TSerialChipEinstein::ClearSerialOutputs %08x %08x", chip, mProcessor->GetRegister(1));
 			}
 			port->ClearSerialOutputs(mProcessor->GetRegister(1));
 			break;
@@ -2259,6 +2261,7 @@ TNativePrimitives::ExecuteSerialDriverNative(KUInt32 inInstruction)
 			{
 				mLog->FLogLine("TSerialChipEinstein::PowerOn %08x", chip);
 			}
+			port->ResetFlowControl();
 			break;
 
 		case 0x42:

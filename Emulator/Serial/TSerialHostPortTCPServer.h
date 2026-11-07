@@ -52,8 +52,6 @@ public:
 
 	virtual void PutByte(KUInt8 nextChar) override;
 	virtual KUInt8 GetByte() override;
-	virtual void SetSerialOutputs(SerialOutputControl) override;
-	virtual void ClearSerialOutputs(SerialOutputControl) override;
 
 	virtual void SetInterruptEnable(bool enable) override;
 	virtual void Reset() override;
@@ -106,7 +104,10 @@ protected:
 	std::mutex mReadMutex;
 	std::condition_variable mReadCV;
 	TCircleBuffer* mReadBuffer { nullptr };
-	static constexpr KUInt32 kMaxReadBufferSize = 64 * 1024;
+	/// Keep this small: when the Newton stops reading (RTS low), the read
+	/// thread stops calling recv() once this many bytes are waiting, the
+	/// socket buffer fills and TCP closes its window towards the client.
+	static constexpr KUInt32 kMaxReadBufferSize = 1024;
 
 	/// Mutex & condition variable for outgoing write buffer
 	std::mutex mWriteMutex;

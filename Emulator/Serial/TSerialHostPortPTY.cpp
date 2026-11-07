@@ -214,16 +214,6 @@ TSerialHostPortPTY::GetByte()
 }
 
 void
-TSerialHostPortPTY::SetSerialOutputs(SerialOutputControl)
-{
-}
-
-void
-TSerialHostPortPTY::ClearSerialOutputs(SerialOutputControl)
-{
-}
-
-void
 TSerialHostPortPTY::SetInterruptEnable(bool /* enable */)
 {
 }
@@ -304,6 +294,18 @@ TSerialHostPortPTY::Run()
 			CreatePTY();
 			continue;
 		}
+		// Backpressure: while the Newton holds RTS low, received bytes pile
+		// up here. Stop reading once enough are waiting, so the PTY's own
+		// buffer fills and the writer on the host side blocks.
+		mReadMutex->Lock();
+		bool bufferFull = mReadBuffer->AvailableBytes() >= kMaxReadBufferSize;
+		mReadMutex->Unlock();
+		if (bufferFull)
+		{
+			usleep(10000);
+			continue;
+		}
+
 		FD_ZERO(&fdSet);
 		FD_SET(mMain, &fdSet);
 		struct timeval timeout { 0, 100000 }; // allow destructor to join
@@ -314,7 +316,8 @@ TSerialHostPortPTY::Run()
 			bool receivedData = false;
 			bool resetPTY = false;
 			mReadMutex->Lock();
-			while ((n = (int) read(mMain, data, sizeof(data))) > 0)
+			while (mReadBuffer->AvailableBytes() < kMaxReadBufferSize
+				&& (n = (int) read(mMain, data, sizeof(data))) > 0)
 			{
 				bool resetRequested = false;
 				if (ProcessIncomingBytes(data, n, resetRequested))
@@ -327,10 +330,15 @@ TSerialHostPortPTY::Run()
 					break;
 				}
 			}
-			mReadMutex->Unlock();
+			// Set the flag before unlocking, so that GetByte() can't see it
+			// without the data.
 			if (receivedData)
 			{
 				mSerialStatus |= kSerialRxCharAvailable;
+			}
+			mReadMutex->Unlock();
+			if (receivedData)
+			{
 				mEmulator->GetInterruptManager()->RaiseInterrupt(mInterruptID);
 			}
 			if (resetPTY)

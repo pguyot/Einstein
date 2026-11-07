@@ -133,20 +133,55 @@ public:
 	bool
 	RxBufFull()
 	{
-		return mSerialStatus & kSerialRxCharAvailable;
+		return !mRxHeld && (mSerialStatus & kSerialRxCharAvailable);
 	}
+
+	///
+	/// Status as seen by the Newton. While the Newton holds RTS low (input
+	/// flow control), received bytes stay in the host buffer and are not
+	/// reported. CTS is always asserted: the host side never blocks output.
+	///
 	SerialStatus
 	GetSerialStatus()
 	{
-		return mSerialStatus;
+		SerialStatus status = mSerialStatus;
+		if (mRxHeld)
+		{
+			status &= ~kSerialRxCharAvailable;
+		}
+		if ((status & kSerialChipGone) == 0)
+		{
+			status |= kSerialCTSAsserted;
+		}
+		return status;
 	}
 	void
 	ResetSerialStatus()
 	{
 		mSerialStatus = 0;
 	}
-	virtual void SetSerialOutputs(SerialOutputControl) = 0;
-	virtual void ClearSerialOutputs(SerialOutputControl) = 0;
+	///
+	/// Assert output lines. Raising RTS resumes delivery of received bytes
+	/// that were held back while RTS was low.
+	///
+	virtual void SetSerialOutputs(SerialOutputControl inOutputs);
+
+	///
+	/// Negate output lines. Lowering RTS is the Newton's hardware input flow
+	/// control: hold received bytes back until RTS is raised again.
+	///
+	virtual void ClearSerialOutputs(SerialOutputControl inOutputs);
+
+	///
+	/// Forget a flow control stop left over from a previous session (called
+	/// when the serial tool powers the chip on; RTS starts out asserted).
+	///
+	void
+	ResetFlowControl()
+	{
+		mSerialOutputs |= kSerialOutputRTS;
+		mRxHeld = false;
+	}
 	SerialOutputControl
 	GetSerialOutputs()
 	{
@@ -195,6 +230,8 @@ protected:
 	KUInt32 mInterruptID;
 	std::atomic<SerialStatus> mSerialStatus;
 	SerialOutputControl mSerialOutputs;
+	/// The Newton lowered RTS: don't report received bytes.
+	std::atomic<bool> mRxHeld { false };
 
 	static inline KUInt32 mCurrentInterruptID = TInterruptManager::kPCMCIA0IntMask << 1;
 };
