@@ -28,6 +28,7 @@
 #include <SDL3/SDL_audio.h>
 
 #include <atomic>
+#include <mutex>
 
 ///
 /// Sound output through an SDL3 audio stream.
@@ -63,6 +64,10 @@ private:
 	std::atomic<bool> mDeviceRunning { false };
 	/// One request for more data at a time, cleared when data arrives.
 	std::atomic<bool> mOutputRequestPending { false };
+	/// Requests come from the emulator thread and SDL's audio thread; the
+	/// check and the interrupt happen under this lock, so no request
+	/// slips through after StopOutput().
+	std::mutex mRequestMutex;
 };
 
 #endif

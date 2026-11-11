@@ -229,10 +229,15 @@ private:
 	std::atomic<int> mEmulatorState { 0 }; // 0 not started, 1 running, 2 ended
 	// We pressed the power switch to put the Newton to sleep while in the
 	// background; don't press it again until we are back.
-	bool mSleepRequested { false };
+	std::atomic<bool> mSleepRequested { false };
 	// After returning to the foreground, keep checking for a few seconds:
 	// a sleep that was still on its way may only finish after we are back.
 	Uint64 mWakeUntil { 0 };
+	// SDL delivers the background and foreground events at once, on the
+	// thread that posts them (the Java UI thread on Android), while the main
+	// thread may be drawing. The foreground handler only sets this flag;
+	// IterateSDL() wakes the Newton and redraws on the main thread.
+	std::atomic<bool> mForegroundPending { false };
 };
 
 #endif

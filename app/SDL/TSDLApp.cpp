@@ -509,15 +509,19 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 		case SDL_EVENT_TERMINATING:
 			// Android may kill a background app without warning. Put the
 			// Newton to sleep now, so NewtonOS saves what it keeps in memory
-			// and the flash is not left in the middle of a write.
+			// and the flash is not left in the middle of a write. SDL calls
+			// us on another thread here, and the main loop is about to stop,
+			// so this cannot wait for IterateSDL(). SleepNewton() only uses
+			// atomics and the platform manager's event queue.
 			SleepNewton();
 			break;
 
 		case SDL_EVENT_DID_ENTER_FOREGROUND:
 			// Back from the background: the Newton may have gone to sleep
-			// meanwhile, and there is no power button yet. Wake it up.
-			WakeNewton();
-			RedrawAll();
+			// meanwhile, and there is no power button yet. SDL calls us on
+			// another thread here, so the main thread wakes it up and
+			// redraws in IterateSDL().
+			mForegroundPending = true;
 			break;
 
 		case SDL_EVENT_KEY_DOWN:  /* quit if user hits ESC key */
@@ -776,6 +780,12 @@ SDL_AppResult TSDLApp::IterateSDL()
 	if (now-prev_call < 14) return SDL_APP_CONTINUE; // 1/60th = 16.66
 	prev_call = now;
 
+	// Back from the background (flag set on another thread).
+	if (mForegroundPending.exchange(false)) {
+		WakeNewton();
+		RedrawAll();
+	}
+
 	// A sleep that was still on its way when we came back: wake again.
 	if (mWakeUntil) {
 		if (now > mWakeUntil) {
@@ -910,13 +920,13 @@ void TSDLApp::WakeNewton()
  */
 void TSDLApp::SleepNewton()
 {
-	if (mSleepRequested) return; // the switch was pressed already
-	if (mBootState != BootState::Running) return;
-	if (mPlatformManager && mPlatformManager->IsPowerOn()) {
-		mLog->FLogLine("Putting the Newton to sleep");
-		mSleepRequested = true;
-		mPlatformManager->SendPowerSwitchEvent();
-	}
+	if (mEmulatorState != 1) return; // the emulator is not running
+	if (!mPlatformManager || !mPlatformManager->IsPowerOn()) return;
+	bool expected = false;
+	if (!mSleepRequested.compare_exchange_strong(expected, true))
+		return; // the switch was pressed already
+	mLog->FLogLine("Putting the Newton to sleep");
+	mPlatformManager->SendPowerSwitchEvent();
 }
 
 /**
