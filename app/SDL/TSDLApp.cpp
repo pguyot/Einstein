@@ -328,8 +328,7 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 	}
 	mScreenWidth = (mScreenWidth + 1) & ~1; // Round up to an even number of pixels
 
-	mScreenScaleX = (float)mScreenWidth / win_w;
-	mScreenScaleY = (float)(mScreenHeight + mToolbarHeight) / win_h;
+	UpdateInputScale();
 
 //	int w, h;
 //	SDL_GetWindowSize(mSDLWindow, &w, &h);
@@ -359,6 +358,25 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 //    }
 
 	return CreateScreenTexture();
+}
+
+/**
+ \brief Compute how window coordinates map to the emulated screen.
+ The texture (toolbar plus Newton screen) is stretched over the whole window,
+ so the scales follow the current window size. Called at launch and whenever
+ the window is resized.
+ */
+void TSDLApp::UpdateInputScale()
+{
+	int win_w = 0, win_h = 0;
+	SDL_GetWindowSize(mSDLWindow, &win_w, &win_h);
+	if (win_w <= 0 || win_h <= 0) return;
+	int pix_w = win_w, pix_h = win_h;
+	SDL_GetWindowSizeInPixels(mSDLWindow, &pix_w, &pix_h);
+	mPixelScaleX = (float)pix_w / win_w;
+	mPixelScaleY = (float)pix_h / win_h;
+	mScreenScaleX = (float)mScreenWidth / win_w;
+	mScreenScaleY = (float)(mScreenHeight + mToolbarHeight) / win_h;
 }
 
 /**
@@ -461,9 +479,15 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 		case SDL_EVENT_QUIT:  /* triggers on last window close and other things. End the program. */
 			return SDL_APP_SUCCESS;
 
-		case SDL_EVENT_WINDOW_EXPOSED:
 		case SDL_EVENT_WINDOW_RESIZED:
 		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+			// The texture keeps its size and is stretched over the new
+			// window, so taps must be mapped with the new scale.
+			UpdateInputScale();
+			RedrawAll();
+			break;
+
+		case SDL_EVENT_WINDOW_EXPOSED:
 		case SDL_EVENT_RENDER_TARGETS_RESET:
 			// The window surface may be new (Android recreates it after the
 			// app was in the background), or the contents of render targets
