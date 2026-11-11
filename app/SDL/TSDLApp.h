@@ -107,6 +107,9 @@ public:
 	// Initialize the SDL window and graphics resources and open the window.
 	SDL_AppResult InitSDLGraphics();
 
+	// Map window coordinates to the emulated screen for the current window size.
+	void UpdateInputScale();
+
 	// Create (or recreate) the texture for the toolbar and the Newton screen.
 	SDL_AppResult CreateScreenTexture();
 
