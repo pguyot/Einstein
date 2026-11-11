@@ -107,6 +107,9 @@ public:
 	// Initialize the SDL window and graphics resources and open the window.
 	SDL_AppResult InitSDLGraphics();
 
+	// Create (or recreate) the texture for the toolbar and the Newton screen.
+	SDL_AppResult CreateScreenTexture();
+
 	// Update the boot state and send an event, so the state machine advances.
 	void ChangeBootState(BootState newState);
 
