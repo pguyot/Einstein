@@ -358,6 +358,23 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 //        SDL_free(disp);
 //    }
 
+	return CreateScreenTexture();
+}
+
+/**
+ \brief Create the texture that holds the toolbar and the Newton screen.
+ Called at launch, and again after SDL_EVENT_RENDER_DEVICE_RESET, when the
+ old texture belonged to the lost device.
+ \return SDL_APP_FAILURE if the texture could not be created.
+ \return SDL_APP_CONTINUE if everything went well.
+ */
+SDL_AppResult TSDLApp::CreateScreenTexture()
+{
+	if (mSDLTexture) {
+		SDL_DestroyTexture(mSDLTexture);
+		mSDLTexture = nullptr;
+	}
+
 #if USE_SDL_LOCK_TEXTURE
 	constexpr SDL_TextureAccess texture_access = SDL_TEXTUREACCESS_STREAMING;
 #else
@@ -400,6 +417,7 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 
 	return SDL_APP_CONTINUE;
 }
+
 
 
 /**
@@ -447,9 +465,18 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 		case SDL_EVENT_WINDOW_RESIZED:
 		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
 		case SDL_EVENT_RENDER_TARGETS_RESET:
-		case SDL_EVENT_RENDER_DEVICE_RESET:
 			// The window surface may be new (Android recreates it after the
-			// app was in the background): draw everything again.
+			// app was in the background), or the contents of render targets
+			// were lost: the texture is still valid, draw everything again.
+			RedrawAll();
+			break;
+
+		case SDL_EVENT_RENDER_DEVICE_RESET:
+			// The render device was lost, and all its textures with it.
+			// Make a new texture before redrawing into it.
+			mLog->FLogLine("Render device reset, recreating the screen texture");
+			if (CreateScreenTexture() != SDL_APP_CONTINUE)
+				return SDL_APP_FAILURE;
 			RedrawAll();
 			break;
 
