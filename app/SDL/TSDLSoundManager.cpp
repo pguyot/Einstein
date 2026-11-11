@@ -98,10 +98,12 @@ TSDLSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 		GetLog()->FLogLine("Sound: %u bytes from NewtonOS%s", (unsigned) inSize,
 			OutputVolume() == kOutputVolume_Zero ? " (volume is zero, dropped)" : "");
 	}
-	if (!mStream)
+	if (!mStream || !mDeviceRunning)
 	{
-		// No audio device: drop the buffer and ask for the next one at once,
-		// like TNullSoundManager, so NewtonOS can finish the sound.
+		// No working audio device (it did not open, or did not resume), so
+		// no device callback will ask for more: drop the buffer and ask for
+		// the next one at once, like TNullSoundManager, so NewtonOS can
+		// finish the sound.
 		RequestOutputInterrupt();
 		return;
 	}
@@ -140,8 +142,11 @@ TSDLSoundManager::StartOutput()
 		GetLog()->FLogLine("Sound: start, volume %.2f, queued %d bytes", OutputVolumeNormalized(),
 			mStream ? SDL_GetAudioStreamQueued(mStream) : -1);
 	}
-	mOutputRequestPending = false;
-	mOutputIsRunning = true;
+	{
+		std::lock_guard<std::mutex> lock(mRequestMutex);
+		mOutputRequestPending = false;
+		mOutputIsRunning = true;
+	}
 	if (mStream && SDL_GetAudioStreamQueued(mStream) == 0)
 	{
 		static const KSInt16 sSilence[kPrerollFrames] = { };
@@ -166,6 +171,7 @@ TSDLSoundManager::StopOutput()
 {
 	// The queued samples play out. The device keeps running (playing
 	// silence) until the next start, so the end of a sound is not cut off.
+	std::lock_guard<std::mutex> lock(mRequestMutex);
 	mOutputIsRunning = false;
 	mOutputRequestPending = false;
 }
@@ -188,9 +194,10 @@ TSDLSoundManager::OutputVolumeChanged()
 void
 TSDLSoundManager::RequestOutputInterrupt()
 {
-	bool expected = false;
-	if (mOutputIsRunning && mOutputRequestPending.compare_exchange_strong(expected, true))
+	std::lock_guard<std::mutex> lock(mRequestMutex);
+	if (mOutputIsRunning && !mOutputRequestPending)
 	{
+		mOutputRequestPending = true;
 		RaiseOutputInterrupt();
 	}
 }
