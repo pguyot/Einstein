@@ -27,6 +27,9 @@
 #include <K/Defines/KDefinitions.h>
 #include "TLog.h"
 
+#include <string>
+#include <vector>
+
 ///
 /// Class for logging to stdout.
 ///
@@ -43,6 +46,17 @@ public:
 	/// Default constructor.
 	///
 	TSDLLog(void);
+
+	///
+	/// Keep the recent lines of every SDL log message (Einstein's and SDL's
+	/// own), so the app can show them on screen. Call once after start.
+	///
+	static void InstallCapture(void);
+
+	///
+	/// The last lines captured, oldest first.
+	///
+	static std::vector<std::string> RecentLines(size_t inMaxLines);
 
 private:
 	///

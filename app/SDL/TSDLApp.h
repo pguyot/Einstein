@@ -34,6 +34,7 @@
 
 #include <string>
 #include <filesystem>
+#include <atomic>
 #include <vector>
 
 
@@ -127,6 +128,14 @@ public:
 	// Redraw the toolbar into the texture.
 	bool RedrawToolbar();
 
+	// Redraw everything, and wake the Newton if it is asleep.
+	void RedrawAll();
+	void WakeNewton();
+	void SleepNewton();
+
+	// Draw recent log lines and the emulator state over the screen.
+	void DrawLogOverlay();
+
 	// --- User Actions
 
 	// user wants to install a package
@@ -208,6 +217,16 @@ private:
 	int mPenDownN { 0 };
 	int mPenMoveN { -1 };
 	int mPenDown { 0 }; // 0: up, 1: on screen, 2: on buttons
+	// Diagnostics: the log is hidden by default; a tap on the left part of
+	// the toolbar shows or hides it.
+	bool mShowLog { false };
+	std::atomic<int> mEmulatorState { 0 }; // 0 not started, 1 running, 2 ended
+	// We pressed the power switch to put the Newton to sleep while in the
+	// background; don't press it again until we are back.
+	bool mSleepRequested { false };
+	// After returning to the foreground, keep checking for a few seconds:
+	// a sleep that was still on its way may only finish after we are back.
+	Uint64 mWakeUntil { 0 };
 };
 
 #endif

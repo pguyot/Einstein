@@ -12,6 +12,8 @@ list ( APPEND common_sources
 list ( APPEND app_sources
 	app/SDL/TSDLApp.cpp
 	app/SDL/TSDLApp.h
+	app/SDL/TSDLSoundManager.cpp
+	app/SDL/TSDLSoundManager.h
 	app/SDL/TSDLRexImage.h
 )
 

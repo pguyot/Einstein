@@ -30,6 +30,7 @@
 #include <SDL3/SDL.h>
 
 #include <mutex>
+#include <atomic>
 
 // Set to 0 to use SDL_UpdateTexture
 // Set to 1 to use SDL_Lock/Unlock_Texture
@@ -142,6 +143,22 @@ public:
 	/// Render everything that changed into the texture
 	///
 	bool UpdateTexture(SDL_Texture *texture, int encoding, int toolbar_height);
+
+	///
+	/// Mark the whole Newton screen as changed, so the next UpdateTexture()
+	/// copies all of it (after the app returns from the background, or when
+	/// the GPU lost the texture contents).
+	///
+	void InvalidateAll()
+	{
+		dirty_rect_mutex.lock();
+		mDirtyRect = { 0, 0, static_cast<int>(GetScreenWidth()), static_cast<int>(GetScreenHeight()) };
+		mIsDirty = true;
+		dirty_rect_mutex.unlock();
+	}
+
+	/// Number of screen updates from NewtonOS, for the diagnostics overlay.
+	std::atomic<unsigned> mNewtonUpdates { 0 };
 
 	std::mutex dirty_rect_mutex;
 	SDL_Rect mDirtyRect { };

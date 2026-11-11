@@ -25,6 +25,56 @@
 
 #include <SDL3/SDL_log.h>
 
+#include <cstring>
+#include <deque>
+#include <mutex>
+
+namespace {
+	std::mutex gCaptureMutex;
+	std::deque<std::string> gCapturedLines;
+	constexpr size_t kMaxCapturedLines = 300;
+	SDL_LogOutputFunction gDefaultOutput = nullptr;
+	void* gDefaultUserData = nullptr;
+
+	void SDLCALL CaptureOutput(void* inUserData, int inCategory,
+		SDL_LogPriority inPriority, const char* inMessage)
+	{
+		(void) inUserData;
+		if (gDefaultOutput)
+		{
+			gDefaultOutput(gDefaultUserData, inCategory, inPriority, inMessage);
+		}
+		if (!inMessage || std::strstr(inMessage, "Handle event "))
+		{
+			return; // one line per SDL event would hide everything else
+		}
+		std::lock_guard<std::mutex> lock(gCaptureMutex);
+		gCapturedLines.emplace_back(inMessage);
+		while (gCapturedLines.size() > kMaxCapturedLines)
+		{
+			gCapturedLines.pop_front();
+		}
+	}
+}
+
+void
+TSDLLog::InstallCapture(void)
+{
+	if (gDefaultOutput == nullptr)
+	{
+		SDL_GetLogOutputFunction(&gDefaultOutput, &gDefaultUserData);
+		SDL_SetLogOutputFunction(CaptureOutput, nullptr);
+	}
+}
+
+std::vector<std::string>
+TSDLLog::RecentLines(size_t inMaxLines)
+{
+	std::lock_guard<std::mutex> lock(gCaptureMutex);
+	size_t n = gCapturedLines.size() < inMaxLines ? gCapturedLines.size() : inMaxLines;
+	return std::vector<std::string>(gCapturedLines.end() - n, gCapturedLines.end());
+}
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //

@@ -118,6 +118,7 @@ TSDLScreenManager::UpdateScreenRect(SRect* inUpdateRect)
 	if (h <= 0) return;
 	int x = inUpdateRect->fLeft;
 	int y = inUpdateRect->fTop;
+	mNewtonUpdates++;
 
 	dirty_rect_mutex.lock();
 	if (mIsDirty) {
