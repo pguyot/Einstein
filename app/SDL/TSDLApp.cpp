@@ -71,6 +71,7 @@
 #include "TSDLApp.h"
 
 #include "Emulator/TEmulator.h"
+#include "Emulator/TARMProcessor.h"
 #include "Emulator/Log/TSDLLog.h"
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
@@ -79,6 +80,7 @@
 #include "Emulator/Screen/TSDLScreenManager.h"
 #include "Emulator/Serial/TSerialPorts.h"
 #include "Emulator/Sound/TNullSoundManager.h"
+#include "app/SDL/TSDLSoundManager.h"
 
 #if TARGET_OS_ANDROID
 #include "app/SDL/TSDLAndroid.h"
@@ -198,6 +200,7 @@ TSDLApp::Launch(int argc, char* argv[])
 	SDL_AppResult result = SDL_APP_CONTINUE;
 
 	mLog = new TSDLLog();
+	TSDLLog::InstallCapture();
 	SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
 
 	// Init Directories
@@ -441,7 +444,29 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 			return SDL_APP_SUCCESS;
 
 		case SDL_EVENT_WINDOW_EXPOSED:
-			RefreshScreen();
+		case SDL_EVENT_WINDOW_RESIZED:
+		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+		case SDL_EVENT_RENDER_TARGETS_RESET:
+		case SDL_EVENT_RENDER_DEVICE_RESET:
+			// The window surface may be new (Android recreates it after the
+			// app was in the background): draw everything again.
+			RedrawAll();
+			break;
+
+		case SDL_EVENT_WILL_ENTER_BACKGROUND:
+		case SDL_EVENT_DID_ENTER_BACKGROUND:
+		case SDL_EVENT_TERMINATING:
+			// Android may kill a background app without warning. Put the
+			// Newton to sleep now, so NewtonOS saves what it keeps in memory
+			// and the flash is not left in the middle of a write.
+			SleepNewton();
+			break;
+
+		case SDL_EVENT_DID_ENTER_FOREGROUND:
+			// Back from the background: the Newton may have gone to sleep
+			// meanwhile, and there is no power button yet. Wake it up.
+			WakeNewton();
+			RedrawAll();
 			break;
 
 		case SDL_EVENT_KEY_DOWN:  /* quit if user hits ESC key */
@@ -476,10 +501,20 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 				if (e->button == SDL_BUTTON_LEFT) {
 					int mx = e->x * mScreenScaleX;
 					int my = e->y * mScreenScaleY - mToolbarHeight;
+					if (mPlatformManager && !mPlatformManager->IsPowerOn()) {
+						// A tap wakes a sleeping Newton, like its power switch.
+						WakeNewton();
+						RedrawAll();
+						break;
+					}
 					if (my >= 0) {
 						mPenDown = 1;
 						scrn->PenDown(std::clamp(mx, 0, mScreenWidth-1),
 									  std::clamp(my, 0, mScreenHeight-1));
+					} else if (mx < mScreenWidth / 3) {
+						// Left part of the toolbar: show or hide the log.
+						mShowLog = !mShowLog;
+						RedrawAll();
 					} else {
 						mPenDown = 2;
 						mPenDownN = mPenMoveN = (mScreenWidth - mx + mToolbarHeight/4) / mToolbarHeight;
@@ -526,8 +561,21 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 SDL_AppResult TSDLApp::HandleBootStateChange()
 {
 	switch (mBootState) {
-		case BootState::LoadROM:
+		case BootState::LoadROM: {
+			std::error_code ec;
+			auto romSize = std::filesystem::file_size(mROMPath, ec);
+			mLog->FLogLine("ROM file %s: %s, %lld bytes", mROMPath.string().c_str(),
+						   ec ? ec.message().c_str() : "found", ec ? -1LL : (long long)romSize);
+		}
 			mROMImage = new TFlatROMImageWithREX(mROMPath.string().c_str(), nullptr);
+			mLog->FLogLine("ROM image error code: %d", (int)mROMImage->GetErrorCode());
+			{
+				static const char* kROMNames[] = { "MessagePad 2x00 US (717006)", "MessagePad 2x00 German",
+												   "eMate 300", "MessagePad 2100 French (Watson)" };
+				KSInt32 id = mROMImage->GetROMId();
+				mLog->FLogLine("ROM is %s, checksum %s", (id >= 0 && id < 4) ? kROMNames[id] : "UNKNOWN",
+							   mROMImage->CRCValid() ? "matches" : "DOES NOT MATCH a known dump");
+			}
 			if (mROMImage->GetErrorCode() == TAIFROMImageWithREXes::kNoError) {
 				ChangeBootState(BootState::Run);
 			} else {
@@ -620,13 +668,20 @@ SDL_AppResult TSDLApp::Run()
 {
 	mFlashPath = mPublicDataPath / "einstein.flash";
 	SDL_CreateDirectory(mPublicDataPath.string().c_str());
+	{
+		std::error_code ec;
+		auto flashSize = std::filesystem::file_size(mFlashPath, ec);
+		mLog->FLogLine("Flash file %s: %s, %lld bytes", mFlashPath.string().c_str(),
+					   ec ? "new" : "found", ec ? 0LL : (long long)flashSize);
+		mLog->FLogLine("Emulated screen %d x %d", mScreenWidth, mScreenHeight);
+	}
 
 	mScreenManager = new TSDLScreenManager(mLog,
 										   mScreenWidth,
 										   mScreenHeight
 										   );
 
-	mSoundManager = new TNullSoundManager(mLog);
+	mSoundManager = new TSDLSoundManager(mLog);
 
 	mNetworkManager = new TNullNetworkManager(mLog);
 
@@ -670,15 +725,28 @@ SDL_AppResult TSDLApp::IterateSDL()
 	if (now-prev_call < 14) return SDL_APP_CONTINUE; // 1/60th = 16.66
 	prev_call = now;
 
+	// A sleep that was still on its way when we came back: wake again.
+	if (mWakeUntil) {
+		if (now > mWakeUntil) {
+			mWakeUntil = 0;
+		} else if (mPlatformManager && !mPlatformManager->IsPowerOn()) {
+			mWakeUntil = 0;
+			WakeNewton();
+			RedrawAll();
+		}
+	}
+
 	if (mSDLTexture && mScreenManager) {
 		bool changed = mScreenManager->UpdateTexture(mSDLTexture, mTextureEncoding, mToolbarHeight);
 		if (mRefreshToolbar) changed |= RedrawToolbar();
-		if (changed || mRefreshScreen) {
+		bool overlay = mShowLog;
+		if (changed || mRefreshScreen || overlay) {
 			// Copy the texture to the screen (SDL_SCALEMODE_NEAREST or SDL_SCALEMODE_LINEAR)
 			SDL_SetTextureScaleMode(mSDLTexture, SDL_SCALEMODE_NEAREST);
 			SDL_RenderTexture(mSDLRenderer, mSDLTexture, NULL, NULL);
 			// We can still do some overly rendering here if we like
 			SDL_SetRenderTarget(mSDLRenderer, NULL);
+			if (overlay) DrawLogOverlay();
 			// Test having a menu button:
 //			SDL_SetRenderDrawColor(mSDLRenderer, 255, 0, 0, 255);
 //			SDL_FRect rf = {
@@ -694,10 +762,110 @@ SDL_AppResult TSDLApp::IterateSDL()
 		SDL_SetRenderTarget(mSDLRenderer, nullptr);
 		SDL_SetRenderDrawColor(mSDLRenderer, 0xaa, 0xaa, 0xaa, 255);
 		SDL_RenderClear(mSDLRenderer);
+		if (mShowLog) DrawLogOverlay();
 		SDL_RenderPresent(mSDLRenderer);
 	}
 
 	return SDL_APP_CONTINUE;
+}
+
+/**
+ \brief Draw the emulator state and the last log lines over the screen.
+ */
+void TSDLApp::DrawLogOverlay()
+{
+	int out_w = 0, out_h = 0;
+	SDL_GetCurrentRenderOutputSize(mSDLRenderer, &out_w, &out_h);
+	if (out_w <= 0 || out_h <= 0) return;
+	// About 60 columns of SDL's 8x8 debug font.
+	float scale = (float)std::max(1, out_w / 480);
+	int cols = (int)(out_w / (8 * scale));
+	int rows = (int)(out_h / (10 * scale));
+	int top = (int)(mToolbarHeight * mPixelScaleY / mScreenScaleY / (10 * scale)) + 1;
+
+	std::vector<std::string> lines;
+	char header[160];
+	static const char* kThread[] = { "not started", "running", "ENDED" };
+	unsigned pc = 0;
+	if (mEmulator && mEmulator->GetProcessor())
+		pc = (unsigned)mEmulator->GetProcessor()->GetRegister(15);
+	snprintf(header, sizeof(header), "emulator %s, power %s, updates %u",
+			 kThread[mEmulatorState.load() % 3],
+			 mPlatformManager ? (mPlatformManager->IsPowerOn() ? "on" : "off") : "-",
+			 mScreenManager ? mScreenManager->mNewtonUpdates.load() : 0u);
+	lines.emplace_back(header);
+	// The PC now and four earlier samples, about half a second apart.
+	static unsigned pcHistory[4] = { };
+	static Uint64 lastSample = 0;
+	if (SDL_GetTicks() - lastSample > 500) {
+		lastSample = SDL_GetTicks();
+		for (int i = 3; i > 0; --i) pcHistory[i] = pcHistory[i-1];
+		pcHistory[0] = pc;
+	}
+	snprintf(header, sizeof(header), "screen %dx%d, pc %08X %08X %08X %08X",
+			 mScreenWidth, mScreenHeight, pcHistory[0], pcHistory[1], pcHistory[2], pcHistory[3]);
+	lines.emplace_back(header);
+	for (auto& line : TSDLLog::RecentLines(rows)) {
+		// wrap long lines
+		for (size_t i = 0; i < line.size(); i += cols)
+			lines.emplace_back(line.substr(i, cols));
+	}
+	int avail = rows - top;
+	if (avail < 3) return;
+	// Keep the two header lines, then the newest lines that fit.
+	std::vector<std::string> shown(lines.begin(), lines.begin() + 2);
+	size_t first = lines.size() > (size_t)avail ? lines.size() - (avail - 2) : 2;
+	if (first < 2) first = 2;
+	shown.insert(shown.end(), lines.begin() + first, lines.end());
+
+	SDL_SetRenderScale(mSDLRenderer, scale, scale);
+	SDL_SetRenderDrawBlendMode(mSDLRenderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawColor(mSDLRenderer, 0, 0, 0, 200);
+	SDL_FRect bg { 0, (float)(top * 10), (float)(out_w / scale), (float)(shown.size() * 10 + 4) };
+	SDL_RenderFillRect(mSDLRenderer, &bg);
+	for (size_t i = 0; i < shown.size(); ++i) {
+		if (i < 2) SDL_SetRenderDrawColor(mSDLRenderer, 255, 220, 80, 255);
+		else SDL_SetRenderDrawColor(mSDLRenderer, 255, 255, 255, 255);
+		SDL_RenderDebugText(mSDLRenderer, 2, (float)((top + i) * 10 + 2), shown[i].c_str());
+	}
+	SDL_SetRenderScale(mSDLRenderer, 1, 1);
+}
+
+/**
+ \brief Draw the whole screen and the toolbar again at the next frame.
+ */
+void TSDLApp::RedrawAll()
+{
+	if (mScreenManager) mScreenManager->InvalidateAll();
+	mRefreshToolbar = true;
+	mRefreshScreen = true;
+}
+
+/**
+ \brief Press the Newton's power switch if the Newton is asleep.
+ */
+void TSDLApp::WakeNewton()
+{
+	if (mSleepRequested) mWakeUntil = SDL_GetTicks() + 5000;
+	mSleepRequested = false;
+	if (mPlatformManager && !mPlatformManager->IsPowerOn()) {
+		mLog->FLogLine("Waking the Newton");
+		mPlatformManager->SendPowerSwitchEvent();
+	}
+}
+
+/**
+ \brief Press the Newton's power switch once if the Newton is awake.
+ */
+void TSDLApp::SleepNewton()
+{
+	if (mSleepRequested) return; // the switch was pressed already
+	if (mBootState != BootState::Running) return;
+	if (mPlatformManager && mPlatformManager->IsPowerOn()) {
+		mLog->FLogLine("Putting the Newton to sleep");
+		mSleepRequested = true;
+		mPlatformManager->SendPowerSwitchEvent();
+	}
 }
 
 /**
@@ -737,7 +905,11 @@ bool TSDLApp::RedrawToolbar()
 void
 TSDLApp::EmulatorThreadEntry()
 {
+	mEmulatorState = 1;
+	mLog->FLogLine("Emulator thread started");
 	mEmulator->Run();
+	mEmulatorState = 2;
+	mLog->FLogLine("Emulator thread ended");
 	ChangeBootState(BootState::Exit);
 }
 
