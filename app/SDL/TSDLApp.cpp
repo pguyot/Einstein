@@ -505,22 +505,29 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 			break;
 
 		case SDL_EVENT_WILL_ENTER_BACKGROUND:
+			// Android may kill a background app without warning. Press the
+			// power switch now, so NewtonOS saves what it keeps in memory and
+			// the flash is not left in the middle of a write.
+			SleepNewton(0);
+			break;
+
 		case SDL_EVENT_DID_ENTER_BACKGROUND:
 		case SDL_EVENT_TERMINATING:
-			// Android may kill a background app without warning. Put the
-			// Newton to sleep now, so NewtonOS saves what it keeps in memory
-			// and the flash is not left in the middle of a write. SDL calls
-			// us on another thread here, and the main loop is about to stop,
-			// so this cannot wait for IterateSDL(). SleepNewton() only uses
-			// atomics and the platform manager's event queue.
-			SleepNewton();
+			// SDL dispatches these at once from its event pump. On Android,
+			// right after this the SDL thread blocks until the app resumes
+			// (SDL_HINT_ANDROID_BLOCK_ON_PAUSE), while the emulator thread
+			// keeps running. Wait here until NewtonOS is really asleep, so
+			// the app is not paused (or killed) halfway through going to
+			// sleep. This blocks only the SDL thread, not Android's UI thread.
+			SleepNewton(kSleepTimeoutMS);
 			break;
 
 		case SDL_EVENT_DID_ENTER_FOREGROUND:
 			// Back from the background: the Newton may have gone to sleep
-			// meanwhile, and there is no power button yet. SDL calls us on
-			// another thread here, so the main thread wakes it up and
-			// redraws in IterateSDL().
+			// meanwhile, and there is no power button yet. SDL dispatches
+			// this at once from inside its event pump (and SDL may deliver
+			// app events from another thread on some platforms), so the
+			// wake-up and redraw happen in IterateSDL().
 			mForegroundPending = true;
 			break;
 
@@ -840,8 +847,9 @@ void TSDLApp::DrawLogOverlay()
 	if (out_w <= 0 || out_h <= 0) return;
 	// About 60 columns of SDL's 8x8 debug font.
 	float scale = (float)std::max(1, out_w / 480);
-	int cols = (int)(out_w / (8 * scale));
-	int rows = (int)(out_h / (10 * scale));
+	// At least one column and row, so wrapping always advances.
+	int cols = std::max(1, (int)(out_w / (8 * scale)));
+	int rows = std::max(1, (int)(out_h / (10 * scale)));
 	int top = (int)(mToolbarHeight * mPixelScaleY / mScreenScaleY / (10 * scale)) + 1;
 
 	std::vector<std::string> lines;
@@ -917,16 +925,26 @@ void TSDLApp::WakeNewton()
 
 /**
  \brief Press the Newton's power switch once if the Newton is awake.
+ \param inWaitMS if not zero, wait up to this many milliseconds until
+ NewtonOS has gone to sleep (it saves its state first).
  */
-void TSDLApp::SleepNewton()
+void TSDLApp::SleepNewton(Uint32 inWaitMS)
 {
 	if (mEmulatorState != 1) return; // the emulator is not running
 	if (!mPlatformManager || !mPlatformManager->IsPowerOn()) return;
 	bool expected = false;
-	if (!mSleepRequested.compare_exchange_strong(expected, true))
-		return; // the switch was pressed already
-	mLog->FLogLine("Putting the Newton to sleep");
-	mPlatformManager->SendPowerSwitchEvent();
+	if (mSleepRequested.compare_exchange_strong(expected, true)) {
+		mLog->FLogLine("Putting the Newton to sleep");
+		mPlatformManager->SendPowerSwitchEvent();
+	}
+	if (inWaitMS == 0) return;
+	Uint64 deadline = SDL_GetTicks() + inWaitMS;
+	while (mPlatformManager->IsPowerOn() && (mEmulatorState == 1) && (SDL_GetTicks() < deadline))
+		SDL_Delay(10);
+	if (mPlatformManager->IsPowerOn())
+		mLog->FLogLine("The Newton did not go to sleep within %u ms", (unsigned)inWaitMS);
+	else
+		mLog->FLogLine("The Newton is asleep");
 }
 
 /**

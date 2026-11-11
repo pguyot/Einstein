@@ -137,7 +137,10 @@ public:
 	// Redraw everything, and wake the Newton if it is asleep.
 	void RedrawAll();
 	void WakeNewton();
-	void SleepNewton();
+	void SleepNewton(Uint32 inWaitMS);
+	// How long going to the background waits for NewtonOS to fall asleep
+	// (the FLTK app waits up to 10 s when quitting).
+	static constexpr Uint32 kSleepTimeoutMS = 5000;
 
 	// Draw recent log lines and the emulator state over the screen.
 	void DrawLogOverlay();
