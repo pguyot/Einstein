@@ -98,8 +98,16 @@ TSDLSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 		GetLog()->FLogLine("Sound: %u bytes from NewtonOS%s", (unsigned) inSize,
 			OutputVolume() == kOutputVolume_Zero ? " (volume is zero, dropped)" : "");
 	}
-	if (!mStream || OutputVolume() == kOutputVolume_Zero)
+	if (!mStream)
 	{
+		// No audio device: drop the buffer and ask for the next one at once,
+		// like TNullSoundManager, so NewtonOS can finish the sound.
+		RequestOutputInterrupt();
+		return;
+	}
+	if (OutputVolume() == kOutputVolume_Zero)
+	{
+		// Dropped; the device callback keeps asking for more.
 		return;
 	}
 	if (inSize > kNewtonBufferSize)
