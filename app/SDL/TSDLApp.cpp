@@ -80,6 +80,7 @@
 #include <K/Streams/TFileStream.h>
 #include "Monitor/TMonitor.h"
 #include "Monitor/TSymbolList.h"
+#include "Emulator/PCMCIA/TNE2000Card.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
@@ -238,7 +239,7 @@ TSDLApp::Launch(int argc, char* argv[])
 #endif
 
 	// Load Settings
-	// TODO: write me
+	LoadSettings();
 
 	// Initialize SDL user events
 	InitSDLEvents();
@@ -496,7 +497,7 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
                    buf, win_w, win_h, (int)mBootState);
 	if (mMenuEventType != 0 && event_type == mMenuEventType) {
 		// A choice from the native Android menu (see ShowMenu()).
-		HandleMenuChoice(event->user.code);
+		HandleMenuChoice((int)(intptr_t)event->user.data1, event->user.code);
 		return SDL_APP_CONTINUE;
 	}
 	if (event_type == mSDLBootStateEvent)
@@ -790,7 +791,7 @@ SDL_AppResult TSDLApp::Run()
 							  mSoundManager,		// TODO
 							  mScreenManager,		// TODO
 							  mNetworkManager,		// TODO
-							  0x00400000,			// RAM Size
+							  (KUInt32)mRAMPages << 16, // RAM size, in 64 KB pages
 							  nullptr);				// TODO: printer driver
 
 	mPlatformManager = mEmulator->GetPlatformManager();
@@ -810,9 +811,15 @@ SDL_AppResult TSDLApp::Run()
 							   (mPublicDataPath / "Einstein.monitorrc").string().c_str());
 	mMonitor->RunOnStartup(true);
 
-	// Continue where Einstein was when Android closed it, if possible.
-	if (LoadFastStartState())
+	// Continue where Einstein was when Android closed it, if possible. This
+	// inserts the network card if it was inserted then.
+	if (LoadFastStartState()) {
 		mFastStartWakeAt = SDL_GetTicks() + 500;
+	} else if (mNetworkCardWanted) {
+		// A normal boot: insert the network card the user left inserted;
+		// NewtonOS finds it while booting.
+		SetNetworkCardInserted(true);
+	}
 
 	// launch the actual emulation in the background
 	auto emulatorThread = new std::thread(&TSDLApp::EmulatorThreadEntry, this);
@@ -1084,18 +1091,29 @@ bool TSDLApp::LoadFastStartState()
 	std::string path = FastStartFilePath().string();
 	if (!TFileStream::Exists(path.c_str()))
 		return false;
-
-	// The SDL front end inserts no cards at launch. A state saved with a
-	// card (the network card) would not match, so boot normally instead.
-	std::vector<TEmulator::SStateCard> cards;
-	bool usable = TEmulator::ReadStateCards(path.c_str(), cards);
-	for (auto& card : cards)
-		if (card.fTag != 0) usable = false;
-	if (!usable) {
-		mLog->FLogLine("Fast start: the saved state is damaged, from another version, or has a card; booting normally");
+	if (!mFastStartEnabled) {
 		(void) ::remove(path.c_str());
 		return false;
 	}
+
+	// Insert the same cards as when the state was saved. The SDL front end
+	// only has the network card, in slot 0; a state with another card would
+	// not match, so boot normally instead.
+	std::vector<TEmulator::SStateCard> cards;
+	bool usable = TEmulator::ReadStateCards(path.c_str(), cards);
+	bool withNetworkCard = false;
+	for (size_t slot = 0; usable && slot < cards.size(); ++slot) {
+		if (cards[slot].fTag == 0) continue;
+		if (slot == 0 && cards[slot].fTag == 'ne2k') withNetworkCard = true;
+		else usable = false;
+	}
+	if (!usable) {
+		mLog->FLogLine("Fast start: the saved state is damaged, from another version, or has an unknown card; booting normally");
+		(void) ::remove(path.c_str());
+		return false;
+	}
+	if (withNetworkCard)
+		SetNetworkCardInserted(true);
 
 	Boolean loaded = mEmulator->LoadState(path.c_str());
 	(void) ::remove(path.c_str());
@@ -1121,14 +1139,10 @@ void TSDLApp::SaveFastStartState()
 {
 	std::string path = FastStartFilePath().string();
 	(void) ::remove(path.c_str());
+	if (!mFastStartEnabled) return;
 	if (!mMonitor || mEmulatorState != 1 || mHaltedInBackground) return;
 	if (!mPlatformManager || mPlatformManager->IsPowerOn()) {
 		mLog->FLogLine("Fast start: the Newton is awake, no state saved");
-		return;
-	}
-	if (mNetworkCardInserted) {
-		// See LoadFastStartState(): a state with a card would not load.
-		mLog->FLogLine("Fast start: the network card is inserted, no state saved");
 		return;
 	}
 	if (!mMonitor->RequestSaveState(path.c_str(), true, true)) {
@@ -1167,6 +1181,15 @@ void TSDLApp::ResumeFromBackground()
 }
 
 namespace {
+	// Menus (the id comes back with the choice).
+	enum {
+		kMenuMain = 0,
+		kMenuSettings,
+		kMenuRAM,
+		kMenuScreen,
+		kMenuFastStart
+	};
+	// Items of the main menu.
 	enum {
 		kMenuPower = 0,
 		kMenuBacklight,
@@ -1174,20 +1197,63 @@ namespace {
 		kMenuNetworkDriver,
 		kMenuReboot,
 		kMenuLog,
+		kMenuOpenSettings,
 		kMenuCount
 	};
+	// Items of the settings menu.
+	enum {
+		kSettingRAM = 0,
+		kSettingScreen,
+		kSettingFastStart,
+		kSettingCount
+	};
+	// RAM sizes offered, as in the FLTK app (64 KB pages).
+	const int kRAMPages[] = { 16, 64, 127, 253 };
+	const char* kRAMNames[] = { "1 MB (MessagePad 2000, eMate)", "4 MB (MessagePad 2100)", "8 MB", "16 MB (maximum)" };
+
+	int RAMChoiceIndex(int inPages)
+	{
+		for (int i = 0; i < 4; ++i)
+			if (kRAMPages[i] == inPages) return i;
+		return 1;
+	}
+}
+
+/**
+ \brief Show a list of items; the choice comes back in HandleMenuChoice().
+ On Android this is a native dialog (the choice arrives as an SDL event,
+ mMenuEventType). Elsewhere SDL's message box offers the items as buttons.
+ */
+void TSDLApp::ShowList(int inMenuId, const char* inTitle,
+					   const std::vector<std::string>& inItems, int inChecked)
+{
+	if (mMenuEventType == 0)
+		mMenuEventType = SDL_RegisterEvents(1);
+#if TARGET_OS_ANDROID
+	if (mMenuEventType != 0) {
+		AndroidShowMenu(inMenuId, inTitle, inItems, inChecked, mMenuEventType);
+		return;
+	}
+#endif
+	std::vector<std::string> labels = inItems;
+	if (inChecked >= 0 && inChecked < (int)labels.size())
+		labels[inChecked] = "* " + labels[inChecked];
+	std::vector<SDL_MessageBoxButtonData> buttons;
+	for (int i = 0; i < (int)labels.size(); ++i)
+		buttons.push_back({ 0, i, labels[i].c_str() });
+	buttons.push_back({ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, -1, "Cancel" });
+	SDL_MessageBoxData data { SDL_MESSAGEBOX_INFORMATION, mSDLWindow, inTitle,
+		"Choose an item", (int)buttons.size(), buttons.data(), nullptr };
+	int choice = -1;
+	if (SDL_ShowMessageBox(&data, &choice))
+		HandleMenuChoice(inMenuId, choice);
 }
 
 /**
  \brief Show the toolbar menu.
- On Android this is a native list dialog; the choice comes back as an SDL
- event (mMenuEventType). Elsewhere SDL's message box offers the same items
- as buttons.
  */
 void TSDLApp::ShowMenu()
 {
-	if (mMenuEventType == 0)
-		mMenuEventType = SDL_RegisterEvents(1);
 	std::vector<std::string> items(kMenuCount);
 	items[kMenuPower] = "Power switch (sleep / wake)";
 	items[kMenuBacklight] = "Backlight on / off";
@@ -1195,59 +1261,170 @@ void TSDLApp::ShowMenu()
 	items[kMenuNetworkDriver] = "Install network card driver (NE2000)";
 	items[kMenuReboot] = "Restart NewtonOS";
 	items[kMenuLog] = mShowLog ? "Hide log" : "Show log";
-#if TARGET_OS_ANDROID
-	if (mMenuEventType != 0) {
-		AndroidShowMenu("Einstein", items, mMenuEventType);
-		return;
-	}
-#endif
-	std::vector<SDL_MessageBoxButtonData> buttons;
-	for (int i = 0; i < kMenuCount; ++i)
-		buttons.push_back({ 0, i, items[i].c_str() });
-	buttons.push_back({ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, -1, "Cancel" });
-	SDL_MessageBoxData data { SDL_MESSAGEBOX_INFORMATION, mSDLWindow, "Einstein",
-		"Choose an action", (int)buttons.size(), buttons.data(), nullptr };
-	int choice = -1;
-	if (SDL_ShowMessageBox(&data, &choice))
-		HandleMenuChoice(choice);
+	items[kMenuOpenSettings] = "Settings...";
+	ShowList(kMenuMain, "Einstein", items);
+}
+
+/**
+ \brief Show the settings, each with its current value.
+ */
+void TSDLApp::ShowSettingsMenu()
+{
+	std::vector<std::string> items(kSettingCount);
+	items[kSettingRAM] = std::string("Memory: ") + kRAMNames[RAMChoiceIndex(mRAMPages)];
+	items[kSettingScreen] = std::string("Screen: ") +
+		(mAdjustToAspectRatio ? "fit to the window" : "MessagePad size (320 x 480)");
+	items[kSettingFastStart] = std::string("Fast start: ") + (mFastStartEnabled ? "on" : "off");
+	ShowList(kMenuSettings, "Settings", items);
 }
 
 /**
  \brief Carry out a menu choice (-1 means Cancel).
  */
-void TSDLApp::HandleMenuChoice(int inItem)
+void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 {
-	switch (inItem) {
-		case kMenuPower:
-			if (mPlatformManager) mPlatformManager->SendPowerSwitchEvent();
-			break;
-		case kMenuBacklight:
-			if (mPlatformManager) mPlatformManager->SendBacklightEvent();
-			break;
-		case kMenuNetwork:
-			if (mPlatformManager) {
-				mPlatformManager->SendNetworkCardEvent();
-				mNetworkCardInserted = !mNetworkCardInserted;
-				mLog->FLogLine("Network card %s", mNetworkCardInserted ? "inserted" : "removed");
+	if (inItem < 0) return; // Cancel
+	static const char* kRestartNote =
+		"This takes effect the next time Einstein starts.\n\n"
+		"To restart now, close Einstein from the recent apps and open it again. "
+		"NewtonOS boots normally then, with your data kept.";
+	switch (inMenuId) {
+		case kMenuMain:
+			switch (inItem) {
+				case kMenuPower:
+					if (mPlatformManager) mPlatformManager->SendPowerSwitchEvent();
+					break;
+				case kMenuBacklight:
+					if (mPlatformManager) mPlatformManager->SendBacklightEvent();
+					break;
+				case kMenuNetwork:
+					SetNetworkCardInserted(!mNetworkCardInserted);
+					break;
+				case kMenuNetworkDriver:
+					// The same NE2K.pkg the FLTK app installs with Install Essentials.
+					if (mPlatformManager) {
+						mLog->FLogLine("Installing NE2K.pkg (%u bytes)", gNE2KPackageSize);
+						mPlatformManager->InstallPackage(gNE2KPackage, gNE2KPackageSize);
+					}
+					break;
+				case kMenuReboot:
+					if (mPlatformManager) mPlatformManager->EvalNewtonScript("Reboot();");
+					break;
+				case kMenuLog:
+					mShowLog = !mShowLog;
+					RedrawAll();
+					break;
+				case kMenuOpenSettings:
+					ShowSettingsMenu();
+					break;
 			}
 			break;
-		case kMenuNetworkDriver:
-			// The same NE2K.pkg the FLTK app installs with Install Essentials.
-			if (mPlatformManager) {
-				mLog->FLogLine("Installing NE2K.pkg (%u bytes)", gNE2KPackageSize);
-				mPlatformManager->InstallPackage(gNE2KPackage, gNE2KPackageSize);
+		case kMenuSettings:
+			switch (inItem) {
+				case kSettingRAM:
+					ShowList(kMenuRAM, "Memory (RAM)",
+							 std::vector<std::string>(std::begin(kRAMNames), std::end(kRAMNames)),
+							 RAMChoiceIndex(mRAMPages));
+					break;
+				case kSettingScreen:
+					ShowList(kMenuScreen, "Screen",
+							 { "MessagePad size (320 x 480)", "Fit to the window" },
+							 mAdjustToAspectRatio ? 1 : 0);
+					break;
+				case kSettingFastStart:
+					ShowList(kMenuFastStart, "Fast start",
+							 { "On: continue where Einstein was", "Off: boot NewtonOS at every start" },
+							 mFastStartEnabled ? 0 : 1);
+					break;
 			}
 			break;
-		case kMenuReboot:
-			if (mPlatformManager) mPlatformManager->EvalNewtonScript("Reboot();");
+		case kMenuRAM:
+			if (inItem < 4 && kRAMPages[inItem] != mRAMPages) {
+				mRAMPages = kRAMPages[inItem];
+				SaveSettings();
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Memory", kRestartNote, mSDLWindow);
+			}
 			break;
-		case kMenuLog:
-			mShowLog = !mShowLog;
-			RedrawAll();
+		case kMenuScreen:
+			if ((inItem == 1) != mAdjustToAspectRatio) {
+				mAdjustToAspectRatio = mAdjustToScreenDPI = (inItem == 1);
+				SaveSettings();
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Screen", kRestartNote, mSDLWindow);
+			}
 			break;
-		default:
-			break; // Cancel
+		case kMenuFastStart:
+			mFastStartEnabled = (inItem == 0);
+			SaveSettings();
+			break;
 	}
+}
+
+/**
+ \brief Read the settings from Einstein.prefs (one "key=value" per line).
+ Missing keys keep their defaults.
+ */
+void TSDLApp::LoadSettings()
+{
+	std::filesystem::path path = mPrivateDataPath / "Einstein.prefs";
+	size_t size = 0;
+	char* text = (char*)SDL_LoadFile(path.string().c_str(), &size);
+	if (!text) return;
+	std::string all(text, size);
+	SDL_free(text);
+	size_t pos = 0;
+	while (pos < all.size()) {
+		size_t eol = all.find('\n', pos);
+		if (eol == std::string::npos) eol = all.size();
+		std::string line = all.substr(pos, eol - pos);
+		pos = eol + 1;
+		size_t eq = line.find('=');
+		if (eq == std::string::npos) continue;
+		std::string key = line.substr(0, eq);
+		int value = SDL_atoi(line.c_str() + eq + 1);
+		if (key == "RAMPages") mRAMPages = kRAMPages[RAMChoiceIndex(value)];
+		else if (key == "ScreenFit") mAdjustToAspectRatio = mAdjustToScreenDPI = (value != 0);
+		else if (key == "FastStart") mFastStartEnabled = (value != 0);
+		else if (key == "NetworkCard") mNetworkCardWanted = (value != 0);
+	}
+	mLog->FLogLine("Settings: RAM %d pages, screen %s, fast start %s, network card %s",
+				   mRAMPages, mAdjustToAspectRatio ? "fit" : "320x480",
+				   mFastStartEnabled ? "on" : "off", mNetworkCardWanted ? "in" : "out");
+}
+
+/**
+ \brief Write the settings to Einstein.prefs.
+ */
+void TSDLApp::SaveSettings()
+{
+	SDL_CreateDirectory(mPrivateDataPath.string().c_str());
+	std::filesystem::path path = mPrivateDataPath / "Einstein.prefs";
+	char text[256];
+	SDL_snprintf(text, sizeof(text), "RAMPages=%d\nScreenFit=%d\nFastStart=%d\nNetworkCard=%d\n",
+				 mRAMPages, mAdjustToAspectRatio ? 1 : 0, mFastStartEnabled ? 1 : 0,
+				 mNetworkCardWanted ? 1 : 0);
+	if (!SDL_SaveFile(path.string().c_str(), text, SDL_strlen(text)))
+		mLog->FLogLine("Could not save the settings: %s", SDL_GetError());
+}
+
+/**
+ \brief Insert or remove the NE2000 network card in slot 0, and remember the
+ choice for the next launch.
+ */
+void TSDLApp::SetNetworkCardInserted(bool inInserted)
+{
+	if (!mPlatformManager) return;
+	if (inInserted && !mNetworkCardInserted) {
+		if (!mNetworkCard) mNetworkCard = new TNE2000Card();
+		mPlatformManager->InsertPCCard(0, mNetworkCard);
+	} else if (!inInserted && mNetworkCardInserted) {
+		mPlatformManager->InsertPCCard(0, nullptr);
+	}
+	mNetworkCardInserted = inInserted;
+	if (mNetworkCardWanted != inInserted) {
+		mNetworkCardWanted = inInserted;
+		SaveSettings();
+	}
+	mLog->FLogLine("Network card %s", inInserted ? "inserted" : "removed");
 }
 
 SDL_AppResult TSDLApp::PickPackageFile()

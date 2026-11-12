@@ -96,12 +96,13 @@ Java_org_messagepad_einstein_EinsteinActivity_onFileImported(JNIEnv* env, jobjec
  event (SDL_PushEvent is thread safe).
  */
 JNIEXPORT void JNICALL
-Java_org_messagepad_einstein_EinsteinActivity_onMenuItemSelected(JNIEnv* env, jobject thiz, jint which) {
+Java_org_messagepad_einstein_EinsteinActivity_onMenuItemSelected(JNIEnv* env, jobject thiz, jint menuId, jint which) {
 	if (gMenuEventType == 0) return;
 	SDL_Event event;
 	SDL_zero(event);
 	event.type = gMenuEventType;
 	event.user.code = which;
+	event.user.data1 = (void*)(intptr_t)menuId;
 	SDL_PushEvent(&event);
 }
 
@@ -110,8 +111,9 @@ Java_org_messagepad_einstein_EinsteinActivity_onMenuItemSelected(JNIEnv* env, jo
 /**
  Show a list of menu items in a native Android dialog.
  */
-void AndroidShowMenu(const char* inTitle, const std::vector<std::string>& inItems,
-					 unsigned int inEventType) {
+void AndroidShowMenu(int inMenuId, const char* inTitle,
+					 const std::vector<std::string>& inItems,
+					 int inChecked, unsigned int inEventType) {
 	gMenuEventType = inEventType;
 	JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
 	jobject activity = (jobject)SDL_GetAndroidActivity();
@@ -124,8 +126,8 @@ void AndroidShowMenu(const char* inTitle, const std::vector<std::string>& inItem
 	}
 	jstring title = env->NewStringUTF(inTitle);
 	jclass clazz = env->GetObjectClass(activity);
-	jmethodID method = env->GetMethodID(clazz, "showMenu", "(Ljava/lang/String;[Ljava/lang/String;)V");
-	env->CallVoidMethod(activity, method, title, items);
+	jmethodID method = env->GetMethodID(clazz, "showMenu", "(ILjava/lang/String;[Ljava/lang/String;I)V");
+	env->CallVoidMethod(activity, method, (jint)inMenuId, title, items, (jint)inChecked);
 	env->DeleteLocalRef(clazz);
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(items);
