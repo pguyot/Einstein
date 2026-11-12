@@ -1168,7 +1168,6 @@ namespace {
 	enum {
 		kMenuPower = 0,
 		kMenuBacklight,
-		kMenuInstall,
 		kMenuNetwork,
 		kMenuReboot,
 		kMenuLog,
@@ -1189,7 +1188,6 @@ void TSDLApp::ShowMenu()
 	std::vector<std::string> items(kMenuCount);
 	items[kMenuPower] = "Power switch (sleep / wake)";
 	items[kMenuBacklight] = "Backlight on / off";
-	items[kMenuInstall] = "Install package...";
 	items[kMenuNetwork] = mNetworkCardInserted ? "Remove network card" : "Insert network card";
 	items[kMenuReboot] = "Restart NewtonOS";
 	items[kMenuLog] = mShowLog ? "Hide log" : "Show log";
@@ -1221,9 +1219,6 @@ void TSDLApp::HandleMenuChoice(int inItem)
 			break;
 		case kMenuBacklight:
 			if (mPlatformManager) mPlatformManager->SendBacklightEvent();
-			break;
-		case kMenuInstall:
-			UserActionInstallPackage();
 			break;
 		case kMenuNetwork:
 			if (mPlatformManager) {
