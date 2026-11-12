@@ -1378,11 +1378,16 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 				"unna/apple/software/SystemPatches/english/eMate/EM737246.PKG",	// eMate 300
 				nullptr															// Watson: none
 			};
+			// The order matters: the Ethernet module (enetsup) registers with
+			// the Internet Enabler (inetenbl) when it is installed, so the
+			// enabler comes first; otherwise Internet Setup says there are
+			// no module packages installed. This is the order of Matthias
+			// Melcher's Einstein instructions; NE2K.pkg comes last.
 			static const char* kNIE[] = {
-				"unna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg",
-				"unna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg",
-				"unna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg",
-				"unna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg"
+				"unna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg",	// Internet Enabler
+				"unna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg",	// Internet Setup
+				"unna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg",	// Newton Devices
+				"unna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg"	// NIE Ethernet module
 			};
 			KSInt32 romId = mROMImage ? mROMImage->GetROMId() : -1;
 			const char* update = (romId >= 0 && romId < 4) ? kSystemUpdates[romId] : nullptr;
