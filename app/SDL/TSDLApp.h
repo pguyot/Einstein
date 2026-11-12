@@ -159,7 +159,8 @@ public:
 	// user wants to install a package
 	void UserActionInstallPackage();
 
-	// The toolbar menu: power, backlight, install, network card, reboot, log.
+	// The toolbar menu: power, backlight, network card, restart, log.
+	// (Install package has its own toolbar button.)
 	void ShowMenu();
 	void HandleMenuChoice(int inItem);
 	SDL_AppResult PickPackageFile();
