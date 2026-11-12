@@ -51,6 +51,7 @@ class TPrinterManager;
 class TMonitor;
 class TSymbolList;
 class TNE2000Card;
+class TPCMCIACard;
 #if USE_TOOLKIT
 class TToolkit;
 #endif
@@ -177,6 +178,22 @@ public:
 	// Insert or remove the NE2000 network card in slot 0.
 	void SetNetworkCardInserted(bool inInserted);
 
+	// Storage cards (linear flash or ATA image files in CardsFolder()) and
+	// the internal flash (back up, restore at the next start, Brain Wipe).
+	std::filesystem::path CardsFolder() const { return mPublicDataPath / "Cards"; }
+	int StorageSlot() const;
+	std::vector<std::string> ListCardFiles() const;
+	void ShowStorageCardsMenu();
+	void ShowInternalMemoryMenu();
+	bool InsertStorageCard(const std::string& inFileName);
+	void RemoveStorageCard();
+	void CreateStorageCard(bool inATA, int inSizeMB);
+	// File dialogs: the chosen path comes back as a menu event with the path
+	// in user.data2, and is handled by HandleFileChosen() on the SDL thread.
+	void ChooseFile(int inId, bool inSave, const char* inDefaultName);
+	void HandleFileChosen(int inId, const std::string& inPath);
+	Uint32 MenuEventType();
+
 	// Network software: the System Update for the ROM and Apple's NIE
 	// packages from UNNA, and the built-in NE2000 driver. Downloads run on a
 	// thread; each result comes back as an SDL event (mDownloadEventType)
@@ -277,6 +294,15 @@ private:
 	int mRAMPages { 64 };				// 64 KB pages: 16, 64, 127 or 253
 	bool mFastStartEnabled { true };
 	bool mNetworkCardWanted { false };	// insert the network card at launch
+	// The storage card that is inserted, and its file name in CardsFolder().
+	TPCMCIACard* mStorageCard { nullptr };
+	std::string mStorageCardFile;
+	std::string mStorageCardWanted;		// insert this card at launch
+	// Removed cards are kept: the emulator thread may still be finishing an
+	// access when the card leaves the slot.
+	std::vector<TPCMCIACard*> mRetiredCards;
+	std::vector<std::string> mCardMenuFiles;	// cards listed in the storage menu
+	std::string mCardToExport;
 	std::atomic<int> mEmulatorState { 0 }; // 0 not started, 1 running, 2 ended
 	// We pressed the power switch to put the Newton to sleep while in the
 	// background; don't press it again until we are back.
