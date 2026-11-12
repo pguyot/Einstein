@@ -813,9 +813,14 @@ SDL_AppResult TSDLApp::Run()
 	mSoundManager = new TSDLSoundManager(mLog);
 
 	// Host networking for the NE2000 card (insert it from the menu).
-	mNetworkManager = new TUsermodeNetwork(mLog);
+	// The emulator only gets a log on request: it logs every PC Card access,
+	// which made card storage very slow (the FLTK app has none without --log).
+	TLog* emulatorLog = mEmulatorLogEnabled ? mLog : nullptr;
+	mLog->FLogLine("Detailed emulator log %s", mEmulatorLogEnabled ? "on" : "off");
 
-	mEmulator = new TEmulator(mLog,
+	mNetworkManager = new TUsermodeNetwork(emulatorLog);
+
+	mEmulator = new TEmulator(emulatorLog,
 							  mROMImage,			// TODO
 							  mFlashPath.string().c_str(),	// TODO
 							  mSoundManager,		// TODO
@@ -1238,6 +1243,7 @@ namespace {
 		kMenuRAM,
 		kMenuScreen,
 		kMenuFastStart,
+		kMenuEmulatorLog,
 		kMenuNetSoftware,
 		kMenuStorage,
 		kMenuNewLinear,
@@ -1269,6 +1275,7 @@ namespace {
 		kSettingRAM = 0,
 		kSettingScreen,
 		kSettingFastStart,
+		kSettingEmulatorLog,
 		kSettingCount
 	};
 	// RAM sizes offered, as in the FLTK app (64 KB pages).
@@ -1341,6 +1348,7 @@ void TSDLApp::ShowSettingsMenu()
 	items[kSettingScreen] = std::string("Screen: ") +
 		(mAdjustToAspectRatio ? "fit to the window" : "MessagePad size (320 x 480)");
 	items[kSettingFastStart] = std::string("Fast start: ") + (mFastStartEnabled ? "on" : "off");
+	items[kSettingEmulatorLog] = std::string("Detailed emulator log: ") + (mEmulatorLogEnabled ? "on" : "off");
 	ShowList(kMenuSettings, "Settings", items);
 }
 
@@ -1405,6 +1413,11 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 							 { "MessagePad size (320 x 480)", "Fit to the window" },
 							 mAdjustToAspectRatio ? 1 : 0);
 					break;
+				case kSettingEmulatorLog:
+					ShowList(kMenuEmulatorLog, "Detailed emulator log",
+							 { "Off (faster)", "On: log every device access (for debugging, much slower)" },
+							 mEmulatorLogEnabled ? 1 : 0);
+					break;
 				case kSettingFastStart:
 					ShowList(kMenuFastStart, "Fast start",
 							 { "On: continue where Einstein was", "Off: boot NewtonOS at every start" },
@@ -1429,6 +1442,13 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 		case kMenuFastStart:
 			mFastStartEnabled = (inItem == 0);
 			SaveSettings();
+			break;
+		case kMenuEmulatorLog:
+			if ((inItem == 1) != mEmulatorLogEnabled) {
+				mEmulatorLogEnabled = (inItem == 1);
+				SaveSettings();
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Detailed emulator log", kRestartNote, mSDLWindow);
+			}
 			break;
 		case kMenuStorage: {
 			size_t n = mCardMenuFiles.size();
@@ -1698,6 +1718,7 @@ void TSDLApp::LoadSettings()
 		else if (key == "FastStart") mFastStartEnabled = (value != 0);
 		else if (key == "NetworkCard") mNetworkCardWanted = (value != 0);
 		else if (key == "StorageCard") mStorageCardWanted = line.substr(eq + 1);
+		else if (key == "EmulatorLog") mEmulatorLogEnabled = (value != 0);
 	}
 	mLog->FLogLine("Settings: RAM %d pages, screen %s, fast start %s, network card %s",
 				   mRAMPages, mAdjustToAspectRatio ? "fit" : "320x480",
@@ -1715,7 +1736,8 @@ void TSDLApp::SaveSettings()
 	SDL_snprintf(numbers, sizeof(numbers), "RAMPages=%d\nScreenFit=%d\nFastStart=%d\nNetworkCard=%d\n",
 				 mRAMPages, mAdjustToAspectRatio ? 1 : 0, mFastStartEnabled ? 1 : 0,
 				 mNetworkCardWanted ? 1 : 0);
-	std::string text = std::string(numbers) + "StorageCard=" + mStorageCardWanted + "\n";
+	std::string text = std::string(numbers) + "EmulatorLog=" + (mEmulatorLogEnabled ? "1" : "0")
+		+ "\nStorageCard=" + mStorageCardWanted + "\n";
 	if (!SDL_SaveFile(path.string().c_str(), text.data(), text.size()))
 		mLog->FLogLine("Could not save the settings: %s", SDL_GetError());
 }

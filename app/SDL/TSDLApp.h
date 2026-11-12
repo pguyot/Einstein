@@ -294,6 +294,9 @@ private:
 	int mRAMPages { 64 };				// 64 KB pages: 16, 64, 127 or 253
 	bool mFastStartEnabled { true };
 	bool mNetworkCardWanted { false };	// insert the network card at launch
+	// Give the emulator the app's log (every PC Card access, and more, is
+	// logged then; much slower). Off, as in the FLTK app without --log.
+	bool mEmulatorLogEnabled { false };
 	// The storage card that is inserted, and its file name in CardsFolder().
 	TPCMCIACard* mStorageCard { nullptr };
 	std::string mStorageCardFile;
