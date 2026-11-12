@@ -86,18 +86,27 @@ public class EinsteinActivity extends SDLActivity {
     // Native method called after import
     private native void onFileImported(String path);
 
-    // Called from C via JNI: show a list of menu items. The choice (or -1
-    // for Cancel) goes back to C through onMenuItemSelected.
-    public void showMenu(final String title, final String[] items) {
-        runOnUiThread(() -> new AlertDialog.Builder(this)
-            .setTitle(title)
-            .setItems(items, (dialog, which) -> onMenuItemSelected(which))
-            .setNegativeButton("Cancel", (dialog, which) -> onMenuItemSelected(-1))
-            .setOnCancelListener(dialog -> onMenuItemSelected(-1))
-            .show());
+    // Called from C via JNI: show a list of menu items. With checked >= 0 the
+    // list is a single choice with that item selected. The choice (or -1 for
+    // Cancel) goes back to C through onMenuItemSelected, with the menu id.
+    public void showMenu(final int menuId, final String title, final String[] items, final int checked) {
+        runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle(title);
+            if (checked >= 0) {
+                builder.setSingleChoiceItems(items, checked, (dialog, which) -> {
+                    dialog.dismiss();
+                    onMenuItemSelected(menuId, which);
+                });
+            } else {
+                builder.setItems(items, (dialog, which) -> onMenuItemSelected(menuId, which));
+            }
+            builder.setNegativeButton("Cancel", (dialog, which) -> onMenuItemSelected(menuId, -1))
+                   .setOnCancelListener(dialog -> onMenuItemSelected(menuId, -1))
+                   .show();
+        });
     }
 
-    // Native method called with the chosen menu item, or -1.
-    private native void onMenuItemSelected(int which);
+    // Native method called with the menu id and the chosen item, or -1.
+    private native void onMenuItemSelected(int menuId, int which);
 
 }

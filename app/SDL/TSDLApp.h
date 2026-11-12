@@ -50,6 +50,7 @@ class TNetworkManager;
 class TPrinterManager;
 class TMonitor;
 class TSymbolList;
+class TNE2000Card;
 #if USE_TOOLKIT
 class TToolkit;
 #endif
@@ -159,10 +160,22 @@ public:
 	// user wants to install a package
 	void UserActionInstallPackage();
 
-	// The toolbar menu: power, backlight, network card, restart, log.
-	// (Install package has its own toolbar button.)
+	// The toolbar menu: power, backlight, network card and driver, restart,
+	// log, settings. (Install package has its own toolbar button.)
 	void ShowMenu();
-	void HandleMenuChoice(int inItem);
+	// Show a list (a single choice list if inChecked >= 0); the choice
+	// arrives in HandleMenuChoice() with the same menu id.
+	void ShowList(int inMenuId, const char* inTitle,
+				  const std::vector<std::string>& inItems, int inChecked = -1);
+	void HandleMenuChoice(int inMenuId, int inItem);
+	void ShowSettingsMenu();
+
+	// Settings, kept in Einstein.prefs in the private data folder.
+	void LoadSettings();
+	void SaveSettings();
+
+	// Insert or remove the NE2000 network card in slot 0.
+	void SetNetworkCardInserted(bool inInserted);
 	SDL_AppResult PickPackageFile();
 	void PackageFilePicked(const char * const *filelist, int filter);
 
@@ -245,8 +258,13 @@ private:
 	bool mShowLog { false };
 	// SDL event type for a menu choice made in a native Android dialog.
 	Uint32 mMenuEventType { 0 };
-	// The NE2000 card is inserted (the platform manager only toggles it).
+	// The NE2000 card in slot 0 (kept while removed, inserted again later).
+	TNE2000Card* mNetworkCard { nullptr };
 	bool mNetworkCardInserted { false };
+	// Settings (see LoadSettings()).
+	int mRAMPages { 64 };				// 64 KB pages: 16, 64, 127 or 253
+	bool mFastStartEnabled { true };
+	bool mNetworkCardWanted { false };	// insert the network card at launch
 	std::atomic<int> mEmulatorState { 0 }; // 0 not started, 1 running, 2 ended
 	// We pressed the power switch to put the Newton to sleep while in the
 	// background; don't press it again until we are back.

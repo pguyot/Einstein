@@ -38,10 +38,12 @@
 
 extern void AndroidPickROMFile();
 
-/// Show a native list menu. The chosen index (or -1 for Cancel) arrives as
-/// an SDL user event of type inEventType, with the index in user.code.
-extern void AndroidShowMenu(const char* inTitle, const std::vector<std::string>& inItems,
-							unsigned int inEventType);
+/// Show a native list menu (a single choice list if inChecked >= 0). The
+/// chosen index (or -1 for Cancel) arrives as an SDL user event of type
+/// inEventType, with the index in user.code and inMenuId in user.data1.
+extern void AndroidShowMenu(int inMenuId, const char* inTitle,
+							const std::vector<std::string>& inItems,
+							int inChecked, unsigned int inEventType);
 extern void AndroidPickPackageFile();
 
 extern void AndroidDownloadROMFile();
