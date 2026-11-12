@@ -15,6 +15,7 @@ list ( APPEND app_sources
 	app/SDL/TSDLSoundManager.cpp
 	app/SDL/TSDLSoundManager.h
 	app/SDL/TSDLRexImage.h
+	app/SDL/TSDLNE2KImage.h
 )
 
 if ( ANDROID )
@@ -25,3 +26,5 @@ list ( APPEND app_sources
 endif ()
 
 embed_resource ( _Data_/Einstein.rex app/SDL/TSDLRexImage.h gEinsteinRexImage )
+# NE2K.pkg, the driver of the network card, installed from the menu.
+embed_resource ( _Data_/NE2K.pkg app/SDL/TSDLNE2KImage.h gNE2KPackage )
