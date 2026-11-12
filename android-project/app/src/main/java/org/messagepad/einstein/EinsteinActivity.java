@@ -3,6 +3,7 @@ package org.messagepad.einstein;
 
 import org.libsdl.app.SDLActivity;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -84,5 +85,19 @@ public class EinsteinActivity extends SDLActivity {
 
     // Native method called after import
     private native void onFileImported(String path);
+
+    // Called from C via JNI: show a list of menu items. The choice (or -1
+    // for Cancel) goes back to C through onMenuItemSelected.
+    public void showMenu(final String title, final String[] items) {
+        runOnUiThread(() -> new AlertDialog.Builder(this)
+            .setTitle(title)
+            .setItems(items, (dialog, which) -> onMenuItemSelected(which))
+            .setNegativeButton("Cancel", (dialog, which) -> onMenuItemSelected(-1))
+            .setOnCancelListener(dialog -> onMenuItemSelected(-1))
+            .show());
+    }
+
+    // Native method called with the chosen menu item, or -1.
+    private native void onMenuItemSelected(int which);
 
 }

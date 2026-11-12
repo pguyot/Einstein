@@ -74,6 +74,7 @@
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/Log/TSDLLog.h"
 #include "Emulator/Network/TNetworkManager.h"
+#include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
@@ -87,6 +88,8 @@
 #endif
 // xxd --include Resources/icons/button_install.bmp > app/SDL/TSDLIconInstall.cpp
 #include "app/SDL/TSDLIconInstall.h" // Resources_icons_button_install_bmp
+#include "app/SDL/TSDLIconPower.h"   // Resources_icons_button_power_bmp
+#include "app/SDL/TSDLIconMenu.h"    // Resources_icons_button_prefs_bmp
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -472,6 +475,11 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
     SDL_GetWindowSize(mSDLWindow, &win_w, &win_h);
     mLog->FLogLine("Handle event %s : %d %d %d",
                    buf, win_w, win_h, (int)mBootState);
+	if (mMenuEventType != 0 && event_type == mMenuEventType) {
+		// A choice from the native Android menu (see ShowMenu()).
+		HandleMenuChoice(event->user.code);
+		return SDL_APP_CONTINUE;
+	}
 	if (event_type == mSDLBootStateEvent)
 		return HandleBootStateChange();
 
@@ -602,6 +610,12 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 							switch (mPenDownN) {
 								case 1:
 									UserActionInstallPackage();
+									break;
+								case 2:
+									if (mPlatformManager) mPlatformManager->SendPowerSwitchEvent();
+									break;
+								case 3:
+									ShowMenu();
 									break;
 							}
 						}
@@ -745,7 +759,8 @@ SDL_AppResult TSDLApp::Run()
 
 	mSoundManager = new TSDLSoundManager(mLog);
 
-	mNetworkManager = new TNullNetworkManager(mLog);
+	// Host networking for the NE2000 card (insert it from the menu).
+	mNetworkManager = new TUsermodeNetwork(mLog);
 
 	mEmulator = new TEmulator(mLog,
 							  mROMImage,			// TODO
@@ -955,11 +970,16 @@ bool TSDLApp::RedrawToolbar()
 {
 	static bool icons_loaded = false;
 	static SDL_Surface *button_install_bmp { nullptr };
+	static SDL_Surface *button_power_bmp { nullptr };
+	static SDL_Surface *button_menu_bmp { nullptr };
 
 	if (!icons_loaded) {
-		SDL_IOStream *io = SDL_IOFromConstMem(Resources_icons_button_install_bmp,
-											   sizeof(Resources_icons_button_install_bmp));
-		button_install_bmp = SDL_LoadBMP_IO(io, true);
+		button_install_bmp = SDL_LoadBMP_IO(SDL_IOFromConstMem(Resources_icons_button_install_bmp,
+								sizeof(Resources_icons_button_install_bmp)), true);
+		button_power_bmp = SDL_LoadBMP_IO(SDL_IOFromConstMem(Resources_icons_button_power_bmp,
+								sizeof(Resources_icons_button_power_bmp)), true);
+		button_menu_bmp = SDL_LoadBMP_IO(SDL_IOFromConstMem(Resources_icons_button_prefs_bmp,
+								sizeof(Resources_icons_button_prefs_bmp)), true);
 		icons_loaded = true; // or at least we tried
 	}
 
@@ -968,9 +988,15 @@ bool TSDLApp::RedrawToolbar()
 	SDL_Surface *surface;
 	if (SDL_LockTextureToSurface(mSDLTexture, &r, &surface)) {
 		SDL_FillSurfaceRect(surface, &r, mToolbarColor);
-		SDL_Rect icon_r { mScreenWidth-mToolbarHeight-mToolbarHeight/4+1, 1,
-			mToolbarHeight-2, mToolbarHeight-2 };
-		SDL_BlitSurfaceScaled(button_install_bmp, nullptr, surface, &icon_r, SDL_SCALEMODE_LINEAR);
+		// Buttons from the right: 1 install, 2 power, 3 menu (the mouse
+		// handler counts them the same way).
+		SDL_Surface *buttons[] = { button_install_bmp, button_power_bmp, button_menu_bmp };
+		for (int n = 1; n <= 3; ++n) {
+			if (!buttons[n-1]) continue;
+			SDL_Rect icon_r { mScreenWidth-n*mToolbarHeight-mToolbarHeight/4+1, 1,
+				mToolbarHeight-2, mToolbarHeight-2 };
+			SDL_BlitSurfaceScaled(buttons[n-1], nullptr, surface, &icon_r, SDL_SCALEMODE_LINEAR);
+		}
 		SDL_UnlockTexture(mSDLTexture);
 		mRefreshToolbar = false;
 		return true;
@@ -996,6 +1022,86 @@ TSDLApp::EmulatorThreadEntry()
 void TSDLApp::UserActionInstallPackage()
 {
 	ChangeBootState(BootState::PickPackage);
+}
+
+namespace {
+	enum {
+		kMenuPower = 0,
+		kMenuBacklight,
+		kMenuInstall,
+		kMenuNetwork,
+		kMenuReboot,
+		kMenuLog,
+		kMenuCount
+	};
+}
+
+/**
+ \brief Show the toolbar menu.
+ On Android this is a native list dialog; the choice comes back as an SDL
+ event (mMenuEventType). Elsewhere SDL's message box offers the same items
+ as buttons.
+ */
+void TSDLApp::ShowMenu()
+{
+	if (mMenuEventType == 0)
+		mMenuEventType = SDL_RegisterEvents(1);
+	std::vector<std::string> items(kMenuCount);
+	items[kMenuPower] = "Power switch (sleep / wake)";
+	items[kMenuBacklight] = "Backlight on / off";
+	items[kMenuInstall] = "Install package...";
+	items[kMenuNetwork] = mNetworkCardInserted ? "Remove network card" : "Insert network card";
+	items[kMenuReboot] = "Restart NewtonOS";
+	items[kMenuLog] = mShowLog ? "Hide log" : "Show log";
+#if TARGET_OS_ANDROID
+	if (mMenuEventType != 0) {
+		AndroidShowMenu("Einstein", items, mMenuEventType);
+		return;
+	}
+#endif
+	std::vector<SDL_MessageBoxButtonData> buttons;
+	for (int i = 0; i < kMenuCount; ++i)
+		buttons.push_back({ 0, i, items[i].c_str() });
+	buttons.push_back({ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, -1, "Cancel" });
+	SDL_MessageBoxData data { SDL_MESSAGEBOX_INFORMATION, mSDLWindow, "Einstein",
+		"Choose an action", (int)buttons.size(), buttons.data(), nullptr };
+	int choice = -1;
+	if (SDL_ShowMessageBox(&data, &choice))
+		HandleMenuChoice(choice);
+}
+
+/**
+ \brief Carry out a menu choice (-1 means Cancel).
+ */
+void TSDLApp::HandleMenuChoice(int inItem)
+{
+	switch (inItem) {
+		case kMenuPower:
+			if (mPlatformManager) mPlatformManager->SendPowerSwitchEvent();
+			break;
+		case kMenuBacklight:
+			if (mPlatformManager) mPlatformManager->SendBacklightEvent();
+			break;
+		case kMenuInstall:
+			UserActionInstallPackage();
+			break;
+		case kMenuNetwork:
+			if (mPlatformManager) {
+				mPlatformManager->SendNetworkCardEvent();
+				mNetworkCardInserted = !mNetworkCardInserted;
+				mLog->FLogLine("Network card %s", mNetworkCardInserted ? "inserted" : "removed");
+			}
+			break;
+		case kMenuReboot:
+			if (mPlatformManager) mPlatformManager->EvalNewtonScript("Reboot();");
+			break;
+		case kMenuLog:
+			mShowLog = !mShowLog;
+			RedrawAll();
+			break;
+		default:
+			break; // Cancel
+	}
 }
 
 SDL_AppResult TSDLApp::PickPackageFile()

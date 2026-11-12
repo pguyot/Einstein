@@ -149,6 +149,10 @@ public:
 
 	// user wants to install a package
 	void UserActionInstallPackage();
+
+	// The toolbar menu: power, backlight, install, network card, reboot, log.
+	void ShowMenu();
+	void HandleMenuChoice(int inItem);
 	SDL_AppResult PickPackageFile();
 	void PackageFilePicked(const char * const *filelist, int filter);
 
@@ -229,6 +233,10 @@ private:
 	// Diagnostics: the log is hidden by default; a tap on the left part of
 	// the toolbar shows or hides it.
 	bool mShowLog { false };
+	// SDL event type for a menu choice made in a native Android dialog.
+	Uint32 mMenuEventType { 0 };
+	// The NE2000 card is inserted (the platform manager only toggles it).
+	bool mNetworkCardInserted { false };
 	std::atomic<int> mEmulatorState { 0 }; // 0 not started, 1 running, 2 ended
 	// We pressed the power switch to put the Newton to sleep while in the
 	// background; don't press it again until we are back.
