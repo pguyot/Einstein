@@ -75,6 +75,11 @@
 #include "Emulator/Log/TSDLLog.h"
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Network/TUsermodeNetwork.h"
+#include "Emulator/Log/TBufferLog.h"
+#include "Emulator/TMemory.h"
+#include <K/Streams/TFileStream.h>
+#include "Monitor/TMonitor.h"
+#include "Monitor/TSymbolList.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
@@ -90,6 +95,18 @@
 #include "app/SDL/TSDLIconInstall.h" // Resources_icons_button_install_bmp
 #include "app/SDL/TSDLIconPower.h"   // Resources_icons_button_power_bmp
 #include "app/SDL/TSDLIconMenu.h"    // Resources_icons_button_prefs_bmp
+
+/**
+ The monitor without a user interface: it runs the emulator thread and does
+ the state saves for fast start, but draws nothing (the base class would
+ print a text dashboard to stdout).
+ */
+class TSDLMonitor : public TMonitor
+{
+public:
+	using TMonitor::TMonitor;
+	Boolean DrawScreen() override { return false; }
+};
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -528,6 +545,9 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 			// the app is not paused (or killed) halfway through going to
 			// sleep. This blocks only the SDL thread, not Android's UI thread.
 			SleepNewton(kSleepTimeoutMS);
+			// Save the state, so a new launch continues here if Android
+			// closes the app. The emulator stays halted in the background.
+			SaveFastStartState();
 			break;
 
 		case SDL_EVENT_DID_ENTER_FOREGROUND:
@@ -780,6 +800,18 @@ SDL_AppResult TSDLApp::Run()
 
 	//	MountPCCardsKeptInSlot();
 
+	// The monitor runs the emulator and saves its state at a safe point
+	// (fast start). It has no window here.
+	mMonitorLog = new TBufferLog();
+	mSymbolList = new TSymbolList((mPublicDataPath / "Einstein.symbols").string().c_str());
+	mMonitor = new TSDLMonitor(mMonitorLog, mEmulator, mSymbolList,
+							   (mPublicDataPath / "Einstein.monitorrc").string().c_str());
+	mMonitor->RunOnStartup(true);
+
+	// Continue where Einstein was when Android closed it, if possible.
+	if (LoadFastStartState())
+		mFastStartWakeAt = SDL_GetTicks() + 500;
+
 	// launch the actual emulation in the background
 	auto emulatorThread = new std::thread(&TSDLApp::EmulatorThreadEntry, this);
 	(void)emulatorThread;
@@ -804,7 +836,18 @@ SDL_AppResult TSDLApp::IterateSDL()
 
 	// Back from the background (flag set on another thread).
 	if (mForegroundPending.exchange(false)) {
+		ResumeFromBackground();
 		WakeNewton();
+		RedrawAll();
+	}
+
+	// After a fast start, wake the Newton that was saved asleep.
+	if (mFastStartWakeAt && now >= mFastStartWakeAt) {
+		mFastStartWakeAt = 0;
+		if (mPlatformManager && !mPlatformManager->IsPowerOn()) {
+			mLog->FLogLine("Fast start: waking the Newton");
+			mPlatformManager->SendPowerSwitchEvent();
+		}
 		RedrawAll();
 	}
 
@@ -1012,7 +1055,10 @@ TSDLApp::EmulatorThreadEntry()
 {
 	mEmulatorState = 1;
 	mLog->FLogLine("Emulator thread started");
-	mEmulator->Run();
+	if (mMonitor)
+		mMonitor->Run();
+	else
+		mEmulator->Run();
 	mEmulatorState = 2;
 	mLog->FLogLine("Emulator thread ended");
 	ChangeBootState(BootState::Exit);
@@ -1022,6 +1068,100 @@ TSDLApp::EmulatorThreadEntry()
 void TSDLApp::UserActionInstallPackage()
 {
 	ChangeBootState(BootState::PickPackage);
+}
+
+/**
+ \brief Load the fast start state, if there is one. Call this before the
+ emulator thread starts. The file is deleted either way, so a damaged state
+ cannot cause a loop.
+ \return true if the Newton continues where it was; it is asleep and needs a
+ wake-up.
+ */
+bool TSDLApp::LoadFastStartState()
+{
+	std::string path = FastStartFilePath().string();
+	if (!TFileStream::Exists(path.c_str()))
+		return false;
+
+	// The SDL front end inserts no cards at launch. A state saved with a
+	// card (the network card) would not match, so boot normally instead.
+	std::vector<TEmulator::SStateCard> cards;
+	bool usable = TEmulator::ReadStateCards(path.c_str(), cards);
+	for (auto& card : cards)
+		if (card.fTag != 0) usable = false;
+	if (!usable) {
+		mLog->FLogLine("Fast start: the saved state is damaged, from another version, or has a card; booting normally");
+		(void) ::remove(path.c_str());
+		return false;
+	}
+
+	Boolean loaded = mEmulator->LoadState(path.c_str());
+	(void) ::remove(path.c_str());
+	if (loaded) {
+		mLog->FLogLine("Fast start: continuing where Einstein was");
+		return true;
+	}
+	// Start over as after a normal launch, in case part of the state was
+	// loaded before an error.
+	mLog->FLogLine("Fast start: the saved state was not loaded (%s), booting normally",
+				   mEmulator->GetLastStateError().c_str());
+	mEmulator->GetMemory()->ClearRAM();
+	mEmulator->ResetState();
+	return false;
+}
+
+/**
+ \brief Save the fast start state while the Newton is asleep, then keep the
+ emulator halted until the app returns. Runs on the SDL thread when the app
+ enters the background (the SDL thread blocks right after anyway).
+ */
+void TSDLApp::SaveFastStartState()
+{
+	std::string path = FastStartFilePath().string();
+	(void) ::remove(path.c_str());
+	if (!mMonitor || mEmulatorState != 1 || mHaltedInBackground) return;
+	if (!mPlatformManager || mPlatformManager->IsPowerOn()) {
+		mLog->FLogLine("Fast start: the Newton is awake, no state saved");
+		return;
+	}
+	if (mNetworkCardInserted) {
+		// See LoadFastStartState(): a state with a card would not load.
+		mLog->FLogLine("Fast start: the network card is inserted, no state saved");
+		return;
+	}
+	if (!mMonitor->RequestSaveState(path.c_str(), true, true)) {
+		mLog->FLogLine("Fast start: the monitor is busy, no state saved");
+		return;
+	}
+	mHaltedInBackground = true;
+	Uint64 deadline = SDL_GetTicks() + 5000;
+	while (mMonitor->IsStateRequestPending() && SDL_GetTicks() < deadline)
+		SDL_Delay(10);
+	if (mMonitor->IsStateRequestPending())
+		mLog->FLogLine("Fast start: saving did not finish in time");
+	else if (mMonitor->LastStateRequestSucceeded())
+		mLog->FLogLine("Fast start: state saved");
+	else
+		mLog->FLogLine("Fast start: could not save the state (%s)",
+					   mEmulator->GetLastStateError().c_str());
+}
+
+/**
+ \brief The app is back and was not closed: the emulator continues, so the
+ saved state is out of date. Delete it and let the emulator run again.
+ */
+void TSDLApp::ResumeFromBackground()
+{
+	if (!mHaltedInBackground.exchange(false)) return;
+	(void) ::remove(FastStartFilePath().string().c_str());
+	if (mMonitor) {
+		// The save may still be finishing; then wait for it before resuming.
+		Uint64 deadline = SDL_GetTicks() + 5000;
+		while (mMonitor->IsStateRequestPending() && SDL_GetTicks() < deadline)
+			SDL_Delay(10);
+		if (mMonitor->IsHalted())
+			mMonitor->ExecuteCommand("run");
+	}
 }
 
 namespace {
