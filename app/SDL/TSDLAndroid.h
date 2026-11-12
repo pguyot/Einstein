@@ -33,7 +33,15 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <string>
+#include <vector>
+
 extern void AndroidPickROMFile();
+
+/// Show a native list menu. The chosen index (or -1 for Cancel) arrives as
+/// an SDL user event of type inEventType, with the index in user.code.
+extern void AndroidShowMenu(const char* inTitle, const std::vector<std::string>& inItems,
+							unsigned int inEventType);
 extern void AndroidPickPackageFile();
 
 extern void AndroidDownloadROMFile();

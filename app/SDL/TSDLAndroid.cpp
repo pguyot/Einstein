@@ -40,6 +40,7 @@
 
 // Java
 #include <jni.h>
+#include <atomic>
 
 /*
  * TODO: how to copy the ROM
@@ -73,6 +74,9 @@
  * Handle Android specific events!
  */
 
+// The SDL event type for menu choices (set by AndroidShowMenu()).
+static std::atomic<Uint32> gMenuEventType { 0 };
+
 extern "C" {
 
 /**
@@ -86,7 +90,48 @@ Java_org_messagepad_einstein_EinsteinActivity_onFileImported(JNIEnv* env, jobjec
     env->ReleaseStringUTFChars(jpath, path);
 }
 
+/**
+ Called by Java with the menu item the user picked, or -1 for Cancel.
+ This runs on the Android UI thread; the choice goes to the SDL thread as an
+ event (SDL_PushEvent is thread safe).
+ */
+JNIEXPORT void JNICALL
+Java_org_messagepad_einstein_EinsteinActivity_onMenuItemSelected(JNIEnv* env, jobject thiz, jint which) {
+	if (gMenuEventType == 0) return;
+	SDL_Event event;
+	SDL_zero(event);
+	event.type = gMenuEventType;
+	event.user.code = which;
+	SDL_PushEvent(&event);
+}
+
 } // extern "C"
+
+/**
+ Show a list of menu items in a native Android dialog.
+ */
+void AndroidShowMenu(const char* inTitle, const std::vector<std::string>& inItems,
+					 unsigned int inEventType) {
+	gMenuEventType = inEventType;
+	JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+	jobject activity = (jobject)SDL_GetAndroidActivity();
+	jclass stringClass = env->FindClass("java/lang/String");
+	jobjectArray items = env->NewObjectArray((jsize)inItems.size(), stringClass, nullptr);
+	for (size_t i = 0; i < inItems.size(); ++i) {
+		jstring item = env->NewStringUTF(inItems[i].c_str());
+		env->SetObjectArrayElement(items, (jsize)i, item);
+		env->DeleteLocalRef(item);
+	}
+	jstring title = env->NewStringUTF(inTitle);
+	jclass clazz = env->GetObjectClass(activity);
+	jmethodID method = env->GetMethodID(clazz, "showMenu", "(Ljava/lang/String;[Ljava/lang/String;)V");
+	env->CallVoidMethod(activity, method, title, items);
+	env->DeleteLocalRef(clazz);
+	env->DeleteLocalRef(title);
+	env->DeleteLocalRef(items);
+	env->DeleteLocalRef(stringClass);
+	env->DeleteLocalRef(activity);
+}
 
 
 /**
