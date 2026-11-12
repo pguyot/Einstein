@@ -1204,6 +1204,7 @@ namespace {
 		kMenuBacklight,
 		kMenuNetwork,
 		kMenuNetworkDriver,
+		kMenuInternetSetup,
 		kMenuReboot,
 		kMenuLog,
 		kMenuOpenSettings,
@@ -1268,6 +1269,7 @@ void TSDLApp::ShowMenu()
 	items[kMenuBacklight] = "Backlight on / off";
 	items[kMenuNetwork] = mNetworkCardInserted ? "Remove network card" : "Insert network card";
 	items[kMenuNetworkDriver] = "Network software...";
+	items[kMenuInternetSetup] = "Open Internet Setup";
 	items[kMenuReboot] = "Restart NewtonOS";
 	items[kMenuLog] = mShowLog ? "Hide log" : "Show log";
 	items[kMenuOpenSettings] = "Settings...";
@@ -1311,6 +1313,12 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 					break;
 				case kMenuNetworkDriver:
 					ShowNetworkSoftwareMenu();
+					break;
+				case kMenuInternetSetup:
+					// As Install Essentials in the FLTK app. Does nothing if NIE
+					// is not installed.
+					if (mPlatformManager)
+						mPlatformManager->EvalNewtonScript("GetRoot().|InternetSetup:NIE|:Open();");
 					break;
 				case kMenuReboot:
 					if (mPlatformManager) mPlatformManager->EvalNewtonScript("Reboot();");
