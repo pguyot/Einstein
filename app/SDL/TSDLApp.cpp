@@ -81,6 +81,8 @@
 #include "Monitor/TMonitor.h"
 #include "Monitor/TSymbolList.h"
 #include "Emulator/PCMCIA/TNE2000Card.h"
+#include "Emulator/PCMCIA/TLinearCard.h"
+#include "Emulator/PCMCIA/TATACard.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
@@ -505,7 +507,14 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 	}
 	if (mMenuEventType != 0 && event_type == mMenuEventType) {
 		// A choice from the native Android menu (see ShowMenu()).
-		HandleMenuChoice((int)(intptr_t)event->user.data1, event->user.code);
+		if (event->user.data2) {
+			// A file chosen in a dialog (see ChooseFile()).
+			char* path = (char*)event->user.data2;
+			HandleFileChosen((int)(intptr_t)event->user.data1, path);
+			SDL_free(path);
+		} else {
+			HandleMenuChoice((int)(intptr_t)event->user.data1, event->user.code);
+		}
 		return SDL_APP_CONTINUE;
 	}
 	if (event_type == mSDLBootStateEvent)
@@ -776,6 +785,19 @@ SDL_AppResult TSDLApp::Run()
 	mFlashPath = mPublicDataPath / "einstein.flash";
 	SDL_CreateDirectory(mPublicDataPath.string().c_str());
 	{
+		// A backup chosen with Internal memory > Restore replaces the flash
+		// now, before the emulator opens it. The fast start state belongs to
+		// the old flash.
+		std::filesystem::path pending = mPublicDataPath / "einstein.flash.restore";
+		std::error_code ec;
+		if (std::filesystem::exists(pending, ec)) {
+			(void) ::remove(FastStartFilePath().string().c_str());
+			std::filesystem::rename(pending, mFlashPath, ec);
+			mLog->FLogLine("Restored the internal memory from a backup%s",
+						   ec ? (": failed, " + ec.message()).c_str() : "");
+		}
+	}
+	{
 		std::error_code ec;
 		auto flashSize = std::filesystem::file_size(mFlashPath, ec);
 		mLog->FLogLine("Flash file %s: %s, %lld bytes", mFlashPath.string().c_str(),
@@ -823,10 +845,13 @@ SDL_AppResult TSDLApp::Run()
 	// inserts the network card if it was inserted then.
 	if (LoadFastStartState()) {
 		mFastStartWakeAt = SDL_GetTicks() + 500;
-	} else if (mNetworkCardWanted) {
-		// A normal boot: insert the network card the user left inserted;
-		// NewtonOS finds it while booting.
-		SetNetworkCardInserted(true);
+	} else {
+		// A normal boot: insert the cards the user left inserted; NewtonOS
+		// finds them while booting.
+		if (mNetworkCardWanted)
+			SetNetworkCardInserted(true);
+		if (!mStorageCardWanted.empty())
+			InsertStorageCard(mStorageCardWanted);
 	}
 
 	// launch the actual emulation in the background
@@ -1104,16 +1129,24 @@ bool TSDLApp::LoadFastStartState()
 		return false;
 	}
 
-	// Insert the same cards as when the state was saved. The SDL front end
-	// only has the network card, in slot 0; a state with another card would
-	// not match, so boot normally instead.
+	// Insert the same cards as when the state was saved: the network card in
+	// slot 0, a storage card from CardsFolder() in StorageSlot(). A state with
+	// any other card would not match, so boot normally instead.
 	std::vector<TEmulator::SStateCard> cards;
 	bool usable = TEmulator::ReadStateCards(path.c_str(), cards);
 	bool withNetworkCard = false;
+	std::string storageCard;
 	for (size_t slot = 0; usable && slot < cards.size(); ++slot) {
-		if (cards[slot].fTag == 0) continue;
-		if (slot == 0 && cards[slot].fTag == 'ne2k') withNetworkCard = true;
-		else usable = false;
+		const auto& card = cards[slot];
+		if (card.fTag == 0) continue;
+		std::filesystem::path image(card.fImagePath);
+		if (slot == 0 && card.fTag == 'ne2k')
+			withNetworkCard = true;
+		else if ((int)slot == StorageSlot() && (card.fTag == 'line' || card.fTag == 'ata ')
+				 && image.parent_path() == CardsFolder() && std::filesystem::exists(image))
+			storageCard = image.filename().string();
+		else
+			usable = false;
 	}
 	if (!usable) {
 		mLog->FLogLine("Fast start: the saved state is damaged, from another version, or has an unknown card; booting normally");
@@ -1122,6 +1155,8 @@ bool TSDLApp::LoadFastStartState()
 	}
 	if (withNetworkCard)
 		SetNetworkCardInserted(true);
+	if (!storageCard.empty())
+		InsertStorageCard(storageCard);
 
 	Boolean loaded = mEmulator->LoadState(path.c_str());
 	(void) ::remove(path.c_str());
@@ -1152,6 +1187,13 @@ void TSDLApp::SaveFastStartState()
 	if (!mPlatformManager || mPlatformManager->IsPowerOn()) {
 		mLog->FLogLine("Fast start: the Newton is awake, no state saved");
 		return;
+	}
+	if (mStorageCard && mStorageCardFile.size() > 7
+		&& mStorageCardFile.compare(mStorageCardFile.size() - 7, 7, ".pccard") == 0) {
+		// A linear card writes changed pages to its file 2 s after the last
+		// write. Wait for that, so the file matches the state (and survives
+		// if Android closes the app).
+		SDL_Delay(2500);
 	}
 	if (!mMonitor->RequestSaveState(path.c_str(), true, true)) {
 		mLog->FLogLine("Fast start: the monitor is busy, no state saved");
@@ -1196,7 +1238,17 @@ namespace {
 		kMenuRAM,
 		kMenuScreen,
 		kMenuFastStart,
-		kMenuNetSoftware
+		kMenuNetSoftware,
+		kMenuStorage,
+		kMenuNewLinear,
+		kMenuNewATA,
+		kMenuExportCard,
+		kMenuInternal,
+		// Files chosen in a dialog (see ChooseFile()).
+		kFileImportCard,
+		kFileExportCard,
+		kFileBackupFlash,
+		kFileRestoreFlash
 	};
 	// Items of the main menu.
 	enum {
@@ -1205,6 +1257,8 @@ namespace {
 		kMenuNetwork,
 		kMenuNetworkDriver,
 		kMenuInternetSetup,
+		kMenuStorageCards,
+		kMenuInternalMemory,
 		kMenuReboot,
 		kMenuLog,
 		kMenuOpenSettings,
@@ -1237,8 +1291,7 @@ namespace {
 void TSDLApp::ShowList(int inMenuId, const char* inTitle,
 					   const std::vector<std::string>& inItems, int inChecked)
 {
-	if (mMenuEventType == 0)
-		mMenuEventType = SDL_RegisterEvents(1);
+	MenuEventType();
 #if TARGET_OS_ANDROID
 	if (mMenuEventType != 0) {
 		AndroidShowMenu(inMenuId, inTitle, inItems, inChecked, mMenuEventType);
@@ -1270,6 +1323,8 @@ void TSDLApp::ShowMenu()
 	items[kMenuNetwork] = mNetworkCardInserted ? "Remove network card" : "Insert network card";
 	items[kMenuNetworkDriver] = "Network software...";
 	items[kMenuInternetSetup] = "Open Internet Setup";
+	items[kMenuStorageCards] = "Storage cards...";
+	items[kMenuInternalMemory] = "Internal memory...";
 	items[kMenuReboot] = "Restart NewtonOS";
 	items[kMenuLog] = mShowLog ? "Hide log" : "Show log";
 	items[kMenuOpenSettings] = "Settings...";
@@ -1320,6 +1375,12 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 					if (mPlatformManager)
 						mPlatformManager->EvalNewtonScript("GetRoot().|InternetSetup:NIE|:Open();");
 					break;
+				case kMenuStorageCards:
+					ShowStorageCardsMenu();
+					break;
+				case kMenuInternalMemory:
+					ShowInternalMemoryMenu();
+					break;
 				case kMenuReboot:
 					if (mPlatformManager) mPlatformManager->EvalNewtonScript("Reboot();");
 					break;
@@ -1368,6 +1429,83 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 		case kMenuFastStart:
 			mFastStartEnabled = (inItem == 0);
 			SaveSettings();
+			break;
+		case kMenuStorage: {
+			size_t n = mCardMenuFiles.size();
+			if ((size_t)inItem < n) {
+				const std::string& file = mCardMenuFiles[inItem];
+				if (mStorageCard && file == mStorageCardFile)
+					RemoveStorageCard();
+				else
+					InsertStorageCard(file);
+			} else if ((size_t)inItem == n) {
+				ShowList(kMenuNewLinear, "New linear flash card",
+						 { "2 MB", "4 MB", "8 MB", "16 MB", "32 MB" });
+			} else if ((size_t)inItem == n + 1) {
+				ShowList(kMenuNewATA, "New ATA flash card",
+						 { "4 MB", "8 MB", "16 MB", "32 MB", "64 MB" });
+			} else if ((size_t)inItem == n + 2) {
+				ChooseFile(kFileImportCard, false, nullptr);
+			} else if ((size_t)inItem == n + 3 && n > 0) {
+				ShowList(kMenuExportCard, "Export which card?", mCardMenuFiles);
+			}
+			break;
+		}
+		case kMenuNewLinear: {
+			static const int kSizes[] = { 2, 4, 8, 16, 32 };
+			if (inItem < 5) CreateStorageCard(false, kSizes[inItem]);
+			break;
+		}
+		case kMenuNewATA: {
+			static const int kSizes[] = { 4, 8, 16, 32, 64 };
+			if (inItem < 5) CreateStorageCard(true, kSizes[inItem]);
+			break;
+		}
+		case kMenuExportCard:
+			if ((size_t)inItem < mCardMenuFiles.size()) {
+				mCardToExport = mCardMenuFiles[inItem];
+				if (mStorageCard && mCardToExport == mStorageCardFile) {
+					SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Export card",
+						"Please remove the card first, so that all of its data is in the file.",
+						mSDLWindow);
+					break;
+				}
+				ChooseFile(kFileExportCard, true, mCardToExport.c_str());
+			}
+			break;
+		case kMenuInternal:
+			switch (inItem) {
+				case 0:
+					ChooseFile(kFileBackupFlash, true, "einstein.flash");
+					break;
+				case 1: {
+					const SDL_MessageBoxButtonData buttons[] = {
+						{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Cancel" },
+						{ 0, 1, "Choose backup" } };
+					const SDL_MessageBoxData data { SDL_MESSAGEBOX_WARNING, mSDLWindow, "Restore",
+						"Restoring replaces everything in the Newton's internal memory with the "
+						"backup, the next time Einstein starts.", 2, buttons, nullptr };
+					int answer = 0;
+					if (SDL_ShowMessageBox(&data, &answer) && answer == 1)
+						ChooseFile(kFileRestoreFlash, false, nullptr);
+					break;
+				}
+				case 2: {
+					const SDL_MessageBoxButtonData buttons[] = {
+						{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Cancel" },
+						{ 0, 1, "Brain Wipe" } };
+					const SDL_MessageBoxData data { SDL_MESSAGEBOX_WARNING, mSDLWindow, "Brain Wipe",
+						"The Newton restarts and offers to erase all data in its internal memory "
+						"(a Brain Wipe, as on a real MessagePad).", 2, buttons, nullptr };
+					int answer = 0;
+					if (SDL_ShowMessageBox(&data, &answer) && answer == 1 && mMonitor) {
+						(void) ::remove(FastStartFilePath().string().c_str());
+						if (!mMonitor->RequestReset(true))
+							mLog->FLogLine("Brain Wipe: the monitor is busy, try again");
+					}
+					break;
+				}
+			}
 			break;
 		case kMenuNetSoftware: {
 			// Paths on UNNA, as in the FLTK app's Install Essentials.
@@ -1559,6 +1697,7 @@ void TSDLApp::LoadSettings()
 		else if (key == "ScreenFit") mAdjustToAspectRatio = mAdjustToScreenDPI = (value != 0);
 		else if (key == "FastStart") mFastStartEnabled = (value != 0);
 		else if (key == "NetworkCard") mNetworkCardWanted = (value != 0);
+		else if (key == "StorageCard") mStorageCardWanted = line.substr(eq + 1);
 	}
 	mLog->FLogLine("Settings: RAM %d pages, screen %s, fast start %s, network card %s",
 				   mRAMPages, mAdjustToAspectRatio ? "fit" : "320x480",
@@ -1572,11 +1711,12 @@ void TSDLApp::SaveSettings()
 {
 	SDL_CreateDirectory(mPrivateDataPath.string().c_str());
 	std::filesystem::path path = mPrivateDataPath / "Einstein.prefs";
-	char text[256];
-	SDL_snprintf(text, sizeof(text), "RAMPages=%d\nScreenFit=%d\nFastStart=%d\nNetworkCard=%d\n",
+	char numbers[256];
+	SDL_snprintf(numbers, sizeof(numbers), "RAMPages=%d\nScreenFit=%d\nFastStart=%d\nNetworkCard=%d\n",
 				 mRAMPages, mAdjustToAspectRatio ? 1 : 0, mFastStartEnabled ? 1 : 0,
 				 mNetworkCardWanted ? 1 : 0);
-	if (!SDL_SaveFile(path.string().c_str(), text, SDL_strlen(text)))
+	std::string text = std::string(numbers) + "StorageCard=" + mStorageCardWanted + "\n";
+	if (!SDL_SaveFile(path.string().c_str(), text.data(), text.size()))
 		mLog->FLogLine("Could not save the settings: %s", SDL_GetError());
 }
 
@@ -1588,6 +1728,10 @@ void TSDLApp::SetNetworkCardInserted(bool inInserted)
 {
 	if (!mPlatformManager) return;
 	if (inInserted && !mNetworkCardInserted) {
+		if (StorageSlot() == 0 && mStorageCard) {
+			// eMate: one slot for both.
+			RemoveStorageCard();
+		}
 		if (!mNetworkCard) mNetworkCard = new TNE2000Card();
 		mPlatformManager->InsertPCCard(0, mNetworkCard);
 	} else if (!inInserted && mNetworkCardInserted) {
@@ -1599,6 +1743,306 @@ void TSDLApp::SetNetworkCardInserted(bool inInserted)
 		SaveSettings();
 	}
 	mLog->FLogLine("Network card %s", inInserted ? "inserted" : "removed");
+}
+
+/**
+ \brief The menu event type, registered on first use.
+ */
+Uint32 TSDLApp::MenuEventType()
+{
+	if (mMenuEventType == 0)
+		mMenuEventType = SDL_RegisterEvents(1);
+	return mMenuEventType;
+}
+
+/**
+ \brief The slot for storage cards: 1, next to the network card in slot 0.
+ The eMate 300 has a single slot, which both have to share.
+ */
+int TSDLApp::StorageSlot() const
+{
+	return (mROMImage && mROMImage->GetROMId() == 2) ? 0 : 1;
+}
+
+/**
+ \brief The card image files in CardsFolder(), sorted by name.
+ */
+std::vector<std::string> TSDLApp::ListCardFiles() const
+{
+	std::vector<std::string> files;
+	std::error_code ec;
+	for (auto& entry : std::filesystem::directory_iterator(CardsFolder(), ec)) {
+		std::string ext = entry.path().extension().string();
+		if (entry.is_regular_file() && (ext == ".pccard" || ext == ".ata"))
+			files.push_back(entry.path().filename().string());
+	}
+	std::sort(files.begin(), files.end());
+	return files;
+}
+
+/**
+ \brief List the storage cards (tap one to insert or remove it), and offer to
+ create, import and export card images.
+ */
+void TSDLApp::ShowStorageCardsMenu()
+{
+	mCardMenuFiles = ListCardFiles();
+	std::vector<std::string> items;
+	for (auto& file : mCardMenuFiles) {
+		if (mStorageCard && file == mStorageCardFile)
+			items.push_back("Remove " + file + " (inserted)");
+		else
+			items.push_back("Insert " + file);
+	}
+	items.push_back("New linear flash card...");
+	items.push_back("New ATA flash card...");
+	items.push_back("Import card image...");
+	if (!mCardMenuFiles.empty())
+		items.push_back("Export card image...");
+	ShowList(kMenuStorage, "Storage cards", items);
+}
+
+/**
+ \brief Back up, restore, or wipe the Newton's internal flash.
+ */
+void TSDLApp::ShowInternalMemoryMenu()
+{
+	ShowList(kMenuInternal, "Internal memory", {
+		"Back up internal memory...",
+		"Restore from a backup...",
+		"Brain Wipe..."
+	});
+}
+
+/**
+ \brief Insert a card image from CardsFolder() into the storage slot, after
+ removing a card that is there. ".ata" files are ATA cards, all others
+ linear flash cards, as in the FLTK app. Remembered for the next launch.
+ */
+bool TSDLApp::InsertStorageCard(const std::string& inFileName)
+{
+	if (!mPlatformManager) return false;
+	std::filesystem::path path = CardsFolder() / inFileName;
+	if (!std::filesystem::exists(path)) {
+		mLog->FLogLine("Storage card %s not found", inFileName.c_str());
+		return false;
+	}
+	if (mStorageCard) RemoveStorageCard();
+	if (StorageSlot() == 0 && mNetworkCardInserted) {
+		// eMate: one slot for both.
+		SetNetworkCardInserted(false);
+	}
+	TPCMCIACard* card;
+	if (path.extension() == ".ata")
+		card = new TATACard(path.string().c_str());
+	else
+		card = new TLinearCard(path.string().c_str());
+	mPlatformManager->InsertPCCard(StorageSlot(), card);
+	mStorageCard = card;
+	mStorageCardFile = inFileName;
+	if (mStorageCardWanted != inFileName) {
+		mStorageCardWanted = inFileName;
+		SaveSettings();
+	}
+	mLog->FLogLine("Storage card %s inserted in slot %d", inFileName.c_str(), StorageSlot());
+	return true;
+}
+
+/**
+ \brief Remove the storage card (it writes its data back to its file).
+ */
+void TSDLApp::RemoveStorageCard()
+{
+	if (!mStorageCard || !mPlatformManager) return;
+	mPlatformManager->InsertPCCard(StorageSlot(), nullptr);
+	mRetiredCards.push_back(mStorageCard);
+	mLog->FLogLine("Storage card %s removed", mStorageCardFile.c_str());
+	mStorageCard = nullptr;
+	mStorageCardFile.clear();
+	if (!mStorageCardWanted.empty()) {
+		mStorageCardWanted.clear();
+		SaveSettings();
+	}
+}
+
+/**
+ \brief Create a new, empty card image in CardsFolder() and insert it.
+ Linear cards come with the CIS from TLinearCard::CreateImageFile(); ATA cards
+ are an empty file of the given size, as in the FLTK app.
+ */
+void TSDLApp::CreateStorageCard(bool inATA, int inSizeMB)
+{
+	SDL_CreateDirectory(CardsFolder().string().c_str());
+	std::string base = (inATA ? "ATA " : "Flash ") + std::to_string(inSizeMB) + " MB";
+	std::string ext = inATA ? ".ata" : ".pccard";
+	std::string file = base + ext;
+	for (int i = 2; std::filesystem::exists(CardsFolder() / file); ++i)
+		file = base + " " + std::to_string(i) + ext;
+	std::string path = (CardsFolder() / file).string();
+	bool ok;
+	if (inATA) {
+		FILE* f = ::fopen(path.c_str(), "wb");
+		ok = (f != nullptr);
+		if (f) {
+			KUInt8 zero = 0;
+			ok = (::fseek(f, (long)inSizeMB * 1024 * 1024 - 1, SEEK_SET) == 0)
+				&& (::fwrite(&zero, 1, 1, f) == 1);
+			ok = (::fclose(f) == 0) && ok;
+		}
+	} else {
+		std::string name = base;
+		ok = (TLinearCard::CreateImageFile(name.c_str(), path.c_str(), (KUInt32)inSizeMB) == 0);
+	}
+	if (!ok) {
+		(void) ::remove(path.c_str());
+		mLog->FLogLine("Could not create the card image %s", path.c_str());
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Storage cards",
+			"The card image could not be created.", mSDLWindow);
+		return;
+	}
+	mLog->FLogLine("Created the card image %s", file.c_str());
+	InsertStorageCard(file);
+}
+
+/**
+ \brief Show an open or save dialog. SDL may call back on another thread, so
+ the path is sent to the SDL thread as a menu event (see HandleFileChosen()).
+ */
+void TSDLApp::ChooseFile(int inId, bool inSave, const char* inDefaultName)
+{
+	Uint32 eventType = MenuEventType();
+	if (eventType == 0) return;
+	struct SContext { int fId; Uint32 fEventType; };
+	auto* context = new SContext { inId, eventType };
+	auto callback = [](void* userdata, const char* const* filelist, int) {
+		auto* ctx = static_cast<SContext*>(userdata);
+		if (filelist && filelist[0]) {
+			SDL_Event event;
+			SDL_zero(event);
+			event.type = ctx->fEventType;
+			event.user.data1 = (void*)(intptr_t)ctx->fId;
+			event.user.data2 = SDL_strdup(filelist[0]);
+			if (!SDL_PushEvent(&event)) SDL_free(event.user.data2);
+		}
+		delete ctx;
+	};
+	if (inSave)
+		SDL_ShowSaveFileDialog(callback, context, mSDLWindow, nullptr, 0, inDefaultName);
+	else
+		SDL_ShowOpenFileDialog(callback, context, mSDLWindow, nullptr, 0, nullptr, false);
+}
+
+namespace {
+	/// Copy a file, also from or to an Android content:// URI.
+	bool CopyFileTo(const std::string& inFrom, const std::string& inTo)
+	{
+		SDL_IOStream* in = SDL_IOFromFile(inFrom.c_str(), "rb");
+		if (!in) return false;
+		SDL_IOStream* out = SDL_IOFromFile(inTo.c_str(), "wb");
+		if (!out) { SDL_CloseIO(in); return false; }
+		std::vector<char> buffer(1 << 16);
+		bool ok = true;
+		for (;;) {
+			size_t n = SDL_ReadIO(in, buffer.data(), buffer.size());
+			if (n == 0) break;
+			if (SDL_WriteIO(out, buffer.data(), n) != n) { ok = false; break; }
+		}
+		if (SDL_GetIOStatus(in) == SDL_IO_STATUS_ERROR) ok = false;
+		SDL_CloseIO(in);
+		ok = SDL_CloseIO(out) && ok;
+		return ok;
+	}
+
+	/// The file name at the end of a path or URI (content URIs encode '/').
+	std::string LastPathPart(const std::string& inPath)
+	{
+		std::string name = inPath;
+		for (const char* sep : { "/", "%2F", "%2f", "%3A", "%3a", ":" }) {
+			size_t pos = name.rfind(sep);
+			if (pos != std::string::npos) name = name.substr(pos + strlen(sep));
+		}
+		std::string decoded;
+		for (size_t i = 0; i < name.size(); ++i) {
+			if (name[i] == '%' && i + 2 < name.size()) {
+				decoded += (char)std::strtol(name.substr(i + 1, 2).c_str(), nullptr, 16);
+				i += 2;
+			} else {
+				decoded += name[i];
+			}
+		}
+		return decoded;
+	}
+}
+
+/**
+ \brief Act on a file chosen in a dialog.
+ */
+void TSDLApp::HandleFileChosen(int inId, const std::string& inPath)
+{
+	mLog->FLogLine("File chosen: %s", inPath.c_str());
+	switch (inId) {
+		case kFileImportCard: {
+			// Keep the file name if there is one; tell ATA from linear cards
+			// by the extension, or else by the TLinearCard info at the end.
+			std::string name = LastPathPart(inPath);
+			std::string lower = name;
+			std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+			bool ata = (lower.size() > 4 && lower.compare(lower.size() - 4, 4, ".ata") == 0);
+			bool linear = (lower.size() > 7 && lower.compare(lower.size() - 7, 7, ".pccard") == 0);
+			if (!ata && !linear) {
+				size_t size = 0;
+				char* data = (char*)SDL_LoadFile(inPath.c_str(), &size);
+				static const char kIdent[] = "TLinearCard";
+				linear = data && size > 64
+					&& std::search(data + size - 64, data + size, kIdent, kIdent + 11) != data + size;
+				ata = !linear;
+				SDL_free(data);
+				name += linear ? ".pccard" : ".ata";
+			}
+			if (name.empty() || name[0] == '.') name = "Imported" + name;
+			SDL_CreateDirectory(CardsFolder().string().c_str());
+			std::string base = std::filesystem::path(name).stem().string();
+			std::string ext = std::filesystem::path(name).extension().string();
+			std::string file = name;
+			for (int i = 2; std::filesystem::exists(CardsFolder() / file); ++i)
+				file = base + " " + std::to_string(i) + ext;
+			if (CopyFileTo(inPath, (CardsFolder() / file).string())) {
+				mLog->FLogLine("Imported the card image %s", file.c_str());
+				InsertStorageCard(file);
+			} else {
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Import card",
+					"The card image could not be copied.", mSDLWindow);
+			}
+			break;
+		}
+		case kFileExportCard:
+			if (!CopyFileTo((CardsFolder() / mCardToExport).string(), inPath))
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Export card",
+					"The card image could not be saved.", mSDLWindow);
+			else
+				mLog->FLogLine("Exported the card image %s", mCardToExport.c_str());
+			break;
+		case kFileBackupFlash:
+			if (!CopyFileTo(mFlashPath.string(), inPath))
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Back up",
+					"The backup could not be saved.", mSDLWindow);
+			else
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Back up",
+					"The internal memory was saved.", mSDLWindow);
+			break;
+		case kFileRestoreFlash: {
+			std::string pending = (mPublicDataPath / "einstein.flash.restore").string();
+			if (CopyFileTo(inPath, pending))
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Restore",
+					"The backup replaces the internal memory the next time Einstein starts.\n\n"
+					"To restart now, close Einstein from the recent apps and open it again.",
+					mSDLWindow);
+			else
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Restore",
+					"The backup could not be read.", mSDLWindow);
+			break;
+		}
+	}
 }
 
 SDL_AppResult TSDLApp::PickPackageFile()
@@ -1626,11 +2070,10 @@ void TSDLApp::PackageFilePicked(const char * const *filelist, int filter)
 			void *pkg = SDL_LoadFile(filename, &size);
 			if (pkg) {
 				mPlatformManager->InstallPackage((KUInt8*)pkg, (KUInt32)size);
-				::free(pkg);
+				SDL_free(pkg);
 			} else {
 				mLog->FLogLine("Can't load file: %s", SDL_GetError());
 			}
-			mPlatformManager->InstallPackage(filename);
 		}
 	}
 	ChangeBootState(BootState::Running);
