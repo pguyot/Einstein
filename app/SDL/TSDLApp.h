@@ -176,6 +176,14 @@ public:
 
 	// Insert or remove the NE2000 network card in slot 0.
 	void SetNetworkCardInserted(bool inInserted);
+
+	// Network software: the System Update for the ROM and Apple's NIE
+	// packages from UNNA, and the built-in NE2000 driver. Downloads run on a
+	// thread; each result comes back as an SDL event (mDownloadEventType)
+	// and is installed in order on the SDL thread.
+	void ShowNetworkSoftwareMenu();
+	void DownloadAndInstall(const std::vector<std::string>& inPackages);
+	void HandleDownloadEvent(SDL_Event* inEvent);
 	SDL_AppResult PickPackageFile();
 	void PackageFilePicked(const char * const *filelist, int filter);
 
@@ -258,6 +266,10 @@ private:
 	bool mShowLog { false };
 	// SDL event type for a menu choice made in a native Android dialog.
 	Uint32 mMenuEventType { 0 };
+	// SDL event type for a finished download (see DownloadAndInstall()).
+	Uint32 mDownloadEventType { 0 };
+	std::atomic<bool> mDownloading { false };
+	Uint64 mDownloadStarted { 0 };	// SDL_GetTicks() when the downloads began
 	// The NE2000 card in slot 0 (kept while removed, inserted again later).
 	TNE2000Card* mNetworkCard { nullptr };
 	bool mNetworkCardInserted { false };
