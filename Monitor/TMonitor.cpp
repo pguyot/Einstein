@@ -246,9 +246,9 @@ TMonitor::RunEmulator()
 #if TARGET_UI_FLTK
 	// Show the running view. The UI thread does not draw while we hold the mutex.
 	DrawScreen();
-#else
+#elif !TARGET_UI_SDL
 	char someByte = 0;
-	// Write a byte to the socket pair.
+	// Write a byte to the socket pair (not created for the SDL front end).
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif
 

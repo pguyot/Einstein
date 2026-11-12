@@ -138,6 +138,15 @@ public:
 	void RedrawAll();
 	void WakeNewton();
 	void SleepNewton(Uint32 inWaitMS);
+
+	// Fast start: continue where Einstein was when Android closed it.
+	// LoadFastStartState() runs before the emulator thread starts;
+	// SaveFastStartState() when the app goes to the background, once the
+	// Newton is asleep; ResumeFromBackground() when it comes back.
+	bool LoadFastStartState();
+	void SaveFastStartState();
+	void ResumeFromBackground();
+	std::filesystem::path FastStartFilePath() const { return mPublicDataPath / "FastStart.state"; }
 	// How long going to the background waits for NewtonOS to fall asleep
 	// (the FLTK app waits up to 10 s when quitting).
 	static constexpr Uint32 kSleepTimeoutMS = 5000;
@@ -249,6 +258,14 @@ private:
 	// thread may be drawing. The foreground handler only sets this flag;
 	// IterateSDL() wakes the Newton and redraws on the main thread.
 	std::atomic<bool> mForegroundPending { false };
+	// Runs the emulator thread and does the state saves (no window).
+	TMonitor* mMonitor { nullptr };
+	TBufferLog* mMonitorLog { nullptr };
+	TSymbolList* mSymbolList { nullptr };
+	// The emulator was halted in the background after a fast start save.
+	std::atomic<bool> mHaltedInBackground { false };
+	// Wake the Newton at this time after a fast start (0: no).
+	Uint64 mFastStartWakeAt { 0 };
 };
 
 #endif
