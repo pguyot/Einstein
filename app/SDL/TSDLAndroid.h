@@ -41,6 +41,11 @@ extern void AndroidPickROMFile();
 /// Show a native list menu (a single choice list if inChecked >= 0). The
 /// chosen index (or -1 for Cancel) arrives as an SDL user event of type
 /// inEventType, with the index in user.code and inMenuId in user.data1.
+/// Download a URL with Android's HTTP stack (https works); any thread.
+/// Returns false and sets outError on failure.
+extern bool AndroidHttpGet(const std::string& inURL, std::vector<unsigned char>& outData,
+						   std::string& outError);
+
 extern void AndroidShowMenu(int inMenuId, const char* inTitle,
 							const std::vector<std::string>& inItems,
 							int inChecked, unsigned int inEventType);
