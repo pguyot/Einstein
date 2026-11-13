@@ -102,7 +102,7 @@ TROMImage::CreateImage(const KUInt8* inBuffer)
 		++dest;
 	} while (++src < end);
 #else
-	(void) ::memcpy(theImagePtr, inBuffer, inBufferSize);
+	(void) ::memcpy(theImagePtr, inBuffer, TMemoryConsts::kROMEnd);
 #endif
 
 	mROMId = ComputeROMId(theImagePtr->fROM, mCRCValid);

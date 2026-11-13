@@ -66,8 +66,10 @@ public:
 private:
 	/// \name Variables
 
+#if TARGET_RT_LITTLE_ENDIAN
 	/// Buffer (for little endian hosts).
 	KUInt8* mBuffer { nullptr };
+#endif
 };
 
 #endif
