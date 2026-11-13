@@ -1465,8 +1465,10 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 				ShowList(kMenuNewATA, "New ATA flash card",
 						 { "4 MB", "8 MB", "16 MB", "32 MB", "64 MB" });
 			} else if ((size_t)inItem == n + 2) {
+				InstallATASupport();
+			} else if ((size_t)inItem == n + 3) {
 				ChooseFile(kFileImportCard, false, nullptr);
-			} else if ((size_t)inItem == n + 3 && n > 0) {
+			} else if ((size_t)inItem == n + 4 && n > 0) {
 				ShowList(kMenuExportCard, "Export which card?", mCardMenuFiles);
 			}
 			break;
@@ -1634,19 +1636,33 @@ void TSDLApp::DownloadAndInstall(const std::vector<std::string>& inPackages)
 			if (item->fName.rfind("einstein:", 0) != 0) {
 				log->FLogLine("Downloading %s (%u of %u)", item->fName.c_str(),
 							  (unsigned)(i + 1), (unsigned)inPackages.size());
-				try {
-					http::Request request(item->fName);
-					const http::Response response = request.send("GET");
-					if (response.status == 404)
-						item->fError = "File not found.";
-					else if (response.status < 200 || response.status >= 300)
-						item->fError = "The file can't be downloaded (status " + std::to_string(response.status) + ").";
-					else if (response.body.size() < 7 || memcmp(response.body.data(), "package", 7) != 0)
-						item->fError = "This is not a Newton package.";
-					else
-						item->fData.assign(response.body.begin(), response.body.end());
-				} catch (const std::exception& e) {
-					item->fError = e.what();
+				if (item->fName.rfind("https://", 0) == 0) {
+					// The C++ HTTP client has no https.
+#if TARGET_OS_ANDROID
+					std::vector<unsigned char> body;
+					if (AndroidHttpGet(item->fName, body, item->fError))
+						item->fData.assign(body.begin(), body.end());
+#else
+					item->fError = "https downloads are not supported here.";
+#endif
+				} else {
+					try {
+						http::Request request(item->fName);
+						const http::Response response = request.send("GET");
+						if (response.status == 404)
+							item->fError = "File not found.";
+						else if (response.status < 200 || response.status >= 300)
+							item->fError = "The file can't be downloaded (status " + std::to_string(response.status) + ").";
+						else
+							item->fData.assign(response.body.begin(), response.body.end());
+					} catch (const std::exception& e) {
+						item->fError = e.what();
+					}
+				}
+				if (item->fError.empty()
+					&& (item->fData.size() < 7 || memcmp(item->fData.data(), "package", 7) != 0)) {
+					item->fError = "This is not a Newton package.";
+					item->fData.clear();
 				}
 			}
 			bool failed = !item->fError.empty();
@@ -1818,10 +1834,41 @@ void TSDLApp::ShowStorageCardsMenu()
 	}
 	items.push_back("New linear flash card...");
 	items.push_back("New ATA flash card...");
+	items.push_back("Install ATA card support...");
 	items.push_back("Import card image...");
 	if (!mCardMenuFiles.empty())
 		items.push_back("Export card image...");
 	ShowList(kMenuStorage, "Storage cards", items);
+}
+
+/**
+ \brief Download Paul Guyot's ATA Support from kallisys.com and install it.
+ NewtonOS has no driver for ATA cards. The package must be installed with no
+ ATA card inserted, so an inserted one is removed first; it restarts the
+ Newton when it is installed.
+ */
+void TSDLApp::InstallATASupport()
+{
+	if (mDownloading && SDL_GetTicks() - mDownloadStarted < 180000) {
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "ATA card support",
+			"Packages are still being downloaded and installed.", mSDLWindow);
+		return;
+	}
+	mDownloading = false;
+	const SDL_MessageBoxButtonData buttons[] = {
+		{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Cancel" },
+		{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Install" } };
+	const SDL_MessageBoxData data { SDL_MESSAGEBOX_INFORMATION, mSDLWindow, "ATA card support",
+		"NewtonOS needs Paul Guyot's ATA Support for ATA cards. Einstein downloads it "
+		"from kallisys.com and installs it; the Newton restarts afterwards.\n\n"
+		"An inserted ATA card is removed first. Insert it again after the restart.",
+		2, buttons, nullptr };
+	int answer = 0;
+	if (!SDL_ShowMessageBox(&data, &answer) || answer != 1) return;
+	if (mStorageCard && mStorageCardFile.size() > 4
+		&& mStorageCardFile.compare(mStorageCardFile.size() - 4, 4, ".ata") == 0)
+		RemoveStorageCard();
+	DownloadAndInstall({ "https://www.kallisys.com/files/newton/ATA/ATA-Support-1.0.pkg" });
 }
 
 /**

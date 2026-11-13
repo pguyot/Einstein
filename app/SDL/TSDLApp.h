@@ -185,6 +185,7 @@ public:
 	std::vector<std::string> ListCardFiles() const;
 	void ShowStorageCardsMenu();
 	void ShowInternalMemoryMenu();
+	void InstallATASupport();
 	bool InsertStorageCard(const std::string& inFileName);
 	void RemoveStorageCard();
 	void CreateStorageCard(bool inATA, int inSizeMB);

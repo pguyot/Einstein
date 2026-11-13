@@ -232,3 +232,50 @@ if (user_pressed_download_from_url) {
 // "If one programmer can do it in one week, then 2 programmers            //
 // can do it in 2 weeks"                                                   //
 // ======================================================================= //
+
+/**
+ Download a URL through EinsteinActivity.httpGet() (Java's HttpURLConnection,
+ so https works). Runs on the calling thread, which SDL attaches to the JVM.
+ The class comes from the activity object: FindClass() on a native thread
+ would not see the app's classes.
+ */
+bool AndroidHttpGet(const std::string& inURL, std::vector<unsigned char>& outData,
+					std::string& outError) {
+	JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+	jobject activity = (jobject)SDL_GetAndroidActivity();
+	if (!env || !activity) { outError = "No Android activity"; return false; }
+	jclass clazz = env->GetObjectClass(activity);
+	jmethodID method = env->GetStaticMethodID(clazz, "httpGet", "(Ljava/lang/String;)[B");
+	jstring url = env->NewStringUTF(inURL.c_str());
+	jbyteArray result = (jbyteArray)env->CallStaticObjectMethod(clazz, method, url);
+	bool ok = false;
+	if (env->ExceptionCheck()) {
+		jthrowable exception = env->ExceptionOccurred();
+		env->ExceptionClear();
+		jclass exceptionClass = env->GetObjectClass(exception);
+		jmethodID toString = env->GetMethodID(exceptionClass, "toString", "()Ljava/lang/String;");
+		jstring text = (jstring)env->CallObjectMethod(exception, toString);
+		if (text) {
+			const char* chars = env->GetStringUTFChars(text, nullptr);
+			outError = chars;
+			env->ReleaseStringUTFChars(text, chars);
+			env->DeleteLocalRef(text);
+		} else {
+			outError = "Download failed";
+		}
+		env->DeleteLocalRef(exceptionClass);
+		env->DeleteLocalRef(exception);
+	} else if (result) {
+		jsize length = env->GetArrayLength(result);
+		outData.resize((size_t)length);
+		env->GetByteArrayRegion(result, 0, length, (jbyte*)outData.data());
+		env->DeleteLocalRef(result);
+		ok = true;
+	} else {
+		outError = "Download failed";
+	}
+	env->DeleteLocalRef(url);
+	env->DeleteLocalRef(clazz);
+	env->DeleteLocalRef(activity);
+	return ok;
+}
