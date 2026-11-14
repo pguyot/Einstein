@@ -1693,7 +1693,7 @@ void TSDLApp::HandleDownloadEvent(SDL_Event* inEvent)
 		mLog->FLogLine("Can't install %s: %s", item->fName.c_str(), item->fError.c_str());
 		std::string text = "Can't install\n" + item->fName + "\n\n" + item->fError +
 			"\n\nThe packages after it were not installed.";
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Network software", text.c_str(), mSDLWindow);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Install packages", text.c_str(), mSDLWindow);
 	} else if (mPlatformManager) {
 		if (item->fName == "einstein:NE2K.pkg") {
 			mLog->FLogLine("Installing the built-in NE2K.pkg (%u bytes)", gNE2KPackageSize);
