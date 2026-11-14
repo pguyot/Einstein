@@ -40,6 +40,7 @@
 
 // Java
 #include <jni.h>
+#include <atomic>
 
 /*
  * TODO: how to copy the ROM
@@ -73,6 +74,9 @@
  * Handle Android specific events!
  */
 
+// The SDL event type for menu choices (set by AndroidShowMenu()).
+static std::atomic<Uint32> gMenuEventType { 0 };
+
 extern "C" {
 
 /**
@@ -86,7 +90,50 @@ Java_org_messagepad_einstein_EinsteinActivity_onFileImported(JNIEnv* env, jobjec
     env->ReleaseStringUTFChars(jpath, path);
 }
 
+/**
+ Called by Java with the menu item the user picked, or -1 for Cancel.
+ This runs on the Android UI thread; the choice goes to the SDL thread as an
+ event (SDL_PushEvent is thread safe).
+ */
+JNIEXPORT void JNICALL
+Java_org_messagepad_einstein_EinsteinActivity_onMenuItemSelected(JNIEnv* env, jobject thiz, jint menuId, jint which) {
+	if (gMenuEventType == 0) return;
+	SDL_Event event;
+	SDL_zero(event);
+	event.type = gMenuEventType;
+	event.user.code = which;
+	event.user.data1 = (void*)(intptr_t)menuId;
+	SDL_PushEvent(&event);
+}
+
 } // extern "C"
+
+/**
+ Show a list of menu items in a native Android dialog.
+ */
+void AndroidShowMenu(int inMenuId, const char* inTitle,
+					 const std::vector<std::string>& inItems,
+					 int inChecked, unsigned int inEventType) {
+	gMenuEventType = inEventType;
+	JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+	jobject activity = (jobject)SDL_GetAndroidActivity();
+	jclass stringClass = env->FindClass("java/lang/String");
+	jobjectArray items = env->NewObjectArray((jsize)inItems.size(), stringClass, nullptr);
+	for (size_t i = 0; i < inItems.size(); ++i) {
+		jstring item = env->NewStringUTF(inItems[i].c_str());
+		env->SetObjectArrayElement(items, (jsize)i, item);
+		env->DeleteLocalRef(item);
+	}
+	jstring title = env->NewStringUTF(inTitle);
+	jclass clazz = env->GetObjectClass(activity);
+	jmethodID method = env->GetMethodID(clazz, "showMenu", "(ILjava/lang/String;[Ljava/lang/String;I)V");
+	env->CallVoidMethod(activity, method, (jint)inMenuId, title, items, (jint)inChecked);
+	env->DeleteLocalRef(clazz);
+	env->DeleteLocalRef(title);
+	env->DeleteLocalRef(items);
+	env->DeleteLocalRef(stringClass);
+	env->DeleteLocalRef(activity);
+}
 
 
 /**
@@ -185,3 +232,50 @@ if (user_pressed_download_from_url) {
 // "If one programmer can do it in one week, then 2 programmers            //
 // can do it in 2 weeks"                                                   //
 // ======================================================================= //
+
+/**
+ Download a URL through EinsteinActivity.httpGet() (Java's HttpURLConnection,
+ so https works). Runs on the calling thread, which SDL attaches to the JVM.
+ The class comes from the activity object: FindClass() on a native thread
+ would not see the app's classes.
+ */
+bool AndroidHttpGet(const std::string& inURL, std::vector<unsigned char>& outData,
+					std::string& outError) {
+	JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+	jobject activity = (jobject)SDL_GetAndroidActivity();
+	if (!env || !activity) { outError = "No Android activity"; return false; }
+	jclass clazz = env->GetObjectClass(activity);
+	jmethodID method = env->GetStaticMethodID(clazz, "httpGet", "(Ljava/lang/String;)[B");
+	jstring url = env->NewStringUTF(inURL.c_str());
+	jbyteArray result = (jbyteArray)env->CallStaticObjectMethod(clazz, method, url);
+	bool ok = false;
+	if (env->ExceptionCheck()) {
+		jthrowable exception = env->ExceptionOccurred();
+		env->ExceptionClear();
+		jclass exceptionClass = env->GetObjectClass(exception);
+		jmethodID toString = env->GetMethodID(exceptionClass, "toString", "()Ljava/lang/String;");
+		jstring text = (jstring)env->CallObjectMethod(exception, toString);
+		if (text) {
+			const char* chars = env->GetStringUTFChars(text, nullptr);
+			outError = chars;
+			env->ReleaseStringUTFChars(text, chars);
+			env->DeleteLocalRef(text);
+		} else {
+			outError = "Download failed";
+		}
+		env->DeleteLocalRef(exceptionClass);
+		env->DeleteLocalRef(exception);
+	} else if (result) {
+		jsize length = env->GetArrayLength(result);
+		outData.resize((size_t)length);
+		env->GetByteArrayRegion(result, 0, length, (jbyte*)outData.data());
+		env->DeleteLocalRef(result);
+		ok = true;
+	} else {
+		outError = "Download failed";
+	}
+	env->DeleteLocalRef(url);
+	env->DeleteLocalRef(clazz);
+	env->DeleteLocalRef(activity);
+	return ok;
+}

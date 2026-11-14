@@ -27,6 +27,7 @@ DerivedData/
 /app/FLTK/TFLNE2KImage.h
 /app/FLTK/TFLNE2KImage.cpp
 /app/SDL/TSDLRexImage.h
+/app/SDL/TSDLNE2KImage.h
 /Drivers/packages/MemDumper
 /Drivers/EinsteinPortEnabler/portenabler.ntkc
 /android-project/app/libs/SDL3*

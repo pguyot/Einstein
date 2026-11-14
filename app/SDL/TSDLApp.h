@@ -35,6 +35,7 @@
 #include <string>
 #include <filesystem>
 #include <atomic>
+#include <functional>
 #include <vector>
 
 
@@ -50,6 +51,8 @@ class TNetworkManager;
 class TPrinterManager;
 class TMonitor;
 class TSymbolList;
+class TNE2000Card;
+class TPCMCIACard;
 #if USE_TOOLKIT
 class TToolkit;
 #endif
@@ -138,6 +141,15 @@ public:
 	void RedrawAll();
 	void WakeNewton();
 	void SleepNewton(Uint32 inWaitMS);
+
+	// Fast start: continue where Einstein was when Android closed it.
+	// LoadFastStartState() runs before the emulator thread starts;
+	// SaveFastStartState() when the app goes to the background, once the
+	// Newton is asleep; ResumeFromBackground() when it comes back.
+	bool LoadFastStartState();
+	void SaveFastStartState();
+	void ResumeFromBackground();
+	std::filesystem::path FastStartFilePath() const { return mPublicDataPath / "FastStart.state"; }
 	// How long going to the background waits for NewtonOS to fall asleep
 	// (the FLTK app waits up to 10 s when quitting).
 	static constexpr Uint32 kSleepTimeoutMS = 5000;
@@ -149,6 +161,50 @@ public:
 
 	// user wants to install a package
 	void UserActionInstallPackage();
+
+	// The toolbar menu: power, backlight, network card and driver, restart,
+	// log, settings. (Install package has its own toolbar button.)
+	void ShowMenu();
+	// Show a list (a single choice list if inChecked >= 0); the choice
+	// arrives in HandleMenuChoice() with the same menu id.
+	void ShowList(int inMenuId, const char* inTitle,
+				  const std::vector<std::string>& inItems, int inChecked = -1);
+	void HandleMenuChoice(int inMenuId, int inItem);
+	void ShowSettingsMenu();
+
+	// Settings, kept in Einstein.prefs in the private data folder.
+	void LoadSettings();
+	void SaveSettings();
+
+	// Insert or remove the NE2000 network card in slot 0.
+	void SetNetworkCardInserted(bool inInserted);
+
+	// Storage cards (linear flash or ATA image files in CardsFolder()) and
+	// the internal flash (back up, restore at the next start, Brain Wipe).
+	std::filesystem::path CardsFolder() const { return mPublicDataPath / "Cards"; }
+	int StorageSlot() const;
+	std::vector<std::string> ListCardFiles() const;
+	void ShowStorageCardsMenu();
+	void ShowInternalMemoryMenu();
+	void InstallATASupport();
+	bool InsertStorageCard(const std::string& inFileName);
+	bool RemoveStorageCard();
+	bool WithEmulatorHalted(const std::function<void()>& inWork);
+	bool IsUsableFlashBackup(const std::filesystem::path& inPath);
+	void CreateStorageCard(bool inATA, int inSizeMB);
+	// File dialogs: the chosen path comes back as a menu event with the path
+	// in user.data2, and is handled by HandleFileChosen() on the SDL thread.
+	void ChooseFile(int inId, bool inSave, const char* inDefaultName);
+	void HandleFileChosen(int inId, const std::string& inPath);
+	Uint32 MenuEventType();
+
+	// Network software: the System Update for the ROM and Apple's NIE
+	// packages from UNNA, and the built-in NE2000 driver. Downloads run on a
+	// thread; each result comes back as an SDL event (mDownloadEventType)
+	// and is installed in order on the SDL thread.
+	void ShowNetworkSoftwareMenu();
+	void DownloadAndInstall(const std::vector<std::string>& inPackages);
+	void HandleDownloadEvent(SDL_Event* inEvent);
 	SDL_AppResult PickPackageFile();
 	void PackageFilePicked(const char * const *filelist, int filter);
 
@@ -229,6 +285,29 @@ private:
 	// Diagnostics: the log is hidden by default; a tap on the left part of
 	// the toolbar shows or hides it.
 	bool mShowLog { false };
+	// SDL event type for a menu choice made in a native Android dialog.
+	Uint32 mMenuEventType { 0 };
+	// SDL event type for a finished download (see DownloadAndInstall()).
+	Uint32 mDownloadEventType { 0 };
+	std::atomic<bool> mDownloading { false };
+	std::atomic<Uint32> mDownloadBatch { 0 };	// the current DownloadAndInstall() call
+	Uint64 mDownloadStarted { 0 };	// SDL_GetTicks() when the downloads began
+	// The NE2000 card in slot 0 (kept while removed, inserted again later).
+	TNE2000Card* mNetworkCard { nullptr };
+	bool mNetworkCardInserted { false };
+	// Settings (see LoadSettings()).
+	int mRAMPages { 64 };				// 64 KB pages: 16, 64, 127 or 253
+	bool mFastStartEnabled { true };
+	bool mNetworkCardWanted { false };	// insert the network card at launch
+	// Give the emulator the app's log (every PC Card access, and more, is
+	// logged then; much slower). Off, as in the FLTK app without --log.
+	bool mEmulatorLogEnabled { false };
+	// The storage card that is inserted, and its file name in CardsFolder().
+	TPCMCIACard* mStorageCard { nullptr };
+	std::string mStorageCardFile;
+	std::string mStorageCardWanted;		// insert this card at launch
+	std::vector<std::string> mCardMenuFiles;	// cards listed in the storage menu
+	std::string mCardToExport;
 	std::atomic<int> mEmulatorState { 0 }; // 0 not started, 1 running, 2 ended
 	// We pressed the power switch to put the Newton to sleep while in the
 	// background; don't press it again until we are back.
@@ -241,6 +320,14 @@ private:
 	// thread may be drawing. The foreground handler only sets this flag;
 	// IterateSDL() wakes the Newton and redraws on the main thread.
 	std::atomic<bool> mForegroundPending { false };
+	// Runs the emulator thread and does the state saves (no window).
+	TMonitor* mMonitor { nullptr };
+	TBufferLog* mMonitorLog { nullptr };
+	TSymbolList* mSymbolList { nullptr };
+	// The emulator was halted in the background after a fast start save.
+	std::atomic<bool> mHaltedInBackground { false };
+	// Wake the Newton at this time after a fast start (0: no).
+	Uint64 mFastStartWakeAt { 0 };
 };
 
 #endif
