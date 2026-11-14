@@ -618,6 +618,68 @@ TMonitor::RequestReset(Boolean inZAPMemory)
 }
 
 // -------------------------------------------------------------------------- //
+// RunWhileHalted( const std::function<void()>& )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::RunWhileHalted(const std::function<void()>& inWork)
+{
+	if (mStateRequest != kStateRequestNone)
+		return false;
+	Boolean wasRunning = false;
+	// The monitor thread holds the mutex except while it waits for a
+	// command, so once we have it, the emulator can't start. Don't block
+	// on it: a run command sent just before may start the emulator (with
+	// the mutex held) before mHalted turns false, so stop it again.
+	while (true)
+	{
+		if (!mHalted)
+		{
+			wasRunning = true;
+			mEmulator->Stop();
+		} else if (mMutex->TryLock())
+		{
+			break;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+	inWork();
+	if (wasRunning)
+	{
+		mCommand = kRun;
+		SignalCondVar();
+	}
+	ReleaseMutex();
+	return true;
+}
+
+// -------------------------------------------------------------------------- //
+// ResumeEmulator( KUInt32 )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::ResumeEmulator(KUInt32 inTimeoutMS)
+{
+	auto theDeadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(inTimeoutMS);
+	while (true)
+	{
+		// TryLock succeeds only while the monitor thread waits for a
+		// command: the emulator is halted and any request is done.
+		if (mMutex->TryLock())
+		{
+			if (mHalted)
+			{
+				mCommand = kRun;
+				SignalCondVar();
+			}
+			ReleaseMutex();
+			return true;
+		}
+		if (std::chrono::steady_clock::now() >= theDeadline)
+			return false;
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	}
+}
+
+// -------------------------------------------------------------------------- //
 // RequestStateTransfer( EStateRequest, const char*, Boolean )
 // -------------------------------------------------------------------------- //
 // Called from the UI thread. The monitor thread holds mMutex at all times,

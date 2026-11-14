@@ -31,6 +31,7 @@
 #include <K/Threads/TThread.h>
 
 #include <atomic>
+#include <functional>
 #include <mutex>
 #include <string>
 
@@ -168,6 +169,25 @@ public:
 	/// \return false if the monitor is busy and the machine was not reset.
 	///
 	Boolean RequestReset(Boolean inZAPMemory = false);
+
+	///
+	/// Stop the emulator, call inWork on the calling thread while the
+	/// monitor thread waits for a command (so the emulator can't run), then
+	/// let the emulator run again if it was running. Use it for changes the
+	/// emulator thread must not see halfway, such as removing a PC Card.
+	/// Call from the UI thread, not from the monitor or emulator thread.
+	/// \return false if a state request is pending; inWork was not called.
+	///
+	Boolean RunWhileHalted(const std::function<void()>& inWork);
+
+	///
+	/// Let a halted emulator run again, for example after
+	/// RequestSaveState(path, fast, true). Waits until the monitor thread
+	/// waits for a command, so the run command can't get lost while the
+	/// monitor is still finishing a request. Call from the UI thread.
+	/// \return false if the monitor did not get there within inTimeoutMS.
+	///
+	Boolean ResumeEmulator(KUInt32 inTimeoutMS = 10000);
 
 	///
 	/// Print help for the available commands.

@@ -780,6 +780,19 @@ void TSDLApp::ROMFilePicked(const char * const *filelist, int filter)
  \return SDL_APP_CONTINUE if the emulator was started
  \return SDL_APP_ERROR if something went wrong
  */
+/**
+ \brief Could this file replace the flash? It must not be empty, and it must
+ be as large as the current flash file, if there is one.
+ */
+bool TSDLApp::IsUsableFlashBackup(const std::filesystem::path& inPath)
+{
+	std::error_code ec;
+	auto size = std::filesystem::file_size(inPath, ec);
+	if (ec || size == 0) return false;
+	auto flashSize = std::filesystem::file_size(mFlashPath, ec);
+	return ec || size == flashSize;
+}
+
 SDL_AppResult TSDLApp::Run()
 {
 	mFlashPath = mPublicDataPath / "einstein.flash";
@@ -791,10 +804,15 @@ SDL_AppResult TSDLApp::Run()
 		std::filesystem::path pending = mPublicDataPath / "einstein.flash.restore";
 		std::error_code ec;
 		if (std::filesystem::exists(pending, ec)) {
-			(void) ::remove(FastStartFilePath().string().c_str());
-			std::filesystem::rename(pending, mFlashPath, ec);
-			mLog->FLogLine("Restored the internal memory from a backup%s",
-						   ec ? (": failed, " + ec.message()).c_str() : "");
+			if (IsUsableFlashBackup(pending)) {
+				(void) ::remove(FastStartFilePath().string().c_str());
+				std::filesystem::rename(pending, mFlashPath, ec);
+				mLog->FLogLine("Restored the internal memory from a backup%s",
+							   ec ? (": failed, " + ec.message()).c_str() : "");
+			} else {
+				std::filesystem::remove(pending, ec);
+				mLog->FLogLine("The pending backup does not fit the internal memory, ignored");
+			}
 		}
 	}
 	{
@@ -1185,10 +1203,13 @@ bool TSDLApp::LoadFastStartState()
  */
 void TSDLApp::SaveFastStartState()
 {
+	// A second background event while the emulator is still halted from the
+	// first one keeps the state saved then.
+	if (mHaltedInBackground) return;
 	std::string path = FastStartFilePath().string();
 	(void) ::remove(path.c_str());
 	if (!mFastStartEnabled) return;
-	if (!mMonitor || mEmulatorState != 1 || mHaltedInBackground) return;
+	if (!mMonitor || mEmulatorState != 1) return;
 	if (!mPlatformManager || mPlatformManager->IsPowerOn()) {
 		mLog->FLogLine("Fast start: the Newton is awake, no state saved");
 		return;
@@ -1225,14 +1246,33 @@ void TSDLApp::ResumeFromBackground()
 {
 	if (!mHaltedInBackground.exchange(false)) return;
 	(void) ::remove(FastStartFilePath().string().c_str());
-	if (mMonitor) {
-		// The save may still be finishing; then wait for it before resuming.
-		Uint64 deadline = SDL_GetTicks() + 5000;
-		while (mMonitor->IsStateRequestPending() && SDL_GetTicks() < deadline)
-			SDL_Delay(10);
-		if (mMonitor->IsHalted())
-			mMonitor->ExecuteCommand("run");
+	// The save may still be finishing. ResumeEmulator() waits until the
+	// monitor waits for a command, so the run command can't get lost.
+	if (mMonitor && !mMonitor->ResumeEmulator())
+		mLog->FLogLine("Could not resume the emulator: the monitor is still busy");
+}
+
+/**
+ \brief Call inWork while the emulator is stopped, so the emulator thread
+ can't see a change halfway (cards, flash). Before the emulator thread runs,
+ inWork is called at once. A running emulator runs again afterwards.
+ \return false if the monitor stayed busy for 5 s; inWork was not called.
+ */
+bool TSDLApp::WithEmulatorHalted(const std::function<void()>& inWork)
+{
+	if (!mMonitor || mEmulatorState != 1) {
+		inWork();
+		return true;
 	}
+	Uint64 deadline = SDL_GetTicks() + 5000;
+	while (!mMonitor->RunWhileHalted(inWork)) {
+		if (SDL_GetTicks() >= deadline) {
+			mLog->FLogLine("The emulator is busy, try again");
+			return false;
+		}
+		SDL_Delay(10);
+	}
+	return true;
 }
 
 namespace {
@@ -1530,8 +1570,9 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 			}
 			break;
 		case kMenuNetSoftware: {
-			// Paths on UNNA, as in the FLTK app's Install Essentials.
-			static const char* kUNNA = "http://www.unna.org/";
+			// Paths on UNNA, as in the FLTK app's Install Essentials, from
+			// UNNA's mirror at MIT, which has https (www.unna.org has not).
+			static const char* kUNNA = "https://web.mit.edu/";
 			static const char* kSystemUpdates[] = {
 				"unna/apple/software/SystemPatches/english/2x00/mp717260.pkg",	// MP2x00 US
 				"unna/apple/software/SystemPatches/german/2x00/mp747260.pkg",	// MP2x00 German
@@ -1610,7 +1651,10 @@ namespace {
 		std::vector<KUInt8> fData;	// the package, empty for a built-in one
 		std::string fError;			// empty if it worked
 		bool fLast { false };		// the last one of the list
+		Uint32 fBatch { 0 };		// the DownloadAndInstall() call it belongs to
 	};
+	// Newton packages are small; a larger download is not a package.
+	constexpr size_t kMaxPackageSize = 16 * 1024 * 1024;
 }
 
 /**
@@ -1627,12 +1671,18 @@ void TSDLApp::DownloadAndInstall(const std::vector<std::string>& inPackages)
 	if (mDownloadEventType == 0) { mDownloading = false; return; }
 	Uint32 eventType = mDownloadEventType;
 	TLog* log = mLog;
+	// A new batch replaces one that stalled (see ShowNetworkSoftwareMenu());
+	// the results of the old one are ignored when they arrive.
+	Uint32 batch = ++mDownloadBatch;
 	std::atomic<bool>* downloading = &mDownloading; // the app lives until the process ends
-	std::thread([inPackages, eventType, log, downloading]() {
+	std::atomic<Uint32>* currentBatch = &mDownloadBatch;
+	std::thread([inPackages, eventType, log, downloading, currentBatch, batch]() {
 		for (size_t i = 0; i < inPackages.size(); ++i) {
+			if (*currentBatch != batch) break; // superseded
 			auto* item = new SDownload;
 			item->fName = inPackages[i];
 			item->fLast = (i + 1 == inPackages.size());
+			item->fBatch = batch;
 			if (item->fName.rfind("einstein:", 0) != 0) {
 				log->FLogLine("Downloading %s (%u of %u)", item->fName.c_str(),
 							  (unsigned)(i + 1), (unsigned)inPackages.size());
@@ -1653,6 +1703,8 @@ void TSDLApp::DownloadAndInstall(const std::vector<std::string>& inPackages)
 							item->fError = "File not found.";
 						else if (response.status < 200 || response.status >= 300)
 							item->fError = "The file can't be downloaded (status " + std::to_string(response.status) + ").";
+						else if (response.body.size() > kMaxPackageSize)
+							item->fError = "The file is too large for a Newton package.";
 						else
 							item->fData.assign(response.body.begin(), response.body.end());
 					} catch (const std::exception& e) {
@@ -1673,7 +1725,7 @@ void TSDLApp::DownloadAndInstall(const std::vector<std::string>& inPackages)
 			if (!SDL_PushEvent(&event)) {
 				log->FLogLine("Can't hand over %s: %s", item->fName.c_str(), SDL_GetError());
 				delete item;
-				*downloading = false;
+				if (*currentBatch == batch) *downloading = false;
 				break;
 			}
 			if (failed) break; // later packages may depend on this one
@@ -1688,6 +1740,13 @@ void TSDLApp::HandleDownloadEvent(SDL_Event* inEvent)
 {
 	auto* item = static_cast<SDownload*>(inEvent->user.data1);
 	if (!item) return;
+	if (item->fBatch != mDownloadBatch) {
+		// From a batch that a newer one replaced: don't install it, and
+		// don't end the newer batch.
+		mLog->FLogLine("Ignoring %s from an earlier download", item->fName.c_str());
+		delete item;
+		return;
+	}
 	if (!item->fError.empty()) {
 		mDownloading = false;
 		mLog->FLogLine("Can't install %s: %s", item->fName.c_str(), item->fError.c_str());
@@ -1768,12 +1827,14 @@ void TSDLApp::SetNetworkCardInserted(bool inInserted)
 	if (inInserted && !mNetworkCardInserted) {
 		if (StorageSlot() == 0 && mStorageCard) {
 			// eMate: one slot for both.
-			RemoveStorageCard();
+			if (!RemoveStorageCard()) return;
 		}
 		if (!mNetworkCard) mNetworkCard = new TNE2000Card();
-		mPlatformManager->InsertPCCard(0, mNetworkCard);
+		if (!WithEmulatorHalted([&] { mPlatformManager->InsertPCCard(0, mNetworkCard); }))
+			return;
 	} else if (!inInserted && mNetworkCardInserted) {
-		mPlatformManager->InsertPCCard(0, nullptr);
+		if (!WithEmulatorHalted([&] { mPlatformManager->InsertPCCard(0, nullptr); }))
+			return;
 	}
 	mNetworkCardInserted = inInserted;
 	if (mNetworkCardWanted != inInserted) {
@@ -1866,8 +1927,9 @@ void TSDLApp::InstallATASupport()
 	int answer = 0;
 	if (!SDL_ShowMessageBox(&data, &answer) || answer != 1) return;
 	if (mStorageCard && mStorageCardFile.size() > 4
-		&& mStorageCardFile.compare(mStorageCardFile.size() - 4, 4, ".ata") == 0)
-		RemoveStorageCard();
+		&& mStorageCardFile.compare(mStorageCardFile.size() - 4, 4, ".ata") == 0
+		&& !RemoveStorageCard())
+		return;
 	DownloadAndInstall({ "https://www.kallisys.com/files/newton/ATA/ATA-Support-1.0.pkg" });
 }
 
@@ -1896,17 +1958,23 @@ bool TSDLApp::InsertStorageCard(const std::string& inFileName)
 		mLog->FLogLine("Storage card %s not found", inFileName.c_str());
 		return false;
 	}
-	if (mStorageCard) RemoveStorageCard();
+	if (mStorageCard && !RemoveStorageCard()) return false;
 	if (StorageSlot() == 0 && mNetworkCardInserted) {
 		// eMate: one slot for both.
 		SetNetworkCardInserted(false);
+		if (mNetworkCardInserted) return false;
 	}
+	std::string ext = path.extension().string();
+	std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 	TPCMCIACard* card;
-	if (path.extension() == ".ata")
+	if (ext == ".ata")
 		card = new TATACard(path.string().c_str());
 	else
 		card = new TLinearCard(path.string().c_str());
-	mPlatformManager->InsertPCCard(StorageSlot(), card);
+	if (!WithEmulatorHalted([&] { mPlatformManager->InsertPCCard(StorageSlot(), card); })) {
+		delete card;
+		return false;
+	}
 	mStorageCard = card;
 	mStorageCardFile = inFileName;
 	if (mStorageCardWanted != inFileName) {
@@ -1920,11 +1988,14 @@ bool TSDLApp::InsertStorageCard(const std::string& inFileName)
 /**
  \brief Remove the storage card (it writes its data back to its file).
  */
-void TSDLApp::RemoveStorageCard()
+bool TSDLApp::RemoveStorageCard()
 {
-	if (!mStorageCard || !mPlatformManager) return;
-	mPlatformManager->InsertPCCard(StorageSlot(), nullptr);
-	mRetiredCards.push_back(mStorageCard);
+	if (!mStorageCard || !mPlatformManager) return true;
+	// Remove it while the emulator is stopped: then no emulator code still
+	// uses the card, and it can be deleted (which also closes its file).
+	if (!WithEmulatorHalted([&] { mPlatformManager->InsertPCCard(StorageSlot(), nullptr); }))
+		return false;
+	delete mStorageCard;
 	mLog->FLogLine("Storage card %s removed", mStorageCardFile.c_str());
 	mStorageCard = nullptr;
 	mStorageCardFile.clear();
@@ -1932,6 +2003,7 @@ void TSDLApp::RemoveStorageCard()
 		mStorageCardWanted.clear();
 		SaveSettings();
 	}
+	return true;
 }
 
 /**
@@ -2005,6 +2077,12 @@ namespace {
 	/// Copy a file, also from or to an Android content:// URI.
 	bool CopyFileTo(const std::string& inFrom, const std::string& inTo)
 	{
+		// Opening the destination would empty the source.
+		if (inFrom.compare(0, 8, "content:") != 0 && inTo.compare(0, 8, "content:") != 0) {
+			std::error_code ec;
+			if (inFrom == inTo || std::filesystem::equivalent(inFrom, inTo, ec))
+				return false;
+		}
 		SDL_IOStream* in = SDL_IOFromFile(inFrom.c_str(), "rb");
 		if (!in) return false;
 		SDL_IOStream* out = SDL_IOFromFile(inTo.c_str(), "wb");
@@ -2071,7 +2149,9 @@ void TSDLApp::HandleFileChosen(int inId, const std::string& inPath)
 			if (name.empty() || name[0] == '.') name = "Imported" + name;
 			SDL_CreateDirectory(CardsFolder().string().c_str());
 			std::string base = std::filesystem::path(name).stem().string();
-			std::string ext = std::filesystem::path(name).extension().string();
+			// InsertStorageCard() and ListCardFiles() go by the extension.
+			std::string ext = ata ? ".ata" : ".pccard";
+			name = base + ext;
 			std::string file = name;
 			for (int i = 2; std::filesystem::exists(CardsFolder() / file); ++i)
 				file = base + " " + std::to_string(i) + ext;
@@ -2091,24 +2171,47 @@ void TSDLApp::HandleFileChosen(int inId, const std::string& inPath)
 			else
 				mLog->FLogLine("Exported the card image %s", mCardToExport.c_str());
 			break;
-		case kFileBackupFlash:
-			if (!CopyFileTo(mFlashPath.string(), inPath))
+		case kFileBackupFlash: {
+			// NewtonOS writes the flash while it runs. Let it go to sleep
+			// (it finishes its store work first), copy the file while the
+			// emulator is stopped, and wake it again.
+			bool wasAwake = mPlatformManager && mPlatformManager->IsPowerOn();
+			if (wasAwake) SleepNewton(10000);
+			bool ok = false;
+			bool halted = WithEmulatorHalted([&] { ok = CopyFileTo(mFlashPath.string(), inPath); });
+			if (wasAwake) WakeNewton();
+			if (!halted)
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Back up",
+					"Einstein is busy. Please try again.", mSDLWindow);
+			else if (!ok)
 				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Back up",
 					"The backup could not be saved.", mSDLWindow);
 			else
 				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Back up",
 					"The internal memory was saved.", mSDLWindow);
 			break;
+		}
 		case kFileRestoreFlash: {
-			std::string pending = (mPublicDataPath / "einstein.flash.restore").string();
-			if (CopyFileTo(inPath, pending))
+			// Copy to a temporary file and check it; only a complete backup
+			// becomes the pending restore that Run() applies at the next start.
+			std::filesystem::path pending = mPublicDataPath / "einstein.flash.restore";
+			std::filesystem::path temp = mPublicDataPath / "einstein.flash.restore.tmp";
+			std::error_code ec;
+			bool ok = CopyFileTo(inPath, temp.string()) && IsUsableFlashBackup(temp);
+			if (ok) {
+				std::filesystem::rename(temp, pending, ec);
+				ok = !ec;
+			}
+			if (!ok) std::filesystem::remove(temp, ec);
+			if (ok)
 				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Restore",
 					"The backup replaces the internal memory the next time Einstein starts.\n\n"
 					"To restart now, close Einstein from the recent apps and open it again.",
 					mSDLWindow);
 			else
 				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Restore",
-					"The backup could not be read.", mSDLWindow);
+					"The backup could not be read, or it is not a backup of the internal memory. "
+					"Nothing was changed.", mSDLWindow);
 			break;
 		}
 	}
