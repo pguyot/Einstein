@@ -595,6 +595,7 @@ SDL_AppResult TSDLApp::HandleSDLEventNow(SDL_Event *event)
 			break;
 
 		case SDL_EVENT_WILL_ENTER_BACKGROUND:
+			ReleaseKeys();
 			// Android may kill a background app without warning. Press the
 			// power switch now, so NewtonOS saves what it keeps in memory and
 			// the flash is not left in the middle of a write.
@@ -627,10 +628,13 @@ SDL_AppResult TSDLApp::HandleSDLEventNow(SDL_Event *event)
 			mForegroundPending = true;
 			break;
 
-		case SDL_EVENT_KEY_DOWN:  /* quit if user hits ESC key */
-			if (event->key.scancode == SDL_SCANCODE_ESCAPE) {
-				return SDL_APP_SUCCESS;
-			}
+		case SDL_EVENT_KEY_DOWN:
+		case SDL_EVENT_KEY_UP:
+			HandleKey(event->key);
+			break;
+
+		case SDL_EVENT_WINDOW_FOCUS_LOST:
+			ReleaseKeys();
 			break;
 
 		case SDL_EVENT_MOUSE_MOTION:  /* keep track of the latest mouse position */
@@ -839,6 +843,110 @@ bool TSDLApp::IsUsableFlashBackup(const std::filesystem::path& inPath)
 	if (ec || size == 0) return false;
 	auto flashSize = std::filesystem::file_size(mFlashPath, ec);
 	return ec || size == flashSize;
+}
+
+// -------------------------------------------------------------------------- //
+// Keyboard
+// -------------------------------------------------------------------------- //
+
+namespace {
+	/// Newton key codes (the Mac's virtual key codes, as in the Cocoa and
+	/// FLTK apps) by SDL scancode, the position of the key on a US keyboard.
+	/// NewtonOS applies its own keyboard layout, as with an Apple keyboard.
+	struct SKeyCode { SDL_Scancode fScancode; KUInt8 fNewton; };
+	const SKeyCode kKeyCodes[] = {
+		{ SDL_SCANCODE_A, 0 }, { SDL_SCANCODE_S, 1 }, { SDL_SCANCODE_D, 2 },
+		{ SDL_SCANCODE_F, 3 }, { SDL_SCANCODE_H, 4 }, { SDL_SCANCODE_G, 5 },
+		{ SDL_SCANCODE_Z, 6 }, { SDL_SCANCODE_X, 7 }, { SDL_SCANCODE_C, 8 },
+		{ SDL_SCANCODE_V, 9 }, { SDL_SCANCODE_B, 11 }, { SDL_SCANCODE_Q, 12 },
+		{ SDL_SCANCODE_W, 13 }, { SDL_SCANCODE_E, 14 }, { SDL_SCANCODE_R, 15 },
+		{ SDL_SCANCODE_Y, 16 }, { SDL_SCANCODE_T, 17 }, { SDL_SCANCODE_1, 18 },
+		{ SDL_SCANCODE_2, 19 }, { SDL_SCANCODE_3, 20 }, { SDL_SCANCODE_4, 21 },
+		{ SDL_SCANCODE_6, 22 }, { SDL_SCANCODE_5, 23 }, { SDL_SCANCODE_EQUALS, 24 },
+		{ SDL_SCANCODE_9, 25 }, { SDL_SCANCODE_7, 26 }, { SDL_SCANCODE_MINUS, 27 },
+		{ SDL_SCANCODE_8, 28 }, { SDL_SCANCODE_0, 29 }, { SDL_SCANCODE_RIGHTBRACKET, 30 },
+		{ SDL_SCANCODE_O, 31 }, { SDL_SCANCODE_U, 32 }, { SDL_SCANCODE_LEFTBRACKET, 33 },
+		{ SDL_SCANCODE_I, 34 }, { SDL_SCANCODE_P, 35 }, { SDL_SCANCODE_RETURN, 36 },
+		{ SDL_SCANCODE_L, 37 }, { SDL_SCANCODE_J, 38 }, { SDL_SCANCODE_APOSTROPHE, 39 },
+		{ SDL_SCANCODE_K, 40 }, { SDL_SCANCODE_SEMICOLON, 41 }, { SDL_SCANCODE_BACKSLASH, 42 },
+		{ SDL_SCANCODE_NONUSHASH, 42 }, { SDL_SCANCODE_COMMA, 43 }, { SDL_SCANCODE_SLASH, 44 },
+		{ SDL_SCANCODE_N, 45 }, { SDL_SCANCODE_M, 46 }, { SDL_SCANCODE_PERIOD, 47 },
+		{ SDL_SCANCODE_TAB, 48 }, { SDL_SCANCODE_SPACE, 49 }, { SDL_SCANCODE_GRAVE, 50 },
+		{ SDL_SCANCODE_NONUSBACKSLASH, 50 }, { SDL_SCANCODE_BACKSPACE, 51 },
+		{ SDL_SCANCODE_ESCAPE, 53 },
+		{ SDL_SCANCODE_LGUI, 55 }, { SDL_SCANCODE_RGUI, 55 },		// Command
+		{ SDL_SCANCODE_LSHIFT, 56 }, { SDL_SCANCODE_RSHIFT, 56 },
+		{ SDL_SCANCODE_CAPSLOCK, 57 },
+		{ SDL_SCANCODE_LALT, 58 }, { SDL_SCANCODE_RALT, 58 },		// Option
+		{ SDL_SCANCODE_LCTRL, 59 }, { SDL_SCANCODE_RCTRL, 59 },
+		{ SDL_SCANCODE_KP_PERIOD, 65 }, { SDL_SCANCODE_KP_MULTIPLY, 67 },
+		{ SDL_SCANCODE_KP_PLUS, 69 }, { SDL_SCANCODE_NUMLOCKCLEAR, 71 },
+		{ SDL_SCANCODE_KP_DIVIDE, 75 }, { SDL_SCANCODE_KP_ENTER, 76 },
+		{ SDL_SCANCODE_KP_MINUS, 78 }, { SDL_SCANCODE_KP_EQUALS, 81 },
+		{ SDL_SCANCODE_KP_0, 82 }, { SDL_SCANCODE_KP_1, 83 }, { SDL_SCANCODE_KP_2, 84 },
+		{ SDL_SCANCODE_KP_3, 85 }, { SDL_SCANCODE_KP_4, 86 }, { SDL_SCANCODE_KP_5, 87 },
+		{ SDL_SCANCODE_KP_6, 88 }, { SDL_SCANCODE_KP_7, 89 }, { SDL_SCANCODE_KP_8, 91 },
+		{ SDL_SCANCODE_KP_9, 92 },
+		{ SDL_SCANCODE_F5, 0x60 }, { SDL_SCANCODE_F6, 0x61 }, { SDL_SCANCODE_F7, 0x62 },
+		{ SDL_SCANCODE_F3, 0x63 }, { SDL_SCANCODE_F8, 0x64 }, { SDL_SCANCODE_F9, 0x65 },
+		{ SDL_SCANCODE_F10, 0x6D }, { SDL_SCANCODE_F4, 0x76 }, { SDL_SCANCODE_F2, 0x78 },
+		{ SDL_SCANCODE_F1, 0x7A },
+		{ SDL_SCANCODE_INSERT, 114 }, { SDL_SCANCODE_HELP, 114 },
+		{ SDL_SCANCODE_HOME, 0x73 }, { SDL_SCANCODE_PAGEUP, 0x74 },
+		{ SDL_SCANCODE_DELETE, 0x75 }, { SDL_SCANCODE_END, 119 },
+		{ SDL_SCANCODE_PAGEDOWN, 0x79 },
+		{ SDL_SCANCODE_LEFT, 123 }, { SDL_SCANCODE_RIGHT, 124 },
+		{ SDL_SCANCODE_DOWN, 125 }, { SDL_SCANCODE_UP, 126 },
+	};
+
+	/// The Newton key code for a scancode, or -1 if the Newton has no such key.
+	int NewtonKeyCode(SDL_Scancode inScancode)
+	{
+		for (const auto& k : kKeyCodes)
+			if (k.fScancode == inScancode) return k.fNewton;
+		return -1;
+	}
+}
+
+/**
+ \brief A key of a hardware keyboard (Bluetooth or USB) went down or up.
+ Keys go to NewtonOS as from an Apple Newton Keyboard; F11 and F12 are the
+ backlight and power switch, as in the desktop app (the eMate's Special Keys).
+ */
+void TSDLApp::HandleKey(const SDL_KeyboardEvent& inEvent)
+{
+	if (!mScreenManager || !mPlatformManager) return;
+	if (inEvent.scancode == SDL_SCANCODE_F11 || inEvent.scancode == SDL_SCANCODE_F12) {
+		if (inEvent.down && !inEvent.repeat) {
+			if (inEvent.scancode == SDL_SCANCODE_F11)
+				mPlatformManager->SendBacklightEvent();
+			else
+				mPlatformManager->SendPowerSwitchEvent();
+		}
+		return;
+	}
+	int code = NewtonKeyCode(inEvent.scancode);
+	if (code < 0) return;
+	if (inEvent.down) {
+		mKeysDown.set((size_t) code);
+		mScreenManager->KeyDown((KUInt8) code);
+	} else if (mKeysDown.test((size_t) code)) {
+		mKeysDown.reset((size_t) code);
+		mScreenManager->KeyUp((KUInt8) code);
+	}
+}
+
+/**
+ \brief Let go of all keys that are down, for example when the app loses
+ the keyboard; otherwise NewtonOS would think a modifier is still held.
+ */
+void TSDLApp::ReleaseKeys()
+{
+	if (!mScreenManager) { mKeysDown.reset(); return; }
+	for (size_t i = 0; i < mKeysDown.size(); ++i)
+		if (mKeysDown.test(i))
+			mScreenManager->KeyUp((KUInt8) i);
+	mKeysDown.reset();
 }
 
 SDL_AppResult TSDLApp::Run()
