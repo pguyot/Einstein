@@ -35,6 +35,7 @@
 #include <string>
 #include <filesystem>
 #include <atomic>
+#include <bitset>
 #include <mutex>
 #include <functional>
 #include <vector>
@@ -196,6 +197,8 @@ public:
 	void InstallATASupport();
 	bool InsertStorageCard(const std::string& inFileName);
 	bool RemoveStorageCard();
+	void HandleKey(const SDL_KeyboardEvent& inEvent);
+	void ReleaseKeys();
 	bool WithEmulatorHalted(const std::function<void()>& inWork);
 	bool IsUsableFlashBackup(const std::filesystem::path& inPath);
 	void CreateStorageCard(bool inATA, int inSizeMB);
@@ -261,6 +264,7 @@ private:
 	TEmulator* mEmulator = nullptr;
 	TSoundManager* mSoundManager = nullptr;
 	TSDLScreenManager* mScreenManager = nullptr;
+	std::bitset<128> mKeysDown;	// Newton key codes sent down and not up yet
 	TPlatformManager* mPlatformManager = nullptr;
 	TNetworkManager* mNetworkManager = nullptr;
 	TLog* mLog = nullptr;
