@@ -35,6 +35,7 @@
 #include <string>
 #include <filesystem>
 #include <atomic>
+#include <functional>
 #include <vector>
 
 
@@ -187,7 +188,9 @@ public:
 	void ShowInternalMemoryMenu();
 	void InstallATASupport();
 	bool InsertStorageCard(const std::string& inFileName);
-	void RemoveStorageCard();
+	bool RemoveStorageCard();
+	bool WithEmulatorHalted(const std::function<void()>& inWork);
+	bool IsUsableFlashBackup(const std::filesystem::path& inPath);
 	void CreateStorageCard(bool inATA, int inSizeMB);
 	// File dialogs: the chosen path comes back as a menu event with the path
 	// in user.data2, and is handled by HandleFileChosen() on the SDL thread.
@@ -287,6 +290,7 @@ private:
 	// SDL event type for a finished download (see DownloadAndInstall()).
 	Uint32 mDownloadEventType { 0 };
 	std::atomic<bool> mDownloading { false };
+	std::atomic<Uint32> mDownloadBatch { 0 };	// the current DownloadAndInstall() call
 	Uint64 mDownloadStarted { 0 };	// SDL_GetTicks() when the downloads began
 	// The NE2000 card in slot 0 (kept while removed, inserted again later).
 	TNE2000Card* mNetworkCard { nullptr };
@@ -302,9 +306,6 @@ private:
 	TPCMCIACard* mStorageCard { nullptr };
 	std::string mStorageCardFile;
 	std::string mStorageCardWanted;		// insert this card at launch
-	// Removed cards are kept: the emulator thread may still be finishing an
-	// access when the card leaves the slot.
-	std::vector<TPCMCIACard*> mRetiredCards;
 	std::vector<std::string> mCardMenuFiles;	// cards listed in the storage menu
 	std::string mCardToExport;
 	std::atomic<int> mEmulatorState { 0 }; // 0 not started, 1 running, 2 ended
