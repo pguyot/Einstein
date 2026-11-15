@@ -2350,7 +2350,12 @@ void TSDLApp::HandleFileChosen(int inId, const std::string& inPath)
 			bool wasAwake = mPlatformManager && mPlatformManager->IsPowerOn();
 			if (wasAwake) SleepNewton(10000);
 			bool ok = false;
-			bool halted = WithEmulatorHalted([&] { ok = CopyFileTo(mFlashPath.string(), inPath); });
+			bool halted = WithEmulatorHalted([&] {
+				// The file may lag behind the emulator's flash (an unsynced
+				// mapping, or a plain buffer on Windows): write it out first.
+				if (mEmulator) mEmulator->GetMemory()->SaveFlash();
+				ok = CopyFileTo(mFlashPath.string(), inPath);
+			});
 			if (wasAwake) WakeNewton();
 			if (!halted)
 				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Back up",
