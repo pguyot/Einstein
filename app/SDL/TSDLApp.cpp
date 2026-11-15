@@ -510,6 +510,9 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 	if ((mDownloadEventType != 0 && event_type == mDownloadEventType)
 		|| (mMenuEventType != 0 && event_type == mMenuEventType)
 		|| event_type == mSDLBootStateEvent) {
+		// SDL may call this from another thread (lifecycle events dispatch
+		// the queued events on the thread that sends them).
+		std::lock_guard<std::mutex> lock(mDeferredEventsMutex);
 		mDeferredEvents.push_back(*event);
 		return SDL_APP_CONTINUE;
 	}
@@ -522,7 +525,11 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 SDL_AppResult TSDLApp::HandleDeferredEvents()
 {
 	std::vector<SDL_Event> events;
-	events.swap(mDeferredEvents);
+	{
+		// Handlers run without the lock: they may push events themselves.
+		std::lock_guard<std::mutex> lock(mDeferredEventsMutex);
+		events.swap(mDeferredEvents);
+	}
 	for (size_t i = 0; i < events.size(); ++i) {
 		SDL_AppResult result = HandleSDLEventNow(&events[i]);
 		if (result != SDL_APP_CONTINUE) {
@@ -944,7 +951,7 @@ SDL_AppResult TSDLApp::IterateSDL()
 	ReleaseHeldDownloads();
 
 	// Events that must not run inside SDL's lifecycle handling.
-	if (!mDeferredEvents.empty()) {
+	{
 		SDL_AppResult result = HandleDeferredEvents();
 		if (result != SDL_APP_CONTINUE) return result;
 	}
