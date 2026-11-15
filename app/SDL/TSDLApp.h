@@ -149,6 +149,9 @@ public:
 	bool LoadFastStartState();
 	void SaveFastStartState();
 	void ResumeFromBackground(KUInt32 inWaitMS);
+	SDL_AppResult HandleSDLEventNow(SDL_Event *event);
+	SDL_AppResult HandleDeferredEvents();
+	std::vector<SDL_Event> mDeferredEvents;	// see HandleSDLEvent()
 	static constexpr KUInt32 kResumeWaitMS = 5000;	// then retried on later frames
 	std::filesystem::path FastStartFilePath() const { return mPublicDataPath / "FastStart.state"; }
 	// How long going to the background waits for NewtonOS to fall asleep
