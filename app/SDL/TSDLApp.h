@@ -148,7 +148,8 @@ public:
 	// Newton is asleep; ResumeFromBackground() when it comes back.
 	bool LoadFastStartState();
 	void SaveFastStartState();
-	void ResumeFromBackground();
+	void ResumeFromBackground(KUInt32 inWaitMS);
+	static constexpr KUInt32 kResumeWaitMS = 5000;	// then retried on later frames
 	std::filesystem::path FastStartFilePath() const { return mPublicDataPath / "FastStart.state"; }
 	// How long going to the background waits for NewtonOS to fall asleep
 	// (the FLTK app waits up to 10 s when quitting).
@@ -326,6 +327,7 @@ private:
 	TSymbolList* mSymbolList { nullptr };
 	// The emulator was halted in the background after a fast start save.
 	std::atomic<bool> mHaltedInBackground { false };
+	bool mResumePending { false };	// ResumeFromBackground() timed out, retry
 	// Wake the Newton at this time after a fast start (0: no).
 	Uint64 mFastStartWakeAt { 0 };
 };

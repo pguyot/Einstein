@@ -558,6 +558,9 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 
 		case SDL_EVENT_DID_ENTER_BACKGROUND:
 		case SDL_EVENT_TERMINATING:
+			// A resume still waiting for the monitor waits for the next
+			// foreground; the emulator is still halted in the saved state.
+			mResumePending = false;
 			// SDL dispatches these at once from its event pump. On Android,
 			// right after this the SDL thread blocks until the app resumes
 			// (SDL_HINT_ANDROID_BLOCK_ON_PAUSE), while the emulator thread
@@ -901,9 +904,12 @@ SDL_AppResult TSDLApp::IterateSDL()
 
 	// Back from the background (flag set on another thread).
 	if (mForegroundPending.exchange(false)) {
-		ResumeFromBackground();
+		ResumeFromBackground(kResumeWaitMS);
 		WakeNewton();
 		RedrawAll();
+	} else if (mResumePending) {
+		// A resume that timed out: try again without blocking the frame.
+		ResumeFromBackground(0);
 	}
 
 	// After a fast start, wake the Newton that was saved asleep.
@@ -1242,14 +1248,23 @@ void TSDLApp::SaveFastStartState()
  \brief The app is back and was not closed: the emulator continues, so the
  saved state is out of date. Delete it and let the emulator run again.
  */
-void TSDLApp::ResumeFromBackground()
+void TSDLApp::ResumeFromBackground(KUInt32 inWaitMS)
 {
-	if (!mHaltedInBackground.exchange(false)) return;
-	(void) ::remove(FastStartFilePath().string().c_str());
+	if (!mHaltedInBackground) return;
 	// The save may still be finishing. ResumeEmulator() waits until the
 	// monitor waits for a command, so the run command can't get lost.
-	if (mMonitor && !mMonitor->ResumeEmulator())
-		mLog->FLogLine("Could not resume the emulator: the monitor is still busy");
+	if (mMonitor && !mMonitor->ResumeEmulator(inWaitMS)) {
+		// Still busy: stay halted in the background (the saved state stays
+		// valid), and try again on the next frames (IterateSDL()).
+		if (!mResumePending)
+			mLog->FLogLine("The monitor is still busy, resuming the emulator later");
+		mResumePending = true;
+		return;
+	}
+	mResumePending = false;
+	mHaltedInBackground = false;
+	// Running again: the saved state no longer matches.
+	(void) ::remove(FastStartFilePath().string().c_str());
 }
 
 /**
