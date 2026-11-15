@@ -1872,11 +1872,17 @@ void TSDLApp::ReleaseHeldDownloads()
 {
 	if (!mHoldForReboot || !mPlatformManager) return;
 	Uint64 now = SDL_GetTicks();
-	bool rebooted = mPlatformManager->GetBootCount() != mHoldBootCount
-		&& !mPlatformManager->IsQueueBootLocked();
-	if (rebooted && mRebootedAt == 0) {
+	KUInt32 bootCount = mPlatformManager->GetBootCount();
+	bool booted = bootCount != mHoldBootCount && !mPlatformManager->IsQueueBootLocked();
+	if (!booted || bootCount != mRebootedBootCount) {
+		// Still booting, or another boot started: the five seconds start
+		// again once the current boot has finished.
+		mRebootedAt = 0;
+	}
+	if (booted && mRebootedAt == 0) {
 		mLog->FLogLine("NewtonOS restarted after the System Update");
 		mRebootedAt = now;
+		mRebootedBootCount = bootCount;
 	}
 	bool settled = mRebootedAt != 0 && now - mRebootedAt > 5000;
 	bool timedOut = now - mHoldStarted > 120000;
