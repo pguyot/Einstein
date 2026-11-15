@@ -192,6 +192,17 @@ public:
 	void ResetEventQueueLocks();
 
 	///
+	/// How often NewtonOS has started booting since launch (counted by
+	/// ResetEventQueueLocks(), which the REx calls once per boot).
+	///
+	KUInt32 GetBootCount() const { return mBootCount; }
+
+	///
+	/// Is the event queue still locked because NewtonOS is booting?
+	///
+	Boolean IsQueueBootLocked() const;
+
+	///
 	/// Get some information about the user.
 	/// Return the number of bytes written.
 	/// If outData is null, don't write anything but return the full size.
@@ -409,6 +420,7 @@ private:
 
 	/// Start with a locked queue until NewtonOS finished booting.
 	KUInt32 mQueueBootLock { 1 };
+	std::atomic<KUInt32> mBootCount { 0 };
 
 	/// Mutex of the queue.
 	TMutex* mMutex { nullptr };
