@@ -134,7 +134,9 @@ public class EinsteinActivity extends SDLActivity {
                     continue;
                 }
                 if (code != 200) throw new java.io.IOException("HTTP status " + code);
-                long length = connection.getContentLengthLong();
+                // getContentLength() (API 1; getContentLengthLong() needs API 24): -1 when
+                // unknown or too large for an int, then the loop below enforces the limit.
+                int length = connection.getContentLength();
                 if (length > kMaxDownloadSize) throw new java.io.IOException("The file is too large for a Newton package");
                 try (java.io.InputStream in = connection.getInputStream();
                      java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
