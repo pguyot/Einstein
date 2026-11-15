@@ -502,6 +502,43 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
     SDL_GetWindowSize(mSDLWindow, &win_w, &win_h);
     mLog->FLogLine("Handle event %s : %d %d %d",
                    buf, win_w, win_h, (int)mBootState);
+	// Our own events (downloads, menu choices, chosen files, boot states)
+	// show dialogs, wait, copy files and draw. SDL may deliver queued events
+	// from inside its Android resume handling, before the drawing context is
+	// back (SDL_DispatchMainCallbackEvents() runs ahead of a lifecycle event),
+	// so they wait for the next IterateSDL().
+	if ((mDownloadEventType != 0 && event_type == mDownloadEventType)
+		|| (mMenuEventType != 0 && event_type == mMenuEventType)
+		|| event_type == mSDLBootStateEvent) {
+		mDeferredEvents.push_back(*event);
+		return SDL_APP_CONTINUE;
+	}
+	return HandleSDLEventNow(event);
+}
+
+/**
+ \brief Handle the events that IterateSDL() took from mDeferredEvents.
+ */
+SDL_AppResult TSDLApp::HandleDeferredEvents()
+{
+	std::vector<SDL_Event> events;
+	events.swap(mDeferredEvents);
+	for (size_t i = 0; i < events.size(); ++i) {
+		SDL_AppResult result = HandleSDLEventNow(&events[i]);
+		if (result != SDL_APP_CONTINUE) {
+			// Free the paths of the chosen files that are left.
+			for (size_t j = i + 1; j < events.size(); ++j)
+				if (mMenuEventType != 0 && events[j].type == mMenuEventType && events[j].user.data2)
+					SDL_free(events[j].user.data2);
+			return result;
+		}
+	}
+	return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult TSDLApp::HandleSDLEventNow(SDL_Event *event)
+{
+	auto event_type = event->type;
 	if (mDownloadEventType != 0 && event_type == mDownloadEventType) {
 		HandleDownloadEvent(event);
 		return SDL_APP_CONTINUE;
@@ -902,6 +939,12 @@ SDL_AppResult TSDLApp::IterateSDL()
 	Uint64 now = SDL_GetTicks();
 	if (now-prev_call < 14) return SDL_APP_CONTINUE; // 1/60th = 16.66
 	prev_call = now;
+
+	// Events that must not run inside SDL's lifecycle handling.
+	if (!mDeferredEvents.empty()) {
+		SDL_AppResult result = HandleDeferredEvents();
+		if (result != SDL_APP_CONTINUE) return result;
+	}
 
 	// Back from the background (flag set on another thread).
 	if (mForegroundPending.exchange(false)) {
