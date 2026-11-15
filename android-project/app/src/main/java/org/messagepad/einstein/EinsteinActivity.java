@@ -115,8 +115,30 @@ public class EinsteinActivity extends SDLActivity {
     /** Newton packages are small; a larger download is not a package. */
     private static final int kMaxDownloadSize = 16 * 1024 * 1024;
 
+    /**
+     * The only servers httpGet() talks to, also after a redirect: the package
+     * servers of kKnownPackages in app/SDL/TSDLApp.cpp (and of
+     * res/xml/network_security_config.xml).
+     */
+    private static final String[] kAllowedHosts = { "www.unna.org", "www.kallisys.com" };
+
+    private static void checkAllowed(String url) throws java.io.IOException {
+        java.net.URL u = new java.net.URL(url);
+        String protocol = u.getProtocol();
+        String host = u.getHost() == null ? "" : u.getHost().toLowerCase(java.util.Locale.ROOT);
+        boolean allowedHost = false;
+        for (String h : kAllowedHosts) if (h.equals(host)) allowedHost = true;
+        if (!allowedHost || !(protocol.equals("http") || protocol.equals("https")) || u.getUserInfo() != null)
+            throw new java.io.IOException("Not a known package server: " + host);
+        int port = u.getPort();
+        if (port != -1 && port != u.getDefaultPort())
+            throw new java.io.IOException("Not a known package server: " + host + ":" + port);
+    }
+
     public static byte[] httpGet(String url) throws java.io.IOException {
         for (int redirects = 0; redirects < 5; redirects++) {
+            // Checked before every request, the first one and every redirect.
+            checkAllowed(url);
             java.net.HttpURLConnection connection =
                 (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
             connection.setConnectTimeout(20000);
