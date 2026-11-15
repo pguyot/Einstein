@@ -131,6 +131,7 @@ public:
 #include <sys/types.h>
 
 #include <filesystem>
+#include "TSDLSHA256.h"
 #include <thread>
 
 TSDLApp* gApp = nullptr;
@@ -1585,9 +1586,10 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 			}
 			break;
 		case kMenuNetSoftware: {
-			// Paths on UNNA, as in the FLTK app's Install Essentials, from
-			// UNNA's mirror at MIT, which has https (www.unna.org has not).
-			static const char* kUNNA = "https://web.mit.edu/";
+			// Paths on UNNA, as in the FLTK app's Install Essentials. Plain
+			// http (www.unna.org has no https); every package is checked
+			// against its SHA-256 (kKnownPackages) before it is installed.
+			static const char* kUNNA = "http://www.unna.org/";
 			static const char* kSystemUpdates[] = {
 				"unna/apple/software/SystemPatches/english/2x00/mp717260.pkg",	// MP2x00 US
 				"unna/apple/software/SystemPatches/german/2x00/mp747260.pkg",	// MP2x00 German
@@ -1670,6 +1672,39 @@ namespace {
 	};
 	// Newton packages are small; a larger download is not a package.
 	constexpr size_t kMaxPackageSize = 16 * 1024 * 1024;
+
+	/// The packages the app downloads, with their SHA-256. The downloads use
+	/// plain http, so a package is installed only if it is exactly this
+	/// file. The same checksums come from www.unna.org and its https mirror
+	/// at web.mit.edu (and from kallisys.com over http and https); the CI
+	/// workflow prints them ("Package checksums").
+	struct SKnownPackage { const char* fURL; const char* fSHA256; };
+	const SKnownPackage kKnownPackages[] = {
+		{ "http://www.unna.org/unna/apple/software/SystemPatches/english/2x00/mp717260.pkg",
+		  "3b496f701d6306bddeeaf67afbd58cf227fcc090697a222c657de7f79fa39da7" },
+		{ "http://www.unna.org/unna/apple/software/SystemPatches/german/2x00/mp747260.pkg",
+		  "0d18bf13789ebc41d4fa2c6d7a2378f806c9a19a5ad68666c59374deba63d4d4" },
+		{ "http://www.unna.org/unna/apple/software/SystemPatches/english/eMate/EM737246.PKG",
+		  "d049a19a98e58419529014f2a0afa8f35b70657e3a3caa52885987717d07724d" },
+		{ "http://www.unna.org/unna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg",
+		  "13d1ac01395e455752fb6c389e5bc29807467ae29a7a3abdc9837ef0906ced22" },
+		{ "http://www.unna.org/unna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg",
+		  "4745a3dbbe6bae31e88dda10207f6373a6ae71989705c1fd22c62c02878a2db7" },
+		{ "http://www.unna.org/unna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg",
+		  "f3ebd3e0b28fd37ac832881110d1af7bbd98e017ca2c8008abfe75827d29c0f9" },
+		{ "http://www.unna.org/unna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg",
+		  "6607d48d42e2b80a77dd449495070ad33309df79093d223dcca45a1d8201aacb" },
+		{ "http://www.kallisys.com/files/newton/ATA/ATA-Support-1.0.pkg",
+		  "8023ce3fb69265883b417dbac6253354830ebda607235a5880a489bfad3e6550" },
+	};
+
+	/// The expected SHA-256 of a package URL, or nullptr if it's not known.
+	const char* ExpectedSHA256(const std::string& inURL)
+	{
+		for (const auto& p : kKnownPackages)
+			if (inURL == p.fURL) return p.fSHA256;
+		return nullptr;
+	}
 }
 
 /**
@@ -1701,16 +1736,16 @@ void TSDLApp::DownloadAndInstall(const std::vector<std::string>& inPackages)
 			if (item->fName.rfind("einstein:", 0) != 0) {
 				log->FLogLine("Downloading %s (%u of %u)", item->fName.c_str(),
 							  (unsigned)(i + 1), (unsigned)inPackages.size());
-				if (item->fName.rfind("https://", 0) == 0) {
-					// The C++ HTTP client has no https.
+				const char* expected = ExpectedSHA256(item->fName);
+				if (!expected) {
+					item->fError = "Einstein doesn't know this package, so it can't check it.";
+				} else {
 #if TARGET_OS_ANDROID
+					// Android's HttpURLConnection, with timeouts and redirects.
 					std::vector<unsigned char> body;
 					if (AndroidHttpGet(item->fName, body, item->fError))
 						item->fData.assign(body.begin(), body.end());
 #else
-					item->fError = "https downloads are not supported here.";
-#endif
-				} else {
 					try {
 						http::Request request(item->fName);
 						const http::Response response = request.send("GET");
@@ -1724,6 +1759,16 @@ void TSDLApp::DownloadAndInstall(const std::vector<std::string>& inPackages)
 							item->fData.assign(response.body.begin(), response.body.end());
 					} catch (const std::exception& e) {
 						item->fError = e.what();
+					}
+#endif
+					if (item->fError.empty()
+						&& SHA256Hex(item->fData.data(), item->fData.size()) != expected) {
+						// Changed on the server, or on the way (plain http).
+						log->FLogLine("SHA-256 of %s: %s, expected %s", item->fName.c_str(),
+									  SHA256Hex(item->fData.data(), item->fData.size()).c_str(), expected);
+						item->fError = "The download is not the expected file (its checksum differs), "
+									   "so it was not installed.";
+						item->fData.clear();
 					}
 				}
 				if (item->fError.empty()
@@ -1945,7 +1990,7 @@ void TSDLApp::InstallATASupport()
 		&& mStorageCardFile.compare(mStorageCardFile.size() - 4, 4, ".ata") == 0
 		&& !RemoveStorageCard())
 		return;
-	DownloadAndInstall({ "https://www.kallisys.com/files/newton/ATA/ATA-Support-1.0.pkg" });
+	DownloadAndInstall({ "http://www.kallisys.com/files/newton/ATA/ATA-Support-1.0.pkg" });
 }
 
 /**
