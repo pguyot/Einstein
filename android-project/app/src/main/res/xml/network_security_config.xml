@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Plain http only for the two servers Einstein downloads Newton packages
+    from: www.unna.org has no https. Every package is installed only if its
+    SHA-256 matches the checksum built into Einstein (kKnownPackages in
+    app/SDL/TSDLApp.cpp). Everything else stays https-only.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">www.unna.org</domain>
+        <domain includeSubdomains="false">www.kallisys.com</domain>
+    </domain-config>
+</network-security-config>
