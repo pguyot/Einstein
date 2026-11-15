@@ -791,6 +791,17 @@ public:
 	}
 
 	///
+	/// Write the flash to its file now (msync, or a plain write where the
+	/// file is not mapped, as on Windows), for example before copying it.
+	/// Call while the emulator is stopped.
+	///
+	void
+	SaveFlash(void) const
+	{
+		mFlash.Save();
+	}
+
+	///
 	/// Save or restore the state to or from a stream. The flash is not part
 	/// of it, see TransferFlash().
 	///
