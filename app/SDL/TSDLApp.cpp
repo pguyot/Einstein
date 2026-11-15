@@ -940,6 +940,9 @@ SDL_AppResult TSDLApp::IterateSDL()
 	if (now-prev_call < 14) return SDL_APP_CONTINUE; // 1/60th = 16.66
 	prev_call = now;
 
+	// Packages held while NewtonOS restarts after a System Update.
+	ReleaseHeldDownloads();
+
 	// Events that must not run inside SDL's lifecycle handling.
 	if (!mDeferredEvents.empty()) {
 		SDL_AppResult result = HandleDeferredEvents();
@@ -1704,15 +1707,16 @@ void TSDLApp::ShowNetworkSoftwareMenu()
 	});
 }
 
+// One download, handed from the download thread to the SDL thread.
+struct SDownload {
+	std::string fName;			// URL, or "einstein:NE2K.pkg"
+	std::vector<KUInt8> fData;	// the package, empty for a built-in one
+	std::string fError;			// empty if it worked
+	bool fLast { false };		// the last one of the list
+	Uint32 fBatch { 0 };		// the DownloadAndInstall() call it belongs to
+};
+
 namespace {
-	// One download, handed from the download thread to the SDL thread.
-	struct SDownload {
-		std::string fName;			// URL, or "einstein:NE2K.pkg"
-		std::vector<KUInt8> fData;	// the package, empty for a built-in one
-		std::string fError;			// empty if it worked
-		bool fLast { false };		// the last one of the list
-		Uint32 fBatch { 0 };		// the DownloadAndInstall() call it belongs to
-	};
 	// Newton packages are small; a larger download is not a package.
 	constexpr size_t kMaxPackageSize = 16 * 1024 * 1024;
 
@@ -1843,6 +1847,50 @@ void TSDLApp::HandleDownloadEvent(SDL_Event* inEvent)
 {
 	auto* item = static_cast<SDownload*>(inEvent->user.data1);
 	if (!item) return;
+	if (mHoldForReboot) {
+		// A System Update restarts NewtonOS; a package handed over before
+		// the restart would be lost. ReleaseHeldDownloads() installs it.
+		mHeldDownloads.push_back(item);
+		return;
+	}
+	InstallDownload(item);
+}
+
+/**
+ \brief Install the packages held while NewtonOS restarted after a System
+ Update, once it has booted and settled, or after two minutes anyway.
+ Called from IterateSDL().
+ */
+void TSDLApp::ReleaseHeldDownloads()
+{
+	if (!mHoldForReboot || !mPlatformManager) return;
+	Uint64 now = SDL_GetTicks();
+	bool rebooted = mPlatformManager->GetBootCount() != mHoldBootCount
+		&& !mPlatformManager->IsQueueBootLocked();
+	if (rebooted && mRebootedAt == 0) {
+		mLog->FLogLine("NewtonOS restarted after the System Update");
+		mRebootedAt = now;
+	}
+	bool settled = mRebootedAt != 0 && now - mRebootedAt > 5000;
+	bool timedOut = now - mHoldStarted > 120000;
+	if (!settled && !timedOut) return;
+	if (timedOut && !settled)
+		mLog->FLogLine("NewtonOS did not restart within two minutes, installing the rest anyway");
+	mHoldForReboot = false;
+	std::vector<SDownload*> items;
+	items.swap(mHeldDownloads);
+	for (SDownload* item : items) {
+		if (mHoldForReboot) {
+			// Another System Update in the list: hold the rest again.
+			mHeldDownloads.push_back(item);
+			continue;
+		}
+		InstallDownload(item);
+	}
+}
+
+void TSDLApp::InstallDownload(SDownload* item)
+{
 	if (item->fBatch != mDownloadBatch) {
 		// From a batch that a newer one replaced: don't install it, and
 		// don't end the newer batch.
@@ -1863,6 +1911,14 @@ void TSDLApp::HandleDownloadEvent(SDL_Event* inEvent)
 		} else {
 			mLog->FLogLine("Installing %s (%u bytes)", item->fName.c_str(), (unsigned)item->fData.size());
 			mPlatformManager->InstallPackage(item->fData.data(), (KUInt32)item->fData.size());
+			if (!item->fLast && item->fName.find("/SystemPatches/") != std::string::npos) {
+				// NewtonOS restarts after a System Update: wait for it.
+				mHoldForReboot = true;
+				mHoldBootCount = mPlatformManager->GetBootCount();
+				mHoldStarted = SDL_GetTicks();
+				mRebootedAt = 0;
+				mLog->FLogLine("Waiting for NewtonOS to restart before the next packages");
+			}
 		}
 	}
 	if (item->fLast) mDownloading = false;

@@ -40,6 +40,7 @@
 
 
 class TROMImage;
+struct SDownload;
 class TEmulator;
 class TSoundManager;
 class TScreenManager;
@@ -209,6 +210,14 @@ public:
 	void ShowNetworkSoftwareMenu();
 	void DownloadAndInstall(const std::vector<std::string>& inPackages);
 	void HandleDownloadEvent(SDL_Event* inEvent);
+	void InstallDownload(SDownload* inItem);
+	void ReleaseHeldDownloads();
+	// After a System Update, the next packages wait until NewtonOS restarted.
+	bool mHoldForReboot { false };
+	std::vector<SDownload*> mHeldDownloads;
+	KUInt32 mHoldBootCount { 0 };
+	Uint64 mHoldStarted { 0 };
+	Uint64 mRebootedAt { 0 };
 	SDL_AppResult PickPackageFile();
 	void PackageFilePicked(const char * const *filelist, int filter);
 

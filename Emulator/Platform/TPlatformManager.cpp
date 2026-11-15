@@ -703,6 +703,18 @@ TPlatformManager::UnlockQueueBootLock()
 }
 
 // -------------------------------------------------------------------------- //
+//  * IsQueueBootLocked()
+// -------------------------------------------------------------------------- //
+Boolean
+TPlatformManager::IsQueueBootLocked() const
+{
+	mMutex->Lock();
+	Boolean locked = (mQueueBootLock != 0);
+	mMutex->Unlock();
+	return locked;
+}
+
+// -------------------------------------------------------------------------- //
 //  * ResetEventQueueLocks()
 // -------------------------------------------------------------------------- //
 void
@@ -712,6 +724,7 @@ TPlatformManager::ResetEventQueueLocks()
 	mQueuePreLock = false;
 	mQueueLockCount = 0;
 	mQueueBootLock = 1;
+	mBootCount++;
 	mMutex->Unlock();
 }
 
