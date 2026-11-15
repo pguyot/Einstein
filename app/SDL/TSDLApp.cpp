@@ -1670,58 +1670,6 @@ namespace {
 	};
 	// Newton packages are small; a larger download is not a package.
 	constexpr size_t kMaxPackageSize = 16 * 1024 * 1024;
-
-#if !TARGET_OS_ANDROID
-	/**
-	 \brief Download an https URL with the curl command, which macOS, Windows
-	 10 and later, and most Linux systems have (the C++ HTTP client has no
-	 https). curl checks the certificate, refuses redirects to anything but
-	 https, and stops after kMaxPackageSize bytes or 3 minutes.
-	 */
-	bool CurlHttpGet(const std::string& inURL, std::vector<KUInt8>& outData, std::string& outError)
-	{
-		// The URL goes into a shell command: allow only plain URL characters.
-		for (char c : inURL) {
-			if (!isalnum((unsigned char) c) && !strchr(":/.-_~?=&+", c)) {
-				outError = "The address contains characters that are not allowed.";
-				return false;
-			}
-		}
-		std::string command = "curl -fsSL --proto =https --proto-redir =https --max-redirs 5"
-							  " --connect-timeout 20 --max-time 180 --max-filesize "
-			+ std::to_string(kMaxPackageSize) + " \"" + inURL + "\"";
-#if TARGET_OS_WIN32
-		FILE* pipe = _popen(command.c_str(), "rb");
-#else
-		FILE* pipe = popen(command.c_str(), "r");
-#endif
-		if (!pipe) {
-			outError = "Could not run curl.";
-			return false;
-		}
-		char buffer[65536];
-		size_t n;
-		bool tooLarge = false;
-		while ((n = fread(buffer, 1, sizeof(buffer), pipe)) > 0) {
-			if (outData.size() + n > kMaxPackageSize) { tooLarge = true; break; }
-			outData.insert(outData.end(), (KUInt8*) buffer, (KUInt8*) buffer + n);
-		}
-#if TARGET_OS_WIN32
-		int status = _pclose(pipe);
-#else
-		int status = pclose(pipe);
-#endif
-		if (tooLarge) {
-			outError = "The file is too large for a Newton package.";
-			return false;
-		}
-		if (status != 0) {
-			outError = "The download failed (curl is needed for https downloads).";
-			return false;
-		}
-		return true;
-	}
-#endif
 }
 
 /**
@@ -1760,8 +1708,7 @@ void TSDLApp::DownloadAndInstall(const std::vector<std::string>& inPackages)
 					if (AndroidHttpGet(item->fName, body, item->fError))
 						item->fData.assign(body.begin(), body.end());
 #else
-					if (!CurlHttpGet(item->fName, item->fData, item->fError))
-						item->fData.clear();
+					item->fError = "https downloads are not supported here.";
 #endif
 				} else {
 					try {
