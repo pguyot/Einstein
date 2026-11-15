@@ -220,6 +220,7 @@ public:
 	KUInt32 mHoldBootCount { 0 };
 	Uint64 mHoldStarted { 0 };
 	Uint64 mRebootedAt { 0 };
+	KUInt32 mRebootedBootCount { 0 };	// the boot mRebootedAt belongs to
 	SDL_AppResult PickPackageFile();
 	void PackageFilePicked(const char * const *filelist, int filter);
 
