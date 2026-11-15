@@ -1923,11 +1923,13 @@ void TSDLApp::InstallDownload(SDownload* item)
 			mPlatformManager->InstallPackage(gNE2KPackage, gNE2KPackageSize);
 		} else {
 			mLog->FLogLine("Installing %s (%u bytes)", item->fName.c_str(), (unsigned)item->fData.size());
+			// Read before the install: NewtonOS may restart right away.
+			KUInt32 bootCount = mPlatformManager->GetBootCount();
 			mPlatformManager->InstallPackage(item->fData.data(), (KUInt32)item->fData.size());
 			if (!item->fLast && item->fName.find("/SystemPatches/") != std::string::npos) {
 				// NewtonOS restarts after a System Update: wait for it.
 				mHoldForReboot = true;
-				mHoldBootCount = mPlatformManager->GetBootCount();
+				mHoldBootCount = bootCount;
 				mHoldStarted = SDL_GetTicks();
 				mRebootedAt = 0;
 				mLog->FLogLine("Waiting for NewtonOS to restart before the next packages");
