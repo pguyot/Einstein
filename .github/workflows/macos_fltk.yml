@@ -2,11 +2,12 @@ name: CI macOS (FLTK)
 
 on:
   workflow_dispatch:
-#on:
-#  push:
-#    branches: [ master ]
-#  pull_request:
-#    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -19,7 +20,7 @@ jobs:
     - name: Get dependencies
       run: brew install clang-format
     - name: Get sources
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - name: Configure Einstein
       run: |
         cmake -S . -B _Build_/Makefiles -D EINSTEIN_BUILD_FLUID=OFF

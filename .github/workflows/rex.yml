@@ -19,7 +19,7 @@ jobs:
     - name: Get dependencies
       run: sudo apt-get install -y gcc-arm-none-eabi cmake make
     - name: Get Einstein sources
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
           path: Einstein
     - name: Compile the REx
@@ -27,7 +27,7 @@ jobs:
         cmake -S Einstein/Drivers -B Einstein/Drivers/build
         cmake --build Einstein/Drivers/build
     - name: Store the REx
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: Einstein.rex
         path: Einstein/_Data_/Einstein.rex
