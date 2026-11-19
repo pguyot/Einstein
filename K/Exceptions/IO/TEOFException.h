@@ -82,7 +82,7 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TEOFException(void) throw();
+	virtual ~TEOFException(void) noexcept;
 
 private:
 	/// \name Variables

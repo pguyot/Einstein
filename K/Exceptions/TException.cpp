@@ -79,7 +79,7 @@ TException::TException(const TException& inCopy) :
 // -------------------------------------------------------------------------- //
 //  * ~TException( void ) throw ()
 // -------------------------------------------------------------------------- //
-TException::~TException(void) throw()
+TException::~TException(void) noexcept
 {
 }
 
@@ -87,7 +87,7 @@ TException::~TException(void) throw()
 //  * what( void ) const throw ()
 // -------------------------------------------------------------------------- //
 const char*
-TException::what(void) const throw()
+TException::what(void) const noexcept
 {
 	return typeid(*this).name();
 }

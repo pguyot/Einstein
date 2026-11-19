@@ -32,8 +32,18 @@
 
 extern "C" {
 #include "NewtBC.h"
+// NEWT64's NewtEnv.h uses 'requires' as a struct field name, a C++20 keyword.
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wkeyword-macro"
+#endif
+#define requires newt_requires_
 #include "NewtCore.h"
 #include "NewtEnv.h"
+#undef requires
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "NewtFile.h"
 #include "NewtNSOF.h"
 #include "NewtParser.h"

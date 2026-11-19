@@ -68,7 +68,7 @@ public:
 	///
 	/// Destructeur.
 	///
-	virtual ~TError(void) throw();
+	virtual ~TError(void) noexcept;
 
 private:
 	/// \name Variables

@@ -58,7 +58,7 @@ TIOException::TIOException(const char* inFileName, KUInt32 inLine) :
 // -------------------------------------------------------------------------- //
 //  * ~TIOException( void )
 // -------------------------------------------------------------------------- //
-TIOException::~TIOException(void) throw()
+TIOException::~TIOException(void) noexcept
 {
 }
 

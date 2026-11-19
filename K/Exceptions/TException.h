@@ -68,14 +68,14 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TException(void) throw();
+	virtual ~TException(void) noexcept;
 
 	///
 	/// Default what message implementation.
 	///
 	/// \return the name of the class (using rtti)
 	///
-	virtual const char* what(void) const throw();
+	virtual const char* what(void) const noexcept;
 
 	///
 	/// Accessor on the file name where the exception was thrown.
