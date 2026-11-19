@@ -68,7 +68,7 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TIOException(void) throw();
+	virtual ~TIOException(void) noexcept;
 
 private:
 	/// \name Variables

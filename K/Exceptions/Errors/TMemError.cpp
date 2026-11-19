@@ -58,7 +58,7 @@ TMemError::TMemError(const char* inFileName, KUInt32 inLine) :
 // -------------------------------------------------------------------------- //
 //  * ~TMemError( void ) throw ()
 // -------------------------------------------------------------------------- //
-TMemError::~TMemError(void) throw()
+TMemError::~TMemError(void) noexcept
 {
 }
 

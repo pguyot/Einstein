@@ -58,7 +58,7 @@ TError::TError(const char* inFileName, KUInt32 inLine) :
 // -------------------------------------------------------------------------- //
 //  * ~TError( void ) throw ()
 // -------------------------------------------------------------------------- //
-TError::~TError(void) throw()
+TError::~TError(void) noexcept
 {
 }
 

@@ -58,7 +58,7 @@ TEOFException::TEOFException(const char* inFileName, KUInt32 inLine) :
 // -------------------------------------------------------------------------- //
 //  * ~TEOFException( void )
 // -------------------------------------------------------------------------- //
-TEOFException::~TEOFException(void) throw()
+TEOFException::~TEOFException(void) noexcept
 {
 }
 
