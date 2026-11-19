@@ -19,9 +19,9 @@ jobs:
     - name: Get dependencies
       run: sudo apt-get install -y libpulse-dev ninja-build libbsd-dev
     - name: Get sources
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v4
       with:
         languages: cpp
         config-file: ./.github/codeql/codeql-config.yml
@@ -30,4 +30,4 @@ jobs:
         cmake -S . -B _Build_/Makefiles -D EINSTEIN_BUILD_FLUID=OFF
         cmake --build _Build_/Makefiles --target Einstein
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v4

@@ -2,6 +2,12 @@ name: CI MinGW (FLTK)
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [ master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -27,7 +33,7 @@ jobs:
         sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
         sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
     - name: Get sources
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - name: Configure
       shell: bash
       run: |
@@ -35,9 +41,10 @@ jobs:
     - name: Compile Einstein
       shell: bash
       run: |
-        cmake --build _Build_/Makefiles --config Release
+        cmake --build _Build_/Makefiles --config Release --parallel 2
     - name: Upload Artifact
-      uses: actions/upload-artifact@v4
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v7
       with:
         name: Einstein-MinGW-${{ matrix.name }}
         path: _Build_/Makefiles/Einstein.exe
