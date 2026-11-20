@@ -35,6 +35,7 @@
 #include <string>
 #include <filesystem>
 #include <atomic>
+#include <array>
 #include <bitset>
 #include <mutex>
 #include <functional>
@@ -264,7 +265,8 @@ private:
 	TEmulator* mEmulator = nullptr;
 	TSoundManager* mSoundManager = nullptr;
 	TSDLScreenManager* mScreenManager = nullptr;
-	std::bitset<128> mKeysDown;	// Newton key codes sent down and not up yet
+	std::bitset<SDL_SCANCODE_COUNT> mScancodesDown;	// physical keys down
+	std::array<KUInt8, 128> mKeyHolders {};	// physical keys down per Newton key code
 	TPlatformManager* mPlatformManager = nullptr;
 	TNetworkManager* mNetworkManager = nullptr;
 	TLog* mLog = nullptr;

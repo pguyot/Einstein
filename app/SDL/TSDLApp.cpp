@@ -927,12 +927,21 @@ void TSDLApp::HandleKey(const SDL_KeyboardEvent& inEvent)
 	}
 	int code = NewtonKeyCode(inEvent.scancode);
 	if (code < 0) return;
+	// Several physical keys share one Newton code (left and right Shift,
+	// Control, Option, Command). Count the physical keys that hold each
+	// code, and release the code only when the last of them goes up.
+	size_t scancode = (size_t) inEvent.scancode;
+	if (scancode >= mScancodesDown.size()) return;
 	if (inEvent.down) {
-		mKeysDown.set((size_t) code);
-		mScreenManager->KeyDown((KUInt8) code);
-	} else if (mKeysDown.test((size_t) code)) {
-		mKeysDown.reset((size_t) code);
-		mScreenManager->KeyUp((KUInt8) code);
+		if (!mScancodesDown.test(scancode)) {
+			mScancodesDown.set(scancode);
+			mKeyHolders[code]++;
+		}
+		mScreenManager->KeyDown((KUInt8) code);	// also key repeats
+	} else if (mScancodesDown.test(scancode)) {
+		mScancodesDown.reset(scancode);
+		if (mKeyHolders[code] > 0 && --mKeyHolders[code] == 0)
+			mScreenManager->KeyUp((KUInt8) code);
 	}
 }
 
@@ -942,11 +951,12 @@ void TSDLApp::HandleKey(const SDL_KeyboardEvent& inEvent)
  */
 void TSDLApp::ReleaseKeys()
 {
-	if (!mScreenManager) { mKeysDown.reset(); return; }
-	for (size_t i = 0; i < mKeysDown.size(); ++i)
-		if (mKeysDown.test(i))
-			mScreenManager->KeyUp((KUInt8) i);
-	mKeysDown.reset();
+	for (size_t code = 0; code < mKeyHolders.size(); ++code) {
+		if (mKeyHolders[code] && mScreenManager)
+			mScreenManager->KeyUp((KUInt8) code);
+		mKeyHolders[code] = 0;
+	}
+	mScancodesDown.reset();
 }
 
 SDL_AppResult TSDLApp::Run()
