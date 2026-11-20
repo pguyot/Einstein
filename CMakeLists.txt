@@ -427,9 +427,6 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		target_link_libraries ( Einstein
 			SDL3::SDL3-static
 		)
-		target_include_directories( Einstein SYSTEM PUBLIC
-			$ENV{ANDROID_NDK_HOME}/sysroot/usr/include
-		)
 	endif ()
 	if ( EINSTEIN_FLTK_FRONTEND )
 		target_link_libraries ( EinsteinFLGUI
@@ -459,9 +456,11 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		${app_sources}
 		${cmake_sources}
 	)
-	add_library ( EinsteinFLGUI STATIC
-		${fluid_sources}
-	)
+	if ( EINSTEIN_FLTK_FRONTEND )
+		add_library ( EinsteinFLGUI STATIC
+			${fluid_sources}
+		)
+	endif ()
 
 	# how to compile and link
 	target_compile_options ( Einstein PUBLIC
@@ -469,25 +468,36 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		-Wno-missing-field-initializers -Wno-stringop-truncation # -Werror
 		# Werror is disabled for testing purposes. Must reenable as soon as all Linux warnings are fixed.
 	)
-	target_compile_options ( EinsteinFLGUI PUBLIC
-		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-		-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
-	)
-	target_compile_definitions ( Einstein PRIVATE
-		TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
-	)
-	target_compile_definitions ( EinsteinFLGUI PRIVATE
-		TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
-	)
-	target_link_libraries ( Einstein
-		${system_libs}
-		fltk::images fltk::png fltk::z
-		EinsteinFLGUI
-		pthread
-	)
-	target_link_libraries ( EinsteinFLGUI
-		fltk::images fltk::png fltk::z
-	)
+	if ( EINSTEIN_FLTK_FRONTEND )
+		target_compile_options ( EinsteinFLGUI PUBLIC
+			-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
+			-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
+		)
+		target_compile_definitions ( Einstein PRIVATE
+			TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
+		)
+		target_compile_definitions ( EinsteinFLGUI PRIVATE
+			TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
+		)
+		target_link_libraries ( Einstein
+			${system_libs}
+			fltk::images fltk::png fltk::z
+			EinsteinFLGUI
+			pthread
+		)
+		target_link_libraries ( EinsteinFLGUI
+			fltk::images fltk::png fltk::z
+		)
+	elseif ( EINSTEIN_SDL3_FRONTEND )
+		target_compile_definitions ( Einstein PRIVATE
+			TARGET_UI_SDL=1 TARGET_OS_LINUX=1
+		)
+		target_link_libraries ( Einstein
+			${system_libs}
+			SDL3::SDL3-static
+			pthread
+		)
+	endif ()
 
 	if ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
 		# Under OpenBSD, libffi is in ports (i.e. /usr/local) not base (i.e. /usr)
@@ -503,25 +513,29 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 			target_link_libraries ( Einstein ${ffi_lib} )
 		endif ()
 
-		# Under OpenBSD, pulseaudio is in ports (i.e. /usr/local) not base (i.e. /usr)
-		find_library ( pulse_lib NAMES pulse )
-		if ( pulse_lib MATCHES ".*NOTFOUND" )
-			message ( FATAL_ERROR "libpulse not found! " )
-		else ()
-			get_filename_component ( pulse_lib_path ${pulse_lib} DIRECTORY )
-			message ( STATUS "libpulse found in " ${pulse_lib_path} )
-			target_link_libraries ( Einstein ${pulse_lib} )
-		endif ()
+		if ( EINSTEIN_FLTK_FRONTEND )
+			# Under OpenBSD, pulseaudio is in ports (i.e. /usr/local) not base (i.e. /usr)
+			find_library ( pulse_lib NAMES pulse )
+			if ( pulse_lib MATCHES ".*NOTFOUND" )
+				message ( FATAL_ERROR "libpulse not found! " )
+			else ()
+				get_filename_component ( pulse_lib_path ${pulse_lib} DIRECTORY )
+				message ( STATUS "libpulse found in " ${pulse_lib_path} )
+				target_link_libraries ( Einstein ${pulse_lib} )
+			endif ()
 
-		# Under OpenBSD, X11 is in /usr/X11R6
-		include ( FindX11 )
-		if ( X11_FOUND )
-			target_include_directories ( Einstein SYSTEM PUBLIC ${X11_INCLUDE_DIR} )
-			target_link_libraries ( Einstein ${X11_LIBRARIES} )
+			# Under OpenBSD, X11 is in /usr/X11R6
+			include ( FindX11 )
+			if ( X11_FOUND )
+				target_include_directories ( Einstein SYSTEM PUBLIC ${X11_INCLUDE_DIR} )
+				target_link_libraries ( Einstein ${X11_LIBRARIES} )
+			endif ()
 		endif ()
 	else ()
-		# Under Linux, link pulseaudio normally
-		target_link_libraries ( Einstein pulse )
+		if ( EINSTEIN_FLTK_FRONTEND )
+			# Under Linux, link pulseaudio normally
+			target_link_libraries ( Einstein pulse )
+		endif ()
 	endif ()
 
 elseif ( WIN32 )
