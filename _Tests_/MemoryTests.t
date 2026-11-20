@@ -1,5 +1,6 @@
 #include "Emulator/TMemory.h"
 #include <K/Defines/UByteSex.h>
+#include <bit>
 #if TARGET_OS_WIN32
 #define kTempFlashPath "c:/EinsteinTests.flash"
 #else
@@ -16,12 +17,13 @@ TEST(MemoryTests, ReadROMTest)
 		romBuffer[index] = (index * 16) + index;
 	}
 
-#if TARGET_RT_LITTLE_ENDIAN
-	// Swap the ROM the way it is swapped
-	KUInt32* theROM = (KUInt32*) romBuffer;
-	theROM[0] = UByteSex::Swap(theROM[0]);
-	theROM[1] = UByteSex::Swap(theROM[1]);
-#endif
+	if constexpr (std::endian::native == std::endian::little)
+	{
+		// Swap the ROM the way it is swapped
+		KUInt32* theROM = (KUInt32*) romBuffer;
+		theROM[0] = UByteSex::Swap(theROM[0]);
+		theROM[1] = UByteSex::Swap(theROM[1]);
+	}
 
 	bool fault = false;
 	KUInt32 theWord = theMem.ReadP(0, fault);

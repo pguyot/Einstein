@@ -34,6 +34,7 @@
 #endif
 
 // ANSI C & POSIX
+#include <bit>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -515,16 +516,17 @@ THostInfo::ConvertCFString(CFStringRef inCFString)
 	// Add the null terminator.
 	((KUInt16*) theResult)[theLength] = 0x0000;
 
-#if TARGET_RT_LITTLE_ENDIAN
-	// On little endian, swap the characters.
-	KUInt16* theCursor = theResult;
-	while (theLength-- > 0) // No need to swap the null terminator.
+	if constexpr (std::endian::native == std::endian::little)
 	{
-		KUInt16 theChar = UByteSex_ToBigEndian(*theCursor);
-		*theCursor = theChar;
-		theCursor++;
+		// On little endian, swap the characters.
+		KUInt16* theCursor = theResult;
+		while (theLength-- > 0) // No need to swap the null terminator.
+		{
+			KUInt16 theChar = UByteSex_ToBigEndian(*theCursor);
+			*theCursor = theChar;
+			theCursor++;
+		}
 	}
-#endif
 
 	return theResult;
 }

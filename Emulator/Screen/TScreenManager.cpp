@@ -64,7 +64,8 @@
 
 #include "TScreenManager.h"
 
-// ANSI C
+// ANSI C / C++
+#include <bit>
 #include <stdlib.h>
 
 // K
@@ -93,14 +94,16 @@ inline KUInt32
 Swap_Pixels_FromBigEndian(const KUInt32 inWord)
 {
 	// ABCDEFGH -> GHEFCDAB
-#if TARGET_RT_LITTLE_ENDIAN
-	return (inWord >> 4 & 0x0F0F0F0F)
-		| (inWord << 4 & 0xF0F0F0F0);
-#else
-	KUInt32 Swapped1 = UByteSex::Swap(inWord);
-	return (Swapped1 >> 4 & 0x0F0F0F0F)
-		| (Swapped1 << 4 & 0xF0F0F0F0);
-#endif
+	if constexpr (std::endian::native == std::endian::little)
+	{
+		return (inWord >> 4 & 0x0F0F0F0F)
+			| (inWord << 4 & 0xF0F0F0F0);
+	} else
+	{
+		KUInt32 Swapped1 = UByteSex::Swap(inWord);
+		return (Swapped1 >> 4 & 0x0F0F0F0F)
+			| (Swapped1 << 4 & 0xF0F0F0F0);
+	}
 }
 
 // -------------------------------------------------------------------------- //

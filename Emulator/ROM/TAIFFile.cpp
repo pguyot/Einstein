@@ -24,6 +24,7 @@
 #include "TAIFFile.h"
 
 // ANSI C & POSIX
+#include <bit>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -48,15 +49,16 @@ TAIFFile::TAIFFile(FILE* inFile) :
 	}
 
 	// Swap the header.
-#if TARGET_RT_LITTLE_ENDIAN
-	KUInt32* cursor = (KUInt32*) &mHeader;
-	KUInt32* end = (KUInt32*) (((KUIntPtr) cursor) + sizeof(SHeader));
-	do
+	if constexpr (std::endian::native == std::endian::little)
 	{
-		*cursor = UByteSex::Swap(*cursor);
-		cursor++;
-	} while (cursor < end);
-#endif
+		KUInt32* cursor = (KUInt32*) &mHeader;
+		KUInt32* end = (KUInt32*) (((KUIntPtr) cursor) + sizeof(SHeader));
+		do
+		{
+			*cursor = UByteSex::Swap(*cursor);
+			cursor++;
+		} while (cursor < end);
+	}
 }
 
 // -------------------------------------------------------------------------- //

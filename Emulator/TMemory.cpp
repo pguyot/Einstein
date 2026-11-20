@@ -25,6 +25,7 @@
 #include "Emulator/Log/KPrintf.h"
 
 // POSIX & ANSI C
+#include <bit>
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -336,7 +337,7 @@ TMemory::FastReadBuffer(VAddr inAddress, KUInt32 inAmount, KUInt8* outBuffer)
 		do
 		{
 			KUInt32 amount = min(alignedLen, maxCopy);
-#if TARGET_RT_LITTLE_ENDIAN
+			if constexpr (std::endian::native == std::endian::little)
 			{
 				KUInt32 nbWords = amount / 4;
 				KUInt32* dstCrsr = (KUInt32*) dst;
@@ -345,10 +346,10 @@ TMemory::FastReadBuffer(VAddr inAddress, KUInt32 inAmount, KUInt8* outBuffer)
 				{
 					*dstCrsr++ = UByteSex_ToBigEndian(*srcCrsr++);
 				}
+			} else
+			{
+				(void) ::memcpy(dst, pointer, amount);
 			}
-#else
-			(void) ::memcpy(dst, pointer, amount);
-#endif
 			alignedLen -= amount;
 			len -= amount;
 			dst += amount;
@@ -391,11 +392,7 @@ TMemory::FastReadString(VAddr inAddress, char** outString)
 	char* dst = result;
 	KUInt32 addr = inAddress;
 
-#if TARGET_RT_BIG_ENDIAN
-	const KUInt8* pointer;
-	if ((addr & 0x3) || GetDirectPointerToROMRAM(addr, &pointer))
-	{
-#endif
+	auto readSlow = [&]() -> bool {
 		while (true)
 		{
 			KUInt8 byte = 0;
@@ -427,42 +424,55 @@ TMemory::FastReadString(VAddr inAddress, char** outString)
 				break;
 			}
 		}
-#if TARGET_RT_BIG_ENDIAN
+		return false;
+	};
+
+	if constexpr (std::endian::native == std::endian::big)
+	{
+		const KUInt8* pointer;
+		if ((addr & 0x3) || GetDirectPointerToROMRAM(addr, &pointer))
+		{
+			if (readSlow())
+				return true;
+		} else
+		{
+			KUInt32 base = inAddress & TMemoryConsts::kMMUSmallestPageMask;
+			KUInt32 maxCopy = base - addr + TMemoryConsts::kMMUSmallestPageSize;
+
+			do
+			{
+				KUInt32 amount = min(len, maxCopy);
+				char* last = ::strncpy(dst, (char*) pointer, amount);
+				if (*last == '\0')
+				{
+					break;
+				}
+				len -= amount;
+				if (len == 0)
+				{
+					// Resize.
+					len = 1024;
+					result_len += len;
+					ssize_t offset = dst - result;
+					result = (char*) ::realloc(result, result_len);
+					dst = result + offset;
+				}
+				// Else, amount == maxCopy
+				dst += amount;
+				maxCopy = TMemoryConsts::kMMUSmallestPageSize;
+				addr += amount;
+				if (GetDirectPointerToROMRAM(addr, &pointer))
+				{
+					SetHardwareFault(addr);
+					return true;
+				}
+			} while (true);
+		}
 	} else
 	{
-		KUInt32 base = inAddress & TMemoryConsts::kMMUSmallestPageMask;
-		KUInt32 maxCopy = base - addr + TMemoryConsts::kMMUSmallestPageSize;
-
-		do
-		{
-			KUInt32 amount = min(len, maxCopy);
-			char* last = ::strncpy(dst, (char*) pointer, amount);
-			if (*last == '\0')
-			{
-				break;
-			}
-			len -= amount;
-			if (len == 0)
-			{
-				// Resize.
-				len = 1024;
-				result_len += len;
-				KUInt32 offset = dst - result;
-				result = (char*) ::realloc(result, result_len);
-				dst = result + offset;
-			}
-			// Else, amount == maxCopy
-			dst += amount;
-			maxCopy = TMemoryConsts::kMMUSmallestPageSize;
-			addr += amount;
-			if (GetDirectPointerToROMRAM(addr, &pointer))
-			{
-				SetHardwareFault(addr);
-				return true;
-			}
-		} while (true);
+		if (readSlow())
+			return true;
 	}
-#endif
 
 	*outString = result;
 
@@ -480,11 +490,7 @@ TMemory::FastReadString(VAddr inAddress, KUInt32* ioAmount, char* outString)
 	KUInt32 len = orglen;
 	KUInt32 addr = inAddress;
 
-#if TARGET_RT_BIG_ENDIAN
-	const KUInt8* pointer;
-	if ((addr & 0x3) || GetDirectPointerToROMRAM(addr, &pointer))
-	{
-#endif
+	auto readSlow = [&]() -> bool {
 		// Slower.
 		while (len-- > 0)
 		{
@@ -497,37 +503,50 @@ TMemory::FastReadString(VAddr inAddress, KUInt32* ioAmount, char* outString)
 				break;
 			}
 		}
-#if TARGET_RT_BIG_ENDIAN
+		return false;
+	};
+
+	if constexpr (std::endian::native == std::endian::big)
+	{
+		const KUInt8* pointer;
+		if ((addr & 0x3) || GetDirectPointerToROMRAM(addr, &pointer))
+		{
+			if (readSlow())
+				return true;
+		} else
+		{
+			KUInt32 base = inAddress & TMemoryConsts::kMMUSmallestPageMask;
+			KUInt32 maxCopy = base - addr + TMemoryConsts::kMMUSmallestPageSize;
+
+			do
+			{
+				KUInt32 amount = min(len, maxCopy);
+				char* last = ::strncpy(dst, (char*) pointer, amount);
+				if (*last == '\0')
+				{
+					break;
+				}
+				len -= amount;
+				if (len == 0)
+				{
+					break;
+				}
+				// Else, amount == maxCopy
+				dst += amount;
+				maxCopy = TMemoryConsts::kMMUSmallestPageSize;
+				addr += amount;
+				if (GetDirectPointerToROMRAM(addr, &pointer))
+				{
+					SetHardwareFault(addr);
+					return true;
+				}
+			} while (true);
+		}
 	} else
 	{
-		KUInt32 base = inAddress & TMemoryConsts::kMMUSmallestPageMask;
-		KUInt32 maxCopy = base - addr + TMemoryConsts::kMMUSmallestPageSize;
-
-		do
-		{
-			KUInt32 amount = min(len, maxCopy);
-			char* last = ::strncpy(dst, (char*) pointer, amount);
-			if (*last == '\0')
-			{
-				break;
-			}
-			len -= amount;
-			if (len == 0)
-			{
-				break;
-			}
-			// Else, amount == maxCopy
-			dst += amount;
-			maxCopy = TMemoryConsts::kMMUSmallestPageSize;
-			addr += amount;
-			if (GetDirectPointerToROMRAM(addr, &pointer))
-			{
-				SetHardwareFault(addr);
-				return true;
-			}
-		} while (true);
+		if (readSlow())
+			return true;
 	}
-#endif
 
 	*ioAmount = orglen - len;
 
@@ -578,7 +597,7 @@ TMemory::FastWriteBuffer(VAddr inAddress, KUInt32 inAmount, const KUInt8* inBuff
 		do
 		{
 			KUInt32 amount = min(alignedLen, maxCopy);
-#if TARGET_RT_LITTLE_ENDIAN
+			if constexpr (std::endian::native == std::endian::little)
 			{
 				KUInt32 nbWords = amount / 4;
 				KUInt32* dstCrsr = (KUInt32*) pointer;
@@ -587,10 +606,10 @@ TMemory::FastWriteBuffer(VAddr inAddress, KUInt32 inAmount, const KUInt8* inBuff
 				{
 					*dstCrsr++ = UByteSex_ToBigEndian(*srcCrsr++);
 				}
+			} else
+			{
+				(void) ::memcpy(pointer, src, amount);
 			}
-#else
-			(void) ::memcpy(pointer, src, amount);
-#endif
 			alignedLen -= amount;
 			len -= amount;
 			src += amount;
@@ -631,11 +650,7 @@ TMemory::FastWriteString(VAddr inAddress, KUInt32* ioAmount, const char* inStrin
 	KUInt32 len = orglen;
 	KUInt32 addr = inAddress;
 
-#if TARGET_RT_BIG_ENDIAN
-	KUInt8* pointer;
-	if ((addr & 0x3) || GetDirectPointerToRAM(addr, &pointer))
-	{
-#endif
+	auto writeSlow = [&]() -> bool {
 		// Slower.
 		while (len-- > 0)
 		{
@@ -647,37 +662,50 @@ TMemory::FastWriteString(VAddr inAddress, KUInt32* ioAmount, const char* inStrin
 				break;
 			}
 		}
-#if TARGET_RT_BIG_ENDIAN
+		return false;
+	};
+
+	if constexpr (std::endian::native == std::endian::big)
+	{
+		KUInt8* pointer;
+		if ((addr & 0x3) || GetDirectPointerToRAM(addr, &pointer))
+		{
+			if (writeSlow())
+				return true;
+		} else
+		{
+			KUInt32 base = inAddress & TMemoryConsts::kMMUSmallestPageMask;
+			KUInt32 maxCopy = base - addr + TMemoryConsts::kMMUSmallestPageSize;
+
+			do
+			{
+				KUInt32 amount = min(len, maxCopy);
+				char* last = ::strncpy((char*) pointer, src, amount);
+				if (*last == '\0')
+				{
+					break;
+				}
+				len -= amount;
+				if (len == 0)
+				{
+					break;
+				}
+				// Else, amount == maxCopy
+				src += amount;
+				maxCopy = TMemoryConsts::kMMUSmallestPageSize;
+				addr += amount;
+				if (GetDirectPointerToRAM(addr, &pointer))
+				{
+					SetHardwareFault(addr);
+					return true;
+				}
+			} while (true);
+		}
 	} else
 	{
-		KUInt32 base = inAddress & TMemoryConsts::kMMUSmallestPageMask;
-		KUInt32 maxCopy = base - addr + TMemoryConsts::kMMUSmallestPageSize;
-
-		do
-		{
-			KUInt32 amount = min(len, maxCopy);
-			char* last = ::strncpy((char*) pointer, src, amount);
-			if (*last == '\0')
-			{
-				break;
-			}
-			len -= amount;
-			if (len == 0)
-			{
-				break;
-			}
-			// Else, amount == maxCopy
-			src += amount;
-			maxCopy = TMemoryConsts::kMMUSmallestPageSize;
-			addr += amount;
-			if (GetDirectPointerToRAM(addr, &pointer))
-			{
-				SetHardwareFault(addr);
-				return true;
-			}
-		} while (true);
+		if (writeSlow())
+			return true;
 	}
-#endif
 
 	*ioAmount = orglen - len;
 
@@ -1474,12 +1502,14 @@ TMemory::ReadBP(PAddr inAddress, KUInt8& outByte)
 	//	}
 	if (!(inAddress & TMemoryConsts::kROMEndMask))
 	{
-#if TARGET_RT_LITTLE_ENDIAN
-		// Swap the endianness of the address.
-		outByte = *((KUInt8*) ((KUIntPtr) mROMImagePtr + (inAddress ^ 0x3)));
-#else
-		outByte = *((KUInt8*) ((KUIntPtr) mROMImagePtr + inAddress));
-#endif
+		if constexpr (std::endian::native == std::endian::little)
+		{
+			// Swap the endianness of the address.
+			outByte = *((KUInt8*) ((KUIntPtr) mROMImagePtr + (inAddress ^ 0x3)));
+		} else
+		{
+			outByte = *((KUInt8*) ((KUIntPtr) mROMImagePtr + inAddress));
+		}
 	} else if (inAddress < TMemoryConsts::kFlashBank1)
 	{
 		if (mLog)
@@ -1514,12 +1544,14 @@ TMemory::ReadBP(PAddr inAddress, KUInt8& outByte)
 	} else if (inAddress < mRAMEnd)
 	{
 		// RAM.
-#if TARGET_RT_LITTLE_ENDIAN
-		// Swap the endianness of the address.
-		outByte = *((KUInt8*) (mRAMOffset + (inAddress ^ 0x3)));
-#else
-		outByte = *((KUInt8*) (mRAMOffset + inAddress));
-#endif
+		if constexpr (std::endian::native == std::endian::little)
+		{
+			// Swap the endianness of the address.
+			outByte = *((KUInt8*) (mRAMOffset + (inAddress ^ 0x3)));
+		} else
+		{
+			outByte = *((KUInt8*) (mRAMOffset + inAddress));
+		}
 	} else if (inAddress < TMemoryConsts::kHardwareBase)
 	{
 		if (mLog)
@@ -2428,12 +2460,14 @@ TMemory::WriteBP(PAddr inAddress, KUInt8 inByte)
 		//        }
 
 		// RAM.
-#if TARGET_RT_LITTLE_ENDIAN
-		// Swap the endianness of the address.
-		*((KUInt8*) (mRAMOffset + (inAddress ^ 0x3))) = inByte;
-#else
-		*((KUInt8*) (mRAMOffset + inAddress)) = inByte;
-#endif
+		if constexpr (std::endian::native == std::endian::little)
+		{
+			// Swap the endianness of the address.
+			*((KUInt8*) (mRAMOffset + (inAddress ^ 0x3))) = inByte;
+		} else
+		{
+			*((KUInt8*) (mRAMOffset + inAddress)) = inByte;
+		}
 
 		// Invalidate JIT.
 		mJIT.Invalidate(inAddress);

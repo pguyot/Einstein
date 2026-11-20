@@ -5,6 +5,7 @@ android {
     release
   }
   compileSdkVersion 28
+  ndkVersion '22.1.7171670'
   defaultConfig {
     applicationId 'com.matthiasm.einstein'
     minSdkVersion 19
@@ -12,7 +13,7 @@ android {
     externalNativeBuild {
         cmake {
           arguments '-DANDROID_STL=c++_shared'
-          cppFlags "-std=c++11 -fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
+          cppFlags "-std=c++20 -fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
           cFlags "-fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
           targets 'einstein'
         }
@@ -37,6 +38,7 @@ android {
   externalNativeBuild {
     cmake {
       path 'CMakeLists.txt'
+      version '3.18.1'
     }
   }
 }
