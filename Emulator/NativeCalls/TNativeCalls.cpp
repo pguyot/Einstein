@@ -77,7 +77,7 @@ ffi_type ffi_type_pointer;
 #define DYLIBSUFFIX ".dylib"
 #elif TARGET_OS_LINUX
 #define DYLIBSUFFIX ".so"
-#elif TARGET_OS_BSD
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 #define DYLIBSUFFIX ".so"
 #elif TARGET_OS_CYGWIN
 #define DYLIBSUFFIX ".dll"

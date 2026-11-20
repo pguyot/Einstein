@@ -21,6 +21,7 @@
 // $Id$
 // ==============================
 
+#include <bit>
 #include <K/Defines/KDefinitions.h>
 #include "TX11ScreenManager.h"
 #include <Emulator/TMemory.h>
@@ -730,11 +731,13 @@ TX11ScreenManager::CreatePalette(void)
 	} else
 	{
 		bool swapBytes;
-#if TARGET_RT_LITTLE_ENDIAN
-		swapBytes = mImage->byte_order == MSBFirst;
-#else
-		swapBytes = mImage->byte_order == LSBFirst;
-#endif
+		if constexpr (std::endian::native == std::endian::little)
+		{
+			swapBytes = mImage->byte_order == MSBFirst;
+		} else
+		{
+			swapBytes = mImage->byte_order == LSBFirst;
+		}
 
 		KUInt32 theFullMask = mRedMask | mBlueMask | mGreenMask;
 		if (mDepth == 24)

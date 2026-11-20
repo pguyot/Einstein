@@ -27,6 +27,7 @@
 #include "TPortAudioSoundManager.h"
 
 // ANSI C & POSIX
+#include <bit>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -144,9 +145,10 @@ TPortAudioSoundManager::TPortAudioSoundManager(TLog* inLog /* = nil */) :
 			break;
 		}
 
-#if (kHostMultiplier > 1) || TARGET_RT_LITTLE_ENDIAN
-		mMultiplexedBuffer = (KSInt16*) ::malloc(kMultiplexedBufferSizeInBytes);
-#endif
+		if constexpr ((kHostMultiplier > 1) || (std::endian::native == std::endian::little))
+		{
+			mMultiplexedBuffer = (KSInt16*) ::malloc(kMultiplexedBufferSizeInBytes);
+		}
 	} while (false);
 }
 
@@ -211,43 +213,45 @@ TPortAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 			// KPrintf("Start of inBuffer:\n");
 			// hexdump((void *) inBuffer, 32);
 #endif
-#if (kHostMultiplier > 1) || TARGET_RT_LITTLE_ENDIAN
-			// KPrintf("ScheduleOutput Changing byte order\n");
-			KUInt32 framesCount = inSize / sizeof(KSInt16);
-			KSInt16* multiplexedCursor = mMultiplexedBuffer;
-			KSInt16* bufferCursor = (KSInt16*) inBuffer;
-
-			while (--framesCount)
+			if constexpr ((kHostMultiplier > 1) || (std::endian::native == std::endian::little))
 			{
-				KSInt16 theFrame = *bufferCursor++;
-				*multiplexedCursor++ = UByteSex_FromBigEndian((KUInt16) theFrame);
-#if kHostMultiplier > 1
-				*multiplexedCursor++ = UByteSex_FromBigEndian((KUInt16) theFrame);
-#if kHostMultiplier > 2
-				*multiplexedCursor++ = UByteSex_FromBigEndian((KUInt16) theFrame);
-#if kHostMultiplier > 3
-				*multiplexedCursor++ = UByteSex_FromBigEndian((KUInt16) theFrame);
-#endif
-#endif
-#endif
-			}
-#ifdef DEBUG_SOUND
-			// KPrintf("Start of mMultiplexedBuffer\n");
-			// hexdump((void *) mMultiplexedBuffer, 32);
-#endif
-			// Copy data.
-			mDataMutex->Lock();
-			mOutputBuffer->Produce(
-				mMultiplexedBuffer,
-				inSize * kHostMultiplier);
+				// KPrintf("ScheduleOutput Changing byte order\n");
+				KUInt32 framesCount = inSize / sizeof(KSInt16);
+				KSInt16* multiplexedCursor = mMultiplexedBuffer;
+				KSInt16* bufferCursor = (KSInt16*) inBuffer;
 
-			mDataMutex->Unlock();
-#else
-			// Copy data.
-			mDataMutex->Lock();
-			mOutputBuffer->Produce(inBuffer, inSize);
-			mDataMutex->Unlock();
+				while (--framesCount)
+				{
+					KSInt16 theFrame = *bufferCursor++;
+					*multiplexedCursor++ = UByteSex_FromBigEndian((KUInt16) theFrame);
+#if kHostMultiplier > 1
+					*multiplexedCursor++ = UByteSex_FromBigEndian((KUInt16) theFrame);
+#if kHostMultiplier > 2
+					*multiplexedCursor++ = UByteSex_FromBigEndian((KUInt16) theFrame);
+#if kHostMultiplier > 3
+					*multiplexedCursor++ = UByteSex_FromBigEndian((KUInt16) theFrame);
 #endif
+#endif
+#endif
+				}
+#ifdef DEBUG_SOUND
+				// KPrintf("Start of mMultiplexedBuffer\n");
+				// hexdump((void *) mMultiplexedBuffer, 32);
+#endif
+				// Copy data.
+				mDataMutex->Lock();
+				mOutputBuffer->Produce(
+					mMultiplexedBuffer,
+					inSize * kHostMultiplier);
+
+				mDataMutex->Unlock();
+			} else
+			{
+				// Copy data.
+				mDataMutex->Lock();
+				mOutputBuffer->Produce(inBuffer, inSize);
+				mDataMutex->Unlock();
+			}
 		}
 
 		// Ask for more data.

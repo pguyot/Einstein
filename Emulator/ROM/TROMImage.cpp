@@ -24,6 +24,7 @@
 #include "TROMImage.h"
 
 // ANSI C & POSIX
+#include <bit>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,19 +92,21 @@ TROMImage::CreateImage(const KUInt8* inBuffer)
 
 	// TODO: we can save the time for flipping the Einstein REX if we keep it in the desired byte order already
 
-#if TARGET_RT_LITTLE_ENDIAN
-	// Endian swap it first
-	KUInt32* src = (KUInt32*) inBuffer;
-	KUInt32* dest = (KUInt32*) theImagePtr;
-	KUInt32* end = (KUInt32*) &inBuffer[TMemoryConsts::kROMEnd];
-	do
+	if constexpr (std::endian::native == std::endian::little)
 	{
-		*dest = UByteSex::Swap(*src);
-		++dest;
-	} while (++src < end);
-#else
-	(void) ::memcpy(theImagePtr, inBuffer, TMemoryConsts::kROMEnd);
-#endif
+		// Endian swap it first
+		KUInt32* src = (KUInt32*) inBuffer;
+		KUInt32* dest = (KUInt32*) theImagePtr;
+		KUInt32* end = (KUInt32*) &inBuffer[TMemoryConsts::kROMEnd];
+		do
+		{
+			*dest = UByteSex::Swap(*src);
+			++dest;
+		} while (++src < end);
+	} else
+	{
+		(void) ::memcpy(theImagePtr, inBuffer, TMemoryConsts::kROMEnd);
+	}
 
 	mROMId = ComputeROMId(theImagePtr->fROM, mCRCValid);
 

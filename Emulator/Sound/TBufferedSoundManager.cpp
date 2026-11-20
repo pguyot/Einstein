@@ -25,6 +25,7 @@
 
 // ANSI C & POSIX
 #include <assert.h>
+#include <bit>
 
 // Einstein
 #include "Emulator/TMemory.h"
@@ -40,9 +41,10 @@
 TBufferedSoundManager::TBufferedSoundManager(TLog* inLog /* = nil */) :
 		TSoundManager(inLog)
 {
-#if TARGET_RT_LITTLE_ENDIAN
-	mBuffer = (KUInt8*) ::malloc(kNewtonBufferSize);
-#endif
+	if constexpr (std::endian::native == std::endian::little)
+	{
+		mBuffer = (KUInt8*) ::malloc(kNewtonBufferSize);
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -50,12 +52,10 @@ TBufferedSoundManager::TBufferedSoundManager(TLog* inLog /* = nil */) :
 // -------------------------------------------------------------------------- //
 TBufferedSoundManager::~TBufferedSoundManager(void)
 {
-#if TARGET_RT_LITTLE_ENDIAN
 	if (mBuffer)
 	{
 		::free(mBuffer);
 	}
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -64,37 +64,39 @@ TBufferedSoundManager::~TBufferedSoundManager(void)
 void
 TBufferedSoundManager::ScheduleOutputBuffer(KUInt32 inBufferAddr, KUInt32 inSize)
 {
-#if TARGET_RT_LITTLE_ENDIAN
-	// Copy data (and swap it, too).
-	assert(inSize <= kNewtonBufferSize);
-	if (GetMemory()->FastReadBuffer(inBufferAddr, inSize, mBuffer))
+	if constexpr (std::endian::native == std::endian::little)
 	{
-		if (GetLog())
+		// Copy data (and swap it, too).
+		assert(inSize <= kNewtonBufferSize);
+		if (GetMemory()->FastReadBuffer(inBufferAddr, inSize, mBuffer))
 		{
-			GetLog()->FLogLine(
-				"Couldn't read data from %.8X\n",
-				(unsigned int) inBufferAddr);
+			if (GetLog())
+			{
+				GetLog()->FLogLine(
+					"Couldn't read data from %.8X\n",
+					(unsigned int) inBufferAddr);
+			}
+		} else
+		{
+			ScheduleOutput(mBuffer, inSize);
 		}
 	} else
 	{
-		ScheduleOutput(mBuffer, inSize);
-	}
-#else
-	// Get the pointer directly.
-	KUInt8* thePointer;
-	if (GetMemory()->GetDirectPointerToRAM(inBufferAddr, &thePointer))
-	{
-		if (GetLog())
+		// Get the pointer directly.
+		KUInt8* thePointer;
+		if (GetMemory()->GetDirectPointerToRAM(inBufferAddr, &thePointer))
 		{
-			GetLog()->FLogLine(
-				"Couldn't get direct pointer for %.8X\n",
-				inBufferAddr);
+			if (GetLog())
+			{
+				GetLog()->FLogLine(
+					"Couldn't get direct pointer for %.8X\n",
+					(unsigned int) inBufferAddr);
+			}
+		} else
+		{
+			ScheduleOutput(thePointer, inSize);
 		}
-	} else
-	{
-		ScheduleOutput(thePointer, inSize);
 	}
-#endif
 }
 
 // =========================================================================== //
