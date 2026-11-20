@@ -477,7 +477,7 @@ public:
 	}
 
 	/// Transfer a boolean.
-	void TransferBoolean(Boolean& inByte);
+	void TransferBoolean(bool& inByte);
 
 	/// Transfer a byte.
 	void TransferByte(KUInt8& inByte);
@@ -511,7 +511,7 @@ public:
 	/// value when resetting.
 
 	void
-	TransferBoolean(Boolean& ioValue, Boolean inResetValue)
+	TransferBoolean(bool& ioValue, bool inResetValue)
 	{
 		if (IsResetting())
 			ioValue = inResetValue;

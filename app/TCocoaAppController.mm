@@ -359,8 +359,8 @@ TCocoaAppController ()
 	}
 
 	// Create the screen manager.
-	Boolean fullScreen = [defaults boolForKey:kFullScreenKey] == YES ? true : false;
-	Boolean screenIsLandscape = true;
+	bool fullScreen = [defaults boolForKey:kFullScreenKey] == YES ? true : false;
+	bool screenIsLandscape = true;
 	NSInteger indexScreenDriver = [defaults integerForKey:kScreenDriverKey];
 	if (indexScreenDriver == kCocoaScreenDriverTag)
 	{

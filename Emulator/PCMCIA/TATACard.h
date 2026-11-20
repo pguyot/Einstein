@@ -101,7 +101,7 @@ public:
 	///
 	/// Return false if the image file can't be written.
 	///
-	Boolean
+	bool
 	CanWriteContents(void) override
 	{
 		return mFile && !mReadOnly;

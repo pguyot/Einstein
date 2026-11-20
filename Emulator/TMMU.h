@@ -73,7 +73,7 @@ public:
 	/// \param outOffsetInBank		offset in the bank (address - base).
 	/// \return true if the address couldn't be accessed for reading.
 	///
-	Boolean TranslateInstruction(
+	bool TranslateInstruction(
 		KUInt32 inVAddress,
 		KUInt32* outPAddress);
 
@@ -85,7 +85,7 @@ public:
 	/// \return true if the MMU tables couldn't be accessed for
 	///			reading or if the target address is not accessible.
 	///
-	Boolean TranslateR(KUInt32 inVAddress, KUInt32& outPAddress);
+	bool TranslateR(KUInt32 inVAddress, KUInt32& outPAddress);
 
 	///
 	/// Translate an address using MMU tables for writing.
@@ -95,7 +95,7 @@ public:
 	/// \return true if the MMU tables couldn't be accessed for
 	///			reading or if the target address is not accessible.
 	///
-	Boolean TranslateW(KUInt32 inVAddress, KUInt32& outPAddress);
+	bool TranslateW(KUInt32 inVAddress, KUInt32& outPAddress);
 
 	///
 	/// Enable or disable the MMU.
@@ -103,7 +103,7 @@ public:
 	/// \param inEnableMMU  whether we want to enable the MMU.
 	///
 	void
-	SetMMUEnabled(Boolean inEnableMMU)
+	SetMMUEnabled(bool inEnableMMU)
 	{
 		mMMUEnabled = inEnableMMU;
 		// enable this to get a rough idea how the MMU table looks
@@ -119,7 +119,7 @@ public:
 	///
 	/// \return \c true if the MMU is enabled, \c false otherwise.
 	///
-	Boolean
+	bool
 	IsMMUEnabled(void) const
 	{
 		return mMMUEnabled;
@@ -130,14 +130,14 @@ public:
 	///
 	/// \param inPrivilege  whether we are in a privileged mode.
 	///
-	void SetPrivilege(Boolean inPrivilege);
+	void SetPrivilege(bool inPrivilege);
 
 	///
 	/// Get the current mode of the memory model (privileged or unprivileged)
 	///
 	/// \return true if we are in a privileged mode.
 	///
-	Boolean
+	bool
 	GetPrivilege(void) const
 	{
 		return mCurrentAPMode & kAPMagic_Privileged;
@@ -148,14 +148,14 @@ public:
 	///
 	/// \param inProtection the new protection.
 	///
-	void SetSystemProtection(Boolean inProtection);
+	void SetSystemProtection(bool inProtection);
 
 	///
 	/// Determine if system protection is enabled.
 	///
 	/// \return \c true if the protection is enabled, \c false otherwise.
 	///
-	Boolean
+	bool
 	GetSystemProtection(void) const
 	{
 		return mCurrentAPMode & kAPMagic_System;
@@ -166,14 +166,14 @@ public:
 	///
 	/// \param inProtection the new protection.
 	///
-	void SetROMProtection(Boolean inProtection);
+	void SetROMProtection(bool inProtection);
 
 	///
 	/// Determine if ROM protection is enabled.
 	///
 	/// \return \c true if the protection is enabled, \c false otherwise.
 	///
-	Boolean
+	bool
 	GetROMProtection(void) const
 	{
 		return mCurrentAPMode & kAPMagic_ROM;
@@ -363,7 +363,7 @@ private:
 	TMemory* mMemoryIntf { nullptr };
 
 	/// If the MMU is currently enabled.
-	Boolean mMMUEnabled { false };
+	bool mMMUEnabled { false };
 
 	/// 0-7, SPR
 	KUInt8 mCurrentAPMode { kAPMagic_Privileged };

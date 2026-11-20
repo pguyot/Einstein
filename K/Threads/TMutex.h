@@ -86,7 +86,7 @@ public:
 	/// \return \c true if the mutex is now locked by the caller (call Unlock()
 	/// later), \c false if the mutex is already locked.
 	///
-	Boolean TryLock(void);
+	bool TryLock(void);
 
 private:
 	///

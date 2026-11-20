@@ -67,10 +67,10 @@ TSDLScreenManager::PowerOffScreen(void)
 }
 
 // -------------------------------------------------------------------------- //
-//  * BacklightChanged( Boolean )
+//  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TSDLScreenManager::BacklightChanged(Boolean backlight)
+TSDLScreenManager::BacklightChanged(bool backlight)
 {
 	GetLog()->FLogLine("TNullScreenManager::BacklightChanged(%d)", (int) backlight);
 	dirty_rect_mutex.lock();

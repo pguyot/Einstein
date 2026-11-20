@@ -226,7 +226,7 @@ TWaveSoundManager::StopOutput(void)
 // -------------------------------------------------------------------------- //
 //  * OutputIsRunning( void )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TWaveSoundManager::OutputIsRunning(void)
 {
 	LOG KPrintf("v WAVE isRunning\n");
@@ -237,7 +237,7 @@ TWaveSoundManager::OutputIsRunning(void)
 #endif
 	return wb[0].playing || wb[1].playing;
 	*/
-	Boolean ret = isPlaying;
+	bool ret = isPlaying;
 	LOG KPrintf("^ WAVE isRunning (%d)\n", ret);
 	return ret;
 }

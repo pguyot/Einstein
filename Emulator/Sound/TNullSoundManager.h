@@ -69,12 +69,12 @@ public:
 	///
 	/// Is output running?
 	///
-	virtual Boolean OutputIsRunning(void);
+	virtual bool OutputIsRunning(void);
 
 private:
 	/// \name Variables
 
-	Boolean mOutputIsRunning { false };
+	bool mOutputIsRunning { false };
 };
 
 #endif

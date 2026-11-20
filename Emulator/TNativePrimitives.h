@@ -297,7 +297,7 @@ private:
 	KUInt8 mInputVolume { 0 };
 
 	/// Whether to quit.
-	Boolean mQuit { false };
+	bool mQuit { false };
 
 	/// Output buffer #1: the addr.
 	KUInt32 mSoundOutputBuffer1Addr { 0 };

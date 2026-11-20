@@ -39,8 +39,8 @@ TIOSScreenManager::TIOSScreenManager(
 	TLog* inLog /* = nil */,
 	KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 	KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
-	Boolean inFullScreen /* = false */,
-	Boolean inScreenIsLandscape /* = false */) :
+	bool inFullScreen /* = false */,
+	bool inScreenIsLandscape /* = false */) :
 		TScreenManager(inLog, inPortraitWidth, inPortraitHeight, inFullScreen, inScreenIsLandscape),
 		mView(inView),
 		mController(inCtrl),
@@ -188,10 +188,10 @@ TIOSScreenManager::PowerOffScreen(void)
 }
 
 // -------------------------------------------------------------------------- //
-//  * BacklightChanged( Boolean )
+//  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TIOSScreenManager::BacklightChanged(Boolean inState)
+TIOSScreenManager::BacklightChanged(bool inState)
 {
 	// Redraw the screen.
 	SRect wholeScreen;

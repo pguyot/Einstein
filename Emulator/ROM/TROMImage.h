@@ -129,8 +129,8 @@ public:
 	///						image is only good for finding out which ROM it is
 	///						(the Settings dialog shows that), not for running it.
 	///
-	static TROMImage* LoadROMAndREX(const char* theROMImagePath, Boolean useMonitor, Boolean useExternalERex,
-		Boolean inApplyPatches = true);
+	static TROMImage* LoadROMAndREX(const char* theROMImagePath, bool useMonitor, bool useExternalERex,
+		bool inApplyPatches = true);
 
 protected:
 	///
@@ -225,7 +225,7 @@ private:
 
 	/// CreateImage() applies the patches unless LoadROMAndREX() was asked not
 	/// to (set only while it creates the image).
-	static Boolean sApplyPatches;
+	static bool sApplyPatches;
 };
 
 #endif

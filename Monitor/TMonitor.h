@@ -73,12 +73,12 @@ public:
 	/// Draw screen.
 	/// Return true if the screen was erased.
 	///
-	virtual Boolean DrawScreen();
+	virtual bool DrawScreen();
 
 	///
 	/// Determine if the machine is halted.
 	///
-	Boolean
+	bool
 	IsHalted(void) const
 	{
 		return mHalted;
@@ -87,7 +87,7 @@ public:
 	///
 	/// Was the last screen update showing the "Halted..." screen?
 	///
-	Boolean
+	bool
 	IsLastScreenHalted() const
 	{
 		return mLastScreenHalted;
@@ -97,7 +97,7 @@ public:
 	/// Was the last screen update showing the "Halted..." screen?
 	///
 	void
-	SetLastScreenHalted(Boolean v)
+	SetLastScreenHalted(bool v)
 	{
 		mLastScreenHalted = v;
 	}
@@ -121,13 +121,13 @@ public:
 	/// instead of its contents (see TEmulator::EStateKind).
 	/// \return false if the monitor is busy and the state was not saved.
 	///
-	Boolean RequestSaveState(const char* inPath, Boolean inFastStart = false, Boolean inHaltAfter = false);
+	bool RequestSaveState(const char* inPath, bool inFastStart = false, bool inHaltAfter = false);
 
 	///
 	/// True while a request from RequestSaveState() and friends waits for the
 	/// monitor thread or is being done.
 	///
-	Boolean
+	bool
 	IsStateRequestPending() const
 	{
 		return mStateRequest != kStateRequestNone;
@@ -138,7 +138,7 @@ public:
 	/// IsStateRequestPending() is false; TEmulator::GetLastStateError() says
 	/// why it failed.
 	///
-	Boolean
+	bool
 	LastStateRequestSucceeded() const
 	{
 		return mLastStateRequestOK;
@@ -150,7 +150,7 @@ public:
 	/// cards that changed since it was saved (see TEmulator::LoadState()).
 	/// \return false if the monitor is busy and the state was not loaded.
 	///
-	Boolean RequestLoadState(const char* inPath, Boolean inOverwriteCards = false);
+	bool RequestLoadState(const char* inPath, bool inOverwriteCards = false);
 
 	///
 	/// Check that saving and loading the state is symmetric: save the state
@@ -159,7 +159,7 @@ public:
 	/// Call from the UI thread, see RequestSaveState().
 	/// \return false if the monitor is busy and the check did not run.
 	///
-	Boolean RequestCheckState(const char* inBasePath);
+	bool RequestCheckState(const char* inBasePath);
 
 	///
 	/// Reset the machine (see TEmulator::ResetState()). Call from the UI
@@ -168,7 +168,7 @@ public:
 	/// flash when it boots.
 	/// \return false if the monitor is busy and the machine was not reset.
 	///
-	Boolean RequestReset(Boolean inZAPMemory = false);
+	bool RequestReset(bool inZAPMemory = false);
 
 	///
 	/// Stop the emulator, call inWork on the calling thread while the
@@ -178,7 +178,7 @@ public:
 	/// Call from the UI thread, not from the monitor or emulator thread.
 	/// \return false if a state request is pending; inWork was not called.
 	///
-	Boolean RunWhileHalted(const std::function<void()>& inWork);
+	bool RunWhileHalted(const std::function<void()>& inWork);
 
 	///
 	/// Let a halted emulator run again, for example after
@@ -187,7 +187,7 @@ public:
 	/// monitor is still finishing a request. Call from the UI thread.
 	/// \return false if the monitor did not get there within inTimeoutMS.
 	///
-	Boolean ResumeEmulator(KUInt32 inTimeoutMS = 10000);
+	bool ResumeEmulator(KUInt32 inTimeoutMS = 10000);
 
 	///
 	/// Print help for the available commands.
@@ -237,34 +237,34 @@ public:
 	///
 	/// \return true if /ROMPath/monitorrc was found and run.
 	///
-	Boolean ExecuteStartupScript();
+	bool ExecuteStartupScript();
 
 	///
 	/// Execute a command.
 	///
 	/// \return true if the command was known.
 	///
-	Boolean ExecuteCommand(const char* inCommand);
+	bool ExecuteCommand(const char* inCommand);
 
 	///
 	/// Execute the help command.
 	///
 	/// \return true if the command was known.
 	///
-	Boolean ExecuteHelpCommand(const char* inCommand);
+	bool ExecuteHelpCommand(const char* inCommand);
 
 	///
 	/// Save the current state of the Emulator to a file, as a debug file
 	/// (with the flash) or a fast start file (flash checksum only).
 	/// \return false if the state could not be saved.
 	///
-	Boolean SaveEmulatorState(const char* inFilename = 0L, Boolean inFastStart = false);
+	bool SaveEmulatorState(const char* inFilename = 0L, bool inFastStart = false);
 
 	///
 	/// Read the current emulator state from a file.
 	/// \return false if the state could not be loaded.
 	///
-	Boolean LoadEmulatorState(const char* inFilename = 0L, Boolean inOverwriteCards = false);
+	bool LoadEmulatorState(const char* inFilename = 0L, bool inOverwriteCards = false);
 
 	///
 	/// Save the current state of the Emulator to a file.
@@ -389,7 +389,7 @@ protected:
 	/// \param inBPAddr		address of the breakpoint.
 	/// \return true if the machine should be stopped.
 	///
-	virtual Boolean ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr);
+	virtual bool ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr);
 
 	TEmulator*
 	GetEmulator()
@@ -500,23 +500,23 @@ protected:
 	std::atomic<EStateRequest> mStateRequest { kStateRequestNone }; ///< Pending request for the monitor thread.
 	std::mutex mStateRequestMutex; ///< Held while the UI queues a request, and while the monitor thread sets mHalted after running.
 	std::string mStateRequestPath; ///< File for mStateRequest, set before mStateRequest.
-	Boolean mStateRequestFastStart { false }; ///< Save a fast start file, set before mStateRequest.
-	Boolean mStateRequestHaltAfter { false }; ///< Stay halted after mStateRequest, set before it.
-	Boolean mSaveFastStart { false }; ///< Kind of file for the "save" command, set before kSaveState.
-	Boolean mLoadOverwriteCards { false }; ///< "load overwrite": replace changed card contents, set before kLoadState.
-	Boolean mStateRequestOverwriteCards { false }; ///< Load request may replace changed card contents, set before mStateRequest.
-	Boolean mStateRequestZAPMemory { false }; ///< Reset request is a Brain Wipe, set before mStateRequest.
+	bool mStateRequestFastStart { false }; ///< Save a fast start file, set before mStateRequest.
+	bool mStateRequestHaltAfter { false }; ///< Stay halted after mStateRequest, set before it.
+	bool mSaveFastStart { false }; ///< Kind of file for the "save" command, set before kSaveState.
+	bool mLoadOverwriteCards { false }; ///< "load overwrite": replace changed card contents, set before kLoadState.
+	bool mStateRequestOverwriteCards { false }; ///< Load request may replace changed card contents, set before mStateRequest.
+	bool mStateRequestZAPMemory { false }; ///< Reset request is a Brain Wipe, set before mStateRequest.
 	std::atomic<bool> mLastStateRequestOK { true }; ///< Result of the last save or load request, see LastStateRequestSucceeded().
 
 	/// Hand a save or load request to the monitor thread, or do it right away if halted.
-	Boolean RequestStateTransfer(EStateRequest inRequest, const char* inPath, Boolean inHaltAfter = false);
+	bool RequestStateTransfer(EStateRequest inRequest, const char* inPath, bool inHaltAfter = false);
 
 	/// Save or load the state now. The emulator must not be running.
 	void DoStateTransfer(EStateRequest inRequest, const char* inPath);
 
 	/// Called by the monitor thread when the emulator stopped. Returns true if
 	/// it stopped because of a save or load request, which is now done.
-	Boolean ProcessStateRequest();
+	bool ProcessStateRequest();
 
 	/// Save, load, save again, and compare. The emulator must not be running.
 	void CheckStateRoundTrip(const char* inBasePath);
@@ -526,11 +526,11 @@ protected:
 #else
 	int mSocketPair[2] { -1, -1 }; ///< Socket pair for monitor state changes.
 #endif
-	Boolean mLastScreenHalted { true }; ///< If last screen was halted.
+	bool mLastScreenHalted { true }; ///< If last screen was halted.
 	char* mMonitorStartupScriptPath { nullptr }; ///< path to monitor startup script file
 	char* mROMImageDir { nullptr }; /// < path to the ROM file directory
 
-	Boolean mRunOnStartup { false }; ///< Run the emulation as soon as the monitor starts
+	bool mRunOnStartup { false }; ///< Run the emulation as soon as the monitor starts
 };
 
 #endif

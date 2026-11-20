@@ -167,21 +167,21 @@ public:
 	void LogUDPPacket(KUInt8* data, ssize_t size);
 	// void LogPayload(KUInt8 *data, ssize_t size, const char *d="");
 
-	KUInt16 GetIPv4Checksum(KUInt8* data, ssize_t size, Boolean set = 0);
+	KUInt16 GetIPv4Checksum(KUInt8* data, ssize_t size, bool set = 0);
 	void
 	SetIPv4Checksum(KUInt8* data, ssize_t size)
 	{
 		GetIPv4Checksum(data, size, true);
 	}
 
-	KUInt16 GetTCPChecksum(KUInt8* data, ssize_t size, Boolean set = 0);
+	KUInt16 GetTCPChecksum(KUInt8* data, ssize_t size, bool set = 0);
 	void
 	SetTCPChecksum(KUInt8* data, ssize_t size)
 	{
 		GetTCPChecksum(data, size, true);
 	}
 
-	KUInt16 GetUDPChecksum(KUInt8* data, ssize_t size, Boolean set = 0);
+	KUInt16 GetUDPChecksum(KUInt8* data, ssize_t size, bool set = 0);
 	void
 	SetUDPChecksum(KUInt8* data, ssize_t size)
 	{

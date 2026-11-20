@@ -950,7 +950,7 @@ TFLSettings::loadPreferences()
 	// --- a list of known PCMCIA Cards
 	Fl_Preferences cardlist(pcmcia, "CardList");
 
-	Boolean networkCardFound = false;
+	bool networkCardFound = false;
 	for (int i = 0; i < cardlist.groups(); i++)
 	{
 		Fl_Preferences cardprefs(cardlist, i);

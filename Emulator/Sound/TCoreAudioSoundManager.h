@@ -77,7 +77,7 @@ public:
 	///
 	/// Is output running?
 	///
-	Boolean OutputIsRunning() override;
+	bool OutputIsRunning() override;
 
 	///
 	/// Method called to signal a change in the output volume.

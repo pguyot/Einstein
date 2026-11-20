@@ -293,7 +293,7 @@ TCoreAudioSoundManager::RenderCallback(
 	KUIntPtr available = mOutputBuffer->Consume(
 		ioData->mBuffers[0].mData,
 		amount);
-	Boolean drained = mOutputBuffer->IsEmpty();
+	bool drained = mOutputBuffer->IsEmpty();
 	mDataMutex->Unlock();
 
 	if (available > 0 && drained)
@@ -406,7 +406,7 @@ TCoreAudioSoundManager::StopWhenDrained(void)
 	mRunMutex->Lock();
 	mStopScheduled = false;
 	mDataMutex->Lock();
-	Boolean drained = mOutputBuffer->IsEmpty();
+	bool drained = mOutputBuffer->IsEmpty();
 	mDataMutex->Unlock();
 	// Not if NewtonOS started a sound in the meantime: then the render
 	// callback schedules another stop when that one is played.
@@ -421,7 +421,7 @@ TCoreAudioSoundManager::StopWhenDrained(void)
 // -------------------------------------------------------------------------- //
 //  * OutputIsRunning( void )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TCoreAudioSoundManager::OutputIsRunning(void)
 {
 	return !mOutputBuffer->IsEmpty();

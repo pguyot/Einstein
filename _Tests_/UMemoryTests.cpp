@@ -67,7 +67,7 @@ UMemoryTests::FlashTest(TLog* inLog)
 		inLog->LogLine("A fault occurred writing to flash at bank1+C");
 	}
 
-	Boolean fault = false;
+	bool fault = false;
 	for (index = 0; index < 4; index++)
 	{
 		KUInt32 theWord = theMem.ReadP(TMemoryConsts::kFlashBank1 + (4 * index), fault);

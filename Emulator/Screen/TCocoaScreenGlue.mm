@@ -330,7 +330,7 @@ RotateView(id inView, TScreenManager::EOrientation inScreenOrientation)
 	NSRect theFrame = [theView frame];
 
 	// Compute the new size.
-	Boolean portraitMode = false;
+	bool portraitMode = false;
 	EOrientation theOrientation = kNormal;
 	switch (inScreenOrientation)
 	{

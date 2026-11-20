@@ -152,7 +152,7 @@ TMemory::TMemory(
 // -------------------------------------------------------------------------- //
 //  * GetLaunchSegmentChecksums( PAddr, KUInt32, KUInt32 outChecksums[2] ) const
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::GetLaunchSegmentChecksums(PAddr inStart, KUInt32 inSize, KUInt32 outChecksums[2]) const
 {
 	return mROMImage && mROMImage->GetSegmentChecksums(inStart, inSize, outChecksums);
@@ -220,7 +220,7 @@ TMemory::SetEmulator(TEmulator* inEmulator)
 // -------------------------------------------------------------------------- //
 //  * GetDirectPointerToRAM( VAddr, KUInt8** )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::GetDirectPointerToRAM(VAddr inAddress, KUInt8** outPTR)
 {
 	PAddr theAddress;
@@ -254,7 +254,7 @@ TMemory::GetDirectPointerToRAM(VAddr inAddress, KUInt8** outPTR)
 // -------------------------------------------------------------------------- //
 //  * GetDirectPointerToROMRAM( VAddr, const KUInt8** )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::GetDirectPointerToROMRAM(VAddr inAddress, const KUInt8** outPTR)
 {
 	PAddr theAddress;
@@ -291,7 +291,7 @@ TMemory::GetDirectPointerToROMRAM(VAddr inAddress, const KUInt8** outPTR)
 // -------------------------------------------------------------------------- //
 //  * FastReadBuffer( VAddr, const KUInt8** )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::FastReadBuffer(VAddr inAddress, KUInt32 inAmount, KUInt8* outBuffer)
 {
 	const KUInt8* pointer;
@@ -381,7 +381,7 @@ TMemory::FastReadBuffer(VAddr inAddress, KUInt32 inAmount, KUInt8* outBuffer)
 // -------------------------------------------------------------------------- //
 //  * FastReadString( VAddr, char** )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::FastReadString(VAddr inAddress, char** outString)
 {
 	KUInt32 result_len = 1024;
@@ -471,7 +471,7 @@ TMemory::FastReadString(VAddr inAddress, char** outString)
 // -------------------------------------------------------------------------- //
 //  * FastReadString( VAddr, KUInt32*, char* )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::FastReadString(VAddr inAddress, KUInt32* ioAmount, char* outString)
 {
 	char* dst = outString;
@@ -536,7 +536,7 @@ TMemory::FastReadString(VAddr inAddress, KUInt32* ioAmount, char* outString)
 // -------------------------------------------------------------------------- //
 //  * FastWriteBuffer( VAddr, const KUInt8** )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::FastWriteBuffer(VAddr inAddress, KUInt32 inAmount, const KUInt8* inBuffer)
 {
 	KUInt8* pointer;
@@ -622,7 +622,7 @@ TMemory::FastWriteBuffer(VAddr inAddress, KUInt32 inAmount, const KUInt8* inBuff
 // -------------------------------------------------------------------------- //
 //  * FastWriteString( VAddr, KUInt32*, const char* )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::FastWriteString(VAddr inAddress, KUInt32* ioAmount, const char* inString)
 {
 	const char* src = inString;
@@ -720,7 +720,7 @@ TMemory::ReadInstruction(KUInt32 inBankNumber, KUInt32 inOffsetInBank)
  \param[out] outWord if the read operation was successful, this is set to the value we found
  \return \c true if there was a fault reading this address, and \c false if the operation was successful
  */
-Boolean
+bool
 TMemory::Read(VAddr inAddress, KUInt32& outWord)
 {
 #ifdef _DEBUG
@@ -749,7 +749,7 @@ TMemory::Read(VAddr inAddress, KUInt32& outWord)
 		theAddress = inAddress;
 	}
 
-	Boolean fault = false;
+	bool fault = false;
 	outWord = ReadP(theAddress, fault);
 	if (fault)
 	{
@@ -763,7 +763,7 @@ TMemory::Read(VAddr inAddress, KUInt32& outWord)
 // -------------------------------------------------------------------------- //
 //  * ReadAligned( VAddr, KUInt32& )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::ReadAligned(VAddr inAddress, KUInt32& outWord)
 {
 #ifdef _DEBUG
@@ -792,7 +792,7 @@ TMemory::ReadAligned(VAddr inAddress, KUInt32& outWord)
 		theAddress = inAddress & ~0x03;
 	}
 
-	Boolean fault = false;
+	bool fault = false;
 	outWord = ReadPAligned(theAddress, fault);
 	if (fault)
 	{
@@ -804,10 +804,10 @@ TMemory::ReadAligned(VAddr inAddress, KUInt32& outWord)
 }
 
 // -------------------------------------------------------------------------- //
-//  * ReadP( PAddr, Boolean& )
+//  * ReadP( PAddr, bool& )
 // -------------------------------------------------------------------------- //
 KUInt32
-TMemory::ReadP(PAddr inAddress, Boolean& outFault)
+TMemory::ReadP(PAddr inAddress, bool& outFault)
 {
 	if (!(inAddress & TMemoryConsts::kROMEndMask))
 	{
@@ -1099,10 +1099,10 @@ TMemory::ReadP(PAddr inAddress, Boolean& outFault)
 }
 
 // -------------------------------------------------------------------------- //
-//  * ReadPAligned( PAddr, Boolean& )
+//  * ReadPAligned( PAddr, bool& )
 // -------------------------------------------------------------------------- //
 KUInt32
-TMemory::ReadPAligned(PAddr inAddress, Boolean& outFault)
+TMemory::ReadPAligned(PAddr inAddress, bool& outFault)
 {
 	if (!(inAddress & TMemoryConsts::kROMEndMask))
 	{
@@ -1361,13 +1361,13 @@ TMemory::ReadPAligned(PAddr inAddress, Boolean& outFault)
 }
 
 // -------------------------------------------------------------------------- //
-//  * ReadROMRAMP( PAddr, Boolean& )
+//  * ReadROMRAMP( PAddr, bool& )
 // -------------------------------------------------------------------------- //
 #if !TARGET_OS_MAC
 // inline
 #endif
 KUInt32
-TMemory::ReadROMRAMP(PAddr inAddress, Boolean& outFault)
+TMemory::ReadROMRAMP(PAddr inAddress, bool& outFault)
 {
 	if (!(inAddress & TMemoryConsts::kROMEndMask))
 	{
@@ -1424,7 +1424,7 @@ TMemory::ReadROMRAMP(PAddr inAddress, Boolean& outFault)
 // -------------------------------------------------------------------------- //
 //  * ReadB( VAddr, KUInt8& )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::ReadB(VAddr inAddress, KUInt8& outByte)
 {
 #ifdef _DEBUG
@@ -1464,7 +1464,7 @@ TMemory::ReadB(VAddr inAddress, KUInt8& outByte)
 // -------------------------------------------------------------------------- //
 //  * ReadBP( PAddr, KUInt8& )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::ReadBP(PAddr inAddress, KUInt8& outByte)
 {
 	//	if (inAddress == 0x020237EA)
@@ -1693,7 +1693,7 @@ TMemory::ReadBP(PAddr inAddress, KUInt8& outByte)
 // -------------------------------------------------------------------------- //
 //  * Write( VAddr, KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::Write(VAddr inAddress, KUInt32 inWord)
 {
 #ifdef _DEBUG
@@ -1733,7 +1733,7 @@ TMemory::Write(VAddr inAddress, KUInt32 inWord)
 // -------------------------------------------------------------------------- //
 //  * WriteAligned( VAddr, KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::WriteAligned(VAddr inAddress, KUInt32 inWord)
 {
 #ifdef _DEBUG
@@ -1773,7 +1773,7 @@ TMemory::WriteAligned(VAddr inAddress, KUInt32 inWord)
 // -------------------------------------------------------------------------- //
 //  * WriteP( PAddr, KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::WriteP(PAddr inAddress, KUInt32 inWord)
 {
 	if (inAddress < TMemoryConsts::kRAMStart)
@@ -2034,7 +2034,7 @@ TMemory::WriteP(PAddr inAddress, KUInt32 inWord)
 // -------------------------------------------------------------------------- //
 //  * WritePAligned( PAddr, KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::WritePAligned(PAddr inAddress, KUInt32 inWord)
 {
 	if (inAddress < TMemoryConsts::kRAMStart)
@@ -2285,7 +2285,7 @@ TMemory::WritePAligned(PAddr inAddress, KUInt32 inWord)
 // -------------------------------------------------------------------------- //
 //  * WriteRAMP( PAddr, KUInt32 )
 // -------------------------------------------------------------------------- //
-inline Boolean
+inline bool
 TMemory::WriteRAMP(PAddr inAddress, KUInt32 inWord)
 {
 	if (inAddress < TMemoryConsts::kRAMStart)
@@ -2332,7 +2332,7 @@ TMemory::WriteRAMP(PAddr inAddress, KUInt32 inWord)
 // -------------------------------------------------------------------------- //
 //  * WriteB( VAddr, KUInt8 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::WriteB(VAddr inAddress, KUInt8 inByte)
 {
 #ifdef _DEBUG
@@ -2376,7 +2376,7 @@ TMemory::WriteB(VAddr inAddress, KUInt8 inByte)
 // -------------------------------------------------------------------------- //
 //  * WriteBP( PAddr, KUInt8 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::WriteBP(PAddr inAddress, KUInt8 inByte)
 {
 	if (inAddress < TMemoryConsts::kHighROMEnd)
@@ -2553,7 +2553,7 @@ TMemory::WriteBP(PAddr inAddress, KUInt8 inByte)
 // -------------------------------------------------------------------------- //
 //  * TranslateAndCheckFlashAddress( KUInt32, PAddr*)
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::TranslateAndCheckFlashAddress(KUInt32 inAddress, PAddr* outAddress)
 {
 	PAddr theAddress;
@@ -2587,7 +2587,7 @@ TMemory::TranslateAndCheckFlashAddress(KUInt32 inAddress, PAddr* outAddress)
 // -------------------------------------------------------------------------- //
 //  * WriteToFlash32Bits( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::WriteToFlash32Bits(KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress)
 {
 	PAddr theAddress = 0;
@@ -2636,7 +2636,7 @@ TMemory::WriteToFlash32Bits(KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress)
 // -------------------------------------------------------------------------- //
 //  * WriteToFlash16Bits( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::WriteToFlash16Bits(KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress)
 {
 	PAddr theAddress = 0;
@@ -2693,7 +2693,7 @@ TMemory::WriteToFlash16Bits(KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress)
 // -------------------------------------------------------------------------- //
 //  * EraseFlash( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::EraseFlash(KUInt32 inAddress, KUInt32 inBlockSize)
 {
 	PAddr theAddress = 0;
@@ -2789,18 +2789,18 @@ TMemory::ComputeSerialNumber(const KUInt32 inNewtonID[2])
 // -------------------------------------------------------------------------- //
 //  * ReadBreakpoint( VAddr, KUInt32& )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::ReadBreakpoint(VAddr inAddress, KUInt32& outWord)
 {
 	// Translate the address (priviledged).
-	Boolean savedPrivilege = GetPrivilege();
+	bool savedPrivilege = GetPrivilege();
 	if (!savedPrivilege)
 	{
 		SetPrivilege(true);
 	}
 
 	PAddr theAddress;
-	Boolean theResult = false;
+	bool theResult = false;
 
 	if (IsMMUEnabled())
 	{
@@ -2837,18 +2837,18 @@ TMemory::ReadBreakpoint(VAddr inAddress, KUInt32& outWord)
 // -------------------------------------------------------------------------- //
 //  * SetBreakpoint( VAddr, KUInt16 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::SetBreakpoint(VAddr inAddress, KUInt16 inID)
 {
 	// Translate the address (priviledged).
-	Boolean savedPrivilege = GetPrivilege();
+	bool savedPrivilege = GetPrivilege();
 	if (!savedPrivilege)
 	{
 		SetPrivilege(true);
 	}
 
 	PAddr theAddress;
-	Boolean theResult = false;
+	bool theResult = false;
 
 	if (IsMMUEnabled())
 	{
@@ -2865,7 +2865,7 @@ TMemory::SetBreakpoint(VAddr inAddress, KUInt16 inID)
 		}
 
 		// Iterate on the BP to find it.
-		Boolean weAlreadyHaveIt = false;
+		bool weAlreadyHaveIt = false;
 		SBreakpoint* endBP = &mBreakpoints[mBPCount];
 		SBreakpoint* cursor;
 		for (cursor = mBreakpoints; cursor < endBP; cursor++)
@@ -2883,7 +2883,7 @@ TMemory::SetBreakpoint(VAddr inAddress, KUInt16 inID)
 		}
 
 		// Add it.
-		Boolean fault = false;
+		bool fault = false;
 		KUInt32 originalValue = ReadROMRAMP(theAddress, fault);
 		if (fault)
 		{
@@ -2930,18 +2930,18 @@ TMemory::SetBreakpoint(VAddr inAddress, KUInt16 inID)
 // -------------------------------------------------------------------------- //
 //  * ClearBreakpoint( VAddr )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::ClearBreakpoint(VAddr inAddress)
 {
 	// Translate the address (priviledged).
-	Boolean savedPrivilege = GetPrivilege();
+	bool savedPrivilege = GetPrivilege();
 	if (!savedPrivilege)
 	{
 		SetPrivilege(true);
 	}
 
 	PAddr theAddress;
-	Boolean theResult = false;
+	bool theResult = false;
 
 	if (IsMMUEnabled())
 	{
@@ -3000,18 +3000,18 @@ TMemory::ClearBreakpoint(VAddr inAddress)
 // -------------------------------------------------------------------------- //
 //  * DisableBreakpoint( VAddr )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::DisableBreakpoint(VAddr inAddress)
 {
 	// Translate the address (priviledged).
-	Boolean savedPrivilege = GetPrivilege();
+	bool savedPrivilege = GetPrivilege();
 	if (!savedPrivilege)
 	{
 		SetPrivilege(true);
 	}
 
 	PAddr theAddress;
-	Boolean theResult = false;
+	bool theResult = false;
 
 	if (IsMMUEnabled())
 	{
@@ -3061,18 +3061,18 @@ TMemory::DisableBreakpoint(VAddr inAddress)
 // -------------------------------------------------------------------------- //
 //  * EnableBreakpoint( VAddr )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMemory::EnableBreakpoint(VAddr inAddress)
 {
 	// Translate the address (priviledged).
-	Boolean savedPrivilege = GetPrivilege();
+	bool savedPrivilege = GetPrivilege();
 	if (!savedPrivilege)
 	{
 		SetPrivilege(true);
 	}
 
 	PAddr theAddress;
-	Boolean theResult = false;
+	bool theResult = false;
 
 	if (IsMMUEnabled())
 	{
@@ -3131,7 +3131,7 @@ TMemory::TransferState(TStream* inStream)
 	// (see TEmulator::LoadState). But breakpoints are written into the ROM.
 	// Before loading, remove the current ones; after loading, set the loaded
 	// ones. Breakpoints in RAM are part of the RAM contents.
-	auto WriteROMBreakpoints = [this](Boolean inSetThem) {
+	auto WriteROMBreakpoints = [this](bool inSetThem) {
 		for (KUInt32 indexBP = 0; indexBP < mBPCount; indexBP++)
 		{
 			const SBreakpoint& theBP = mBreakpoints[indexBP];
@@ -3239,7 +3239,7 @@ TMemory::Init(void)
 	mWatchpoints = (struct SWatchpoint*) ::calloc(kMaxWatchpoints, sizeof(struct SWatchpoint));
 }
 
-Boolean
+bool
 TMemory::AddWatchpoint(VAddr inAddr, KUInt8 inMode)
 {
 	// if there is already a wp, replace it
@@ -3262,7 +3262,7 @@ TMemory::AddWatchpoint(VAddr inAddr, KUInt8 inMode)
 	return false;
 }
 
-Boolean
+bool
 TMemory::ClearWatchpoint(VAddr inAddr)
 {
 	// find the wp
@@ -3279,7 +3279,7 @@ TMemory::ClearWatchpoint(VAddr inAddr)
 	return true;
 }
 
-Boolean
+bool
 TMemory::GetWatchpoint(int inIndex, VAddr& outAddress, KUInt8& outMode)
 {
 	if (inIndex >= (int) mWPCount)

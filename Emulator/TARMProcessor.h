@@ -269,7 +269,7 @@ public:
 	///
 	/// \return \c true if there is, \c false otherwise.
 	///
-	Boolean
+	bool
 	IsThereAnyHardwareInterruptAsserted(void) const
 	{
 		return mPendingInterrupts != 0;
@@ -336,72 +336,72 @@ public:
 	/// Inline functions for all tests in the condition field of ARM commands.
 	/// Used in precompiled code.
 	///
-	Boolean
+	bool
 	TestEQ()
 	{
 		return mCPSR_Z;
 	}
-	Boolean
+	bool
 	TestNE()
 	{
 		return !mCPSR_Z;
 	}
-	Boolean
+	bool
 	TestCS()
 	{
 		return mCPSR_C;
 	}
-	Boolean
+	bool
 	TestCC()
 	{
 		return !mCPSR_C;
 	}
-	Boolean
+	bool
 	TestMI()
 	{
 		return mCPSR_N;
 	}
-	Boolean
+	bool
 	TestPL()
 	{
 		return !mCPSR_N;
 	}
-	Boolean
+	bool
 	TestVS()
 	{
 		return mCPSR_V;
 	}
-	Boolean
+	bool
 	TestVC()
 	{
 		return !mCPSR_V;
 	}
-	Boolean
+	bool
 	TestHI()
 	{
 		return ((mCPSR_C) && !(mCPSR_Z));
 	}
-	Boolean
+	bool
 	TestLS()
 	{
 		return (!(mCPSR_C) || (mCPSR_Z));
 	}
-	Boolean
+	bool
 	TestGE()
 	{
 		return (mCPSR_N == mCPSR_V);
 	}
-	Boolean
+	bool
 	TestLT()
 	{
 		return (mCPSR_N != mCPSR_V);
 	}
-	Boolean
+	bool
 	TestGT()
 	{
 		return ((!mCPSR_Z) && (mCPSR_N == mCPSR_V));
 	}
-	Boolean
+	bool
 	TestLE()
 	{
 		return ((mCPSR_Z) || (mCPSR_N != mCPSR_V));
@@ -420,25 +420,25 @@ public:
 	};
 
 	/// N Flag of CPSR.
-	Boolean mCPSR_N { 0 };
+	bool mCPSR_N { 0 };
 
 	/// Z Flag of CPSR.
-	Boolean mCPSR_Z { 0 };
+	bool mCPSR_Z { 0 };
 
 	/// C Flag of CPSR.
-	Boolean mCPSR_C { 0 };
+	bool mCPSR_C { 0 };
 
 	/// V Flag of CPSR.
-	Boolean mCPSR_V { 0 };
+	bool mCPSR_V { 0 };
 
 	/// I Bit of CPSR.
-	Boolean mCPSR_I { 0 };
+	bool mCPSR_I { 0 };
 
 	/// F Bit of CPSR.
-	Boolean mCPSR_F { 0 };
+	bool mCPSR_F { 0 };
 
 	/// T Bit of CPSR.
-	Boolean mCPSR_T { 0 };
+	bool mCPSR_T { 0 };
 
 	/// A copy of R8
 	KUInt32 mR8_Bkup { 0 };

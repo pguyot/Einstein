@@ -380,7 +380,7 @@ iEinsteinViewController ()
 	// When using NIBs, the einsteinView is self.view
 	iEinsteinView* einsteinView = (iEinsteinView*) [self view];
 #endif
-	Boolean isLandscape = (newtonScreenWidth > newtonScreenHeight);
+	bool isLandscape = (newtonScreenWidth > newtonScreenHeight);
 
 	mScreenManager = new TIOSScreenManager(
 		einsteinView,

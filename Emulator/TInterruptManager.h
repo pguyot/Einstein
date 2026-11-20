@@ -209,7 +209,7 @@ public:
 	/// \param inMaskIRQ	don't wake up if the interrupt is an IRQ.
 	/// \param inMaskFIQ	don't wake up if the interrupt is a FIQ.
 	///
-	void WaitUntilInterrupt(Boolean inMaskIRQ, Boolean inMaskFIQ);
+	void WaitUntilInterrupt(bool inMaskIRQ, bool inMaskFIQ);
 
 	///
 	/// Wake the emulator, if it's waiting in the loop.
@@ -497,7 +497,7 @@ private:
 	///
 	/// \return \c true if there is any next interrupt.
 	///
-	Boolean FireTimersAndFindNext(
+	bool FireTimersAndFindNext(
 		KUInt32 inTicks,
 		KUInt32 inNewTicks,
 		KUInt32* outNextMatch);
@@ -595,7 +595,7 @@ private:
 	/// Not saved: loading a state arms it, so an alarm that passed while
 	/// Einstein was quit fires right away, as a sleeping Newton would have
 	/// woken for it.
-	Boolean mAlarmArmed { false };
+	bool mAlarmArmed { false };
 
 	/// The timer thread checks the RTC against the armed alarm when
 	/// mAlarmCheckTicks host ticks (at most a minute) have passed since
@@ -607,7 +607,7 @@ private:
 	/// Arm the RTC alarm if the register is after the RTC, or always if
 	/// inEvenIfPassed. The caller holds mMutex.
 	///
-	void ArmAlarm(Boolean inEvenIfPassed);
+	void ArmAlarm(bool inEvenIfPassed);
 
 	/// Delta with the timer (ticks), newton = host - delta.
 	KUInt32 mTimerDelta { 0 };

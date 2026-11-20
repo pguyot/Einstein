@@ -121,7 +121,7 @@ TAndroidSoundManager::StopOutput(void)
 // -------------------------------------------------------------------------- //
 //  * OutputIsRunning( void )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TAndroidSoundManager::OutputIsRunning(void)
 {
 	return !mOutputBuffer->IsEmpty();

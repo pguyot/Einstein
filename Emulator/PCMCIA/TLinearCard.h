@@ -172,7 +172,7 @@ public:
 	///
 	/// Return false if the image file can't be written.
 	///
-	Boolean CanWriteContents(void) override;
+	bool CanWriteContents(void) override;
 
 	///
 	/// Save or load the state of the flash command state machine.
@@ -287,7 +287,7 @@ private:
 	std::mutex mMutex;
 	std::promise<void>* mPageFlushPromise { nullptr };
 	std::future<void> mPageFlushFuture;
-	std::vector<Boolean> mPageDirty;
+	std::vector<bool> mPageDirty;
 
 	const int kPageSizeShift = 14; // 16kByte pages;
 	const int kPageSize = 1 << kPageSizeShift;

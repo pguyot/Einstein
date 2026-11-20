@@ -69,7 +69,7 @@ public:
 	///
 	/// Return true, if the card is currently inserted
 	///
-	Boolean
+	bool
 	IsInserted()
 	{
 		return (mPCMCIAController != nullptr);
@@ -117,7 +117,7 @@ public:
 	/// Return false if restored contents can't be written to the card's image
 	/// file, for example because it is read-only.
 	///
-	virtual Boolean
+	virtual bool
 	CanWriteContents(void)
 	{
 		return true;

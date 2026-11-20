@@ -143,7 +143,7 @@ T_ROM_PATCH(0x001A71B8, 0x001A973C, 0x0019501C, 0x001A77FC, "CalculateROMREXChec
 		KUInt32 lowBits = 0;
 		for (KUInt32 offset = 0; offset < (theSize & ~3U); offset += 4)
 		{
-			Boolean fault = false;
+			bool fault = false;
 			KUInt32 theWord = theMemory->ReadPAligned(theStart + offset, fault);
 			if (fault)
 				break;
