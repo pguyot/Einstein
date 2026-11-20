@@ -24,6 +24,7 @@
 #undef DEBUG_LOG
 
 #include <K/Defines/KDefinitions.h>
+#include "Emulator/Log/KPrintf.h"
 #include "TWaveSoundManager.h"
 
 // ANSI C & POSIX

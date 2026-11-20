@@ -29,6 +29,7 @@ static constexpr int kTxMicrosecondsPerByte = 90; // Newton to server
 static constexpr int kRxMicrosecondsPerByte = 90; // server to Newton
 
 #include "TSerialPortDriverTcpClient.h"
+#include "Emulator/Log/KPrintf.h"
 #include "app/TPathHelper.h"
 
 // POSIX

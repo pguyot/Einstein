@@ -176,6 +176,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
  */
 
 #include <K/Defines/KDefinitions.h>
+#include "Emulator/Log/KPrintf.h"
 
 #include "TFLApp.h"
 #include "TFLAppUI.h"

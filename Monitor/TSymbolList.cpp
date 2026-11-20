@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TSymbolList.h"
+#include "Emulator/Log/KPrintf.h"
 
 #include "UDisasm.h"
 

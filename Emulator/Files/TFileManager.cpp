@@ -22,6 +22,7 @@
 // ==============================
 
 #include "Emulator/Files/TFileManager.h"
+#include "Emulator/Log/KPrintf.h"
 
 // Einstein
 #include "Emulator/TMemory.h"

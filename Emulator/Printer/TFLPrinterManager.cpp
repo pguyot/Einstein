@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TFLPrinterManager.h"
+#include "Emulator/Log/KPrintf.h"
 
 #include "Emulator/TMemory.h"
 

@@ -22,6 +22,7 @@
 // ==============================
 
 #include "Emulator/TMemory.h"
+#include "Emulator/Log/KPrintf.h"
 
 // POSIX & ANSI C
 #include <errno.h>

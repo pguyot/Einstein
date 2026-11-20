@@ -89,6 +89,48 @@ TLog::FLogLine(const char* inFormat, ...)
 	}
 }
 
+#if defined(_DEBUG) && defined(_MSC_VER)
+
+#include "Emulator/Log/KPrintf.h"
+
+#include <cstdarg>
+#include <cstdlib>
+#include <mutex>
+#include <windows.h>
+
+void
+KPrintf(const char* format, ...)
+{
+	static char* textbuffer = nullptr;
+	static int textbuffersize = 0;
+	static std::mutex mutex;
+
+	std::lock_guard<std::mutex> lock(mutex);
+
+	if (textbuffersize == 0)
+	{
+		textbuffersize = 1023;
+		textbuffer = static_cast<char*>(std::malloc(textbuffersize + 1U));
+	}
+
+	va_list args;
+	va_start(args, format);
+	int ret = std::vsnprintf(textbuffer, textbuffersize + 1U, format, args);
+	va_end(args);
+	if (ret > textbuffersize)
+	{
+		textbuffersize = ret + 1023;
+		std::free(textbuffer);
+		textbuffer = static_cast<char*>(std::malloc(textbuffersize + 1U));
+		va_start(args, format);
+		(void) std::vsnprintf(textbuffer, textbuffersize + 1U, format, args);
+		va_end(args);
+	}
+	OutputDebugStringA(textbuffer);
+}
+
+#endif
+
 // ============================================================== //
 // Unix will self-destruct in five seconds... 4... 3... 2... 1... //
 // ============================================================== //

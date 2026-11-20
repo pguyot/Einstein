@@ -23,6 +23,7 @@
 // ==============================
 
 #include "TLinearCard.h"
+#include "Emulator/Log/KPrintf.h"
 
 // Einstein
 #include "Emulator/TEmulator.h"

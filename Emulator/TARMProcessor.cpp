@@ -22,6 +22,7 @@
 // ==============================
 
 #include "Emulator/TARMProcessor.h"
+#include "Emulator/Log/KPrintf.h"
 
 // POSIX
 #include <signal.h>

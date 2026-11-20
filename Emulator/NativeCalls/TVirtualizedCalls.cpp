@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TVirtualizedCalls.h"
+#include "Emulator/Log/KPrintf.h"
 #include "TVirtualizedCallsPatches.h"
 
 // Einstein

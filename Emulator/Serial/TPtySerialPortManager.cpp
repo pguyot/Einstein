@@ -29,6 +29,7 @@ static constexpr int kTxMicrosecondsPerByte = 90; // Newton to pseudo terminal
 static constexpr int kRxMicrosecondsPerByte = 90; // pseudo terminal to Newton
 
 #include "TPtySerialPortManager.h"
+#include "Emulator/Log/KPrintf.h"
 #include "app/TPathHelper.h"
 
 // POSIX
