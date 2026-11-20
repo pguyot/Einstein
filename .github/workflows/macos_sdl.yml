@@ -1,0 +1,91 @@
+name: CI macOS (SDL)
+
+on:
+  workflow_dispatch:
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  BUILD_TYPE: Release
+  MACOSX_SDK_VERSION: "14.5"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS-arm64-cross
+            os: ubuntu-latest
+            arch: arm64
+            deployment_target: "11.0"
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build clang lld llvm xz-utils curl file
+
+    - name: Download macOS SDK
+      run: |
+        SDK_DIR="${{ runner.temp }}/macosx-sdk"
+        mkdir -p "$SDK_DIR"
+        curl -fsSL "https://github.com/joseluisq/macosx-sdks/releases/download/${{ env.MACOSX_SDK_VERSION }}/MacOSX${{ env.MACOSX_SDK_VERSION }}.sdk.tar.xz" \
+          | tar -xJf - -C "$SDK_DIR"
+        SDK_PATH=$(find "$SDK_DIR" -maxdepth 1 -type d -name 'MacOSX*.sdk' | head -n 1)
+        test -n "$SDK_PATH"
+        echo "MACOSX_SDK=$SDK_PATH" >> "$GITHUB_ENV"
+
+    - name: Get sources
+      uses: actions/checkout@v7
+
+    - name: Configure Einstein
+      run: |
+        cmake -S . -B _Build_/SDL -G Ninja \
+          -D CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -D CMAKE_TOOLCHAIN_FILE=cmake/toolchain-macos-cross.cmake \
+          -D CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+          -D CMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.deployment_target }} \
+          -D CMAKE_OSX_SYSROOT="$MACOSX_SDK" \
+          -D EINSTEIN_FLTK_FRONTEND=OFF \
+          -D EINSTEIN_SDL3_FRONTEND=ON
+
+    - name: Compile Einstein
+      run: |
+        cmake --build _Build_/SDL --target Einstein
+
+    - name: Verify Mach-O binary
+      run: |
+        BIN="_Build_/SDL/Einstein.app/Contents/MacOS/Einstein"
+        test -x "$BIN"
+        FILE_INFO=$(file -b "$BIN")
+        echo "$FILE_INFO"
+        echo "$FILE_INFO" | grep -Fq "Mach-O 64-bit"
+        echo "$FILE_INFO" | grep -Fq "executable"
+        case "${{ matrix.arch }}" in
+          arm64)  EXPECTED_CPUTYPE="ARM64" ;;
+          x86_64) EXPECTED_CPUTYPE="X86_64" ;;
+          *)      echo "Unsupported matrix arch: ${{ matrix.arch }}"; exit 1 ;;
+        esac
+        echo "$FILE_INFO" | grep -Fq "${{ matrix.arch }}"
+        HEADER_INFO=$(llvm-objdump --macho --private-header "$BIN")
+        echo "$HEADER_INFO"
+        echo "$HEADER_INFO" | grep -Fq "MH_MAGIC_64"
+        echo "$HEADER_INFO" | grep -Fq "$EXPECTED_CPUTYPE"
+        echo "$HEADER_INFO" | grep -Fq "EXECUTE"
+
+    - name: Archive
+      if: github.event_name != 'pull_request'
+      run: |
+        mkdir -p artifacts
+        tar czf artifacts/Einstein.app.tgz -C _Build_/SDL Einstein.app
+
+    - name: Upload Artifact
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v7
+      with:
+        name: Einstein-SDL-${{ matrix.name }}
+        path: artifacts/Einstein.app.tgz
