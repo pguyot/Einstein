@@ -7,6 +7,7 @@ list ( APPEND cmake_sources
 )
 
 list ( APPEND common_sources
+	Emulator/Log/KPrintf.h
 	Emulator/Log/TBufferLog.cpp
 	Emulator/Log/TBufferLog.h
 	Emulator/Log/TFileLog.cpp

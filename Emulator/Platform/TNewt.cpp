@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TNewt.h"
+#include "Emulator/Log/KPrintf.h"
 
 // ANSI C & POSIX
 #include <stdarg.h>

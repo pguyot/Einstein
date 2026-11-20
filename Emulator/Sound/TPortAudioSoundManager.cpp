@@ -23,6 +23,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
+#include "Emulator/Log/KPrintf.h"
 #include "TPortAudioSoundManager.h"
 
 // ANSI C & POSIX

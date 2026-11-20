@@ -22,6 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
+#include "Emulator/Log/KPrintf.h"
 #include "TFLScreenManager.h"
 
 // FLTK interface

@@ -29,6 +29,7 @@ static constexpr int kTxMicrosecondsPerByte = 90; // Newton to sending pipe
 static constexpr int kRxMicrosecondsPerByte = 90; // receiving pipe to Newton
 
 #include "TPipesSerialPortManager.h"
+#include "Emulator/Log/KPrintf.h"
 #include "app/TPathHelper.h"
 
 // POSIX

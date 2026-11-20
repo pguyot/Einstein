@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TInterruptManager.h"
+#include "Emulator/Log/KPrintf.h"
 #include "Emulator/TARMProcessor.h"
 
 // POSIX & ANSI C

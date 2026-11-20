@@ -40,6 +40,7 @@
 #if !TARGET_OS_WIN32
 #include <sys/time.h>
 #endif
+#include <cstdio>
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
@@ -144,7 +145,9 @@ KSInt32 TFiber::Run(KSInt32 inReason, void* inUserData)
 {
 	if (mState != kStopped)
 	{
-		KPrintf("ERROR in TFiber: Run() called, but fiber isn't stopped.\n");
+#ifdef _DEBUG
+		std::fprintf(stderr, "ERROR in TFiber: Run() called, but fiber isn't stopped.\n");
+#endif
 		return -1;
 	}
 	mReason = inReason;
@@ -187,7 +190,9 @@ TFiber::Suspend(KSInt32 inReason)
 {
 	if (mState != kRunning)
 	{
-		KPrintf("ERROR in TFiber: Suspend() called, but fiber isn't running.\n");
+#ifdef _DEBUG
+		std::fprintf(stderr, "ERROR in TFiber: Suspend() called, but fiber isn't running.\n");
+#endif
 		return -1;
 	}
 	mState = kSuspended;
@@ -225,7 +230,9 @@ TFiber::Resume(KSInt32 inReason)
 {
 	if (mState != kSuspended)
 	{
-		KPrintf("ERROR in TFiber: Resume() called, but fiber isn't suspended.\n");
+#ifdef _DEBUG
+		std::fprintf(stderr, "ERROR in TFiber: Resume() called, but fiber isn't suspended.\n");
+#endif
 		return -1;
 	}
 	mState = kRunning;
@@ -355,7 +362,9 @@ TFiber::Abort(KSInt32 inReason)
 {
 	if (!IsSuspended())
 	{
-		KPrintf("ERROR in TFiber: Abort() called, but fiber isn't suspended.\n");
+#ifdef _DEBUG
+		std::fprintf(stderr, "ERROR in TFiber: Abort() called, but fiber isn't suspended.\n");
+#endif
 		return;
 	}
 	mReason = inReason;

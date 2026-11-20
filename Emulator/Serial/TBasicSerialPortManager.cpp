@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TBasicSerialPortManager.h"
+#include "Emulator/Log/KPrintf.h"
 #include "app/TPathHelper.h"
 #include <K/Streams/TStream.h>
 

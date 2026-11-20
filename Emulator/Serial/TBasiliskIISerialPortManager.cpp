@@ -29,6 +29,7 @@ static constexpr int kTxMicrosecondsPerByte = 90; // Newton to BasiliskII
 static constexpr int kRxMicrosecondsPerByte = 90; // BasiliskII to Newton
 
 #include "TBasiliskIISerialPortManager.h"
+#include "Emulator/Log/KPrintf.h"
 #include "app/TPathHelper.h"
 
 // POSIX

@@ -40,6 +40,7 @@
  */
 
 #include "TSerialPorts.h"
+#include "Emulator/Log/KPrintf.h"
 
 // POSIX
 #include <cassert>

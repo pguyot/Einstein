@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TPlatformManager.h"
+#include "Emulator/Log/KPrintf.h"
 
 // ANSI C & POSIX
 #include <stdio.h>

@@ -18,6 +18,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
+#include "Emulator/Log/KPrintf.h"
 
 #include "Emulator/JIT/JIT.h"
 

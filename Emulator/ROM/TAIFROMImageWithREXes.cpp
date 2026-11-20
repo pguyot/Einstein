@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TAIFROMImageWithREXes.h"
+#include "Emulator/Log/KPrintf.h"
 
 // ANSI C & POSIX
 #include <fcntl.h>

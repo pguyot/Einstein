@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TPCMCIAController.h"
+#include "Emulator/Log/KPrintf.h"
 
 // ANSI C & POSIX
 #include <assert.h>

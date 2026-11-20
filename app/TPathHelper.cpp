@@ -7,6 +7,7 @@
 //
 
 #include "TPathHelper.h"
+#include "Emulator/Log/KPrintf.h"
 
 #include <K/Defines/KDefinitions.h>
 

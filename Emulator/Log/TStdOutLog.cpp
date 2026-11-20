@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TStdOutLog.h"
+#include "Emulator/Log/KPrintf.h"
 
 #include <stdio.h>
 

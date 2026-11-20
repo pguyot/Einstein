@@ -22,6 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
+#include "Emulator/Log/KPrintf.h"
 #include "Emulator/NativeCalls/TNativeCalls.h"
 
 #if TARGET_OS_ANDROID || TARGET_OS_WIN32
