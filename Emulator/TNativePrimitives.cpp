@@ -381,7 +381,7 @@ TNativePrimitives::ExecuteFlashDriverNative(KUInt32 inInstruction)
 			// MP2x00US			0001E3BC	0001E3D4
 			// EM300			0001E168	0001E180
 			// Watson			0001E3BC	0001E3D4
-			Boolean is32bits = (virtualTable == 0x0001E3D4)
+			bool is32bits = (virtualTable == 0x0001E3D4)
 				|| (virtualTable == 0x0001E3E0)
 				|| (virtualTable == 0x0001E180);
 #if debugFlash
@@ -396,7 +396,7 @@ TNativePrimitives::ExecuteFlashDriverNative(KUInt32 inInstruction)
 					is32bits ? "32bits" : "16bits");
 			}
 #endif
-			Boolean theResult;
+			bool theResult;
 			if (is32bits)
 			{
 				theResult = mMemory->WriteToFlash32Bits(
@@ -435,7 +435,7 @@ TNativePrimitives::ExecuteFlashDriverNative(KUInt32 inInstruction)
 			// MP2x00US			0001E3BC	0001E3D4
 			// EM300			0001E168	0001E180
 			// Watson			0001E3BC	0001E3D4
-			Boolean is32bits = (virtualTable == 0x0001E3D4)
+			bool is32bits = (virtualTable == 0x0001E3D4)
 				|| (virtualTable == 0x0001E3E0)
 				|| (virtualTable == 0x0001E180);
 
@@ -448,7 +448,7 @@ TNativePrimitives::ExecuteFlashDriverNative(KUInt32 inInstruction)
 					is32bits ? "32bits" : "16bits");
 			}
 #endif
-			Boolean theResult;
+			bool theResult;
 			if (is32bits)
 			{
 				theResult = mMemory->EraseFlash(
@@ -567,7 +567,7 @@ TNativePrimitives::ExecuteFlashDriverNative(KUInt32 inInstruction)
 					(unsigned int) mProcessor->GetRegister(2));
 			}
 #endif
-			Boolean theResult = mMemory->EraseFlash(
+			bool theResult = mMemory->EraseFlash(
 				(unsigned int) mProcessor->GetRegister(1),
 				(unsigned int) mProcessor->GetRegister(2));
 
@@ -890,7 +890,7 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 			{
 				KUInt32 theWiredAddress;
 				(void) mMemory->TranslateW(mProcessor->GetRegister(1), theWiredAddress);
-				Boolean gotSomeEvent = mPlatformManager->GetNextEvent(theWiredAddress);
+				bool gotSomeEvent = mPlatformManager->GetNextEvent(theWiredAddress);
 				mProcessor->SetRegister(0, gotSomeEvent);
 			}
 			break;
@@ -2008,7 +2008,7 @@ TNativePrimitives::ExecuteTabletDriverNative(KUInt32 inInstruction)
 				//				mEmulator->BreakInMonitor();
 				KUInt32 theSampleRecord = 0;
 				KUInt32 theSampleTime = 0;
-				Boolean gotSomeSample = mScreenManager->GetSample(&theSampleRecord, &theSampleTime);
+				bool gotSomeSample = mScreenManager->GetSample(&theSampleRecord, &theSampleTime);
 				if (gotSomeSample)
 				{
 					(void) mMemory->Write(
@@ -3354,7 +3354,7 @@ TNativePrimitives::ExecutePrinterDriverNative(KUInt32 inInstruction)
 			mProcessor->SetRegister(0, ret);
 			break;
 
-		case 0x08: // void PDCancelJob(DRIVERCLASSNAME *self, Boolean asyncCancel);
+		case 0x08: // void PDCancelJob(DRIVERCLASSNAME *self, bool asyncCancel);
 			if (LOG_PRINTER)
 			{
 				mLog->LogLine("void PDCancelJob(DRIVERCLASSNAME *self, Boolean asyncCancel);");

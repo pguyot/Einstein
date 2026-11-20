@@ -231,7 +231,7 @@ TNetworkManager::LogPacket(KUInt8* d, ssize_t n)
 }
 
 KUInt16
-TNetworkManager::GetUDPChecksum(KUInt8* d, ssize_t n, Boolean set)
+TNetworkManager::GetUDPChecksum(KUInt8* d, ssize_t n, bool set)
 {
 	KUInt32 s = 0;
 	KUInt16 UDPLength = n - 34;
@@ -267,7 +267,7 @@ TNetworkManager::GetUDPChecksum(KUInt8* d, ssize_t n, Boolean set)
 }
 
 KUInt16
-TNetworkManager::GetTCPChecksum(KUInt8* d, ssize_t n, Boolean set)
+TNetworkManager::GetTCPChecksum(KUInt8* d, ssize_t n, bool set)
 {
 	KUInt32 s = 0;
 	KUInt16 TCPLength = n - 34;
@@ -303,7 +303,7 @@ TNetworkManager::GetTCPChecksum(KUInt8* d, ssize_t n, Boolean set)
 }
 
 KUInt16
-TNetworkManager::GetIPv4Checksum(KUInt8* d, ssize_t n, Boolean set)
+TNetworkManager::GetIPv4Checksum(KUInt8* d, ssize_t n, bool set)
 {
 	(void) n;
 	(void) set;

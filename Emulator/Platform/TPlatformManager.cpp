@@ -131,10 +131,10 @@ TPlatformManager::GetVersion()
 // -------------------------------------------------------------------------- //
 //  * GetNextEvent( KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TPlatformManager::GetNextEvent(KUInt32 outEventPAddr)
 {
-	Boolean theResult = false;
+	bool theResult = false;
 
 	mMutex->Lock();
 
@@ -192,10 +192,10 @@ TPlatformManager::GetNextEvent(KUInt32 outEventPAddr)
 // -------------------------------------------------------------------------- //
 //  * DisposeBuffer( KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TPlatformManager::DisposeBuffer(KUInt32 inID)
 {
-	Boolean theResult = false;
+	bool theResult = false;
 
 	mMutex->Lock();
 
@@ -229,14 +229,14 @@ TPlatformManager::DisposeBuffer(KUInt32 inID)
 // -------------------------------------------------------------------------- //
 //  * CopyBufferData( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TPlatformManager::CopyBufferData(
 	KUInt32 inID,
 	KUInt32 outVAddress,
 	KUInt32 inOffset,
 	KUInt32 inAmount)
 {
-	Boolean theResult = false;
+	bool theResult = false;
 
 	mMutex->Lock();
 
@@ -400,7 +400,7 @@ TPlatformManager::InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard)
 	if (!controller)
 		return -1;
 
-	Boolean doPause = (controller->CurrentCard() != nullptr) && (inCard != nullptr);
+	bool doPause = (controller->CurrentCard() != nullptr) && (inCard != nullptr);
 
 	if (controller->CurrentCard())
 	{
@@ -549,7 +549,7 @@ TPlatformManager::TransferState(TStream* inStream)
 	// Power state, and the locks shared with the platform driver in NewtonOS.
 	// A reset powers on, empties the queues, and locks the queue until
 	// NewtonOS finished booting again, as at startup.
-	Boolean thePowerOn = mPowerOn;
+	bool thePowerOn = mPowerOn;
 	inStream->TransferBoolean(thePowerOn, true);
 	inStream->TransferBoolean(mQueuePreLock, false);
 	inStream->TransferInt32BE(mQueueLockCount, 0);
@@ -705,11 +705,11 @@ TPlatformManager::UnlockQueueBootLock()
 // -------------------------------------------------------------------------- //
 //  * IsQueueBootLocked()
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TPlatformManager::IsQueueBootLocked() const
 {
 	mMutex->Lock();
-	Boolean locked = (mQueueBootLock != 0);
+	bool locked = (mQueueBootLock != 0);
 	mMutex->Unlock();
 	return locked;
 }

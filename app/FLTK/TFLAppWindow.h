@@ -52,7 +52,7 @@ public:
 	int handle(int event) override;
 
 private:
-	Boolean mMouseHidden = false;
+	bool mMouseHidden = false;
 };
 
 #endif // T_FL_APP_WINDOW_H

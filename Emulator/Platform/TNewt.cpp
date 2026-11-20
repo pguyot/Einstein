@@ -388,7 +388,7 @@ TNewt::MakeSymbol(const char* txt)
 /**
  Return true if the Ref is a floating point value.
  */
-Boolean
+bool
 TNewt::RefIsReal(NewtRef r)
 {
 	// TODO: duplicating code!
@@ -523,7 +523,7 @@ TNewt::GetFrameSlot(RefArg frame, RefArg symbol)
 /**
  Return true if the Ref is an integer.
  */
-Boolean
+bool
 TNewt::RefIsInt(NewtRef r)
 {
 	return ((r & 3) == 0);
@@ -551,7 +551,7 @@ TNewt::MakeInt(KSInt32 v)
 /**
  Return true, if the Ref is an NSSymbol.
  */
-Boolean
+bool
 TNewt::RefIsSymbol(NewtRef r)
 {
 	if (!TNewt::RefIsPointer(r))
@@ -571,7 +571,7 @@ TNewt::RefIsSymbol(NewtRef r)
 /**
  Copy the name of a symbol into a buffer in host space.
  */
-Boolean
+bool
 TNewt::SymbolToCString(NewtRef r, char* buf, int bufSize)
 {
 	*buf = 0;
@@ -599,10 +599,10 @@ TNewt::SymbolToCString(NewtRef r, char* buf, int bufSize)
 /**
  Copy the name of a symbol and convert it to all lower case characters.
  */
-Boolean
+bool
 TNewt::SymbolToLowerCaseCString(NewtRef r, char* buf, int size)
 {
-	Boolean ret;
+	bool ret;
 	if ((ret = SymbolToCString(r, buf, size)))
 	{
 		int strSize = (int) strlen(buf);
@@ -615,7 +615,7 @@ TNewt::SymbolToLowerCaseCString(NewtRef r, char* buf, int size)
 /**
  Return true if the Ref is a utf16 string.
  */
-Boolean
+bool
 TNewt::RefIsString(NewtRef r)
 {
 	if (!TNewt::RefIsPointer(r))
@@ -651,7 +651,7 @@ TNewt::RefStringLength(NewtRef r)
 }
 
 // Return a string in utf-8
-Boolean
+bool
 TNewt::RefToString(NewtRef r, char* buf, int bufSize)
 {
 	*buf = 0;
@@ -678,7 +678,7 @@ TNewt::RefToString(NewtRef r, char* buf, int bufSize)
 /**
  Return true if the Ref is a pointer into NewtonOS memeory.
  */
-Boolean
+bool
 TNewt::RefIsPointer(NewtRef r)
 {
 	return ((((KUInt32) r) & 3) == 1);
@@ -732,7 +732,7 @@ TNewt::MakePointer(KUInt32 r)
 /**
  Return true if the Ref is an array
  */
-Boolean
+bool
 TNewt::RefIsArray(NewtRef r)
 {
 	if (!TNewt::RefIsPointer(r))
@@ -746,7 +746,7 @@ TNewt::RefIsArray(NewtRef r)
 /**
  Return true if the Ref is a frame.
  */
-Boolean
+bool
 TNewt::RefIsFrame(NewtRef r)
 {
 	if (!TNewt::RefIsPointer(r))
@@ -760,7 +760,7 @@ TNewt::RefIsFrame(NewtRef r)
 /**
  Return true if the Ref is a frame.
  */
-Boolean
+bool
 TNewt::RefIsBinary(NewtRef r)
 {
 	if (!TNewt::RefIsPointer(r))
@@ -801,7 +801,7 @@ TNewt::ThrowBadTypeWithFrameData(long err, RefArg var)
 /**
  Create a RefVar from scratch. Not for the casual coder.
  */
-TNewt::RefVar::RefVar(KUInt32 inRefHandle, Boolean inAllocated) :
+TNewt::RefVar::RefVar(KUInt32 inRefHandle, bool inAllocated) :
 		mRefHandle(inRefHandle), mAllocated(inAllocated)
 {
 }

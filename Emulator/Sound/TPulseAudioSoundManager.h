@@ -77,7 +77,7 @@ public:
 	///
 	/// Is output running?
 	///
-	Boolean OutputIsRunning(void) override;
+	bool OutputIsRunning(void) override;
 
 	///
 	/// Method called to signal a change in the output volume.
@@ -116,7 +116,7 @@ private:
 	void PAStreamUnderflowCallback(pa_stream* s, pa_threaded_mainloop* mainloop);
 
 	void PAStreamWriteCallback(pa_stream* s, unsigned int requested_bytes);
-	void PAStreamWriteQueuedOutput(pa_stream* s, size_t requested_bytes, Boolean requestMoreOutput);
+	void PAStreamWriteQueuedOutput(pa_stream* s, size_t requested_bytes, bool requestMoreOutput);
 	void RequestOutputInterrupt(void);
 
 	static void
@@ -142,8 +142,8 @@ private:
 	pa_context* mPAContext;
 	TCircleBuffer* mOutputBuffer;
 	TMutex* mDataMutex;
-	Boolean mOutputIsRunning;
-	Boolean mOutputRequestPending;
+	bool mOutputIsRunning;
+	bool mOutputRequestPending;
 };
 
 #endif

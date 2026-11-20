@@ -39,8 +39,8 @@ TCocoaScreenManager::TCocoaScreenManager(
 	TLog* inLog /* = nil */,
 	KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 	KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
-	Boolean inFullScreen /* = false */,
-	Boolean inScreenIsLandscape /* = false */) :
+	bool inFullScreen /* = false */,
+	bool inScreenIsLandscape /* = false */) :
 		TScreenManager(inLog, inPortraitWidth, inPortraitHeight, inFullScreen, inScreenIsLandscape),
 		mProxy(inProxy),
 		mEmulatorApp(inEmulatorApp),
@@ -186,10 +186,10 @@ TCocoaScreenManager::PowerOffScreen(void)
 }
 
 // -------------------------------------------------------------------------- //
-//  * BacklightChanged( Boolean )
+//  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TCocoaScreenManager::BacklightChanged(Boolean inState)
+TCocoaScreenManager::BacklightChanged(bool inState)
 {
 	// Redraw the screen.
 	SRect wholeScreen;

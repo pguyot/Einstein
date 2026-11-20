@@ -176,7 +176,7 @@ UScreenTests::DrawPoint(
 		KUInt32 shift = (7 - (inXcoord & 0x7)) * 4;
 		addr += (inXcoord / 2);
 		addr &= ~0x00000003;
-		Boolean fault;
+		bool fault;
 		KUInt32 theWord = inMemoryIntf->ReadP(addr, fault);
 		KUInt32 mask = 0xF << shift;
 		theWord = (theWord & ~mask) | (inColor << shift);

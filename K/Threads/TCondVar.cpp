@@ -227,7 +227,7 @@ TCondVar::Signal(void)
 // -------------------------------------------------------------------------- //
 //  * TimedWait( TMutex*, const struct timespec* )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TCondVar::TimedWait(TMutex* inMutex, const struct timespec* inAbsTime)
 {
 	int err = ::pthread_cond_timedwait(&mCondVar, &inMutex->mMutex, inAbsTime);
@@ -244,7 +244,7 @@ TCondVar::TimedWait(TMutex* inMutex, const struct timespec* inAbsTime)
 // -------------------------------------------------------------------------- //
 //  * TimedWaitRelative( TMutex*, const struct timespec* )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TCondVar::TimedWaitRelative(TMutex* inMutex, const struct timespec* inRelTime)
 {
 #if HAS_COND_TIMEDWAIT_RELATIVE_NP

@@ -66,8 +66,8 @@ public:
 		TLog* inLog = nil,
 		KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 		KUInt32 inPortraitHeight = kDefaultPortraitHeight,
-		Boolean inFullScreen = false,
-		Boolean inScreenIsLandscape = true,
+		bool inFullScreen = false,
+		bool inScreenIsLandscape = true,
 		EOrientation inOrientation = kOrientation_Default);
 
 	///
@@ -132,7 +132,7 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void BacklightChanged(Boolean inNewBacklight) override;
+	virtual void BacklightChanged(bool inNewBacklight) override;
 
 	///
 	/// Notify that some screen bits changed.
@@ -182,7 +182,7 @@ private:
 	Fl_Newton_Screen_Widget* mWidget { nullptr };
 
 	// Store the value of the last time that the orientation was set.
-	Boolean mScreenWasLandscape { false };
+	bool mScreenWasLandscape { false };
 
 	// The size of the screen widget after the last rotation, for the UI
 	// thread that resizes the window. Guarded by the FLTK lock.

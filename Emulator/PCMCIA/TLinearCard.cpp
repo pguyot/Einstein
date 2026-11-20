@@ -258,7 +258,7 @@ TLinearCard::TransferState(TStream* inStream)
 // -------------------------------------------------------------------------- //
 // True if the image file can be opened for writing. It stays open, as the
 // flush thread would keep it open too.
-Boolean
+bool
 TLinearCard::CanWriteContents(void)
 {
 	std::lock_guard<std::mutex> guard(mMutex);

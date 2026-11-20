@@ -547,16 +547,7 @@ typedef uint8_t KUInt8;
 typedef int8_t KSInt8;
 typedef uintptr_t KUIntPtr;
 
-#if TARGET_OS_LINUX
-typedef bool Boolean;
-#endif
-
-#if TARGET_OS_ANDROID
-typedef bool Boolean;
-#endif
-
 #if TARGET_OS_WIN32
-typedef bool Boolean;
 #if !defined(__MINGW32__) && !defined(_SSIZE_T_DEFINED)
 typedef signed long ssize_t;
 #endif

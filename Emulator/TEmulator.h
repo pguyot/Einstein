@@ -228,7 +228,7 @@ public:
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean
+	inline bool
 	IsBPHalted(void)
 	{
 		return mBPHalted;
@@ -239,7 +239,7 @@ public:
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean
+	inline bool
 	IsInterrupted(void)
 	{
 		return mInterrupted;
@@ -261,7 +261,7 @@ public:
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean
+	inline bool
 	IsPaused(void)
 	{
 		return mPaused;
@@ -272,7 +272,7 @@ public:
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean
+	inline bool
 	IsRunning(void)
 	{
 		return mRunning;
@@ -450,7 +450,7 @@ public:
 	///
 	/// \return false if the state could not be saved.
 	///
-	Boolean SaveState(const char* inPath, EStateKind inKind = kDebugState);
+	bool SaveState(const char* inPath, EStateKind inKind = kDebugState);
 
 	///
 	/// Load the state from a file. The file is only loaded if it belongs to
@@ -465,7 +465,7 @@ public:
 	/// loaded (its contents don't fit), RAM is cleared and the machine is
 	/// reset, so NewtonOS boots again.
 	///
-	Boolean LoadState(const char* inPath, Boolean inOverwriteCards = false);
+	bool LoadState(const char* inPath, bool inOverwriteCards = false);
 
 	///
 	/// Why the last SaveState() or LoadState() failed, one reason per line,
@@ -492,7 +492,7 @@ public:
 	/// outKind, if given, receives the kind of file (EStateKind).
 	/// \return false if the file is damaged or not a state file of this version.
 	///
-	static Boolean ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards, KUInt32* outKind = nullptr);
+	static bool ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards, KUInt32* outKind = nullptr);
 
 	///
 	/// Reset the machine like the reset button: all emulated hardware goes to

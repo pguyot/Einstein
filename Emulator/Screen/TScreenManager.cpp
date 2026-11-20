@@ -110,8 +110,8 @@ TScreenManager::TScreenManager(
 	TLog* inLog /* = nil */,
 	KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 	KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
-	Boolean inFullScreen /* = false */,
-	Boolean inScreenIsLandscape /* = true */) :
+	bool inFullScreen /* = false */,
+	bool inScreenIsLandscape /* = true */) :
 		mLog(inLog),
 		mPortraitWidth(inPortraitWidth),
 		mPortraitHeight(inPortraitHeight),
@@ -955,12 +955,12 @@ TScreenManager::PenUp(KUInt32 inTimeInTicks /* = 0 */)
 // -------------------------------------------------------------------------- //
 //  * GetSample( KUInt32*, KUInt32* )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TScreenManager::GetSample(
 	KUInt32* outPackedSample,
 	KUInt32* outTimeInTicks)
 {
-	Boolean theResult = false;
+	bool theResult = false;
 	KUInt32 newCCrsr = mTabletBufCCrsr;
 	if (newCCrsr != mTabletBufPCrsr)
 	{
@@ -1153,7 +1153,7 @@ TScreenManager::OverlayClear(KSInt32 line)
 //  or inform the user of error conditions.
 // -------------------------------------------------------------------------- //
 void
-TScreenManager::OverlayPrintAt(KSInt32 x, KSInt32 y, const char* text, Boolean centered)
+TScreenManager::OverlayPrintAt(KSInt32 x, KSInt32 y, const char* text, bool centered)
 {
 	size_t len = strlen(text);
 	if (centered)

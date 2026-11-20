@@ -239,7 +239,7 @@ TAndroidApp::Run(const char* dataPath, int newtonScreenWidth, int newtonScreenHe
 	if (mLog)
 		mLog->FLogLine("    OK: 0x%08x", (intptr_t) mSoundManager);
 
-	Boolean isLandscape = false;
+	bool isLandscape = false;
 	if (mLog)
 		mLog->FLogLine("  mScreenManager");
 	mScreenManager = new TAndroidScreenManager(mLog,

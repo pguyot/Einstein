@@ -207,7 +207,7 @@ class Fl_Newton_Screen_Widget : public Fl_Box
 	int penX { 0 }, penY { 0 }, penIsDown { 0 };
 	// F11 or F12 while it is held down, 0 if none
 	int mAppKeyDown { 0 };
-	Boolean mPowerState { false };
+	bool mPowerState { false };
 
 public:
 	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char* l, TFLScreenManager* s, TFLApp* inApp) :
@@ -663,8 +663,8 @@ TFLScreenManager::TFLScreenManager(
 	TLog* inLog /* = nil */,
 	KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 	KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
-	Boolean inFullScreen /* = false */,
-	Boolean inScreenIsLandscape /* = true */,
+	bool inFullScreen /* = false */,
+	bool inScreenIsLandscape /* = true */,
 	EOrientation inOrientation /* = kOrientation_Default */) :
 		TScreenManager(
 			inLog,
@@ -773,10 +773,10 @@ TFLScreenManager::PowerOffScreen(void)
 }
 
 // -------------------------------------------------------------------------- //
-//  * BacklightChanged( Boolean )
+//  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TFLScreenManager::BacklightChanged(Boolean inState)
+TFLScreenManager::BacklightChanged(bool inState)
 {
 	gApp->BacklightChangedEvent(inState);
 	UpdateScreenRect(0L);

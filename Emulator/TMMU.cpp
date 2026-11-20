@@ -91,10 +91,10 @@ TMMU::~TMMU(void)
 }
 
 // -------------------------------------------------------------------------- //
-//  * SetPrivilege( Boolean )
+//  * SetPrivilege( bool )
 // -------------------------------------------------------------------------- //
 void
-TMMU::SetPrivilege(Boolean inPrivilege)
+TMMU::SetPrivilege(bool inPrivilege)
 {
 	if (inPrivilege)
 	{
@@ -109,10 +109,10 @@ TMMU::SetPrivilege(Boolean inPrivilege)
 }
 
 // -------------------------------------------------------------------------- //
-//  * SetSystemProtection( Boolean )
+//  * SetSystemProtection( bool )
 // -------------------------------------------------------------------------- //
 void
-TMMU::SetSystemProtection(Boolean inProtection)
+TMMU::SetSystemProtection(bool inProtection)
 {
 	if (inProtection)
 	{
@@ -127,10 +127,10 @@ TMMU::SetSystemProtection(Boolean inProtection)
 }
 
 // -------------------------------------------------------------------------- //
-//  * SetROMProtection( Boolean )
+//  * SetROMProtection( bool )
 // -------------------------------------------------------------------------- //
 void
-TMMU::SetROMProtection(Boolean inProtection)
+TMMU::SetROMProtection(bool inProtection)
 {
 	if (inProtection)
 	{
@@ -148,7 +148,7 @@ TMMU::SetROMProtection(Boolean inProtection)
 //  * TranslateR( KUInt32, KUInt32& )
 // Performanc: this function eats around 9% of the overall performance!
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMMU::TranslateR(KUInt32 inVAddress, KUInt32& outPAddress)
 {
 #if MMUDebug > 1
@@ -208,7 +208,7 @@ TMMU::TranslateR(KUInt32 inVAddress, KUInt32& outPAddress)
 	KUInt32 entryPermIndex = 0;
 	// Bits 31-20 of target address are catenated with bits 31-14 of the
 	// TTB.
-	Boolean fault = false;
+	bool fault = false;
 	KUInt32 tableEntry = mMemoryIntf->ReadROMRAMP(mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), fault);
 	if (fault)
 	{
@@ -494,7 +494,7 @@ TMMU::TranslateR(KUInt32 inVAddress, KUInt32& outPAddress)
 // -------------------------------------------------------------------------- //
 //  * TranslateW( KUInt32, KUInt32& )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMMU::TranslateW(KUInt32 inVAddress, KUInt32& outPAddress)
 {
 #if MMUDebug > 1
@@ -554,7 +554,7 @@ TMMU::TranslateW(KUInt32 inVAddress, KUInt32& outPAddress)
 
 	// Bits 31-20 of target address are catenated with bits 31-14 of the
 	// TTB.
-	Boolean fault = false;
+	bool fault = false;
 	KUInt32 tableEntry = mMemoryIntf->ReadROMRAMP(mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), fault);
 	if (fault)
 	{
@@ -840,7 +840,7 @@ TMMU::TranslateW(KUInt32 inVAddress, KUInt32& outPAddress)
 // -------------------------------------------------------------------------- //
 //  * TranslateInstruction( VAddr, KUInt32* )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMMU::TranslateInstruction(
 	KUInt32 inVAddress,
 	KUInt32* outPAddress)
@@ -1025,7 +1025,7 @@ TMMU::FDump(FILE* f)
 {
 	//	static const char *const ap[4] = { "ro/na", "rw/na", "rw/ro", "rw/rw" };
 
-	Boolean err = false;
+	bool err = false;
 	fprintf(f, "=====> Dumping MMU state\n");
 	if (mMMUEnabled)
 	{

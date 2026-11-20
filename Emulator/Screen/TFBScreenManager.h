@@ -101,7 +101,7 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void BacklightChanged(Boolean inNewBacklight);
+	virtual void BacklightChanged(bool inNewBacklight);
 
 	///
 	/// Notify that some screen bits changed.

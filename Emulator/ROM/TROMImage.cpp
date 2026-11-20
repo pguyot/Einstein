@@ -76,7 +76,7 @@ TROMImage::~TROMImage(void)
 	}
 }
 
-Boolean TROMImage::sApplyPatches = true;
+bool TROMImage::sApplyPatches = true;
 
 // -------------------------------------------------------------------------- //
 //  * CreateImage( const char*, const KUInt8*, KUInt32 )
@@ -469,13 +469,13 @@ fl_filename_setext(char* buf, int size, const char* ext)
 #endif
 
 TROMImage*
-TROMImage::LoadROMAndREX(const char* theROMImagePath, Boolean useMonitor, Boolean useBuiltinERex,
-	Boolean inApplyPatches)
+TROMImage::LoadROMAndREX(const char* theROMImagePath, bool useMonitor, bool useBuiltinERex,
+	bool inApplyPatches)
 {
 	(void) useMonitor;
 	// The constructors below call CreateImage(), which reads this.
 	struct SPatchesGuard {
-		SPatchesGuard(Boolean inApply) { sApplyPatches = inApply; }
+		SPatchesGuard(bool inApply) { sApplyPatches = inApply; }
 		~SPatchesGuard() { sApplyPatches = true; }
 	} thePatchesGuard(inApplyPatches);
 	TROMImage* theROMImage = nullptr;

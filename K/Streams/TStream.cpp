@@ -548,15 +548,15 @@ TStream::PutByte(const KUInt8 inByte)
 }
 
 // ------------------------------------------------------------------------- //
-//  * TransferBoolean( Boolean& )
+//  * TransferBoolean( bool& )
 // ------------------------------------------------------------------------- //
 void
-TStream::TransferBoolean(Boolean& myBool)
+TStream::TransferBoolean(bool& myBool)
 {
 	if (IsReading())
 	{
 		KUInt8 v = GetByte();
-		myBool = v;
+		myBool = (v != 0);
 	} else if (IsWriting())
 	{
 		PutByte(myBool);

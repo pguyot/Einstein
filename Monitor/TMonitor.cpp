@@ -189,7 +189,7 @@ TMonitor::Run()
 		RunEmulator();
 	}
 
-	Boolean loop = true;
+	bool loop = true;
 	while (loop)
 	{
 		if (mCommand != kExit)
@@ -257,7 +257,7 @@ TMonitor::RunEmulator()
 
 	// Get the instruction.
 	KUInt32 instruction;
-	Boolean instructionIsBP = false;
+	bool instructionIsBP = false;
 	if (!mMemory->Read((TMemory::VAddr) realPC, instruction))
 	{
 		if ((instruction & 0xFFF000F0) == 0xE1200070)
@@ -285,8 +285,8 @@ TMonitor::RunEmulator()
 		// Read the count before the request is cleared: the stop for this
 		// request is done, but a new request after that must stop the next run.
 		KUInt32 theNextStopCount = mEmulator->GetStopCount();
-		Boolean theHaltAfterRequest = mStateRequestHaltAfter;
-		Boolean theRequestDone = ProcessStateRequest();
+		bool theHaltAfterRequest = mStateRequestHaltAfter;
+		bool theRequestDone = ProcessStateRequest();
 		if (theRequestDone)
 			theStopCount = theNextStopCount;
 		if (theRequestDone && !mEmulator->IsBPHalted() && !theHaltAfterRequest)
@@ -347,7 +347,7 @@ TMonitor::StepEmulator()
 
 	// Get the instruction.
 	KUInt32 instruction;
-	Boolean instructionIsBP = false;
+	bool instructionIsBP = false;
 	if (!mMemory->Read((TMemory::VAddr) realPC, instruction))
 	{
 		if ((instruction & 0xFFF000F0) == 0xE1200070)
@@ -378,14 +378,14 @@ TMonitor::StepEmulator()
 // -------------------------------------------------------------------------- //
 // SaveEmulatorState( const char * )
 // -------------------------------------------------------------------------- //
-Boolean
-TMonitor::SaveEmulatorState(const char* inFilename, Boolean inFastStart)
+bool
+TMonitor::SaveEmulatorState(const char* inFilename, bool inFastStart)
 {
 	if (inFilename == 0)
 	{
 		inFilename = "/tmp/einstein.state";
 	}
-	Boolean theResult = mEmulator->SaveState(inFilename,
+	bool theResult = mEmulator->SaveState(inFilename,
 		inFastStart ? TEmulator::kFastStartState : TEmulator::kDebugState);
 
 #if !TARGET_UI_FLTK && !TARGET_OS_WIN32 && !TARGET_UI_SDL
@@ -398,14 +398,14 @@ TMonitor::SaveEmulatorState(const char* inFilename, Boolean inFastStart)
 // -------------------------------------------------------------------------- //
 // LoadEmulatroState( const char * )
 // -------------------------------------------------------------------------- //
-Boolean
-TMonitor::LoadEmulatorState(const char* inFilename, Boolean inOverwriteCards)
+bool
+TMonitor::LoadEmulatorState(const char* inFilename, bool inOverwriteCards)
 {
 	if (inFilename == 0)
 	{
 		inFilename = "/tmp/einstein.state";
 	}
-	Boolean theResult = false;
+	bool theResult = false;
 	if (TFileStream::Exists(inFilename))
 	{
 		theResult = mEmulator->LoadState(inFilename, inOverwriteCards);
@@ -471,10 +471,10 @@ TMonitor::RevertEmulatorState(const char* inFilename)
 // -------------------------------------------------------------------------- //
 // ProcessBreakpoint( KUInt16, KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMonitor::ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr)
 {
-	Boolean stop = true;
+	bool stop = true;
 
 	switch (inBPID)
 	{
@@ -575,8 +575,8 @@ TMonitor::Stop()
 // -------------------------------------------------------------------------- //
 // RequestSaveState( const char* )
 // -------------------------------------------------------------------------- //
-Boolean
-TMonitor::RequestSaveState(const char* inPath, Boolean inFastStart, Boolean inHaltAfter)
+bool
+TMonitor::RequestSaveState(const char* inPath, bool inFastStart, bool inHaltAfter)
 {
 	if (mStateRequest != kStateRequestNone)
 		return false;
@@ -587,8 +587,8 @@ TMonitor::RequestSaveState(const char* inPath, Boolean inFastStart, Boolean inHa
 // -------------------------------------------------------------------------- //
 // RequestLoadState( const char* )
 // -------------------------------------------------------------------------- //
-Boolean
-TMonitor::RequestLoadState(const char* inPath, Boolean inOverwriteCards)
+bool
+TMonitor::RequestLoadState(const char* inPath, bool inOverwriteCards)
 {
 	if (mStateRequest != kStateRequestNone)
 		return false;
@@ -599,7 +599,7 @@ TMonitor::RequestLoadState(const char* inPath, Boolean inOverwriteCards)
 // -------------------------------------------------------------------------- //
 // RequestCheckState( const char* )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMonitor::RequestCheckState(const char* inBasePath)
 {
 	return RequestStateTransfer(kStateRequestCheck, inBasePath);
@@ -608,8 +608,8 @@ TMonitor::RequestCheckState(const char* inBasePath)
 // -------------------------------------------------------------------------- //
 // RequestReset( void )
 // -------------------------------------------------------------------------- //
-Boolean
-TMonitor::RequestReset(Boolean inZAPMemory)
+bool
+TMonitor::RequestReset(bool inZAPMemory)
 {
 	if (mStateRequest != kStateRequestNone)
 		return false;
@@ -620,12 +620,12 @@ TMonitor::RequestReset(Boolean inZAPMemory)
 // -------------------------------------------------------------------------- //
 // RunWhileHalted( const std::function<void()>& )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMonitor::RunWhileHalted(const std::function<void()>& inWork)
 {
 	if (mStateRequest != kStateRequestNone)
 		return false;
-	Boolean wasRunning = false;
+	bool wasRunning = false;
 	// The monitor thread holds the mutex except while it waits for a
 	// command, so once we have it, the emulator can't start. Don't block
 	// on it: a run command sent just before may start the emulator (with
@@ -655,7 +655,7 @@ TMonitor::RunWhileHalted(const std::function<void()>& inWork)
 // -------------------------------------------------------------------------- //
 // ResumeEmulator( KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMonitor::ResumeEmulator(KUInt32 inTimeoutMS)
 {
 	auto theDeadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(inTimeoutMS);
@@ -680,12 +680,12 @@ TMonitor::ResumeEmulator(KUInt32 inTimeoutMS)
 }
 
 // -------------------------------------------------------------------------- //
-// RequestStateTransfer( EStateRequest, const char*, Boolean )
+// RequestStateTransfer( EStateRequest, const char*, bool )
 // -------------------------------------------------------------------------- //
 // Called from the UI thread. The monitor thread holds mMutex at all times,
 // except while it waits for a command.
-Boolean
-TMonitor::RequestStateTransfer(EStateRequest inRequest, const char* inPath, Boolean inHaltAfter)
+bool
+TMonitor::RequestStateTransfer(EStateRequest inRequest, const char* inPath, bool inHaltAfter)
 {
 	// Only one request at a time.
 	if (mStateRequest != kStateRequestNone)
@@ -855,7 +855,7 @@ TMonitor::CheckStateRoundTrip(const char* inBasePath)
 // -------------------------------------------------------------------------- //
 // ProcessStateRequest( void )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMonitor::ProcessStateRequest()
 {
 	EStateRequest theRequest = mStateRequest;
@@ -879,7 +879,7 @@ cc(unsigned int v)
 // -------------------------------------------------------------------------- //
 // ExecuteStartupScript()
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMonitor::ExecuteStartupScript()
 {
 	bool theResult = true;
@@ -893,10 +893,10 @@ TMonitor::ExecuteStartupScript()
 // -------------------------------------------------------------------------- //
 // ExecuteCommand( const char* inCommand )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMonitor::ExecuteCommand(const char* inCommand)
 {
-	Boolean theResult = true;
+	bool theResult = true;
 	int theArgInt, theArgInt2;
 	char theLine[512];
 
@@ -1062,7 +1062,7 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		|| (::strcmp(inCommand, "trace") == 0))
 	{
 		// Is it a jump?
-		Boolean putBPAndRun = false;
+		bool putBPAndRun = false;
 
 		KUInt32 instruction;
 		KUInt32 realPC = mProcessor->GetRegister(15) - 4;
@@ -1236,7 +1236,7 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		}
 	} else if (::sscanf(inCommand, "dl P%X", &theArgInt) == 1)
 	{
-		Boolean fault = false;
+		bool fault = false;
 		KUInt32 theData = mMemory->ReadP(
 			(TMemory::VAddr) theArgInt, fault);
 		if (fault)
@@ -1398,7 +1398,7 @@ TMonitor::ExecuteCommand(const char* inCommand)
 	} else if (::sscanf(inCommand, "dm P%X-%X", &theArgInt, &theArgInt2) == 2)
 	{
 		KUInt32 theData[4];
-		Boolean fault = false;
+		bool fault = false;
 		while (((KUInt32) theArgInt) < ((KUInt32) theArgInt2))
 		{
 			theData[0] = mMemory->ReadP(
@@ -1433,7 +1433,7 @@ TMonitor::ExecuteCommand(const char* inCommand)
 	{
 		KUInt32 theData[4];
 		KUInt32 last;
-		Boolean fault = false;
+		bool fault = false;
 		for (last = theArgInt + 64; ((KUInt32) theArgInt) < last; theArgInt += 16)
 		{
 			theData[0] = mMemory->ReadP(
@@ -1716,10 +1716,10 @@ TMonitor::ExecuteCommand(const char* inCommand)
 // -------------------------------------------------------------------------- //
 // ExecuteHelpCommand( const char* inCommand )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMonitor::ExecuteHelpCommand(const char* inCommand)
 {
-	Boolean theResult = true;
+	bool theResult = true;
 	if (::strcmp(inCommand, "log") == 0)
 	{
 		PrintLoggingHelp();
@@ -1836,10 +1836,10 @@ TMonitor::PrintWatchpointHelp()
 // -------------------------------------------------------------------------- //
 // DrawScreen( void )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TMonitor::DrawScreen()
 {
-	Boolean theResult = false;
+	bool theResult = false;
 	if (mHalted)
 	{
 		if (!mLastScreenHalted)
@@ -2044,7 +2044,7 @@ TMonitor::DrawScreenHalted(void)
 				(unsigned int) mMemory->GetFaultStatusRegister());
 		} else
 		{
-			Boolean instIsBP = false;
+			bool instIsBP = false;
 			if ((instruction & 0xFFF000F0) == 0xE1200070)
 			{
 				if (!mMemory->ReadBreakpoint(

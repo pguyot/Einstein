@@ -23,7 +23,7 @@ TEST(MemoryTests, ReadROMTest)
 	theROM[1] = UByteSex::Swap(theROM[1]);
 #endif
 
-	Boolean fault = false;
+	bool fault = false;
 	KUInt32 theWord = theMem.ReadP(0, fault);
 	EXPECT_EQ(fault, false);
 	EXPECT_EQ(theWord, 0x00112233);
@@ -75,7 +75,7 @@ TEST(MemoryTests, ReadWriteRAMTest)
 	KUInt8* romBuffer = (KUInt8*) malloc(TMemoryConsts::kLowROMEnd);
 	TMemory theMem(nullptr, (KUInt8*) romBuffer, kTempFlashPath);
 	int index;
-	Boolean fault;
+	bool fault;
 	KUInt32 theWord;
 	KUInt8 theByte;
 

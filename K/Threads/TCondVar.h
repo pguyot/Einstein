@@ -98,7 +98,7 @@ public:
 	/// \return \c true if the system time didn't reach inAbsTime, \c false
 	///			otherwise.
 	///
-	Boolean TimedWait(TMutex* inMutex, const struct timespec* inAbsTime);
+	bool TimedWait(TMutex* inMutex, const struct timespec* inAbsTime);
 
 	///
 	/// Wait for a limited time for the conditional variable to be freed.
@@ -108,7 +108,7 @@ public:
 	/// \return \c true if the system time didn't reach now+inRelTime, \c false
 	///			otherwise.
 	///
-	Boolean TimedWaitRelative(
+	bool TimedWaitRelative(
 		TMutex* inMutex,
 		const struct timespec* inAbsTime);
 

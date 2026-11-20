@@ -195,10 +195,10 @@ TInterruptManager::SuspendTimer(void)
 }
 
 // -------------------------------------------------------------------------- //
-//  * WaitUntilInterrupt( Boolean, Boolean )
+//  * WaitUntilInterrupt( bool, bool )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::WaitUntilInterrupt(Boolean inMaskIRQ, Boolean inMaskFIQ)
+TInterruptManager::WaitUntilInterrupt(bool inMaskIRQ, bool inMaskFIQ)
 {
 	if (mLog)
 	{
@@ -305,10 +305,10 @@ TInterruptManager::SetAlarm(KUInt32 inValue)
 }
 
 // -------------------------------------------------------------------------- //
-//  * ArmAlarm( Boolean )
+//  * ArmAlarm( bool )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::ArmAlarm(Boolean inEvenIfPassed)
+TInterruptManager::ArmAlarm(bool inEvenIfPassed)
 {
 	KUInt32 now = GetRealTimeClock();
 	mAlarmArmTicks = GetTimeInTicks();
@@ -585,7 +585,7 @@ TInterruptManager::Run(void)
 
 				// Pass pending and unmasked interrupts to the CPU, as FIQ if
 				// set in the FIQ mask, as IRQ otherwise.
-				Boolean gotAnInterrupt = false;
+				bool gotAnInterrupt = false;
 				if (mIntRaised & mIntCtrlReg & mFIQMask)
 				{
 					mProcessor->FIQInterrupt();
@@ -629,7 +629,7 @@ TInterruptManager::Run(void)
 
 				// Pass pending and unmasked interrupts to the CPU, as FIQ if
 				// set in the FIQ mask, as IRQ otherwise.
-				Boolean gotAnInterrupt = false;
+				bool gotAnInterrupt = false;
 				if (mIntRaised & mIntCtrlReg & mFIQMask)
 				{
 					mProcessor->FIQInterrupt();
@@ -851,13 +851,13 @@ TInterruptManager::TicksWaitOnCondVar(KUInt32 inTicks)
 // -------------------------------------------------------------------------- //
 //  * FireTimersAndFindNext( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
-inline Boolean
+inline bool
 TInterruptManager::FireTimersAndFindNext(
 	KUInt32 inOldTicks,
 	KUInt32 inNewTicks,
 	KUInt32* outNextMatch)
 {
-	Boolean hasNextTimer = false;
+	bool hasNextTimer = false;
 	KUInt32 nextTicksValue = 0;
 	KUInt32 intRaised = mIntRaised;
 	KUInt32 ticksValue;
@@ -1166,13 +1166,13 @@ TInterruptManager::GetNextTimer(
 }
 
 // -------------------------------------------------------------------------- //
-//  * HostUTCOffset( time_t, Boolean* )
+//  * HostUTCOffset( time_t, bool* )
 //		Offset of the host's local time from UTC at the time inTime, in
 //		seconds, including daylight saving time. outIsDST tells whether
 //		daylight saving time is in effect (may be null).
 // -------------------------------------------------------------------------- //
 static KSInt32
-HostUTCOffset(time_t inTime, Boolean* outIsDST)
+HostUTCOffset(time_t inTime, bool* outIsDST)
 {
 	struct tm gm;
 	struct tm local;
@@ -1216,7 +1216,7 @@ TInterruptManager::GetHostUTCTime(void)
 void
 TInterruptManager::GetHostTimeZone(KSInt32& outGMTOffset, KSInt32& outDSTOffset)
 {
-	Boolean isDST = false;
+	bool isDST = false;
 	KSInt32 theOffset = HostUTCOffset(time(NULL), &isDST);
 	outDSTOffset = isDST ? 3600 : 0;
 	outGMTOffset = theOffset - outDSTOffset;

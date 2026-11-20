@@ -49,7 +49,7 @@ public:
 	void ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize) override;
 	void StartOutput() override;
 	void StopOutput() override;
-	Boolean OutputIsRunning() override;
+	bool OutputIsRunning() override;
 	void OutputVolumeChanged() override;
 
 private:

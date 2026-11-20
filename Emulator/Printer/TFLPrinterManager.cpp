@@ -474,8 +474,8 @@ TFLPrinterManager::GetBandPrefs(KUInt32 inDrvr, KUInt32 inPrefs)
 	//	typedef struct DotPrinterPrefs {
 	//		long		minBand;				/* smallest useable band			*/
 	//		long		optimumBand;			/* a good size to try to default	*/
-	//		Boolean		asyncBanding;			/* true if band data sent async		*/
-	//		Boolean		wantMinBounds;			/* true if minrect is useful		*/
+	//		bool		asyncBanding;			/* true if band data sent async		*/
+	//		bool		wantMinBounds;			/* true if minrect is useful		*/
 	//	} DotPrinterPrefs;
 	(void) inDrvr;
 	(void) inPrefs;

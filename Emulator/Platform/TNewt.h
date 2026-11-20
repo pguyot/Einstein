@@ -112,8 +112,8 @@ class RefVar
 {
 protected:
 	KUInt32 mRefHandle;
-	Boolean mAllocated;
-	RefVar(KUInt32 inRefHandle, Boolean inAllocated);
+	bool mAllocated;
+	RefVar(KUInt32 inRefHandle, bool inAllocated);
 
 public:
 	// Named Constrcutor
@@ -151,7 +151,7 @@ NewtRef MakeString(const char*);
 NewtRef MakeSymbol(const char*);
 
 // Return true if the Ref is a floating point value
-Boolean RefIsReal(NewtRef);
+bool RefIsReal(NewtRef);
 
 // Return a floating point value
 double RefToReal(NewtRef);
@@ -187,7 +187,7 @@ NewtRef GetFrameSlotRef(NewtRef frame, NewtRef symbol);
 NewtRef GetFrameSlot(RefArg frame, RefArg symbol);
 
 // Return true if the Ref is an integer
-Boolean RefIsInt(NewtRef);
+bool RefIsInt(NewtRef);
 
 // Convert the Ref to a signed integer value, no error checking
 KSInt32 RefToInt(NewtRef);
@@ -196,25 +196,25 @@ KSInt32 RefToInt(NewtRef);
 NewtRef MakeInt(KSInt32);
 
 // Return true, if the Ref is an NSSymbol
-Boolean RefIsSymbol(NewtRef);
+bool RefIsSymbol(NewtRef);
 
 // Copy the name of a symbol into a buffer in host space
-Boolean SymbolToCString(NewtRef, char* buf, int size);
+bool SymbolToCString(NewtRef, char* buf, int size);
 
 // Copy the name of a symbol and convert it to all lower case characters
-Boolean SymbolToLowerCaseCString(NewtRef, char* buf, int size);
+bool SymbolToLowerCaseCString(NewtRef, char* buf, int size);
 
 // Return true if the Ref is a utf16 string
-Boolean RefIsString(NewtRef);
+bool RefIsString(NewtRef);
 
 // Return the number of characters in the string
 KUInt32 RefStringLength(NewtRef);
 
 // Return a string in utf-8
-Boolean RefToString(NewtRef, char* buf, int size);
+bool RefToString(NewtRef, char* buf, int size);
 
 // Return true if the Ref is a pointer into NewtonOS memeory
-Boolean RefIsPointer(NewtRef);
+bool RefIsPointer(NewtRef);
 
 // Convert a Ref into a pointer
 KUInt32 RefToPointer(NewtRef);
@@ -223,13 +223,13 @@ KUInt32 RefToPointer(NewtRef);
 NewtRef MakePointer(KUInt32);
 
 // Return true if the Ref is an array
-Boolean RefIsArray(NewtRef);
+bool RefIsArray(NewtRef);
 
 // Return true if the Ref is a frame
-Boolean RefIsFrame(NewtRef);
+bool RefIsFrame(NewtRef);
 
 // Return true if the Ref is a frame
-Boolean RefIsBinary(NewtRef);
+bool RefIsBinary(NewtRef);
 
 KUInt32 RefArrayGetNumSlots(NewtRef r);
 NewtRef RefArrayGetSlot(NewtRef r, int i);

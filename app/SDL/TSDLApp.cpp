@@ -114,7 +114,7 @@ class TSDLMonitor : public TMonitor
 {
 public:
 	using TMonitor::TMonitor;
-	Boolean DrawScreen() override { return false; }
+	bool DrawScreen() override { return false; }
 };
 
 #include <SDL3/SDL.h>
@@ -1364,7 +1364,7 @@ bool TSDLApp::LoadFastStartState()
 	if (!storageCard.empty())
 		InsertStorageCard(storageCard);
 
-	Boolean loaded = mEmulator->LoadState(path.c_str());
+	bool loaded = mEmulator->LoadState(path.c_str());
 	(void) ::remove(path.c_str());
 	if (loaded) {
 		mLog->FLogLine("Fast start: continuing where Einstein was");

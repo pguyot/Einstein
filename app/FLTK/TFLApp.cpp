@@ -341,7 +341,7 @@ TFLApp::Run(int argc, char* argv[])
 
 	// mLog = new TStdOutLog();
 
-	Boolean hidemouse = (Boolean) mFLSettings->hideMouse;
+	bool hidemouse = (bool) mFLSettings->hideMouse;
 
 	KPrintf("Welcome to Einstein console.\n");
 	KPrintf("This is %s.\n", VERSION_STRING);
@@ -349,7 +349,7 @@ TFLApp::Run(int argc, char* argv[])
 	static char theROMImagePath[FL_PATH_MAX + 1];
 
 	// --machine starts that machine right away, without the Settings.
-	Boolean startAtOnce = false;
+	bool startAtOnce = false;
 	if (!sRequestedMachine.empty())
 	{
 		for (auto* machine : mFLSettings->mMachines)
@@ -372,7 +372,7 @@ TFLApp::Run(int argc, char* argv[])
 		}
 	}
 
-	for (Boolean firstAttempt = true;; firstAttempt = false)
+	for (bool firstAttempt = true;; firstAttempt = false)
 	{
 		// The Settings are open in another Einstein: start the machine there.
 		if (!firstAttempt || !(mFLSettings->dontShow || startAtOnce))
@@ -1715,7 +1715,7 @@ TFLApp::UserActionInstallEssentials()
  This is called by the screen manager when the state of the backlight changed.
  */
 void
-TFLApp::PowerChangedEvent(Boolean inState)
+TFLApp::PowerChangedEvent(bool inState)
 {
 	// we have a hidden button in the FLuid file that does nothing but keep
 	// track of the "on" image.
@@ -1743,7 +1743,7 @@ TFLApp::PowerChangedEvent(Boolean inState)
  This is called by the screen manager when the state of the backlight changed.
  */
 void
-TFLApp::BacklightChangedEvent(Boolean inState)
+TFLApp::BacklightChangedEvent(bool inState)
 {
 	// we have a hidden button in the FLuid file that does nothing but keep
 	// track of the "on" image.
@@ -2133,7 +2133,7 @@ TFLApp::LoadFastStartState()
 			UserActionPCCard((int) slot, index);
 	}
 
-	Boolean loaded = mEmulator->LoadState(path.c_str());
+	bool loaded = mEmulator->LoadState(path.c_str());
 	(void) ::remove(path.c_str());
 	if (loaded)
 	{
@@ -2332,11 +2332,11 @@ TFLApp::CreateScreenManager(
 	const char* inClass,
 	int inPortraitWidth,
 	int inPortraitHeight,
-	Boolean inFullScreen)
+	bool inFullScreen)
 {
 	if (::strcmp(inClass, "FL") == 0)
 	{
-		Boolean screenIsLandscape = true;
+		bool screenIsLandscape = true;
 
 		KUInt32 theWidth;
 		KUInt32 theHeight;
@@ -2458,7 +2458,7 @@ T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, kROMPatchVoid, "AddClipboard
 	int nData = (int) TNewt::RefArrayGetNumSlots(data);
 
 	std::string clipboardText = "";
-	Boolean firstText = true;
+	bool firstText = true;
 	for (int i = 0; i < nData; i++)
 	{
 		NewtRef dataSet = TNewt::RefArrayGetSlot(data, i);
@@ -2621,7 +2621,7 @@ tfl_file_chooser(const char* message, const char* pat, const char* fname, FileCh
 	{
 		const char* s = pat;
 		char* d = pattern;
-		Boolean brackets = false;
+		bool brackets = false;
 		while (*s)
 		{
 			char c = *s++;

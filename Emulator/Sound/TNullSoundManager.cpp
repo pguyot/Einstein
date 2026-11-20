@@ -90,7 +90,7 @@ TNullSoundManager::StopOutput(void)
 // -------------------------------------------------------------------------- //
 //  * OutputIsRunning( void )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TNullSoundManager::OutputIsRunning(void)
 {
 	return false;

@@ -172,7 +172,7 @@ TMacMonitor::GetDisasmLine(int offset)
 				   (unsigned int) mMemory->GetFaultStatusRegister()];
 	} else
 	{
-		Boolean instIsBP = false;
+		bool instIsBP = false;
 		if ((instruction & 0xFFF000F0) == 0xE1200070)
 		{
 			if (!mMemory->ReadBreakpoint(
@@ -317,10 +317,10 @@ TMacMonitor::PrintLine(const char* inLine, int type)
 	}
 }
 
-Boolean
+bool
 TMacMonitor::ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr)
 {
-	Boolean stop = TMonitor::ProcessBreakpoint(inBPID, inBPAddr);
+	bool stop = TMonitor::ProcessBreakpoint(inBPID, inBPAddr);
 
 	if (controller)
 	{

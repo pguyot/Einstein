@@ -176,7 +176,7 @@ TSDLSoundManager::StopOutput()
 	mOutputRequestPending = false;
 }
 
-Boolean
+bool
 TSDLSoundManager::OutputIsRunning()
 {
 	return mOutputIsRunning;

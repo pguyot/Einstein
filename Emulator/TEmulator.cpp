@@ -522,7 +522,7 @@ TEmulator::BreakInMonitor(const char* msg)
 // -------------------------------------------------------------------------- //
 // Write the state and a CRC32 of it. Every write and the close are checked,
 // so a full disk can't leave a cut-off file that looks complete.
-static Boolean
+static bool
 WriteStateFile(const char* inPath, const std::vector<KUInt8>& inData)
 {
 	FILE* theFile = ::fopen(inPath, "wb");
@@ -533,7 +533,7 @@ WriteStateFile(const char* inPath, const std::vector<KUInt8>& inData)
 		(KUInt8) (theCRC >> 24), (KUInt8) (theCRC >> 16),
 		(KUInt8) (theCRC >> 8), (KUInt8) theCRC
 	};
-	Boolean theResult = (::fwrite(inData.data(), 1, inData.size(), theFile) == inData.size())
+	bool theResult = (::fwrite(inData.data(), 1, inData.size(), theFile) == inData.size())
 		&& (::fwrite(theCRCBytes, 1, 4, theFile) == 4)
 		&& (::fflush(theFile) == 0);
 	if (::fclose(theFile) != 0)
@@ -571,7 +571,7 @@ ReadStateFile(const char* inPath, std::vector<KUInt8>& outData)
 		::fclose(theFile);
 		return "the file is too large";
 	}
-	Boolean theReadOK = (theSize >= 4) && (::fseek(theFile, 0, SEEK_SET) == 0);
+	bool theReadOK = (theSize >= 4) && (::fseek(theFile, 0, SEEK_SET) == 0);
 	if (theReadOK)
 	{
 		try
@@ -625,7 +625,7 @@ TEmulator::StateError(const char* inFormat, ...)
 // -------------------------------------------------------------------------- //
 //  * SaveState( const char* inPath ) const
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TEmulator::SaveState(const char* inPath, EStateKind inKind)
 {
 	mLastStateError.clear();
@@ -690,8 +690,8 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 // -------------------------------------------------------------------------- //
 //  * LoadState( const char* inPath ) const
 // -------------------------------------------------------------------------- //
-Boolean
-TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
+bool
+TEmulator::LoadState(const char* inPath, bool inOverwriteCards)
 {
 	mLastStateError.clear();
 	std::vector<KUInt8> theData;
@@ -703,7 +703,7 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 	}
 	TMemoryStream theMemoryStream(std::move(theData));
 	TStream* theStream = &theMemoryStream;
-	Boolean theLoadingStarted = false;
+	bool theLoadingStarted = false;
 	try
 	{
 		if (theStream->GetInt32BE() != 'EINI')
@@ -739,7 +739,7 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 		};
 		static_assert(sizeof(kIdentityNames) / sizeof(kIdentityNames[0]) == kStateIdentitySize,
 			"Update kIdentityNames when GetStateIdentity() changes");
-		Boolean theMatch = true;
+		bool theMatch = true;
 		std::vector<const char*> theReplaced; // card contents that will be overwritten
 		for (size_t i = 0; i < theCurrent.size(); i++)
 		{
@@ -756,7 +756,7 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 				continue;
 			// Debug files hold the card contents too, but cards may be shared
 			// with other emulated Newtons, so only overwrite them if asked to.
-			Boolean theIsCardContents = (i >= 5) && ((i - 5) % 3 == 2);
+			bool theIsCardContents = (i >= 5) && ((i - 5) % 3 == 2);
 			if (theIsCardContents && theKind == kDebugState && inOverwriteCards)
 			{
 				// Refuse now, before anything changes, if the card can't take it.
@@ -819,7 +819,7 @@ TEmulator::LoadState(const char* inPath, Boolean inOverwriteCards)
 // -------------------------------------------------------------------------- //
 //  * ReadStateCards( const char*, std::vector<SStateCard>&, KUInt32* )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TEmulator::ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards, KUInt32* outKind)
 {
 	outCards.clear();

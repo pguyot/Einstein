@@ -49,7 +49,7 @@ public:
 	/// Draw screen.
 	/// Return true if the screen was erased.
 	///
-	Boolean DrawScreen() override;
+	bool DrawScreen() override;
 
 	///
 	/// Draw the screen from the UI thread, but only if that is safe.

@@ -123,8 +123,8 @@ public:
 		TLog* inLog = nil,
 		KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 		KUInt32 inPortraitHeight = kDefaultPortraitHeight,
-		Boolean inFullScreen = false,
-		Boolean inScreenIsLandscape = true);
+		bool inFullScreen = false,
+		bool inScreenIsLandscape = true);
 
 	///
 	/// Destructor.
@@ -227,7 +227,7 @@ public:
 	/// \param outTimeInTicks	time in ticks.
 	/// \return \c true if there was a sample left, \c false otherwise.
 	///
-	Boolean GetSample(KUInt32* outPackedSample, KUInt32* outTimeInTicks);
+	bool GetSample(KUInt32* outPackedSample, KUInt32* outTimeInTicks);
 
 	///
 	/// Notify that the tablet orientation changed.
@@ -311,7 +311,7 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void BacklightChanged(Boolean inNewBacklight) = 0;
+	virtual void BacklightChanged(bool inNewBacklight) = 0;
 
 	///
 	/// Get the screen orientation.
@@ -370,7 +370,7 @@ public:
 	/// Get the state of the backlight.
 	/// This method is called by the display driver.
 	///
-	Boolean
+	bool
 	GetBacklight(void) const
 	{
 		return mBacklight;
@@ -381,7 +381,7 @@ public:
 	/// This method is called by the display driver.
 	///
 	void
-	SetBacklight(Boolean inBacklight)
+	SetBacklight(bool inBacklight)
 	{
 		if (inBacklight != mBacklight)
 		{
@@ -488,7 +488,7 @@ public:
 	///
 	/// \return true if the display is full screen.
 	///
-	Boolean
+	bool
 	IsFullScreen(void) const
 	{
 		return mFullScreen;
@@ -550,7 +550,7 @@ public:
 	///
 	/// Switch the status overlay on
 	///
-	Boolean
+	bool
 	OverlayIsOn()
 	{
 		return mOverlayIsOn;
@@ -569,7 +569,7 @@ public:
 	///
 	/// print some text into the status overlay
 	///
-	void OverlayPrintAt(KSInt32 x, KSInt32 y, const char* text, Boolean centered = 0);
+	void OverlayPrintAt(KSInt32 x, KSInt32 y, const char* text, bool centered = 0);
 
 	///
 	/// print a progress bar
@@ -754,19 +754,19 @@ private:
 	KUInt32 mPhysicalHeight { 0 };
 
 	/// Full screen mode.
-	Boolean mFullScreen { false };
+	bool mFullScreen { false };
 
 	/// Whether screen is landscape.
-	Boolean mScreenIsLandscape { false };
+	bool mScreenIsLandscape { false };
 
 	/// Whether we bypass the tablet.
-	Boolean mBypassTablet { false };
+	bool mBypassTablet { false };
 
 	/// Whether the tablet is down.
-	Boolean mTabletIsDown { false };
+	bool mTabletIsDown { false };
 
 	/// If pen is down.
-	Boolean mPenIsDown { false };
+	bool mPenIsDown { false };
 
 	/// Sample rate (in ticks) of the tablet.
 	KUInt32 mTabletSampleRate { kDefaultSampleRate };
@@ -790,20 +790,20 @@ private:
 	KUInt32 mContrast { (KUInt32) kDefaultContrast };
 
 	/// Current screen backlight.
-	Boolean mBacklight { false };
+	bool mBacklight { false };
 
 	/// If keyboard is connected.
-	Boolean mKbdIsConnected { true };
+	bool mKbdIsConnected { true };
 
 	/// Buffer of the screen.
 	KUInt8* mScreenBuffer { nullptr };
 
 protected:
 	/// Show overlay on screen
-	Boolean mOverlayIsOn { false };
+	bool mOverlayIsOn { false };
 
 	/// There is something visible in the overlay buffer line
-	Boolean mOverlayIsDirty[4];
+	bool mOverlayIsDirty[4];
 
 	/// Overlay text buffer
 	char mOverlay[4][40];

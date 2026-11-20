@@ -398,11 +398,11 @@ TPulseAudioSoundManager::StopOutput(void)
 // -------------------------------------------------------------------------- //
 //  * OutputIsRunning( void )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TPulseAudioSoundManager::OutputIsRunning(void)
 {
-	Boolean streamCorked = (Boolean) pa_stream_is_corked(mOutputStream);
-	Boolean outputIsRunning;
+	bool streamCorked = (bool) pa_stream_is_corked(mOutputStream);
+	bool outputIsRunning;
 	mDataMutex->Lock();
 	outputIsRunning = mOutputIsRunning;
 	mDataMutex->Unlock();
@@ -487,7 +487,7 @@ TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int reques
 }
 
 void
-TPulseAudioSoundManager::PAStreamWriteQueuedOutput(pa_stream* s, size_t requested_bytes, Boolean requestMoreOutput)
+TPulseAudioSoundManager::PAStreamWriteQueuedOutput(pa_stream* s, size_t requested_bytes, bool requestMoreOutput)
 {
 	void* outBuffer = NULL;
 	size_t bytesToWrite = requested_bytes;
@@ -570,7 +570,7 @@ TPulseAudioSoundManager::PAStreamWriteQueuedOutput(pa_stream* s, size_t requeste
 void
 TPulseAudioSoundManager::RequestOutputInterrupt(void)
 {
-	Boolean requestOutput = false;
+	bool requestOutput = false;
 
 	if (mDataMutex == NULL)
 	{
