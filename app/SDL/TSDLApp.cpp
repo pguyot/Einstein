@@ -933,11 +933,16 @@ void TSDLApp::HandleKey(const SDL_KeyboardEvent& inEvent)
 	size_t scancode = (size_t) inEvent.scancode;
 	if (scancode >= mScancodesDown.size()) return;
 	if (inEvent.down) {
+		if (inEvent.repeat && mScancodesDown.test(scancode)) {
+			// Auto-repeat of a held key, as the Cocoa app sends it.
+			mScreenManager->KeyRepeat((KUInt8) code);
+			return;
+		}
 		if (!mScancodesDown.test(scancode)) {
 			mScancodesDown.set(scancode);
 			mKeyHolders[code]++;
 		}
-		mScreenManager->KeyDown((KUInt8) code);	// also key repeats
+		mScreenManager->KeyDown((KUInt8) code);
 	} else if (mScancodesDown.test(scancode)) {
 		mScancodesDown.reset(scancode);
 		if (mKeyHolders[code] > 0 && --mKeyHolders[code] == 0)
