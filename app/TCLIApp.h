@@ -25,6 +25,8 @@
 #define _TCLIAPP_H
 
 #include <K/Defines/KDefinitions.h>
+#include <condition_variable>
+#include <mutex>
 
 #include "Version.h"
 
@@ -180,6 +182,12 @@ private:
 	TSymbolList* mSymbolList; ///< List of symbols.
 	bool mQuit; ///< If we should quit.
 	int mCmdPipe[2] { -1, -1 }; ///< Make the command line wait for keyboard an a possible Quit event
+	std::mutex mSaveMutex; ///< Guards save-state pause handshake in non-monitor mode.
+	std::condition_variable mSaveCondVar;
+	bool mSaveRequested { false };
+	bool mEmulatorStoppedForSave { false };
+	bool mThreadExited { false };
+	KUInt32 mNextStopCount { 0 };
 };
 
 #endif

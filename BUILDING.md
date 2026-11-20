@@ -1,369 +1,407 @@
-
 # How to build Einstein on various platforms
 
-## Table Of Contents
+## Table of Contents
 
-* Building Einstein with Cocoa on macOS in 64 bit Universal
-* Building Einstein with FLTK on macOS in 64 bit with Xcode
-* Building Einstein on Linux in 64 bit
-* Building Einstein on OpenBSD in 64 bit
-* Building Einstein on Windows 10/11
-* Buidling Einstein for Android
-* Building Einstein for iOS
+- [Introduction](#introduction)
+- [CMake Build Options and Targets](#cmake-build-options-and-targets)
+- [Building Einstein with Cocoa on macOS (64-bit Universal)](#building-einstein-with-cocoa-on-macos-64-bit-universal)
+- [Building Einstein with FLTK on macOS](#building-einstein-with-fltk-on-macos)
+- [Building Einstein on Linux](#building-einstein-on-linux)
+- [Building Einstein on OpenBSD (Experimental)](#building-einstein-on-openbsd-experimental)
+- [Building Einstein on Windows 10/11 (x64 and ARM64)](#building-einstein-on-windows-1011-x64-and-arm64)
+- [Building Einstein for Android](#building-einstein-for-android)
+- [Building Einstein for iOS](#building-einstein-for-ios)
+- [Building Other Frontends and Optional Targets](#building-other-frontends-and-optional-targets)
 
 ## Introduction
 
-Einstein uses GitHub Workflows to verify integrity and code quality by building 
-test scenarios and Einstein itself whenever code is changed. The `release.yml`
-builds and releases the final user version of Einstein for all desktop platforms,
-making it the final authority in building the latest release of Einstein.
+Einstein uses GitHub Actions workflows in `.github/workflows/` to verify code
+quality and build binaries across supported platforms. In particular,
+[`.github/workflows/release.yml`](./.github/workflows/release.yml) builds and
+publishes the official desktop releases and serves as the authoritative
+reference for release build flags. See [README.md](./README.md) and
+[TARGETS.md](./TARGETS.md) for platform support tiers and architecture notes.
 
-## Building Einstein with Cocoa on macOS in 64 bit Universal
+For CMake-based builds (all desktop platforms and Android), Einstein requires:
+
+- **CMake >= 3.21.0**
+- A **C++20**-capable compiler
+- **Git** and internet access on the first configure step: `CMakeLists.txt` uses
+  CMake's `FetchContent` to automatically download and build **FLTK**
+  (`release-1.4.5`), **NEWT64** (`master`), **cDCL** (`3.2.5`), and **SDL3**
+  (`release-3.2.16`, when the SDL3 frontend is enabled).
+
+## CMake Build Options and Targets
+
+When configuring with CMake, the following options are available:
+
+| Option                       | Default                              | Description                                                                                                             |
+| :--------------------------- | :----------------------------------- | :---------------------------------------------------------------------------------------------------------------------- |
+| `EINSTEIN_FLTK_FRONTEND`     | `ON` (default if no frontend is set) | Build the FLTK desktop UI.                                                                                              |
+| `EINSTEIN_SDL3_FRONTEND`     | `OFF` (`ON` on Android)              | Build the SDL3 frontend.                                                                                                |
+| `EINSTEIN_HEADLESS_FRONTEND` | `OFF`                                | Build the headless CLI frontend (macOS/Unix only).                                                                      |
+| `EINSTEIN_BUILD_FLUID`       | `ON`                                 | Build FLTK's `fluid` UI designer (set to `OFF` for faster user/CI builds; automatically disabled when cross-compiling). |
+| `EINSTEIN_BUILD_TESTS`       | `OFF`                                | Fetch GoogleTest and enable the `EinsteinTests` unit test target.                                                       |
+| `EINSTEIN_BUILD_DRIVERS`     | `OFF`                                | Build the NewtonOS ROM Extension (`Einstein.rex`) drivers (requires `arm-none-eabi-gcc` or `arm-eabi-gcc`).             |
+
+## Building Einstein with Cocoa on macOS (64-bit Universal)
 
 ### Using Xcode
 
-Tested on macOS 12.0.1 Monterey with Xcode 13.2.1
+Install Xcode from the Apple App Store.
 
-Install Xcode from the Apple AppStore.
+Building Einstein with Cocoa is straightforward. Cocoa is the native macOS user
+interface. Open `_Build_/Xcode/Einstein.xcodeproj` in Xcode and press `Cmd-R` to
+build and run. Einstein will launch in Debug mode and ask for the location of a
+Newton ROM file.
 
-Building Einstein with Cocoa is very easy and straight forward. Cocoa is the
-user interface that is built into macOS. Just open the
-```_Build_/Xcode/Einstein.xcodeproj``` in Xcode and press Cmd-R to
-build and run the package. Einstein should launch in Debug mode
-after a few minutes and ask you for the location of the ROM.
-
-Einstein with Cocoa comes with network and serial port emulation,
-and an assembly language Monitor. If you are interested in
-emulating PCMCIA Flash Memory cards, or would like to try
-some programming in NewtonScript, Einstein with FLTK is the better choice.
+Einstein with Cocoa includes network and serial port emulation as well as an
+assembly language Monitor. If you want PCMCIA Flash Memory card emulation or
+NewtonScript toolkit features, use the FLTK build instead.
 
 ### Using the command line
 
-Install Xcode and Xcode's command line tools.
-Start the Terminal:
+Install Xcode and Xcode's Command Line Tools, then run in Terminal:
 
 ```bash
 # -- Get the source code from GitHub
 git clone https://github.com/pguyot/Einstein.git Einstein
 cd Einstein/
-# -- Build the Archive version (optimized)
+
+# -- Build the Release archive (Universal Binary: arm64 + x86_64)
 xcodebuild archive \
     -project _Build_/Xcode/Einstein.xcodeproj \
     -scheme Einstein -configuration Release \
     -archivePath Einstein.xcarchive \
-    ONLY_ACTIVE_ARCH=NO
+    ONLY_ACTIVE_ARCH=NO \
+    CODE_SIGNING_ALLOWED=NO
 ```
-Your Einstein app will be in `Einstein.xcarchive/Products/Applications/Einstein.app`, but you can move it to your `/Application` folder for easy access:
+
+*(Omit `CODE_SIGNING_ALLOWED=NO` if you have configured your own signing team;
+see below.)*
+
+Your application bundle will be at
+`Einstein.xcarchive/Products/Applications/Einstein.app`, which you can copy to
+`/Applications`:
 
 ```bash
-# -- Optional: Copy Einstein to the Applications folder
 cp -R Einstein.xcarchive/Products/Applications/Einstein.app /Applications
 ```
 
-Your final version of Einstein will be in ```/Applications/Einstein.app```.
+To run the Xcode test suite from the command line:
+
+```bash
+xcodebuild test \
+    -project _Build_/Xcode/Einstein.xcodeproj \
+    -scheme Einstein \
+    CODE_SIGNING_ALLOWED=NO
+```
 
 ### Signing for macOS
 
-The signing configuration is defined in the
-[Signing.xcconfig](./_Build_/Xcode/Signing.xcconfig) file. It defines the following
-build properties:
+The signing configuration is defined in
+[`_Build_/Xcode/Signing.xcconfig`](./_Build_/Xcode/Signing.xcconfig):
 
-* `DEVELOPMENT_TEAM`: Team identifier used for signing, defaults to being empty
-* `CODE_SIGN_STYLE`:  `Manual` or `Automatic`, defaults to `Manual`
-* `CODE_SIGN_IDENTITY`: The "common name" of the developer certificate, e.g.
-  "Apple Development" or "iPhone Developer"
-* `CODE_SIGN_ENTITLEMENTS`: The entitlements file to be used, empty default
+- `DEVELOPMENT_TEAM`: Team identifier used for signing (empty by default).
+- `CODE_SIGN_STYLE`: `Manual` or `Automatic` (defaults to `Manual`).
+- `CODE_SIGN_IDENTITY`: Developer certificate common name, e.g.
+  `"Apple Development"` or `"iPhone Developer"`.
+- `CODE_SIGN_ENTITLEMENTS`: Entitlements file to use (empty by default).
 
-The default signing setup for Einstein is to build for local development,
-with no signing in place.
+To override the defaults locally without modifying tracked files, create
+`_Build_/Xcode/LocalSigning.xcconfig` using
+[`_Build_/Xcode/LocalSigningSample.xcconfig`](./_Build_/Xcode/LocalSigningSample.xcconfig)
+as a template.
 
-The file allows overriding the defaults by providing a `LocalSigning.xcconfig`
-file saved as `_Build_/Xcode/LocalSigning.xcconfig`. The file's content will be
-included into the signing config and will override the existing defaults.
-A sample signing config for full signing is shown in the
-[LocalSigningSample.xcconfig](./_Build_/Xcode/LocalSigningSample.xcconfig).
-
-## Building Einstein with FLTK on macOS in 64 bit Universal
-
-Tested on macOS 12.0.1 Monterey with Xcode 13.2.1
+## Building Einstein with FLTK on macOS
 
 ### Using the command line
 
-Install Xcode and Xcode's command line tools.
-Install the current version of CMake from https://cmake.org .
-Start the Terminal:
+Install Xcode (with Command Line Tools) and CMake (`>= 3.21`). Then run:
 
 ```bash
 # -- Get the Einstein source code from GitHub
 git clone https://github.com/pguyot/Einstein.git Einstein
 cd Einstein/
-# -- Get the FLTK source code from GitHub
-git clone https://github.com/fltk/fltk.git fltk
-# -- Get the newt64 source code from GitHub
-git clone https://github.com/MatthiasWM/NEWT64.git newt64
-# -- Compile FLTK 1.4
-cmake -S fltk -B fltk/build \
-    -D FLTK_USE_SYSTEM_LIBJPEG=Off \
-    -D FLTK_USE_SYSTEM_ZLIB=Off \
-    -D FLTK_USE_SYSTEM_LIBPNG=Off \
-    -D FLTK_BUILD_TEST=Off \
-    -D FLTK_BUILD_GL=Off \
-    -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
-    -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
-cmake --build fltk/build
-# -- Compile newt64 (a few warnings will pop up)
-cmake -S newt64 -B newt64/build \
-    -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
-    -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
-cmake --build newt64/build
-# -- Compile Einstein (this may take 20 minutes or more)
+
+# -- Configure and build Einstein (FLTK, NEWT64, and cDCL are fetched automatically)
 cmake -S . -B build \
-    -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
-    -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
+    -D EINSTEIN_BUILD_FLUID=OFF \
+    -D CMAKE_BUILD_TYPE=Release
 cmake --build build --target Einstein
 ```
-Your Einstein app will be in `build/Einstein.app`, but you can move it to your `/Application` folder for easy access:
+
+Note that the default macOS deployment target of 10.13 might not be supported on
+your local Xcode install anymore, in that case, it can be overridden using
+`-D CMAKE_OSX_DEPLOYMENT_TARGET=12.0` or any higher supported version.
+
+Your application bundle will be in `build/Einstein.app`:
 
 ```bash
 # -- Optional: Copy Einstein to the Applications folder
 cp -R build/Einstein.app /Applications
 ```
 
-### BasiliskII
+## Building Einstein on Linux
 
-There is a version of the Macintosh Emulator BasiliskII for macOS that can connect directly
-to Einstein via serial port emulation:
+These instructions build a native executable for your host architecture (x86_64
+or ARM64).
 
-```bash
-git clone https://github.com/MatthiasWM/macemu.git macemu
-open macemu/BasiliskII/src/MacOSX/BasiliskII.xcodeproj
-```
+### Using the command line (FLTK frontend)
 
-## Building Einstein on Linux in 64 bit
-
-Tested on Linux Ubuntu 20.04.2 LTS on March 13th 2021
-
-These instruction will create an Intel executable when run on an Intel system,
-and an ARM executable on ARM systems. It is possible to cross-compile for another
-CPU, but this option is not handled (yet) in this document.
-
-### Using the command line
-
-Install various packages that are needed to compile FLTK, newt64, and Einstein. Package
-installer work differently on different distribution. You may also need different packages.
-This worked for me:
+On Ubuntu/Debian, install the build tools and FLTK/audio dependencies (see
+[`.github/workflows/release.yml`](./.github/workflows/release.yml) and
+[`.github/workflows/ubuntu.yml`](./.github/workflows/ubuntu.yml)):
 
 ```bash
-sudo apt-get install git cmake
-sudo apt-get install clang
-sudo apt-get install autoconf
-sudo apt-get install libx11-dev
-sudo apt-get install libglu1-mesa-dev
-sudo apt-get install libasound2-dev
-sudo apt-get install libxft-dev
-sudo apt-get install bison flex
-sudo apt-get install pulseaudio
-sudo apt-get install libpulse-dev
+sudo apt-get update
+sudo apt-get install -y git cmake ninja-build build-essential libpulse-dev libbsd-dev
+
+# FLTK dependencies:
+sudo apt-get install -y libx11-dev libglu1-mesa-dev libxft-dev libxcursor-dev \
+    libasound2-dev freeglut3-dev libcairo2-dev libfontconfig1-dev libglew-dev \
+    libjpeg-dev libpng-dev libxinerama-dev
+
+# FLTK Wayland dependencies:
+sudo apt-get install -y libpango1.0-dev libwayland-dev wayland-protocols \
+    libxkbcommon-dev libdbus-1-dev libdecor-0-dev libgtk-3-dev
 ```
 
-Now download and build all components:
+*(Package names vary on other distributions.)*
+
+Then clone and build Einstein:
 
 ```bash
 # -- Get the Einstein source code from GitHub
 git clone https://github.com/pguyot/Einstein.git Einstein
 cd Einstein/
-# -- Get the FLTK source code from GitHub
-git clone https://github.com/fltk/fltk.git fltk
-# -- Get the newt64 source code from GitHub
-git clone https://github.com/MatthiasWM/NEWT64.git newt64
-# -- Compile FLTK
-cmake -S fltk -B fltk/build \
-    -D FLTK_USE_SYSTEM_LIBJPEG=Off \
-    -D FLTK_USE_SYSTEM_ZLIB=Off \
-    -D FLTK_USE_SYSTEM_LIBPNG=Off \
-    -D FLTK_BUILD_TEST=Off \
-    -D FLTK_BUILD_GL=Off \
-    -D CMAKE_BUILD_TYPE=Release
-cmake --build fltk/build
-# -- Compile newt64
-cmake -S newt64 -B newt64/build \
-    -D CMAKE_BUILD_TYPE=Release
-cmake --build newt64/build
-# -- Compile Einstein
-cmake -S . -B build \
-    -D CMAKE_BUILD_TYPE=Release
+
+# -- Configure and build Einstein (FLTK, NEWT64, and cDCL are fetched automatically)
+cmake -S . -B build -D EINSTEIN_BUILD_FLUID=OFF -D CMAKE_BUILD_TYPE=Release
 cmake --build build --target Einstein
 ```
 
-Your Einstein app will be in `build/Einstein`, but you can move it to your `/usr/bin` folder for easy access:
+Your binary will be at `build/Einstein`, which you can optionally install:
 
 ```bash
-# -- Optional: Copy Einstein to the binaries folder
-sudo cp build/Einstein /usr/bin
+sudo cp build/Einstein /usr/local/bin
 ```
 
-Continue with setting up the ROM as described in the manual. Enjoy.
+Continue with setting up the Newton ROM as described in the manual.
 
-### BasiliskII (optional)
+### SDL3 frontend on Linux
 
-There is a version of the Macintosh Emulator BasiliskII for Linux that can connect directly
-to Einstein via serial port emulation. You need to install SDL2 to compile BasiliskII:
+To build Einstein with the SDL3 frontend instead of FLTK (see
+[`.github/workflows/ubuntu_sdl.yml`](./.github/workflows/ubuntu_sdl.yml)),
+install the SDL3 system dependencies and select `EINSTEIN_SDL3_FRONTEND`:
 
 ```bash
-git clone https://github.com/MatthiasWM/macemu.git macemu
-cd macemu/BasiliskII/src/Unix
-./autogen.sh --without-gtk --without-x --disable-standalone-gui \
-    --disable-gtk-test --with-sdl-static --with-sdl-video \
-    --with-sdl-audio --with-sdl-framework
-make
+sudo apt-get update
+sudo apt-get install -y git cmake pkg-config ninja-build build-essential libbsd-dev \
+    libasound2-dev libpulse-dev libpipewire-0.3-dev \
+    libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev \
+    libwayland-dev wayland-protocols libxkbcommon-dev libdbus-1-dev libibus-1.0-dev \
+    libdecor-0-dev libegl1-mesa-dev libgl1-mesa-dev libdrm-dev libgbm-dev libudev-dev
+
+cmake -S . -B build-sdl -G Ninja \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D EINSTEIN_FLTK_FRONTEND=OFF \
+    -D EINSTEIN_SDL3_FRONTEND=ON
+cmake --build build-sdl --target Einstein
 ```
 
-## Building Einstein on OpenBSD 64 bit
+## Building Einstein on OpenBSD (Experimental)
 
-Tested on OpenBSD 7.1/amd64-stable on June 30th 2022
+OpenBSD (along with FreeBSD/NetBSD) is currently an experimental target
+and is not built in CI.
 
-These instructions will create an Intel executable when run on an Intel system, and an ARM executable on ARM systems.
-
-### Using the command line
-
-Install various packages that are needed to compile FLTK, newt64, and Einstein. This worked for me:
+Install the required packages:
 
 ```bash
-doas pkg_add git \
-  cmake \
-  autoconf \
-  bison \
-  pulseaudio
+doas pkg_add git cmake pulseaudio
 ```
 
-Now download and build all components:
+Then clone and build Einstein:
 
 ```bash
-# -- Get the Einstein source code from GitHub
 git clone https://github.com/pguyot/Einstein.git Einstein
 cd Einstein/
-# -- Get the FLTK source code from GitHub
-git clone https://github.com/fltk/fltk.git fltk
-# -- Get the newt64 source code from GitHub
-git clone https://github.com/MatthiasWM/NEWT64.git newt64
-# -- Compile FLTK
-cmake -S fltk -B fltk/build \
-    -D FLTK_USE_SYSTEM_LIBJPEG=Off \
-    -D FLTK_USE_SYSTEM_ZLIB=Off \
-    -D FLTK_USE_SYSTEM_LIBPNG=Off \
-    -D FLTK_BUILD_TEST=Off \
-    -D FLTK_BUILD_GL=Off \
-    -D CMAKE_BUILD_TYPE=Release
-cmake --build fltk/build
-# -- Compile newt64
-cmake -S newt64 -B newt64/build \
-    -D CMAKE_BUILD_TYPE=Release
-cmake --build newt64/build
-# -- Compile Einstein
+
 LOCALBASE=/usr/local cmake -S . -B build \
+    -D EINSTEIN_BUILD_FLUID=OFF \
     -D CMAKE_BUILD_TYPE=Release
 cmake --build build --target Einstein
 ```
 
-Your Einstein app will be in build/Einstein, but you can move it to your /usr/local/bin folder for easy access:
+Your binary will be at `build/Einstein`, which you can optionally copy to
+`/usr/local/bin`:
 
 ```bash
-# -- Optional: Copy Einstein to the binaries folder
 doas cp build/Einstein /usr/local/bin
 ```
 
-Continue with setting up the ROM as described in the manual. Enjoy.
+## Building Einstein on Windows 10/11 (x64 and ARM64)
 
-## Building Einstein on Windows 10/11 with VisualStudi
+### Using Visual Studio (MSVC)
 
-These instructions will build the Intel 64bit version of EInstein, even if
-the host machine runs on ARM. 
+Install Visual Studio 2022 (or newer) with the **Desktop development with C++**
+and **CMake tools** components, plus
+[Git for Windows](https://gitforwindows.org).
 
-Install VisualStudio 2020. It will include the C++ compiler. Make sure that
-the CMake tools are also installed.
+Open a **Developer Command Prompt for VS** (or PowerShell with VS environment)
+and run:
 
-You will also need git. You can install it
-from this source: https://gitforwindows.org .
-
-### Using the command line
-
-Einstein can be built very easily from the command line. 
-Open the Developer Command Prompt:
-```
-Start Menu
-  -> All Apps
-    -> Visual Studio 2020 Folder
-      -> Developer Command Promt for VS 2022
-```
-
-Enter the following commands into the shell.
-
-```bash
-# -- Get the Einstein source code from GitHub
+```bat
 git clone https://github.com/pguyot/Einstein.git Einstein
-cd Einstein/
-# -- Get the FLTK source code from GitHub
-git clone https://github.com/fltk/fltk.git fltk
-# -- Get the newt64 source code from GitHub
-git clone https://github.com/MatthiasWM/NEWT64.git newt64
-# -- Compile FLTK (yes, the command must be in a single line)
-cmake -S fltk -B fltk/build -A x64 -D FLTK_USE_SYSTEM_LIBJPEG=Off -D FLTK_USE_SYSTEM_ZLIB=Off -D FLTK_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D FLTK_BUILD_GL=Off -D CMAKE_BUILD_TYPE=Release
-cmake --build fltk/build --config Release
-# -- Compile newt64
-cmake -S newt64 -B newt64/build -A x64 -D CMAKE_BUILD_TYPE=Release
-cmake --build newt64/build --config Release
-# -- Compile Einstein
-cmake -S . -B build -A x64 -D CMAKE_BUILD_TYPE=Release
+cd Einstein
+
+:: For x64:
+cmake -S . -B build -D EINSTEIN_BUILD_FLUID=OFF -A x64 -D CMAKE_BUILD_TYPE=Release
 cmake --build build --config Release --target Einstein
+
+:: Or for Windows ARM64:
+cmake -S . -B build-arm64 -D EINSTEIN_BUILD_FLUID=OFF -A ARM64 -D CMAKE_BUILD_TYPE=Release
+cmake --build build-arm64 --config Release --target Einstein
 ```
 
-Your Einstein app will be in `build\Release\Einstein.exe`, but you can move it to your `C:\Program Files` folder for easy access:
+MSVC builds link the C/C++ runtime statically (`/MT`), so `Einstein.exe` does
+not require installing a separate Visual C++ Redistributable.
 
-```bash
-# -- Optional: Copy Einstein to the Program Files folder
+Your executable will be in `build\Release\Einstein.exe` (or
+`build-arm64\Release\Einstein.exe`), which you can optionally copy to
+`C:\Program Files\Einstein`:
+
+```bat
 md "C:\Program Files\Einstein"
 copy build\Release\Einstein.exe "C:\Program Files\Einstein"
 ```
 
-Continue with setting up the ROM as described in the manual. Enjoy.
+### Using MinGW (Native on Windows or Cross-Compiled from Linux)
 
-### BasiliskII
-There is a version of the Macintosh Emulator BasiliskII for Windows that can connect directly
-to Einstein via serial port emulation. You need to install SDL2 to compile BasiliskII:
+Einstein also supports MinGW builds using
+[`cmake/toolchain-mingw.cmake`](./cmake/toolchain-mingw.cmake) (see
+[`.github/workflows/mingw.yml`](./.github/workflows/mingw.yml)):
 
-Clone `https://github.com/MatthiasWM/macemu.git` into `macemu`.
-Grab the SDL2 sourcecode and put it in `.../macemu/external`.
-Then load and compile the VisualStudio Solution in `macemu/BasiliskII/src/Windows`.
+- **On Windows (MinGW):**
 
+  ```bash
+  cmake -G "MinGW Makefiles" -S . -B build-mingw \
+      -D CMAKE_BUILD_TYPE=Release \
+      -D CMAKE_TOOLCHAIN_FILE=cmake/toolchain-mingw.cmake
+  cmake --build build-mingw --config Release --target Einstein
+  ```
 
-## <a target=Android/>Building Einstein for Android
+- **Cross-compiling from Ubuntu/Debian Linux:**
 
-The ```android-project``` folder contains the current SDL3-based Gradle setup for
-Einstein on Android. See [README.Android.md](./README.Android.md) for downloading
-the required prebuilt SDL3 `.aar` into `android-project/app/libs`, then open the
-```android-project``` directory in Android Studio (or run `./gradlew assembleDebug`
-inside `android-project/`).
+  ```bash
+  sudo apt-get update
+  sudo apt-get install -y mingw-w64 ninja-build
+  sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+  sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 
-The Android version of EInstein is still in its Alpha stage and will need
-some more development before it is actually usable.
+  cmake -G Ninja -S . -B build-mingw \
+      -D CMAKE_BUILD_TYPE=Release \
+      -D CMAKE_TOOLCHAIN_FILE=cmake/toolchain-mingw.cmake
+  cmake --build build-mingw --target Einstein
+  ```
 
-Note that changes in the source tree are sometimes not propageted
-to the Android build for a while.
+*(Add `-D EINSTEIN_BUILD_DRIVERS=ON` if `gcc-arm-none-eabi` is also installed.)*
 
+## Building Einstein for Android
+
+The `android-project/` directory contains the SDL3-based Gradle setup for
+Einstein on Android (see [README.Android.md](./README.Android.md) and
+[`.github/workflows/android.yml`](./.github/workflows/android.yml)).
+
+1. Download the prebuilt SDL `3.2.16` Android `.aar` into
+   `android-project/app/libs`:
+
+   ```bash
+   gh -R libsdl-org/SDL release download release-3.2.16 -p 'SDL3-devel-*-android.zip'
+   unzip "SDL3-devel-3.2.16-android.zip" -d android-project/app/libs SDL3-3.2.16.aar
+   ```
+
+2. Open `android-project/` in Android Studio, or build a debug APK from the
+   command line (requires JDK 17 and the Android SDK/NDK):
+
+   ```bash
+   cd android-project
+   ./gradlew assembleDebug -PeinsteinAbis=arm64-v8a
+   ```
+
+The Android version of Einstein is still in an early stage and may lag behind
+desktop source changes.
 
 ## Building Einstein for iOS
 
-Tested on Dec 27 2021, compiled 12.0.1 Monterey and M1 CPU,
-running on iPhone 13 Max Pro with iOS 15.2
+*(Experimental; last verified on macOS 12.0.1 Monterey / iOS 15.2.)*
 
- - install the Xcode developer environment from teh Apple AppStore, it's free
- - make sure you also install the command line tools, so you have `git` available
- - in the shell, do ```git clone https://github.com/pguyot/Einstein.git Einstein4iOS```
- - in the shell, do ```open Einstein4iOS/_Build_/Xcode/Einstein.xcodeproj```
- - now in Xcode, select the ```iOSEinstein``` scheme and your phone as your target
- - you may have to change details for the Target Settings in the *Signing* tab
- - build and run Einstein for your phone - it will fail, but now Finder will
-   show the directory that you need to install the ```717006.rom``` file.
+- Install Xcode from the Apple App Store and install the Command Line Tools.
+
+- Clone the repository:
+
+  ```bash
+  git clone https://github.com/pguyot/Einstein.git Einstein4iOS
+  open Einstein4iOS/_Build_/Xcode/Einstein.xcodeproj
+  ```
+
+- In Xcode, select the `iOSEinstein` scheme and your device as the target.
+
+- Adjust the signing settings in the target's **Signing & Capabilities** tab as
+  needed.
+
+- Build and run Einstein for your device — the first launch will fail until you
+  place `717006.rom` into the app directory shown in Finder.
+
+## Building Other Frontends and Optional Targets
+
+### Headless CLI Frontend
+
+On macOS and Unix systems, you can build Einstein without a GUI using the
+headless frontend:
+
+```bash
+cmake -S . -B build-headless \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D EINSTEIN_HEADLESS_FRONTEND=ON
+cmake --build build-headless --target Einstein
+```
+
+### Experimental macOS SDL3 Cross-Compile (from Linux)
+
+[`.github/workflows/macos_sdl.yml`](./.github/workflows/macos_sdl.yml) builds
+the SDL3 macOS frontend on Linux using Clang/LLD and
+[`cmake/toolchain-macos-cross.cmake`](./cmake/toolchain-macos-cross.cmake) with
+a macOS SDK (`CMAKE_OSX_SYSROOT`).
+
+### Unit Tests (`EinsteinTests`)
+
+To build and run the CMake unit tests (see
+[`.github/workflows/tests.yml`](./.github/workflows/tests.yml)):
+
+```bash
+cmake -S . -B build -D EINSTEIN_BUILD_TESTS=ON -D EINSTEIN_BUILD_FLUID=OFF -D CMAKE_BUILD_TYPE=Release
+cmake --build build --config Release --target EinsteinTests
+ctest --test-dir build --build-config Release --output-on-failure
+```
+
+### NewtonOS Drivers / REx (`Einstein.rex`)
+
+Building the NewtonOS ROM Extension requires an ARM cross-compiler
+(`arm-none-eabi-gcc` or `arm-eabi-gcc`, e.g.
+`sudo apt-get install gcc-arm-none-eabi` on Ubuntu). You can build it either
+standalone (see [`.github/workflows/rex.yml`](./.github/workflows/rex.yml)):
+
+```bash
+cmake -S Drivers -B Drivers/build
+cmake --build Drivers/build
+```
+
+or as part of the main Einstein build by passing `-D EINSTEIN_BUILD_DRIVERS=ON`.
+The output is written to `_Data_/Einstein.rex`.
+
+### Developer Helper Targets
+
+- `clang-format-check`: verifies formatting in CI (requires `clang-format`).
+- `fluid_update`: regenerates `.cpp`/`.h` files from FLTK `.fl` files when
+  `EINSTEIN_BUILD_FLUID=ON`.
