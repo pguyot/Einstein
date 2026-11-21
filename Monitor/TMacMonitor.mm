@@ -1,5 +1,5 @@
 #include "Monitor/TMacMonitor.h"
-#include "TCocoaMonitorController.h"
+#include "app/TCocoaMonitorController.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TInterruptManager.h"
 #include "Monitor/TSymbolList.h"

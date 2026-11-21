@@ -21,6 +21,7 @@
 // $Id$
 // ==============================
 
+#include <K/Defines/KDefinitions.h>
 #import <Cocoa/Cocoa.h>
 
 class TCocoaFileManager;

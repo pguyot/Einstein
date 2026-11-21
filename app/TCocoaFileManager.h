@@ -25,7 +25,7 @@
 #define _TCOCOAFILEMANAGER_H
 
 #include <K/Defines/KDefinitions.h>
-#include "TFileManager.h"
+#include "Emulator/Files/TFileManager.h"
 
 // CoreGraphics via ApplicationServices
 #include <ApplicationServices/ApplicationServices.h>

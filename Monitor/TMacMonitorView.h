@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "TCocoaMonitorController.h"
+#import "app/TCocoaMonitorController.h"
 
 class TMacMonitor;
 

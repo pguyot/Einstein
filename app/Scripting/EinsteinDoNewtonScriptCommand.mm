@@ -22,7 +22,7 @@
 // ==============================
 
 #import "EinsteinDoNewtonScriptCommand.h"
-#import "TCocoaAppController.h"
+#import "app/TCocoaAppController.h"
 
 @implementation EinsteinDoNewtonScriptCommand : NSScriptCommand
 
