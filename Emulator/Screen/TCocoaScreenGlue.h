@@ -27,6 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 // ObjC
+#import <Foundation/Foundation.h>
 #include <objc/objc.h>
 
 // Einstein

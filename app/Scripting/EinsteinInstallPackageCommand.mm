@@ -22,7 +22,7 @@
 // ==============================
 
 #import "EinsteinInstallPackageCommand.h"
-#import "TCocoaAppController.h"
+#import "app/TCocoaAppController.h"
 
 @implementation EinsteinInstallPackageCommand : NSScriptCommand
 

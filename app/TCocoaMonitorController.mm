@@ -7,8 +7,8 @@
 
 #import "TCocoaMonitorController.h"
 #import "TCocoaUserDefaults.h"
-#import "TMacMonitorView.h"
-#import "TMonitorCore.h"
+#import "Monitor/TMacMonitorView.h"
+#import "Monitor/TMonitorCore.h"
 #import "Monitor/TMacMonitor.h"
 
 @interface

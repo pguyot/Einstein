@@ -7,7 +7,7 @@
 //
 
 #import "TMacMonitorView.h"
-#import "TCocoaMonitorController.h"
+#import "app/TCocoaMonitorController.h"
 #import "TMacMonitor.h"
 
 #define FONT_HEIGHT 13
