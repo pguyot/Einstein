@@ -42,9 +42,6 @@
 #if TARGET_OS_OPENSTEP
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #endif
-#if AUDIO_PORTAUDIO
-#include "Emulator/Sound/TPortAudioSoundManager.h"
-#endif
 #if AUDIO_PULSEAUDIO
 #include "Emulator/Sound/TPulseAudioSoundManager.h"
 #endif
@@ -838,7 +835,7 @@ TCLIApp::Help(void)
 		"%s [options] [data_path] (or set the environment variable EINSTEIN_HOME)\n",
 		mProgramName);
 	(void) ::printf(
-		"  -a | --audio=audiodriver        (null, portaudio, coreaudio, pulseaudio)\n");
+		"  -a | --audio=audiodriver        (null, coreaudio, pulseaudio)\n");
 	(void) ::printf(
 		"  -s | --screen=screen driver     (x11)\n");
 	(void) ::printf(
@@ -900,11 +897,6 @@ TCLIApp::CreateSoundManager(const char* inClass)
 	} else if (::strcmp(inClass, "coreaudio") == 0)
 	{
 		mSoundManager = new TCoreAudioSoundManager(mLog);
-#endif
-#if AUDIO_PORTAUDIO
-	} else if (::strcmp(inClass, "portaudio") == 0)
-	{
-		mSoundManager = new TPortAudioSoundManager(mLog);
 #endif
 #if AUDIO_PULSEAUDIO
 	} else if (::strcmp(inClass, "pulseaudio") == 0)

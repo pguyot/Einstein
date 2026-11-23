@@ -2249,7 +2249,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_DEBUG,
 					TARGET_IOS,
-					NO_PORT_AUDIO,
 					NO_X11,
 					"$(inherited)",
 					USE_STORYBOARDS,
@@ -2258,7 +2257,6 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					../../,
-					../../portaudio/pa_common/,
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2290,7 +2288,6 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TARGET_IOS,
-					NO_PORT_AUDIO,
 					NO_X11,
 					"$(inherited)",
 					USE_STORYBOARDS,
@@ -2298,7 +2295,6 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					../../,
-					../../portaudio/pa_common/,
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2333,7 +2329,6 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TARGET_IOS,
-					NO_PORT_AUDIO,
 					NO_X11,
 					"$(inherited)",
 					USE_STORYBOARDS,
@@ -2341,7 +2336,6 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					../../,
-					../../portaudio/pa_common/,
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2387,7 +2381,6 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
-					"$(SRCROOT)/../../portaudio/pa_common/",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(APPLICATIONS)/Applications";
@@ -2427,7 +2420,6 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
-					"$(SRCROOT)/../../portaudio/pa_common/",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(APPLICATIONS)/Applications";
@@ -2486,7 +2478,6 @@
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
 					NO_X11,
-					NO_PORT_AUDIO,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2539,7 +2530,6 @@
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
 					NO_X11,
-					NO_PORT_AUDIO,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2591,7 +2581,6 @@
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
 					NO_X11,
-					NO_PORT_AUDIO,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2626,7 +2615,6 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
-					"$(SRCROOT)/../../portaudio/pa_common/",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(APPLICATIONS)/Applications";
@@ -2680,7 +2668,6 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../",
-					"$(SRCROOT)/../../portaudio/pa_common/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -2719,7 +2706,6 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../",
-					"$(SRCROOT)/../../portaudio/pa_common/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -2757,7 +2743,6 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../",
-					"$(SRCROOT)/../../portaudio/pa_common/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -2806,7 +2791,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Tests-Info.plist";
@@ -2862,7 +2846,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Tests-Info.plist";
@@ -2917,7 +2900,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Tests-Info.plist";
