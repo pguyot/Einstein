@@ -2259,7 +2259,6 @@
 				HEADER_SEARCH_PATHS = (
 					../../,
 					../../portaudio/pa_common/,
-					"../../libffi-osx",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2300,7 +2299,6 @@
 				HEADER_SEARCH_PATHS = (
 					../../,
 					../../portaudio/pa_common/,
-					"../../libffi-osx",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2344,7 +2342,6 @@
 				HEADER_SEARCH_PATHS = (
 					../../,
 					../../portaudio/pa_common/,
-					"../../libffi-osx",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2391,7 +2388,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
-					"$(SRCROOT)/../../libffi-osx",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(APPLICATIONS)/Applications";
@@ -2432,7 +2428,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
-					"$(SRCROOT)/../../libffi-osx",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(APPLICATIONS)/Applications";
@@ -2632,7 +2627,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
-					"$(SRCROOT)/../../libffi-osx",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(APPLICATIONS)/Applications";
@@ -2686,7 +2680,6 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../",
-					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
@@ -2726,7 +2719,6 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../",
-					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
@@ -2765,7 +2757,6 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../",
-					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
@@ -2816,7 +2807,6 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../portaudio/pa_common/",
-					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Tests-Info.plist";
@@ -2873,7 +2863,6 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../portaudio/pa_common/",
-					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Tests-Info.plist";
@@ -2929,7 +2918,6 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../portaudio/pa_common/",
-					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Tests-Info.plist";
