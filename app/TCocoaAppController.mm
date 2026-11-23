@@ -39,9 +39,6 @@
 #include "Emulator/Screen/TCocoaScreenManager.h"
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #include "Emulator/Sound/TNullSoundManager.h"
-#if !NO_PORT_AUDIO
-#include "Emulator/Sound/TPortAudioSoundManager.h"
-#endif
 #ifdef OPTION_X11_SCREEN
 #include "Emulator/Screen/TX11ScreenManager.h"
 #endif
@@ -350,11 +347,6 @@ TCocoaAppController ()
 	if (indexAudioDriver == kCoreAudioDriverTag)
 	{
 		mSoundManager = new TCoreAudioSoundManager(mLog);
-#if OPTION_PORT_AUDIO
-	} else if (indexAudioDriver == kPortAudioDriverTag)
-	{
-		mSoundManager = new TPortAudioSoundManager(mLog);
-#endif
 	} else
 	{
 		mSoundManager = new TNullSoundManager(mLog);
