@@ -324,6 +324,13 @@ private:
 	// Give the emulator the app's log (every PC Card access, and more, is
 	// logged then; much slower). Off, as in the FLTK app without --log.
 	bool mEmulatorLogEnabled { false };
+	// The keyboard's Control key acts as the Newton's Command key. On by
+	// default on Android, which keeps the Meta key for its own shortcuts.
+#if TARGET_OS_ANDROID
+	bool mControlIsCommand { true };
+#else
+	bool mControlIsCommand { false };
+#endif
 	// The storage card that is inserted, and its file name in CardsFolder().
 	TPCMCIACard* mStorageCard { nullptr };
 	std::string mStorageCardFile;
