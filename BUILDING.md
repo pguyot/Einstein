@@ -342,8 +342,11 @@ Then load and compile the VisualStudio Solution in `macemu/BasiliskII/src/Window
 
 ## <a target=Android/>Building Einstein for Android
 
-The ```_Build_``` folder contains the current setup for Einstein on Android. Open
-Android Studio and launch the project in the ```_Build_/AndroidStudioNative```.
+The ```android-project``` folder contains the current SDL3-based Gradle setup for
+Einstein on Android. See [README.Android.md](./README.Android.md) for downloading
+the required prebuilt SDL3 `.aar` into `android-project/app/libs`, then open the
+```android-project``` directory in Android Studio (or run `./gradlew assembleDebug`
+inside `android-project/`).
 
 The Android version of EInstein is still in its Alpha stage and will need
 some more development before it is actually usable.
