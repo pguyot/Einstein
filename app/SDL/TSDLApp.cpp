@@ -854,6 +854,7 @@ namespace {
 	/// FLTK apps) by SDL scancode, the position of the key on a US keyboard.
 	/// NewtonOS applies its own keyboard layout, as with an Apple keyboard.
 	struct SKeyCode { SDL_Scancode fScancode; KUInt8 fNewton; };
+	constexpr KUInt8 kNewtonCommandKey = 55;
 	const SKeyCode kKeyCodes[] = {
 		{ SDL_SCANCODE_A, 0 }, { SDL_SCANCODE_S, 1 }, { SDL_SCANCODE_D, 2 },
 		{ SDL_SCANCODE_F, 3 }, { SDL_SCANCODE_H, 4 }, { SDL_SCANCODE_G, 5 },
@@ -874,7 +875,7 @@ namespace {
 		{ SDL_SCANCODE_TAB, 48 }, { SDL_SCANCODE_SPACE, 49 }, { SDL_SCANCODE_GRAVE, 50 },
 		{ SDL_SCANCODE_NONUSBACKSLASH, 50 }, { SDL_SCANCODE_BACKSPACE, 51 },
 		{ SDL_SCANCODE_ESCAPE, 53 },
-		{ SDL_SCANCODE_LGUI, 55 }, { SDL_SCANCODE_RGUI, 55 },		// Command
+		{ SDL_SCANCODE_LGUI, kNewtonCommandKey }, { SDL_SCANCODE_RGUI, kNewtonCommandKey },
 		{ SDL_SCANCODE_LSHIFT, 56 }, { SDL_SCANCODE_RSHIFT, 56 },
 		{ SDL_SCANCODE_CAPSLOCK, 57 },
 		{ SDL_SCANCODE_LALT, 58 }, { SDL_SCANCODE_RALT, 58 },		// Option
@@ -927,6 +928,11 @@ void TSDLApp::HandleKey(const SDL_KeyboardEvent& inEvent)
 	}
 	int code = NewtonKeyCode(inEvent.scancode);
 	if (code < 0) return;
+	// Android keeps the Meta (Windows, Command) key for its own shortcuts, so
+	// Control can stand in for Command (setting "Keyboard Control key").
+	if (mControlIsCommand
+		&& (inEvent.scancode == SDL_SCANCODE_LCTRL || inEvent.scancode == SDL_SCANCODE_RCTRL))
+		code = kNewtonCommandKey;
 	// Several physical keys share one Newton code (left and right Shift,
 	// Control, Option, Command). Count the physical keys that hold each
 	// code, and release the code only when the last of them goes up.
@@ -1476,6 +1482,7 @@ namespace {
 		kMenuScreen,
 		kMenuFastStart,
 		kMenuEmulatorLog,
+		kMenuControlKey,
 		kMenuNetSoftware,
 		kMenuStorage,
 		kMenuNewLinear,
@@ -1508,6 +1515,7 @@ namespace {
 		kSettingScreen,
 		kSettingFastStart,
 		kSettingEmulatorLog,
+		kSettingControlKey,
 		kSettingCount
 	};
 	// RAM sizes offered, as in the FLTK app (64 KB pages).
@@ -1581,6 +1589,7 @@ void TSDLApp::ShowSettingsMenu()
 		(mAdjustToAspectRatio ? "fit to the window" : "MessagePad size (320 x 480)");
 	items[kSettingFastStart] = std::string("Fast start: ") + (mFastStartEnabled ? "on" : "off");
 	items[kSettingEmulatorLog] = std::string("Detailed emulator log: ") + (mEmulatorLogEnabled ? "on" : "off");
+	items[kSettingControlKey] = std::string("Keyboard Control key: ") + (mControlIsCommand ? "Command" : "Control");
 	ShowList(kMenuSettings, "Settings", items);
 }
 
@@ -1650,6 +1659,12 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 							 { "Off (faster)", "On: log every device access (for debugging, much slower)" },
 							 mEmulatorLogEnabled ? 1 : 0);
 					break;
+				case kSettingControlKey:
+					ShowList(kMenuControlKey, "Keyboard Control key",
+							 { "Command: Control-C, -V, -Z... work as Newton Command shortcuts",
+							   "Control: sent to NewtonOS as Control" },
+							 mControlIsCommand ? 0 : 1);
+					break;
 				case kSettingFastStart:
 					ShowList(kMenuFastStart, "Fast start",
 							 { "On: continue where Einstein was", "Off: boot NewtonOS at every start" },
@@ -1674,6 +1689,13 @@ void TSDLApp::HandleMenuChoice(int inMenuId, int inItem)
 		case kMenuFastStart:
 			mFastStartEnabled = (inItem == 0);
 			SaveSettings();
+			break;
+		case kMenuControlKey:
+			if ((inItem == 0) != mControlIsCommand) {
+				ReleaseKeys();	// a held Control key changes its Newton code
+				mControlIsCommand = (inItem == 0);
+				SaveSettings();
+			}
 			break;
 		case kMenuEmulatorLog:
 			if ((inItem == 1) != mEmulatorLogEnabled) {
@@ -2091,6 +2113,7 @@ void TSDLApp::LoadSettings()
 		else if (key == "NetworkCard") mNetworkCardWanted = (value != 0);
 		else if (key == "StorageCard") mStorageCardWanted = line.substr(eq + 1);
 		else if (key == "EmulatorLog") mEmulatorLogEnabled = (value != 0);
+		else if (key == "ControlIsCommand") mControlIsCommand = (value != 0);
 	}
 	mLog->FLogLine("Settings: RAM %d pages, screen %s, fast start %s, network card %s",
 				   mRAMPages, mAdjustToAspectRatio ? "fit" : "320x480",
@@ -2109,6 +2132,7 @@ void TSDLApp::SaveSettings()
 				 mRAMPages, mAdjustToAspectRatio ? 1 : 0, mFastStartEnabled ? 1 : 0,
 				 mNetworkCardWanted ? 1 : 0);
 	std::string text = std::string(numbers) + "EmulatorLog=" + (mEmulatorLogEnabled ? "1" : "0")
+		+ "\nControlIsCommand=" + (mControlIsCommand ? "1" : "0")
 		+ "\nStorageCard=" + mStorageCardWanted + "\n";
 	if (!SDL_SaveFile(path.string().c_str(), text.data(), text.size()))
 		mLog->FLogLine("Could not save the settings: %s", SDL_GetError());
