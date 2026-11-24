@@ -157,6 +157,7 @@
 //
 
 #include "TUsermodeNetwork.h"
+#include <cstddef>
 #include "Emulator/Log/TLog.h"
 #include "Emulator/PCMCIA/TNE2000Card.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
@@ -261,7 +262,7 @@ public:
 	 * \param copy if set, the packet data will be copied, otherwise this class
 	 *        will only point at the buffer
 	 */
-	Packet(KUInt8* data, ssize_t size, bool copy = 1) :
+	Packet(KUInt8* data, std::ptrdiff_t size, bool copy = 1) :
 			mIndex(mIndexCount++)
 	{
 		if (copy)
@@ -314,7 +315,7 @@ public:
 	 * Get the number of bytes in the buffer.
 	 * \return number of bytes.
 	 */
-	ssize_t
+	std::ptrdiff_t
 	Size()
 	{
 		return mSize;
@@ -327,7 +328,7 @@ public:
 	 * Nothing is reallocated.
 	 */
 	void
-	SetSize(ssize_t inSize)
+	SetSize(std::ptrdiff_t inSize)
 	{
 		mSize = inSize;
 	}
@@ -542,10 +543,10 @@ public:
 	{
 		return mData + GetTCPHeaderLength() + 34;
 	}
-	ssize_t
+	std::ptrdiff_t
 	GetTCPPayloadSize()
 	{
-		ssize_t n = GetIPEnd() - GetTCPHeaderLength() - 34;
+		std::ptrdiff_t n = GetIPEnd() - GetTCPHeaderLength() - 34;
 		return n > 0 ? n : 0;
 	}
 
@@ -574,10 +575,10 @@ public:
 	{
 		return mData + 42;
 	}
-	ssize_t
+	std::ptrdiff_t
 	GetUDPPayloadSize()
 	{
-		ssize_t n = GetIPEnd() - 42;
+		std::ptrdiff_t n = GetIPEnd() - 42;
 		return n > 0 ? n : 0;
 	}
 
@@ -585,10 +586,10 @@ public:
 	 * The end of the IP packet in the frame. A short frame is padded to 60
 	 * bytes, and the padding is no data.
 	 */
-	ssize_t
+	std::ptrdiff_t
 	GetIPEnd()
 	{
-		ssize_t end = 14 + (ssize_t) GetIPTotalLength();
+		std::ptrdiff_t end = 14 + (std::ptrdiff_t) GetIPTotalLength();
 		return end < mSize ? end : mSize;
 	}
 
@@ -611,7 +612,7 @@ public:
 			return "IP header cut off";
 		if (GetIPVersion() != 4 || GetIPHeaderLength() != 20)
 			return "not IPv4 without options";
-		if (GetIPTotalLength() < 20 || 14 + (ssize_t) GetIPTotalLength() > mSize)
+		if (GetIPTotalLength() < 20 || 14 + (std::ptrdiff_t) GetIPTotalLength() > mSize)
 			return "IP length does not fit the frame";
 		if (GetIPProtocol() == kIPProtocolTCP)
 		{
@@ -872,7 +873,7 @@ public:
 
 private:
 	KUInt8* mData = nullptr;
-	ssize_t mSize = 0;
+	std::ptrdiff_t mSize = 0;
 	KUInt8 mCopy = 0;
 	KUInt32 mIndex = 0;
 	static KUInt32 mIndexCount;
@@ -902,7 +903,7 @@ TraceTCP(const char* inDir, Packet* p)
 	KUInt16 f = p->GetTCPFlags();
 	char text[3 * 64 + 64 + 4];
 	char* t = text;
-	ssize_t n = p->GetTCPPayloadSize();
+	std::ptrdiff_t n = p->GetTCPPayloadSize();
 	const KUInt8* d = p->GetTCPPayloadStart();
 	int shown = n < 64 ? (int) n : 64;
 	for (int i = 0; i < shown; i++)
@@ -1108,7 +1109,7 @@ public:
 	 * \see Packet::SetTCPPayload(KUInt8 *, KUInt32)
 	 */
 	Packet*
-	NewPacket(ssize_t size)
+	NewPacket(std::ptrdiff_t size)
 	{
 		Packet* p = new Packet(0L, size + 54);
 		p->SetDstMAC(myMAC);
@@ -1202,7 +1203,7 @@ public:
 	{
 		while (!mSendBuffer.empty())
 		{
-			ssize_t n = ::send(mSocket, (const char*) mSendBuffer.data(), mSendBuffer.size(), kSendFlags);
+			auto n = ::send(mSocket, (const char*) mSendBuffer.data(), mSendBuffer.size(), kSendFlags);
 			if (n > 0)
 			{
 				if ((size_t) n < mSendBuffer.size())
@@ -1662,8 +1663,8 @@ public:
 		// several segments anyway.
 		if (mDock)
 		{
-			ssize_t peeked = ::recv(mSocket, (char*) buf, inSize, MSG_PEEK);
-			for (ssize_t i = 8; i + 8 <= peeked; i++)
+			auto peeked = ::recv(mSocket, (char*) buf, inSize, MSG_PEEK);
+			for (decltype(peeked) i = 8; i + 8 <= peeked; i++)
 				if (memcmp(buf + i, "newtdock", 8) == 0)
 				{
 					mNet->Trace("  TCP port %u: Dock command split after %d of %d bytes", myPort, (int) i, (int) peeked);
@@ -1671,7 +1672,7 @@ public:
 					break;
 				}
 		}
-		ssize_t avail = ::recv(mSocket, (char*) buf, inSize, 0);
+		auto avail = ::recv(mSocket, (char*) buf, inSize, 0);
 		if (avail == -1)
 		{
 			if (!wouldBlock())
@@ -1870,7 +1871,7 @@ public:
 	 * \see Packet::SetUDPPayload(KUInt8 *, KUInt32)
 	 */
 	Packet*
-	NewPacket(ssize_t size)
+	NewPacket(std::ptrdiff_t size)
 	{
 		Packet* p = new Packet(0L, size + 42);
 		p->SetDstMAC(myMAC);
@@ -1949,7 +1950,7 @@ public:
 		mNet->LogPacket(packet.Data(), packet.Size());
 		mNet->LogBuffer(packet.Data(), packet.Size());
 
-		ssize_t ret = sendto(mSocket, (char*) packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
+		auto ret = sendto(mSocket, (char*) packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
 			0, (struct sockaddr*) &theirSockAddr, sizeof(theirSockAddr));
 		if (ret == -1)
 			return -1;
@@ -1976,7 +1977,7 @@ public:
 		int maxTry = 5;
 		for (; maxTry > 0; maxTry--)
 		{
-			ssize_t avail = recvfrom(mSocket, (char*) buf, sizeof(buf), 0, (struct sockaddr*) &theirSockAddr, &addrLen);
+			auto avail = recvfrom(mSocket, (char*) buf, sizeof(buf), 0, (struct sockaddr*) &theirSockAddr, &addrLen);
 			if (avail < 1)
 			{
 				if (--mExpire == 0)
@@ -2408,7 +2409,7 @@ public:
 		KUInt32 replySize = ix + (rcode == 0 ? 16 : 0);
 		Packet* reply = new Packet(nullptr, replySize);
 		memcpy(reply->Data(), request.data(), request.size());
-		Packet packet((KUInt8*) request.data(), (ssize_t) request.size(), 0);
+		Packet packet((KUInt8*) request.data(), (std::ptrdiff_t) request.size(), 0);
 		KUInt32 size = replySize - 42;
 
 		/* --- Sample request and reply.
@@ -3003,7 +3004,7 @@ TUsermodeNetwork::Log(Packet* p, const char* label, int line, int adjSeq, int ad
 	if (p->GetType() == Packet::kNetTypeIP
 		&& p->GetIPProtocol() == Packet::kIPProtocolTCP)
 	{
-		ssize_t o = strlen(buf);
+		std::size_t o = strlen(buf);
 		char as = adjSeq ? '*' : 'q';
 		char aa = adjAck ? '*' : 'k';
 		snprintf(buf + o, 2047 - o, "TCP:p:%d %c%c%c%c%c%c %4u bytes payload (Se%c:%4u, Ac%c:%4u) [",
@@ -3017,7 +3018,7 @@ TUsermodeNetwork::Log(Packet* p, const char* label, int line, int adjSeq, int ad
 			(unsigned int) (p->GetTCPPayloadSize()),
 			as, (unsigned int) ((p->GetTCPSeq() - adjSeq) % 9999),
 			aa, (unsigned int) ((p->GetTCPAck() - adjAck) % 9999));
-		ssize_t i = 0, s = p->GetTCPPayloadStart() - p->Data();
+		std::ptrdiff_t i = 0, s = p->GetTCPPayloadStart() - p->Data();
 		o = strlen(buf);
 		while (s < p->Size() && i < 128)
 		{
@@ -3041,14 +3042,14 @@ TUsermodeNetwork::Log(Packet* p, const char* label, int line, int adjSeq, int ad
 		&& p->GetIPDstIP() == 0xffffffff
 		&& p->Get32(0x0116) == 0x63825363)
 	{
-		ssize_t o = strlen(buf);
+		std::size_t o = strlen(buf);
 		snprintf(buf + o, 2047 - o, "DHCP:p:%d:%u bytes", p->Index(), (unsigned int) p->Size());
 	} else if (p->GetType() == Packet::kNetTypeIP
 		&& p->GetIPProtocol() == Packet::kIPProtocolUDP)
 	{
-		ssize_t o = strlen(buf);
+		std::size_t o = strlen(buf);
 		snprintf(buf + o, 2047 - o, "UDP:p:%d %4u bytes [", p->Index(), (unsigned int) (p->GetUDPPayloadSize()));
-		ssize_t i = 0, s = p->GetUDPPayloadStart() - p->Data();
+		std::ptrdiff_t i = 0, s = p->GetUDPPayloadStart() - p->Data();
 		o = strlen(buf);
 		while (s < p->Size() && i < 128)
 		{
@@ -3066,11 +3067,11 @@ TUsermodeNetwork::Log(Packet* p, const char* label, int line, int adjSeq, int ad
 		buf[i + o + 1] = 0;
 	} else if (p->GetType() == Packet::kNetTypeARP)
 	{
-		ssize_t o = strlen(buf);
+		std::size_t o = strlen(buf);
 		snprintf(buf + o, 2047 - o, "ARP:p:%d:%u bytes", p->Index(), (unsigned int) p->GetARPHLen());
 	} else
 	{
-		ssize_t o = strlen(buf);
+		std::size_t o = strlen(buf);
 		snprintf(buf + o, 2047 - o, "????:p:%d:%u bytes", p->Index(), (unsigned int) p->Size());
 	}
 	mLog->FLogLine("Net: %4d: %s", line, buf);

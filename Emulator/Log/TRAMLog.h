@@ -25,6 +25,7 @@
 #include <K/Defines/KDefinitions.h>
 #include "TLog.h"
 
+#include <cstddef>
 #include <stdio.h>
 #include <string>
 
@@ -75,7 +76,7 @@ private:
 	char* mBuffer { nullptr };
 
 	/// size of buffer.
-	ssize_t mBufferSize { 0 };
+	std::size_t mBufferSize { 0 };
 };
 
 #endif

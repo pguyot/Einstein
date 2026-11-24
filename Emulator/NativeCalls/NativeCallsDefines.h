@@ -24,7 +24,7 @@
 #ifndef _NATIVECALLSDEFINES_H
 #define _NATIVECALLSDEFINES_H
 
-#if TARGET_OS_NEWTON
+#if defined(TARGET_OS_NEWTON) && TARGET_OS_NEWTON
 #include <Newton.h>
 typedef ULong KUInt32;
 typedef UChar KUInt8;

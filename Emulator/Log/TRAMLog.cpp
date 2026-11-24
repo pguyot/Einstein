@@ -47,8 +47,8 @@ TRAMLog::~TRAMLog(void)
 void
 TRAMLog::DoLogLine(const char* inLine)
 {
-	ssize_t len = ::strlen(inLine);
-	ssize_t index = mBufferSize;
+	std::size_t len = ::strlen(inLine);
+	std::size_t index = mBufferSize;
 	mBufferSize += len + 1;
 	mBuffer = (char*) ::realloc(mBuffer, mBufferSize + 1);
 	memcpy(mBuffer + index, inLine, len);

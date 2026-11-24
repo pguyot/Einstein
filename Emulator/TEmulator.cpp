@@ -26,6 +26,7 @@
 
 // POSIX
 #include <cstdarg>
+#include <cstddef>
 #include <errno.h>
 #include <exception>
 #include <math.h>
@@ -316,7 +317,7 @@ TEmulator::DebuggerUND(KUInt32 inPAddr)
 		// Extract the string.
 		KUInt8 theString[512];
 		(void) ::snprintf((char*) theString, 511, "DebuggerUND: ");
-		ssize_t index = ::strlen((const char*) theString);
+		std::size_t index = ::strlen((const char*) theString);
 		KUInt32 theAddress = inPAddr + 4;
 		do
 		{
@@ -365,7 +366,7 @@ TEmulator::TapFileCntlUND(KUInt32 inPAddr)
 			mMemory.Read(args, filenameAddress);
 			mMemory.Read(args + 4, modeIdx);
 
-			ssize_t index = 0;
+			std::size_t index = 0;
 			KUInt8 filename[512];
 
 			do
