@@ -34,3 +34,14 @@ jobs:
     - name: Compile Einstein
       run: |
         cmake --build _Build_/SDL --target Einstein
+    - name: Archive
+      if: github.event_name != 'pull_request'
+      run: |
+        mkdir -p artifacts
+        tar czf artifacts/Einstein-Ubuntu-SDL.tgz -C _Build_/SDL Einstein
+    - name: Upload Artifact
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v7
+      with:
+        name: Einstein-Ubuntu-SDL
+        path: artifacts/Einstein-Ubuntu-SDL.tgz

@@ -24,3 +24,9 @@ jobs:
     - name: Compile Einstein
       run: |
         cmake --build _Build_/Makefiles --config Release --target Einstein
+    - name: Upload Artifact
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v7
+      with:
+        name: Einstein-Windows-x64-FLTK
+        path: _Build_/Makefiles/Release/Einstein.exe
