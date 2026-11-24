@@ -99,9 +99,6 @@
 ///\def TARGET_OS_WIN32
 /// Macro qui vaut \c 1 si la cible est Win32, \c 0 sinon.
 
-///\def TARGET_OS_CYGWIN
-/// Macro qui vaut \c 1 si la cible est Cygwin/Win32, \c 0 sinon.
-
 ///\def TARGET_OS_COMPAT_POSIX
 /// Macro qui vaut \c 1 si la cible est compatible POSIX, \c 0 sinon.
 /// (compatible: le minimum dont on a besoin pour la DCL)
@@ -180,7 +177,6 @@
 #define TARGET_OS_OPENSTEP 0
 #define TARGET_OS_POSIX 0
 #define TARGET_OS_WIN32 0
-#define TARGET_OS_CYGWIN 0
 #ifdef TARGET_OS_MAC
 #undef TARGET_OS_MAC
 #endif
@@ -242,7 +238,6 @@
 #define TARGET_OS_OPENSTEP 1
 #define TARGET_OS_POSIX 0
 #define TARGET_OS_WIN32 0
-#define TARGET_OS_CYGWIN 0
 #define TARGET_OS_COMPAT_POSIX 1
 #undef TARGET_OS_UNDEFINED
 
@@ -273,7 +268,6 @@
 #define TARGET_OS_OPENSTEP 0
 #define TARGET_OS_POSIX 0
 #define TARGET_OS_WIN32 0
-#define TARGET_OS_CYGWIN 0
 #define TARGET_OS_COMPAT_POSIX 0
 #undef TARGET_OS_UNDEFINED
 
@@ -295,12 +289,6 @@
 #endif
 #endif
 
-#if TARGET_OS_CYGWIN
-#ifndef TARGET_OS_WIN32
-#define TARGET_OS_WIN32 1
-#endif
-#endif
-
 #if TARGET_OS_WIN32
 #define TARGET_OS_ANDROID 0
 #define TARGET_OS_BEOS 0
@@ -311,17 +299,7 @@
 #define TARGET_OS_OPENSTEP 0
 #define TARGET_OS_MAC 0
 #define TARGET_OS_POSIX 0
-// Ça marche peut-être sous windoze. (?)
-#ifdef TARGET_OS_CYGWIN
-#if TARGET_OS_CYGWIN
-#define TARGET_OS_COMPAT_POSIX 1
-#else
 #define TARGET_OS_COMPAT_POSIX 0
-#endif
-#else
-#define TARGET_OS_CYGWIN 0
-#define TARGET_OS_COMPAT_POSIX 0
-#endif
 #undef TARGET_OS_UNDEFINED
 
 // On suppose que c'est Win32 sur x86
@@ -344,7 +322,6 @@
 #define TARGET_OS_NEWTON 0
 #define TARGET_OS_OPENSTEP 0
 #define TARGET_OS_WIN32 0
-#define TARGET_OS_CYGWIN 0
 #define TARGET_OS_COMPAT_POSIX 1
 #undef TARGET_OS_UNDEFINED
 
@@ -380,7 +357,6 @@
 #define TARGET_OS_MAC 0
 #define TARGET_OS_POSIX 0
 #define TARGET_OS_WIN32 0
-#define TARGET_OS_CYGWIN 0
 #define TARGET_OS_COMPAT_POSIX 1
 #undef TARGET_OS_UNDEFINED
 
@@ -404,7 +380,6 @@
 #define TARGET_OS_NEWTON 0
 #define TARGET_OS_OPENSTEP 0
 #define TARGET_OS_WIN32 0
-#define TARGET_OS_CYGWIN 0
 #define TARGET_OS_COMPAT_POSIX 1
 #undef TARGET_OS_UNDEFINED
 
@@ -441,7 +416,6 @@
 #define TARGET_OS_NEWTON 0
 #define TARGET_OS_OPENSTEP 0
 #define TARGET_OS_WIN32 0
-#define TARGET_OS_CYGWIN 0
 #define TARGET_OS_COMPAT_POSIX 1
 #undef TARGET_OS_UNDEFINED
 
@@ -491,7 +465,6 @@
 #define TARGET_OS_NEWTON 0
 #define TARGET_OS_OPENSTEP 0
 #define TARGET_OS_WIN32 0
-#define TARGET_OS_CYGWIN 0
 #define TARGET_OS_COMPAT_POSIX 1
 #undef TARGET_OS_UNDEFINED
 #endif
