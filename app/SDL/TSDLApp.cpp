@@ -900,6 +900,13 @@ namespace {
 		{ SDL_SCANCODE_DOWN, 125 }, { SDL_SCANCODE_UP, 126 },
 	};
 
+	/// Command, Shift, Caps Lock, Option and Control (Newton key codes 55 to 59).
+	bool IsModifierKeyCode(int inCode) { return inCode >= 55 && inCode <= 59; }
+
+	/// How long a modifier key must be held alone before its repeat goes to
+	/// NewtonOS (which then opens its Command key list).
+	constexpr Uint64 kModifierRepeatDelayMS = 3000;
+
 	/// The Newton key code for a scancode, or -1 if the Newton has no such key.
 	int NewtonKeyCode(SDL_Scancode inScancode)
 	{
@@ -941,12 +948,15 @@ void TSDLApp::HandleKey(const SDL_KeyboardEvent& inEvent)
 	if (inEvent.down) {
 		if (inEvent.repeat && mScancodesDown.test(scancode)) {
 			// Auto-repeat of a held key, as the Cocoa app sends it. For the
-			// modifier keys (Command, Shift, Caps Lock, Option, Control: codes
-			// 55 to 59) only the first repeat goes to NewtonOS: a repeat of
+			// modifier keys, one repeat goes to NewtonOS, and only after the
+			// key was held alone for kModifierRepeatDelayMS: a repeat of
 			// Command opens its Command key list, and every further repeat
-			// at the host's rate reopened it (flicker).
-			bool modifier = (code >= 55 && code <= 59);
-			if (!modifier || !mModifierRepeated.test(scancode)) {
+			// at the host's rate reopened it (flicker). The delay keeps the
+			// list away while a shortcut is typed slowly.
+			if (!IsModifierKeyCode(code)) {
+				mScreenManager->KeyRepeat((KUInt8) code);
+			} else if (!mModifierRepeated.test(scancode)
+					   && SDL_GetTicks() - mKeyDownAt[scancode] >= kModifierRepeatDelayMS) {
 				mModifierRepeated.set(scancode);
 				mScreenManager->KeyRepeat((KUInt8) code);
 			}
@@ -955,6 +965,12 @@ void TSDLApp::HandleKey(const SDL_KeyboardEvent& inEvent)
 		if (!mScancodesDown.test(scancode)) {
 			mScancodesDown.set(scancode);
 			mKeyHolders[code]++;
+			mKeyDownAt[scancode] = SDL_GetTicks();
+		}
+		if (!IsModifierKeyCode(code)) {
+			// A shortcut is being typed: the held modifiers don't open the
+			// Command key list any more until they are released.
+			mModifierRepeated |= mScancodesDown;
 		}
 		mScreenManager->KeyDown((KUInt8) code);
 	} else if (mScancodesDown.test(scancode)) {
