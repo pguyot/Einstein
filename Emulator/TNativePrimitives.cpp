@@ -22,6 +22,7 @@
 // ==============================
 
 #include "TNativePrimitives.h"
+#include "Emulator/EinsteinConfig.h"
 #include "Emulator/Log/KPrintf.h"
 
 // POSIX
@@ -47,7 +48,7 @@
 #include "Emulator/Screen/TScreenManager.h"
 #include "Emulator/Serial/TSerialHostPortDirect.h"
 #include "Emulator/Sound/TSoundManager.h"
-#if !TARGET_OS_MAC
+#if HAVE_LIBFFI
 #include "Emulator/NativeCalls/TNativeCalls.h"
 #endif
 #include "Emulator/NativeCalls/TVirtualizedCalls.h"
@@ -113,14 +114,14 @@ TNativePrimitives::TNativePrimitives(
 	TLog* inLog,
 	TMemory* inMemory) :
 		mLog(inLog),
-		mMemory(inMemory),
-#if !TARGET_OS_MAC
-		mNativeCalls(new TNativeCalls(inMemory))
+		mMemory(inMemory)
+{
+#if HAVE_LIBFFI
+	mNativeCalls = new TNativeCalls(inMemory);
 #endif
 #if TARGET_OS_MAC
-			mObjCBridgeCalls(new TObjCBridgeCalls(inMemory))
+	mObjCBridgeCalls = new TObjCBridgeCalls(inMemory);
 #endif
-{
 	// mLogMask = ENABLE_LOG_PLATFORM | ENABLE_LOG_SCREEN;
 }
 
@@ -129,7 +130,7 @@ TNativePrimitives::TNativePrimitives(
 // -------------------------------------------------------------------------- //
 TNativePrimitives::~TNativePrimitives(void)
 {
-#if !TARGET_OS_MAC
+#if HAVE_LIBFFI
 	delete mNativeCalls;
 #endif
 
@@ -2521,7 +2522,7 @@ void
 TNativePrimitives::ExecuteHostCallNative(KUInt32 inInstruction)
 {
 	(void) inInstruction;
-#if !TARGET_OS_ANDROID && !TARGET_OS_MAC && !__LP64__ && !TARGET_OS_WIN32
+#if HAVE_LIBFFI
 	switch (inInstruction & 0xFF)
 	{
 		case 0x01:

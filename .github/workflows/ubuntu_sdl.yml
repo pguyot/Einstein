@@ -20,7 +20,7 @@ jobs:
     - name: Get dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y pkg-config ninja-build libbsd-dev libffi-dev
+        sudo apt-get install -y pkg-config ninja-build libbsd-dev
         # SDL3 dependencies:
         sudo apt-get install -y libasound2-dev libpulse-dev libpipewire-0.3-dev \
           libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev \

@@ -78,6 +78,10 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		EinsteinFLGUI
 		pthread
 	)
+	if ( HAVE_LIBFFI )
+		target_include_directories ( EinsteinTests SYSTEM PUBLIC ${ffi_incl_dir} )
+		target_link_libraries ( EinsteinTests ${ffi_lib} )
+	endif ()
 
 elseif ( WIN32 )
 
@@ -112,9 +116,10 @@ endif ()
 target_include_directories (
 	EinsteinTests PUBLIC
 	${CMAKE_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/generated
 	${FLTK_INCLUDE_DIRS}
 )
-target_compile_definitions ( EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
+target_compile_definitions ( EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE EINSTEIN_HAVE_GENERATED_CONFIG=1 )
 
 target_link_libraries ( EinsteinTests gtest_main )
 

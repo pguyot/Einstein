@@ -25,10 +25,9 @@
 #define _TNATIVECALLS_H
 
 #include <K/Defines/KDefinitions.h>
+#include "Emulator/EinsteinConfig.h"
 
-// libffi
-// FIXME: actually, this could work in MSWindows
-#if !TARGET_OS_ANDROID && !TARGET_OS_MAC && !TARGET_OS_WIN32
+#if HAVE_LIBFFI
 #include "ffi.h"
 #endif
 
@@ -57,9 +56,7 @@ public:
 	///
 	~TNativeCalls(void);
 
-#if !TARGET_OS_ANDROID && !TARGET_OS_WIN32
-
-#if !__LP64__
+#if HAVE_LIBFFI
 
 	///
 	/// Open a native library.
@@ -327,7 +324,6 @@ public:
 	/// Dispose the FFI structure.
 	///
 	void DisposeFFIStructure(KUInt32 inFFIStructure);
-#endif // if !__LP64__
 
 private:
 	/// If the binary should be disposed
@@ -382,7 +378,6 @@ private:
 	///
 	TNativeCalls& operator=(const TNativeCalls& inCopy);
 
-#if !__LP64__
 	///
 	/// Call the function.
 	///
@@ -396,7 +391,6 @@ private:
 	/// \return a handle or NULL
 	///
 	void* DoOpenLib(const char* inPath);
-#endif
 
 	/// \name Variables
 	TMemory* mMemoryIntf; ///< Interface to memory.

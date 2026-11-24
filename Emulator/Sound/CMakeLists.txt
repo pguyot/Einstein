@@ -16,17 +16,17 @@ list ( APPEND common_sources
 )
 
 if ( EINSTEIN_FLTK_FRONTEND )
-	if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	if ( HAVE_COREAUDIO )
 		list (APPEND app_sources
 			Emulator/Sound/TCoreAudioSoundManager.cpp
 			Emulator/Sound/TCoreAudioSoundManager.h
 		)
-	elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD")
+	elseif ( HAVE_PULSEAUDIO )
 		list (APPEND app_sources
 			Emulator/Sound/TPulseAudioSoundManager.cpp
 			Emulator/Sound/TPulseAudioSoundManager.h
 		)
-	elseif (WIN32)
+	elseif ( HAVE_WAVEOUT )
 		list (APPEND app_sources
 			Emulator/Sound/TWaveSoundManager.cpp
 			Emulator/Sound/TWaveSoundManager.h

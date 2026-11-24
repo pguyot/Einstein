@@ -25,46 +25,28 @@
 #include "Emulator/Log/KPrintf.h"
 #include "Emulator/NativeCalls/TNativeCalls.h"
 
-#if TARGET_OS_ANDROID || TARGET_OS_WIN32
+#if !HAVE_LIBFFI
 
 // Einstein
 #include "Emulator/TMemory.h"
 
-TNativeCalls::TNativeCalls(TMemory* inMemoryIntf) { }
-TNativeCalls::~TNativeCalls() { }
+TNativeCalls::TNativeCalls(TMemory* inMemoryIntf)
+{
+	(void) inMemoryIntf;
+}
+TNativeCalls::~TNativeCalls() = default;
 
 #else
 
 // POSIX & Co.
+#include <dirent.h>
+#include <dlfcn.h>
 #include <errno.h>
+#include <libgen.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
-
-#if TARGET_OS_WIN32
-#include <assert.h>
-#include <stdlib.h>
-ffi_type ffi_type_uint8; // FIXME these should be in libffi
-ffi_type ffi_type_sint8;
-ffi_type ffi_type_uint16;
-ffi_type ffi_type_sint16;
-ffi_type ffi_type_uint32;
-ffi_type ffi_type_sint32;
-ffi_type ffi_type_pointer;
-#elif defined TARGET_IOS
-ffi_type ffi_type_uint8; // FIXME these should be in libffi
-ffi_type ffi_type_sint8;
-ffi_type ffi_type_uint16;
-ffi_type ffi_type_sint16;
-ffi_type ffi_type_uint32;
-ffi_type ffi_type_sint32;
-ffi_type ffi_type_pointer;
-#else
-#include <dirent.h>
-#include <dlfcn.h>
-#include <libgen.h>
-#endif
 
 // Einstein
 #include "Emulator/TMemory.h"
@@ -116,8 +98,6 @@ TNativeCalls::~TNativeCalls(void)
 		::free(mNativeFuncs);
 	}
 }
-
-#if !__LP64__
 
 // -------------------------------------------------------------------------- //
 //  * OpenLib( KUInt32 )
@@ -866,8 +846,6 @@ TNativeCalls::GetErrno(void)
 {
 	return errno;
 }
-
-#endif //!__LP64__
 
 #endif
 

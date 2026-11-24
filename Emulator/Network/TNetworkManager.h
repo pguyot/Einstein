@@ -34,7 +34,7 @@
 #else
 #include <sys/select.h>
 
-#if RASPBERRY_PI || TARGET_OS_LINUX
+#if __has_include(<sys/socket.h>)
 #include <sys/socket.h>
 #endif
 

@@ -52,6 +52,7 @@ set( CMAKE_CXX_EXTENSIONS OFF )
 # ---- Include some additional functionality
 
 include( CheckSymbolExists )
+include( CheckCXXSymbolExists )
 include( CheckFunctionExists )
 include( CheckIncludeFile )
 include( FetchContent )
@@ -306,11 +307,74 @@ endif ()
 # ---- Einstein Source Files ---------------------------------------------------
 #
 
-set( cmake_sources )
+set( cmake_sources
+	cmake/EinsteinConfig.h.in
+)
 set( common_sources )
 set( app_sources )
 set( test_sources )
 set( fluid_sources )
+
+# ---- Host Capability Probing -------------------------------------------------
+
+if ( NOT ANDROID AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS" AND NOT WIN32 )
+	check_include_file( "termios.h" _einstein_have_termios_h )
+	check_cxx_symbol_exists( posix_openpt "stdlib.h;fcntl.h" _einstein_have_posix_openpt )
+	if ( _einstein_have_termios_h AND _einstein_have_posix_openpt )
+		set( HAVE_PTY 1 )
+	else ()
+		set( HAVE_PTY 0 )
+	endif ()
+else ()
+	set( HAVE_PTY 0 )
+endif ()
+
+if ( WIN32 )
+	set( HAVE_SOCKETS 1 )
+else ()
+	check_include_file( "sys/socket.h" HAVE_SOCKETS )
+endif ()
+
+if ( APPLE )
+	check_include_file( "AudioUnit/AudioUnit.h" HAVE_COREAUDIO )
+else ()
+	set( HAVE_COREAUDIO 0 )
+endif ()
+
+if ( UNIX AND NOT APPLE AND NOT ANDROID )
+	find_library( pulse_lib NAMES pulse )
+	find_path( pulse_incl NAMES pulse/pulseaudio.h )
+	if ( pulse_lib AND pulse_incl )
+		set( HAVE_PULSEAUDIO 1 )
+	else ()
+		set( HAVE_PULSEAUDIO 0 )
+	endif ()
+else ()
+	set( HAVE_PULSEAUDIO 0 )
+endif ()
+
+if ( WIN32 )
+	set( HAVE_WAVEOUT 1 )
+else ()
+	set( HAVE_WAVEOUT 0 )
+endif ()
+
+if ( CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT ANDROID AND NOT APPLE AND NOT WIN32 )
+	find_library( ffi_lib NAMES ffi )
+	find_path( ffi_incl_dir NAMES ffi.h )
+	if ( ffi_lib AND ffi_incl_dir )
+		set( HAVE_LIBFFI 1 )
+	else ()
+		set( HAVE_LIBFFI 0 )
+	endif ()
+else ()
+	set( HAVE_LIBFFI 0 )
+endif ()
+
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/cmake/EinsteinConfig.h.in
+	${CMAKE_CURRENT_BINARY_DIR}/generated/EinsteinGeneratedConfig.h
+)
 
 # collect source code from the source code directory tree
 include( app/CMakeLists.txt )
@@ -499,42 +563,24 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		)
 	endif ()
 
+	if ( HAVE_LIBFFI )
+		target_include_directories ( Einstein SYSTEM PUBLIC ${ffi_incl_dir} )
+		target_link_libraries ( Einstein ${ffi_lib} )
+	endif ()
+
+	if ( EINSTEIN_FLTK_FRONTEND AND HAVE_PULSEAUDIO )
+		target_include_directories ( Einstein SYSTEM PUBLIC ${pulse_incl} )
+		target_link_libraries ( Einstein ${pulse_lib} )
+	endif ()
+
 	if ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
-		# Under OpenBSD, libffi is in ports (i.e. /usr/local) not base (i.e. /usr)
-		find_library ( ffi_lib NAMES ffi )
-		find_file ( ffi_incl NAMES ffi.h )
-		if ( ffi_lib MATCHES ".*NOTFOUND" OR ffi_incl MATCHES ".*NOTFOUND" )
-			message ( FATAL_ERROR "libffi not found!" )
-		else ()
-			get_filename_component ( ffi_lib_path ${ffi_lib} DIRECTORY )
-			get_filename_component ( ffi_incl_path ${ffi_incl} DIRECTORY )
-			message ( STATUS "libffi found in " ${ffi_lib_path} )
-			target_include_directories ( Einstein SYSTEM PUBLIC ${ffi_incl_path} )
-			target_link_libraries ( Einstein ${ffi_lib} )
-		endif ()
-
 		if ( EINSTEIN_FLTK_FRONTEND )
-			# Under OpenBSD, pulseaudio is in ports (i.e. /usr/local) not base (i.e. /usr)
-			find_library ( pulse_lib NAMES pulse )
-			if ( pulse_lib MATCHES ".*NOTFOUND" )
-				message ( FATAL_ERROR "libpulse not found! " )
-			else ()
-				get_filename_component ( pulse_lib_path ${pulse_lib} DIRECTORY )
-				message ( STATUS "libpulse found in " ${pulse_lib_path} )
-				target_link_libraries ( Einstein ${pulse_lib} )
-			endif ()
-
 			# Under OpenBSD, X11 is in /usr/X11R6
 			include ( FindX11 )
 			if ( X11_FOUND )
 				target_include_directories ( Einstein SYSTEM PUBLIC ${X11_INCLUDE_DIR} )
 				target_link_libraries ( Einstein ${X11_LIBRARIES} )
 			endif ()
-		endif ()
-	else ()
-		if ( EINSTEIN_FLTK_FRONTEND )
-			# Under Linux, link pulseaudio normally
-			target_link_libraries ( Einstein pulse )
 		endif ()
 	endif ()
 
@@ -659,26 +705,30 @@ if ( ANDROID )
 target_include_directories (
 	einstein PUBLIC
 	${CMAKE_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/generated
 )
+target_compile_definitions ( einstein PUBLIC EINSTEIN_HAVE_GENERATED_CONFIG=1 )
 
 else ()
 
 target_include_directories (
 	Einstein PUBLIC
 	${CMAKE_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/generated
 	${FLTK_INCLUDE_DIRS}
 )
 if ( EINSTEIN_FLTK_FRONTEND )
 	target_include_directories (
 		EinsteinFLGUI PUBLIC
 		${CMAKE_SOURCE_DIR}
+		${CMAKE_CURRENT_BINARY_DIR}/generated
 		${FLTK_INCLUDE_DIRS}
 	)
 endif ()
 
-target_compile_definitions ( Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
+target_compile_definitions ( Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE EINSTEIN_HAVE_GENERATED_CONFIG=1 )
 if ( EINSTEIN_FLTK_FRONTEND )
-	target_compile_definitions ( EinsteinFLGUI PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
+	target_compile_definitions ( EinsteinFLGUI PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE EINSTEIN_HAVE_GENERATED_CONFIG=1 )
 endif ()
 
 endif ()

@@ -20,7 +20,7 @@ list ( APPEND common_sources
 	Emulator/Serial/TSerialHostPortTCPServer.cpp
 )
 
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+if ( HAVE_PTY )
 	list (APPEND common_sources
 		Emulator/Serial/TSerialHostPortDirect.h
 		Emulator/Serial/TSerialHostPortDirect.cpp
@@ -35,21 +35,4 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		Emulator/Serial/TPtySerialPortManager.cpp
 		Emulator/Serial/TPtySerialPortManager.h
 	)
-elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD")
-	list (APPEND common_sources
-		Emulator/Serial/TSerialHostPortDirect.h
-		Emulator/Serial/TSerialHostPortDirect.cpp
-		Emulator/Serial/TSerialHostPortPTY.h
-		Emulator/Serial/TSerialHostPortPTY.cpp
-		Emulator/Serial/TSerialHostPortPTYBasilisk.h
-		Emulator/Serial/TSerialHostPortPTYBasilisk.cpp
-		Emulator/Serial/TBasiliskIISerialPortManager.cpp
-		Emulator/Serial/TBasiliskIISerialPortManager.h
-		Emulator/Serial/TPipesSerialPortManager.cpp
-		Emulator/Serial/TPipesSerialPortManager.h
-		Emulator/Serial/TPtySerialPortManager.cpp
-		Emulator/Serial/TPtySerialPortManager.h
-	)
-elseif (WIN32)
-	# no additional drivers
 endif ()
