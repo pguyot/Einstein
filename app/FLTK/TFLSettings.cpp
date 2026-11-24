@@ -38,6 +38,7 @@
 #include <unistd.h>
 #endif
 #include <algorithm>
+#include <cstdlib>
 #include <ctype.h>
 #include <errno.h>
 #include <iterator>
@@ -1288,23 +1289,28 @@ TFLSettings::UnlockCard(int inSlot)
 static std::string
 CanonicalPath(const std::string& inPath)
 {
-	char theFull[FL_PATH_MAX];
 #if TARGET_OS_WIN32
+	char theFull[FL_PATH_MAX];
 	if (!_fullpath(theFull, inPath.c_str(), FL_PATH_MAX))
 		return inPath;
 	std::string thePath = theFull;
 	std::replace(thePath.begin(), thePath.end(), '\\', '/');
 #else
 	std::string thePath;
-	if (realpath(inPath.c_str(), theFull))
+	if (char* theFull = realpath(inPath.c_str(), nullptr))
 	{
 		thePath = theFull;
+		std::free(theFull);
 	} else
 	{
 		std::string theFolder = inPath.substr(0, inPath.size() - strlen(fl_filename_name(inPath.c_str())));
-		if (theFolder.empty() || !realpath(theFolder.c_str(), theFull))
+		if (theFolder.empty())
 			return inPath;
-		thePath = std::string(theFull) + "/" + fl_filename_name(inPath.c_str());
+		char* theFullFolder = realpath(theFolder.c_str(), nullptr);
+		if (!theFullFolder)
+			return inPath;
+		thePath = std::string(theFullFolder) + "/" + fl_filename_name(inPath.c_str());
+		std::free(theFullFolder);
 	}
 #endif
 #if TARGET_OS_WIN32 || TARGET_OS_MAC
