@@ -25,6 +25,7 @@
 #define _TNETWORKMANAGER_H
 
 #include <K/Defines/KDefinitions.h>
+#include <cstddef>
 #if TARGET_OS_WIN32
 #ifdef _WINSOCKAPI_
 #error winsock.h included before winsock2.h - you must define WIN32_LEAN_AND_MEAN somewhere!
@@ -159,31 +160,31 @@ public:
 	///
 	static void Trace(const char* inFormat, ...);
 
-	void LogBuffer(KUInt8* data, ssize_t size);
-	void LogPacket(KUInt8* data, ssize_t size);
-	void LogARPPacket(KUInt8* data, ssize_t size);
-	void LogIPv4Packet(KUInt8* data, ssize_t size);
-	void LogTCPPacket(KUInt8* data, ssize_t size);
-	void LogUDPPacket(KUInt8* data, ssize_t size);
-	// void LogPayload(KUInt8 *data, ssize_t size, const char *d="");
+	void LogBuffer(KUInt8* data, std::size_t size);
+	void LogPacket(KUInt8* data, std::size_t size);
+	void LogARPPacket(KUInt8* data, std::size_t size);
+	void LogIPv4Packet(KUInt8* data, std::size_t size);
+	void LogTCPPacket(KUInt8* data, std::size_t size);
+	void LogUDPPacket(KUInt8* data, std::size_t size);
+	// void LogPayload(KUInt8 *data, std::size_t size, const char *d="");
 
-	KUInt16 GetIPv4Checksum(KUInt8* data, ssize_t size, bool set = 0);
+	KUInt16 GetIPv4Checksum(KUInt8* data, std::size_t size, bool set = 0);
 	void
-	SetIPv4Checksum(KUInt8* data, ssize_t size)
+	SetIPv4Checksum(KUInt8* data, std::size_t size)
 	{
 		GetIPv4Checksum(data, size, true);
 	}
 
-	KUInt16 GetTCPChecksum(KUInt8* data, ssize_t size, bool set = 0);
+	KUInt16 GetTCPChecksum(KUInt8* data, std::size_t size, bool set = 0);
 	void
-	SetTCPChecksum(KUInt8* data, ssize_t size)
+	SetTCPChecksum(KUInt8* data, std::size_t size)
 	{
 		GetTCPChecksum(data, size, true);
 	}
 
-	KUInt16 GetUDPChecksum(KUInt8* data, ssize_t size, bool set = 0);
+	KUInt16 GetUDPChecksum(KUInt8* data, std::size_t size, bool set = 0);
 	void
-	SetUDPChecksum(KUInt8* data, ssize_t size)
+	SetUDPChecksum(KUInt8* data, std::size_t size)
 	{
 		GetUDPChecksum(data, size, true);
 	}

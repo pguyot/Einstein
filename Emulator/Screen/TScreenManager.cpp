@@ -66,6 +66,7 @@
 
 // ANSI C / C++
 #include <bit>
+#include <cstddef>
 #include <stdlib.h>
 
 // K
@@ -1163,7 +1164,7 @@ TScreenManager::OverlayPrintAt(KSInt32 x, KSInt32 y, const char* text, bool cent
 	{
 		if (len > 40)
 			len = 40;
-		ssize_t i, margin = (40 - len) / 2;
+		std::size_t i, margin = (40 - len) / 2;
 		char* dst = mOverlay[y];
 		const char* src = text;
 		for (i = margin; i > 0; i--)

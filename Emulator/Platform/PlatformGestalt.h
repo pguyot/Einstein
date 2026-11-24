@@ -24,7 +24,7 @@
 #ifndef _PLATFORMGESTALT_H
 #define _PLATFORMGESTALT_H
 
-#if TARGET_OS_NEWTON
+#if defined(TARGET_OS_NEWTON) && TARGET_OS_NEWTON
 #include <AEvents.h>
 #include <Newton.h>
 typedef ULong KUInt32;

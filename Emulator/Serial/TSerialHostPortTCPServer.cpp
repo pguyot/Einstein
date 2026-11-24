@@ -367,7 +367,7 @@ TSerialHostPortTCPServer::ReadThreadEntry(int inClientSocket)
 		if (mQuitRequested || !mClientConnected || inClientSocket != mClientSocket)
 			break;
 
-		ssize_t n = ::recv(inClientSocket, (char*) data, sizeof(data), 0);
+		auto n = ::recv(inClientSocket, (char*) data, sizeof(data), 0);
 		if (n > 0)
 		{
 			{
@@ -436,9 +436,9 @@ TSerialHostPortTCPServer::WriteThreadEntry(int inClientSocket)
 		if (toWrite > 0)
 		{
 #if TARGET_OS_WIN32
-			int sent = ::send(inClientSocket, (const char*) wbuf, static_cast<int>(toWrite), 0);
+			auto sent = ::send(inClientSocket, (const char*) wbuf, static_cast<int>(toWrite), 0);
 #else
-			ssize_t sent = ::send(inClientSocket, wbuf, toWrite, 0);
+			auto sent = ::send(inClientSocket, wbuf, toWrite, 0);
 #endif
 			if (sent > 0)
 			{

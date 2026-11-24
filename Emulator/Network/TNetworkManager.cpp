@@ -82,7 +82,7 @@ TNetworkManager::~TNetworkManager()
 }
 
 void
-TNetworkManager::LogBuffer(KUInt8* data, ssize_t size)
+TNetworkManager::LogBuffer(KUInt8* data, std::size_t size)
 {
 	if (mLog)
 	{
@@ -113,7 +113,7 @@ TNetworkManager::LogBuffer(KUInt8* data, ssize_t size)
 }
 
 void
-TNetworkManager::LogARPPacket(KUInt8* data, ssize_t size)
+TNetworkManager::LogARPPacket(KUInt8* data, std::size_t size)
 {
 	(void) data;
 	(void) size;
@@ -124,7 +124,7 @@ TNetworkManager::LogARPPacket(KUInt8* data, ssize_t size)
 }
 
 void
-TNetworkManager::LogIPv4Packet(KUInt8* d, ssize_t n)
+TNetworkManager::LogIPv4Packet(KUInt8* d, std::size_t n)
 {
 	if (mLog)
 	{
@@ -161,7 +161,7 @@ TNetworkManager::LogIPv4Packet(KUInt8* d, ssize_t n)
 }
 
 void
-TNetworkManager::LogTCPPacket(KUInt8* d, ssize_t n)
+TNetworkManager::LogTCPPacket(KUInt8* d, std::size_t n)
 {
 	if (mLog)
 	{
@@ -186,7 +186,7 @@ TNetworkManager::LogTCPPacket(KUInt8* d, ssize_t n)
 }
 
 void
-TNetworkManager::LogUDPPacket(KUInt8* d, ssize_t n)
+TNetworkManager::LogUDPPacket(KUInt8* d, std::size_t n)
 {
 	if (mLog)
 	{
@@ -200,7 +200,7 @@ TNetworkManager::LogUDPPacket(KUInt8* d, ssize_t n)
 }
 
 void
-TNetworkManager::LogPacket(KUInt8* d, ssize_t n)
+TNetworkManager::LogPacket(KUInt8* d, std::size_t n)
 {
 	if (mLog)
 	{
@@ -231,11 +231,11 @@ TNetworkManager::LogPacket(KUInt8* d, ssize_t n)
 }
 
 KUInt16
-TNetworkManager::GetUDPChecksum(KUInt8* d, ssize_t n, bool set)
+TNetworkManager::GetUDPChecksum(KUInt8* d, std::size_t n, bool set)
 {
 	KUInt32 s = 0;
 	KUInt16 UDPLength = n - 34;
-	ssize_t i;
+	std::size_t i;
 	// UDP Pseudo Header:
 	s = s + (d[26] << 8) + d[27] + (d[28] << 8) + d[29]; // src IP
 	s = s + (d[30] << 8) + d[31] + (d[32] << 8) + d[33]; // dst IP
@@ -267,11 +267,11 @@ TNetworkManager::GetUDPChecksum(KUInt8* d, ssize_t n, bool set)
 }
 
 KUInt16
-TNetworkManager::GetTCPChecksum(KUInt8* d, ssize_t n, bool set)
+TNetworkManager::GetTCPChecksum(KUInt8* d, std::size_t n, bool set)
 {
 	KUInt32 s = 0;
 	KUInt16 TCPLength = n - 34;
-	ssize_t i;
+	std::size_t i;
 	// TCP Pseudo Header:
 	s = s + (d[26] << 8) + d[27] + (d[28] << 8) + d[29]; // src IP
 	s = s + (d[30] << 8) + d[31] + (d[32] << 8) + d[33]; // dst IP
@@ -303,7 +303,7 @@ TNetworkManager::GetTCPChecksum(KUInt8* d, ssize_t n, bool set)
 }
 
 KUInt16
-TNetworkManager::GetIPv4Checksum(KUInt8* d, ssize_t n, bool set)
+TNetworkManager::GetIPv4Checksum(KUInt8* d, std::size_t n, bool set)
 {
 	(void) n;
 	(void) set;

@@ -38,6 +38,7 @@
 #endif
 
 #include <algorithm>
+#include <cstddef>
 #include <new>
 #include <vector>
 
@@ -416,7 +417,7 @@ TMemory::FastReadString(VAddr inAddress, char** outString)
 				// Resize.
 				len = 1024;
 				result_len += len;
-				ssize_t offset = dst - result;
+				std::ptrdiff_t offset = dst - result;
 				result = (char*) ::realloc(result, result_len);
 				dst = result + offset;
 			} else
@@ -453,7 +454,7 @@ TMemory::FastReadString(VAddr inAddress, char** outString)
 					// Resize.
 					len = 1024;
 					result_len += len;
-					ssize_t offset = dst - result;
+					std::ptrdiff_t offset = dst - result;
 					result = (char*) ::realloc(result, result_len);
 					dst = result + offset;
 				}

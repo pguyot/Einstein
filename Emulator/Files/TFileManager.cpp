@@ -29,6 +29,7 @@
 #include "Emulator/Log/TLog.h"
 
 //
+#include <cstddef>
 #include <sys/stat.h>
 #include <sys/types.h>
 #if TARGET_OS_WIN32
@@ -310,7 +311,7 @@ TFileManager::do_sys_read(KUInt32 fp, void* buf, KUInt32 nbyte)
 		return 0;
 	} else if (desc->fHostFile != NULL)
 	{
-		ssize_t result = ::fread(buf, sizeof(KUInt8), nbyte, desc->fHostFile);
+		std::size_t result = ::fread(buf, sizeof(KUInt8), nbyte, desc->fHostFile);
 		/*
 		if (result == 0) {
 			if (feof(desc->fHostFile)) {
@@ -349,7 +350,7 @@ TFileManager::do_sys_write(KUInt32 fp, const void* buf, KUInt32 nbyte)
 		return 0;
 	} else if (desc->fHostFile != NULL)
 	{
-		ssize_t result = ::fwrite(buf, sizeof(KUInt8), nbyte, desc->fHostFile);
+		std::size_t result = ::fwrite(buf, sizeof(KUInt8), nbyte, desc->fHostFile);
 		if (result > 0)
 		{
 			::fflush(desc->fHostFile);
