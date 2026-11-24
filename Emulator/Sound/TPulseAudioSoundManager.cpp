@@ -73,6 +73,7 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	int result = 0;
 	int stream_flags = 0;
 	const char* errorText = "";
+	bool mainLoopLocked = false;
 
 	mPAMainLoop = pa_threaded_mainloop_new();
 	if (!mPAMainLoop)
@@ -97,6 +98,7 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	pa_context_set_state_callback(mPAContext, &SPAContextStateCallback, this);
 
 	pa_threaded_mainloop_lock(mPAMainLoop);
+	mainLoopLocked = true;
 
 	result = pa_threaded_mainloop_start(mPAMainLoop);
 	if (result < 0)
@@ -141,6 +143,11 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	pa_channel_map_init_mono(&channelMap);
 
 	mOutputStream = pa_stream_new(mPAContext, "Playback", &outputParameters, &channelMap);
+	if (!mOutputStream)
+	{
+		errorText = "Can't allocate PulseAudio stream";
+		goto error;
+	}
 	pa_stream_set_state_callback(mOutputStream, &SPAStreamStateCallback, this);
 	pa_stream_set_write_callback(mOutputStream, &SPAStreamWriteCallback, this);
 	pa_stream_set_underflow_callback(mOutputStream, &SPAStreamUnderflowCallback, this);
@@ -168,20 +175,18 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 
 	if (result != 0)
 	{
-		if (GetLog())
-		{
-			GetLog()->FLogLine(
-				"PulseAudio stream did not connect with pa_stream_connect_playback (%s)",
-				pa_strerror(result));
-		}
-		pa_threaded_mainloop_unlock(mPAMainLoop);
-		return;
+		errorText = "PulseAudio stream did not connect with pa_stream_connect_playback";
+		goto error;
 	}
 
 	for (;;)
 	{
 		pa_stream_state_t stream_state = pa_stream_get_state(mOutputStream);
-		assert(PA_STREAM_IS_GOOD(stream_state));
+		if (!PA_STREAM_IS_GOOD(stream_state))
+		{
+			errorText = "PulseAudio stream failed to become ready";
+			goto error;
+		}
 		if (stream_state == PA_STREAM_READY)
 			break;
 		pa_threaded_mainloop_wait(mPAMainLoop);
@@ -212,9 +217,21 @@ error:
 			KPrintf("TPulseAudioSoundManager: %s.\n", errorText);
 		}
 	}
+	if (mOutputStream)
+	{
+		pa_stream_set_state_callback(mOutputStream, NULL, NULL);
+		pa_stream_set_write_callback(mOutputStream, NULL, NULL);
+		pa_stream_set_underflow_callback(mOutputStream, NULL, NULL);
+		pa_stream_disconnect(mOutputStream);
+		pa_stream_unref(mOutputStream);
+		mOutputStream = nullptr;
+	}
 	if (mPAMainLoop)
 	{
-		pa_threaded_mainloop_unlock(mPAMainLoop);
+		if (mainLoopLocked)
+		{
+			pa_threaded_mainloop_unlock(mPAMainLoop);
+		}
 		pa_threaded_mainloop_stop(mPAMainLoop);
 	}
 	if (mPAContext)
@@ -278,6 +295,24 @@ TPulseAudioSoundManager::~TPulseAudioSoundManager(void)
 void
 TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 {
+	if (!mOutputStream || !mPAMainLoop)
+	{
+		if (inSize > 0)
+		{
+			mDataMutex->Lock();
+			mOutputRequestPending = false;
+			mDataMutex->Unlock();
+			RequestOutputInterrupt();
+		} else if (mOutputIsRunning)
+		{
+			mDataMutex->Lock();
+			mOutputRequestPending = false;
+			mDataMutex->Unlock();
+			StopOutput();
+		}
+		return;
+	}
+
 	if (inSize > 0)
 	{
 #ifdef DEBUG_SOUND
@@ -326,6 +361,11 @@ TPulseAudioSoundManager::StartOutput(void)
 	mOutputIsRunning = true;
 	mOutputRequestPending = false;
 	mDataMutex->Unlock();
+	if (!mOutputStream || !mPAMainLoop)
+	{
+		RequestOutputInterrupt();
+		return;
+	}
 	pa_threaded_mainloop_lock(mPAMainLoop);
 
 	if (pa_stream_is_corked(mOutputStream))
@@ -371,6 +411,15 @@ TPulseAudioSoundManager::StopOutput(void)
 	}
 #endif
 
+	if (!mOutputStream || !mPAMainLoop)
+	{
+		mDataMutex->Lock();
+		mOutputIsRunning = false;
+		mOutputRequestPending = false;
+		mDataMutex->Unlock();
+		return;
+	}
+
 	pa_threaded_mainloop_lock(mPAMainLoop);
 
 	mDataMutex->Lock();
@@ -402,6 +451,10 @@ TPulseAudioSoundManager::StopOutput(void)
 bool
 TPulseAudioSoundManager::OutputIsRunning(void)
 {
+	if (!mOutputStream || !mPAMainLoop)
+	{
+		return false;
+	}
 	bool streamCorked = (bool) pa_stream_is_corked(mOutputStream);
 	bool outputIsRunning;
 	mDataMutex->Lock();
@@ -610,7 +663,7 @@ TPulseAudioSoundManager::PAStreamOpCB(pa_stream* s, int success, pa_threaded_mai
 void
 TPulseAudioSoundManager::OutputVolumeChanged()
 {
-	if (!mOutputStream)
+	if (!mOutputStream || !mPAMainLoop || !mPAContext)
 		return;
 	pa_threaded_mainloop_lock(mPAMainLoop);
 	pa_cvolume cvolume;
