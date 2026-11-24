@@ -266,7 +266,8 @@ private:
 	TSoundManager* mSoundManager = nullptr;
 	TSDLScreenManager* mScreenManager = nullptr;
 	std::bitset<SDL_SCANCODE_COUNT> mScancodesDown;	// physical keys down
-	std::bitset<SDL_SCANCODE_COUNT> mModifierRepeated;	// modifier keys that sent their one repeat
+	std::bitset<SDL_SCANCODE_COUNT> mModifierRepeated;	// modifier keys that sent their one repeat (or never will)
+	std::array<Uint64, SDL_SCANCODE_COUNT> mKeyDownAt {};	// when each key went down
 	std::array<KUInt8, 128> mKeyHolders {};	// physical keys down per Newton key code
 	TPlatformManager* mPlatformManager = nullptr;
 	TNetworkManager* mNetworkManager = nullptr;
