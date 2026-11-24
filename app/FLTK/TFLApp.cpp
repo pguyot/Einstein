@@ -639,8 +639,13 @@ ExecutablePath()
 	uint32_t size = sizeof(buf);
 	if (_NSGetExecutablePath(buf, &size) != 0)
 		return std::string();
-	char resolved[FL_PATH_MAX];
-	return realpath(buf, resolved) ? std::string(resolved) : std::string(buf);
+	if (char* resolved = realpath(buf, nullptr))
+	{
+		std::string result(resolved);
+		std::free(resolved);
+		return result;
+	}
+	return std::string(buf);
 #elif TARGET_OS_WIN32
 	wchar_t buf[MAX_PATH];
 	DWORD n = GetModuleFileNameW(nullptr, buf, MAX_PATH);
