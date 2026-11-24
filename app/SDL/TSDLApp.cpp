@@ -963,6 +963,12 @@ void TSDLApp::HandleKey(const SDL_KeyboardEvent& inEvent)
 			return;
 		}
 		if (!mScancodesDown.test(scancode)) {
+			if (mScancodesDown.any()) {
+				// A chord (for example Control-Shift): neither the held keys
+				// nor this one open the Command key list until released.
+				mModifierRepeated |= mScancodesDown;
+				mModifierRepeated.set(scancode);
+			}
 			mScancodesDown.set(scancode);
 			mKeyHolders[code]++;
 			mKeyDownAt[scancode] = SDL_GetTicks();
