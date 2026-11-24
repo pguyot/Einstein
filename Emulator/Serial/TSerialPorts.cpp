@@ -59,8 +59,9 @@
 
 #include "Emulator/TEmulator.h"
 
+#include "Emulator/EinsteinConfig.h"
 #include "Emulator/Serial/TBasicSerialPortManager.h"
-#if (TARGET_OS_MAC && !TARGET_IOS) || TARGET_OS_LINUX
+#if HAVE_PTY
 #include "Emulator/Serial/TBasiliskIISerialPortManager.h"
 #include "Emulator/Serial/TPipesSerialPortManager.h"
 #include "Emulator/Serial/TPtySerialPortManager.h"
@@ -68,7 +69,7 @@
 #include "Emulator/Serial/TSerialHostPortPTY.h"
 #include "Emulator/Serial/TSerialHostPortPTYBasilisk.h"
 #endif
-#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
+#if HAVE_SOCKETS
 #include "Emulator/Serial/TSerialHostPortTCPServer.h"
 #include "Emulator/Serial/TSerialPortDriverTcpClient.h"
 #endif
@@ -156,7 +157,7 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 
 	if (currentDriver)
 	{
-#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
+#if HAVE_SOCKETS
 		// Keep the server of a TCP client, for when the user switches back.
 		if (currentDriver->GetID() == kTcpClientDriver)
 		{
@@ -174,7 +175,7 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 		case kNullDriver:
 			currentDriver = new TBasicSerialPortManager(mLog, inPort);
 			break;
-#if (TARGET_OS_MAC && !TARGET_IOS) || TARGET_OS_LINUX
+#if HAVE_PTY
 		case kPipesDriver:
 			currentDriver = new TPipesSerialPortManager(mLog, inPort);
 			break;
@@ -185,7 +186,7 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 			currentDriver = new TBasiliskIISerialPortManager(mLog, inPort);
 			break;
 #endif
-#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
+#if HAVE_SOCKETS
 		case kTcpClientDriver: {
 			auto* tcp = new TSerialPortDriverTcpClient(mLog, inPort);
 			if (mTcpPort[inPort] != 0)
@@ -342,7 +343,7 @@ TSerialPorts::SetDriver(KUInt32 inLocation, EDriverID inDriver, std::string inCo
 	printf("TSerialPorts::SetDriver at location %08x with driver %d and config data %s\n", inLocation, driverID, settings.c_str());
 	switch (driverID)
 	{
-#if (TARGET_OS_MAC && !TARGET_IOS) || TARGET_OS_LINUX
+#if HAVE_PTY
 		case kDirectDriver:
 			port = new TSerialHostPortDirect(mLog, inLocation, settings.c_str(), mEmulator);
 			break;
@@ -353,7 +354,7 @@ TSerialPorts::SetDriver(KUInt32 inLocation, EDriverID inDriver, std::string inCo
 			port = new TSerialHostPortPTYBasilisk(mLog, inLocation, settings.c_str(), mEmulator);
 			break;
 #endif
-#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
+#if HAVE_SOCKETS
 		case kTcpServerDriver: {
 			auto* tcpServer = new TSerialHostPortTCPServer(mLog, inLocation, settings, mEmulator);
 			if (!tcpServer->IsOpen())
@@ -432,13 +433,14 @@ std::vector<const char*> TSerialPorts::ShortPortNames = /* NOLINT */
 	};
 
 TSerialPorts::EDriverID TSerialPorts::ValidDrivers[] = {
-#if TARGET_OS_MAC || TARGET_OS_LINUX
-	kNullDriver, kPipesDriver, kPtyDriver, kBasiliskIIDriver, kTcpClientDriver, (EDriverID) -1
-#elif TARGET_OS_ANDROID || TARGET_OS_WIN32
-	kNullDriver, kTcpClientDriver, (EDriverID) -1
-#else
-	kNullDriver, (EDriverID) -1
+	kNullDriver,
+#if HAVE_PTY
+	kPipesDriver, kPtyDriver, kBasiliskIIDriver,
 #endif
+#if HAVE_SOCKETS
+	kTcpClientDriver,
+#endif
+	(EDriverID) -1
 };
 
 TSerialPorts::EDriverID TSerialPorts::NoValidDrivers[] = { kNullDriver, (EDriverID) -1 };

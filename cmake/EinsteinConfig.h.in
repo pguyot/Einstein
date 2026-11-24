@@ -1,0 +1,11 @@
+#ifndef _EINSTEINGENERATEDCONFIG_H
+#define _EINSTEINGENERATEDCONFIG_H
+
+#cmakedefine01 HAVE_PTY
+#cmakedefine01 HAVE_SOCKETS
+#cmakedefine01 HAVE_COREAUDIO
+#cmakedefine01 HAVE_PULSEAUDIO
+#cmakedefine01 HAVE_WAVEOUT
+#cmakedefine01 HAVE_LIBFFI
+
+#endif

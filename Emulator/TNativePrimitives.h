@@ -25,6 +25,7 @@
 #define _TNATIVEPRIMITIVES_H
 
 #include <K/Defines/KDefinitions.h>
+#include "Emulator/EinsteinConfig.h"
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -38,7 +39,7 @@ class TPrinterManager;
 class TSoundManager;
 class TScreenManager;
 class TPlatformManager;
-#if !TARGET_OS_MAC
+#if HAVE_LIBFFI
 class TNativeCalls;
 #endif
 class TVirtualizedCalls;
@@ -264,7 +265,7 @@ private:
 	/// Platform manager.
 	TPlatformManager* mPlatformManager { nullptr };
 
-#if !TARGET_OS_MAC
+#if HAVE_LIBFFI
 	/// Interface for native calls.
 	TNativeCalls* mNativeCalls { nullptr };
 #endif

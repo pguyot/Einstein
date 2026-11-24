@@ -21,6 +21,7 @@ list ( APPEND cmake_sources
 )
 
 list ( APPEND common_sources
+	Emulator/EinsteinConfig.h
 	Emulator/TARMProcessor.cpp
 	Emulator/TARMProcessor.h
 	Emulator/TDMAManager.cpp

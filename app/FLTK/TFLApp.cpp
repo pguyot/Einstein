@@ -234,6 +234,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #endif
 
 // Einstein
+#include "Emulator/EinsteinConfig.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TBufferLog.h"
@@ -241,7 +242,9 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Log/TStdOutLog.h"
 #include "Emulator/Network/TNetworkManager.h"
+#if HAVE_SOCKETS
 #include "Emulator/Network/TUsermodeNetwork.h"
+#endif
 #include "Emulator/PCMCIA/TLinearCard.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 #include "Emulator/Platform/TPlatformManager.h"
@@ -262,14 +265,12 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "HTTPRequest.hpp"
 
 // Additional managers for every supported platform
-#if TARGET_OS_WIN32
+#if HAVE_WAVEOUT
 #include "Emulator/Sound/TWaveSoundManager.h"
-#elif TARGET_OS_LINUX
+#elif HAVE_PULSEAUDIO
 #include "Emulator/Sound/TPulseAudioSoundManager.h"
-#elif TARGET_OS_MAC
+#elif HAVE_COREAUDIO
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
-#else
-#error Selected target OS not implemented, or no target OS selected
 #endif
 
 #include <K/Streams/TFileStream.h>
@@ -1846,24 +1847,23 @@ TFLApp::InitSettings()
 void
 TFLApp::InitSound()
 {
-#if TARGET_OS_WIN32
+#if HAVE_WAVEOUT
 	mSoundManager = new TWaveSoundManager(mLog);
-#elif TARGET_OS_LINUX
+#elif HAVE_PULSEAUDIO
 	mSoundManager = new TPulseAudioSoundManager(mLog);
-#elif TARGET_OS_MAC
+#elif HAVE_COREAUDIO
 	mSoundManager = new TCoreAudioSoundManager(mLog);
 #else
-#error Selected target OS support not implemented, or no target OS selected
+	mSoundManager = new TNullSoundManager(mLog);
 #endif
 }
 
 void
 TFLApp::InitNetwork()
 {
-#if TARGET_OS_MAC || TARGET_OS_LINUX || TARGET_OS_WIN32
+#if HAVE_SOCKETS
 	mNetworkManager = new TUsermodeNetwork(mLog);
 #else
-#warn Please configure a network driver
 	mNetworkManager = new TNullNetworkManager(mLog);
 #endif
 }

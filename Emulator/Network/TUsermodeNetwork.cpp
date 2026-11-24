@@ -194,11 +194,6 @@ typedef int socklen_t;
 #include <unistd.h>
 #ifdef __ANDROID__
 #include <malloc.h>
-#else
-#if !RASPBERRY_PI && !TARGET_OS_LINUX
-#include <ifaddrs.h>
-#include <sys/sockio.h>
-#endif
 #endif
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET -1

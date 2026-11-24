@@ -236,7 +236,6 @@ doas pkg_add git \
   cmake \
   autoconf \
   bison \
-  ffi \
   pulseaudio
 ```
 
