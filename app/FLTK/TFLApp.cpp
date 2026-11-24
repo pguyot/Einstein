@@ -2263,11 +2263,7 @@ TFLApp::InitMonitor(const char* theROMImagePath)
 #if !NDEBUG
 #if TARGET_OS_WIN32
 	mMonitorLog->OpenLog("C:/user/micro/Einstein_log.txt");
-#endif
-#if TARGET_OS_MAC
-	mMonitorLog->OpenLog("/tmp/Einstein_log.txt");
-#endif
-#if TARGET_OS_LINUX
+#else
 	mMonitorLog->OpenLog("/tmp/Einstein_log.txt");
 #endif
 #endif
@@ -2615,35 +2611,6 @@ tabs_box(int x, int y, int w, int h, Fl_Color c)
 static const char*
 tfl_file_chooser(const char* message, const char* pat, const char* fname, FileChooser type)
 {
-#if UPDATED_TARGET_OS_LINUX
-	char pattern[FL_PATH_MAX + 1];
-	pattern[0] = 0;
-	if (pat)
-	{
-		const char* s = pat;
-		char* d = pattern;
-		bool brackets = false;
-		while (*s)
-		{
-			char c = *s++;
-			if (c == '\t')
-			{
-				*d++ = ' ';
-				*d++ = '(';
-				brackets = true;
-			} else if (c == '\n' && brackets)
-			{
-				*d++ = ')';
-				*d++ = '\t';
-			} else
-			{
-				*d++ = c;
-			}
-		}
-		*d = 0;
-	}
-	return fl_file_chooser(message, pattern[0] ? pattern : nullptr, fname);
-#else
 	static char tfl_file_chooser_filename[FL_PATH_MAX + 1];
 	char name[FL_PATH_MAX + 1];
 	name[0] = 0;
@@ -2700,7 +2667,6 @@ tfl_file_chooser(const char* message, const char* pat, const char* fname, FileCh
 	{
 		return nullptr;
 	}
-#endif
 }
 
 const char*

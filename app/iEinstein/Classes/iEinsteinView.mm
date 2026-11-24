@@ -31,13 +31,7 @@
 
 @implementation iEinsteinView
 
-#include <TargetConditionals.h>
-
-#if !(defined kCGBitmapByteOrder32Host) && TARGET_RT_BIG_ENDIAN
-#define kAlphaNoneSkipFirstPlusHostByteOrder (kCGImageAlphaNoneSkipFirst)
-#else
 #define kAlphaNoneSkipFirstPlusHostByteOrder (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
-#endif
 
 #define SWAP(x, y) \
 	{              \

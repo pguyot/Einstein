@@ -29,10 +29,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if RASPBERRY_PI || TARGET_OS_LINUX
-#include <string.h>
-#endif
-
 TSymbolList* TSymbolList::List = 0;
 
 // -------------------------------------------------------------------------- //

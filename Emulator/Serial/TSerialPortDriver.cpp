@@ -42,16 +42,6 @@
 
 #include "Emulator/TEmulator.h"
 
-#include "Emulator/Serial/TBasicSerialPortManager.h"
-#if TARGET_OS_MAC
-#include "Emulator/Serial/TBasiliskIISerialPortManager.h"
-#include "Emulator/Serial/TPipesSerialPortManager.h"
-#include "Emulator/Serial/TPtySerialPortManager.h"
-#endif
-#if TARGET_OS_MAC || TAGRET_OS_ANDROID
-#include "Emulator/Serial/TSerialPortDriverTcpClient.h"
-#endif
-
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
