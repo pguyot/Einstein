@@ -211,7 +211,7 @@ TThread::TThread(TRunnable* inRunnable) :
 		mSuspendCount(0)
 {
 #if TARGET_OS_WIN32
-	// step-by-step conversion convinces Visual Studio and Cygwin
+	// step-by-step conversion convinces Visual Studio
 	typedef void* (*dcall)(void*);
 	dcall tt = (dcall) (SEntryPoint<TRunnable>);
 	// typedef unsigned (__stdcall *fcall)( void * );
