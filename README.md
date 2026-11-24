@@ -4,7 +4,6 @@
 ![CI macOS (FLTK)](https://github.com/pguyot/Einstein/workflows/CI%20macOS%20%28FLTK%29/badge.svg)
 ![CI Ubuntu](https://github.com/pguyot/Einstein/workflows/CI%20Ubuntu/badge.svg)
 ![CI Windows (FLTK)](https://github.com/pguyot/Einstein/workflows/CI%20Windows%20%28FLTK%29/badge.svg)
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/pguyot/Einstein.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/pguyot/Einstein/context:cpp)
 
 Einstein officially runs on macOS, iOS, and Ubuntu Linux with partial support for Android,
 Raspberry Pi, and Windows.

@@ -87,7 +87,6 @@
 		2389E9881A1E4D4A0001A8C5 /* TMappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3324111B7570002165EC /* TMappedFile.cpp */; };
 		2389E9891A1E4D4A0001A8C5 /* TSymbolList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cpp */; };
 		2389E98A1A1E4D4A0001A8C5 /* TJITStatistics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITStatistics.cpp */; };
-		2389E98B1A1E4D4A0001A8C5 /* TFiber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cpp */; };
 		2389E98D1A1E4D4A0001A8C5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E36FD111C18A8002165EC /* CoreAudio.framework */; };
 		2389E98E1A1E4D4A0001A8C5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */; };
 		2389E98F1A1E4D4A0001A8C5 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
@@ -217,7 +216,6 @@
 		C99E377B111C2289002165EC /* Einstein.rex in Resources */ = {isa = PBXBuildFile; fileRef = C99E377A111C2289002165EC /* Einstein.rex */; };
 		C9B4AB88123D674400D8D2C7 /* TBufferLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3460111B7C07002165EC /* TBufferLog.cpp */; };
 		C9BE33D0133E64F60052EA2F /* TJITStatistics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITStatistics.cpp */; };
-		C9D54E1415FA23E700D91131 /* TFiber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cpp */; };
 		DA0CD1D924A783D900E8D593 /* TFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F156B80F1CFA48B0004661E8 /* TFileManager.cpp */; };
 		DA0CD1DA24A783E000E8D593 /* TNewt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C93AAD84242D7F4000B77558 /* TNewt.cpp */; };
 		DA0CD1DB24A783F500E8D593 /* TSerialPorts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92FD821242D50CF00D18F58 /* TSerialPorts.cpp */; };
@@ -292,7 +290,6 @@
 		DA4BA45A1A3A03F8002BDB80 /* TMappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3324111B7570002165EC /* TMappedFile.cpp */; };
 		DA4BA45B1A3A03FD002BDB80 /* TFileStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3330111B7570002165EC /* TFileStream.cpp */; };
 		DA4BA45C1A3A03FD002BDB80 /* TStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3333111B7570002165EC /* TStream.cpp */; };
-		DA4BA45D1A3A0407002BDB80 /* TFiber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cpp */; };
 		DA4BA45E1A3A0407002BDB80 /* TCondVar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E333F111B7570002165EC /* TCondVar.cpp */; };
 		DA4BA45F1A3A0407002BDB80 /* TMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3341111B7570002165EC /* TMutex.cpp */; };
 		DA4BA4601A3A0407002BDB80 /* TThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3343111B7570002165EC /* TThread.cpp */; };
@@ -367,7 +364,6 @@
 		DA4FF1411A35EC1000092B5A /* TAIFROMImageWithREXes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3480111B7C08002165EC /* TAIFROMImageWithREXes.cpp */; };
 		DA4FF1421A35EC1400092B5A /* TAIFFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347E111B7C08002165EC /* TAIFFile.cpp */; };
 		DA4FF1431A35EC1700092B5A /* TROMImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3486111B7C08002165EC /* TROMImage.cpp */; };
-		DA4FF1441A35EC2B00092B5A /* TFiber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cpp */; };
 		DA4FF1451A35EC2B00092B5A /* TCondVar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E333F111B7570002165EC /* TCondVar.cpp */; };
 		DA4FF1461A35EC2B00092B5A /* TMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3341111B7570002165EC /* TMutex.cpp */; };
 		DA4FF1471A35EC2B00092B5A /* TThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3343111B7570002165EC /* TThread.cpp */; };
@@ -760,8 +756,6 @@
 		C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = iEinsteinView.h; path = Classes/iEinsteinView.h; sourceTree = "<group>"; tabWidth = 4; };
 		C9BE33CE133E64F60052EA2F /* TJITStatistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITStatistics.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C9BE33CF133E64F60052EA2F /* TJITStatistics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TJITStatistics.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		C9D54E1215FA23E700D91131 /* TFiber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFiber.h; sourceTree = "<group>"; };
-		C9D54E1315FA23E700D91131 /* TFiber.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFiber.cpp; sourceTree = "<group>"; };
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TTapNetwork.cpp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTapNetwork.h; sourceTree = "<group>"; };
 		DA4BA4051A3A0153002BDB80 /* CLITest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CLITest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1157,8 +1151,6 @@
 		C99E333E111B7570002165EC /* Threads */ = {
 			isa = PBXGroup;
 			children = (
-				C9D54E1215FA23E700D91131 /* TFiber.h */,
-				C9D54E1315FA23E700D91131 /* TFiber.cpp */,
 				C99E333F111B7570002165EC /* TCondVar.cpp */,
 				C99E3340111B7570002165EC /* TCondVar.h */,
 				C99E3341111B7570002165EC /* TMutex.cpp */,
@@ -1889,7 +1881,6 @@
 				2389E9891A1E4D4A0001A8C5 /* TSymbolList.cpp in Sources */,
 				C97F21BA2779F65400539FAB /* TSerialPorts.cpp in Sources */,
 				2389E98A1A1E4D4A0001A8C5 /* TJITStatistics.cpp in Sources */,
-				2389E98B1A1E4D4A0001A8C5 /* TFiber.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2004,7 +1995,6 @@
 				C901E52F1326566F0074513E /* TMemError.cpp in Sources */,
 				C901E530132656710074513E /* TEOFException.cpp in Sources */,
 				C9BE33D0133E64F60052EA2F /* TJITStatistics.cpp in Sources */,
-				C9D54E1415FA23E700D91131 /* TFiber.cpp in Sources */,
 				C93AAD86242D7F4100B77558 /* TNewt.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2098,7 +2088,6 @@
 				DA4BA42D1A3A02FD002BDB80 /* TJITGeneric_BlockDataTransfer.cpp in Sources */,
 				DA4BA4211A3A028C002BDB80 /* TJITPage.cpp in Sources */,
 				DA4BA4451A3A02FD002BDB80 /* TSymbolList.cpp in Sources */,
-				DA4BA45D1A3A0407002BDB80 /* TFiber.cpp in Sources */,
 				DA4BA4161A3A028C002BDB80 /* TARMProcessor.cpp in Sources */,
 				DA4BA4611A3A040C002BDB80 /* UUTF16Conv.cpp in Sources */,
 				DA4BA4601A3A0407002BDB80 /* TThread.cpp in Sources */,
@@ -2178,7 +2167,6 @@
 				DA4FF1151A35EAD500092B5A /* TJITCache.cpp in Sources */,
 				DA4FF11B1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer.cpp in Sources */,
 				DA4FF1331A35EB8500092B5A /* TException.cpp in Sources */,
-				DA4FF1441A35EC2B00092B5A /* TFiber.cpp in Sources */,
 				DA4FF1391A35EBAA00092B5A /* TVirtualizedCalls.cpp in Sources */,
 				DA4FF1471A35EC2B00092B5A /* TThread.cpp in Sources */,
 				DA4FF1261A35EAF600092B5A /* TJITGeneric_SingleDataTransfer.cpp in Sources */,
