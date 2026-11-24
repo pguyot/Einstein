@@ -55,9 +55,6 @@
 #include <CoreGraphics/CoreGraphics.h>
 #endif
 
-#if TARGET_OS_LINUX
-#include <X11/extensions/Xrender.h>
-#endif
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -313,43 +310,6 @@ public:
 			{
 				fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_, 4); // 32 bit: RGB
 			}
-// #elif TARGET_OS_LINUX
-#if 0
-    // TODO: Nothing implemented yet for X11/Xlib. XRender extension seems to be the way to go.
-            double xscale= 1.0;
-            double yscale= 1.0;
-            XTransform xform = {{
-                                        { XDoubleToFixed( xscale ), XDoubleToFixed( 0 ), XDoubleToFixed( 0 ) },
-                                        { XDoubleToFixed( 0 ), XDoubleToFixed( yscale ), XDoubleToFixed( 0 ) },
-                                        { XDoubleToFixed( 0 ), XDoubleToFixed( 0 ), XDoubleToFixed(1.0) }
-                                }};
-
-            XRenderPictFormat *picFormat = XRenderFindVisualFormat(fl_display, (const Visual*)fl_visual);
-            XRenderPictureAttributes pa = { };
-            //pa.subwindow_mode = IncludeInferiors;
-            Pixmap pixmap = XCreatePixmapFromBitmapData(
-                    fl_display		/* display */,
-                    fl_window		/* d */,
-                    reinterpret_cast<char *>(rgbData_)        /* data */,
-                    rgbWidth_	/* width */,
-                    rgbHeight_	/* height */,
-                    0	/* fg */,
-                    0	/* bg */,
-                    3	/* depth */
-            );
-            Picture srcPic = XRenderCreatePicture(fl_display, pixmap, picFormat, CPSubwindowMode, &pa);
-            Picture dstPic = XRenderCreatePicture(fl_display, fl_window, picFormat, CPSubwindowMode, &pa);
-
-            XRenderSetPictureTransform(fl_display, srcPic, &xform);
-            XRenderComposite(fl_display, PictOpOver,
-                             srcPic, 0, dstPic, // src, mask, dest
-                             0, 0, // src xy (in destination space!)
-                             0, 0, // mask xy
-                             x(), y(), rgbWidth_, rgbHeight_);
-
-            XRenderFreePicture(fl_display, srcPic);
-            XRenderFreePicture(fl_display, dstPic);
-#endif
 #else
 			if ((rgbWidth_ == w()) && (rgbHeight_ == h()))
 			{
