@@ -239,9 +239,35 @@ TSDLApp::Launch(int argc, char* argv[])
 	mPublicDataPath = SDL_GetAndroidExternalStoragePath();
 	mROMPath = mPublicDataPath / "ROM.bin";
 #else
-	mPrivateDataPath = SDL_GetPrefPath("org.messagepad", "einstein");
-	mPublicDataPath = SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS);
-	mPublicDataPath /= "Einstein";
+	char* prefPath = SDL_GetPrefPath("org.messagepad", "einstein");
+	if (prefPath && *prefPath != '\0')
+	{
+		mPrivateDataPath = prefPath;
+		SDL_free(prefPath);
+	} else
+	{
+		if (prefPath)
+		{
+			SDL_free(prefPath);
+		}
+		mLog->FLogLine("SDL_GetPrefPath failed: %s", SDL_GetError());
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+			"Einstein Startup Error",
+			"Could not determine a writable application data directory.",
+			nullptr);
+		return SDL_APP_FAILURE;
+	}
+	const char* docsPath = SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS);
+	if (docsPath && *docsPath != '\0')
+	{
+		mPublicDataPath = docsPath;
+		mPublicDataPath /= "Einstein";
+	} else
+	{
+		mLog->FLogLine("SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS) failed: %s; falling back to %s",
+			SDL_GetError(), mPrivateDataPath.string().c_str());
+		mPublicDataPath = mPrivateDataPath;
+	}
 	mROMPath = mPrivateDataPath / "ROM.bin";
 #endif
 
