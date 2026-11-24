@@ -28,11 +28,9 @@
 // Einstein.
 #include "Emulator/TMemory.h"
 #include "Emulator/TMemoryConsts.h"
+#include "Emulator/Screen/TScreenManager.h"
 #ifndef NO_X11
 #include "Emulator/Screen/TX11ScreenManager.h"
-#else
-#include "Emulator/Screen/TFBScreenManager.h"
-#define TX11ScreenManager TFBScreenManager
 #endif
 
 // -------------------------------------------------------------------------- //

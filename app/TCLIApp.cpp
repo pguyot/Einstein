@@ -46,11 +46,9 @@
 #include "Emulator/Sound/TPulseAudioSoundManager.h"
 #endif
 #include "Emulator/Sound/TNullSoundManager.h"
+#include "Emulator/Screen/TScreenManager.h"
 #ifndef NOX11
 #include "Emulator/Screen/TX11ScreenManager.h"
-#else
-#include "Emulator/Screen/TFBScreenManager.h"
-#define TX11ScreenManager TFBScreenManager
 #endif
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
@@ -920,6 +918,7 @@ TCLIApp::CreateScreenManager(
 	int inPortraitHeight,
 	bool inFullScreen)
 {
+#ifndef NOX11
 	if (::strcmp(inClass, "x11") == 0)
 	{
 		bool screenIsLandscape = true;
@@ -959,6 +958,7 @@ TCLIApp::CreateScreenManager(
 			inFullScreen,
 			screenIsLandscape);
 	} else
+#endif
 	{
 		(void) ::fprintf(stderr, "Unknown screen manager class %s\n", inClass);
 		::exit(1);
