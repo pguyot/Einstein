@@ -220,7 +220,7 @@ THostInfo::RetrieveUserInfo(void)
 	{
 #if TARGET_OS_WIN32
 		// do nothing
-#elif TARGET_OS_ANDROID
+#elif defined(__ANDROID__)
 		// do nothing
 #else
 #if TARGET_OS_OPENSTEP

@@ -91,7 +91,7 @@
 #include "Emulator/Sound/TNullSoundManager.h"
 #include "app/SDL/TSDLSoundManager.h"
 
-#if TARGET_OS_ANDROID
+#ifdef __ANDROID__
 #include "app/SDL/TSDLAndroid.h"
 #endif
 // xxd --include Resources/icons/button_install.bmp > app/SDL/TSDLIconInstall.cpp
@@ -234,7 +234,7 @@ TSDLApp::Launch(int argc, char* argv[])
 	SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
 
 	// Init Directories
-#if TARGET_OS_ANDROID
+#ifdef __ANDROID__
 	mPrivateDataPath = SDL_GetAndroidInternalStoragePath();
 	mPublicDataPath = SDL_GetAndroidExternalStoragePath();
 	mROMPath = mPublicDataPath / "ROM.bin";
@@ -357,7 +357,7 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 	// If we get a different window size than requested, we can adjust the
 	// emulation screen size for best size and aspect ratio. The original
 	// MessagePad has 96 dpi.
-#if TARGET_OS_ANDROID || TARGET_OS_IOS
+#if defined(__ANDROID__) || (defined(TARGET_OS_IOS) && TARGET_OS_IOS)
 	int dpi = SDL_GetWindowDisplayScale(mSDLWindow) * 160;
 #else
 	int dpi = SDL_GetWindowDisplayScale(mSDLWindow) * 96;
@@ -1597,7 +1597,7 @@ void TSDLApp::ShowList(int inMenuId, const char* inTitle,
 					   const std::vector<std::string>& inItems, int inChecked)
 {
 	MenuEventType();
-#if TARGET_OS_ANDROID
+#ifdef __ANDROID__
 	if (mMenuEventType != 0) {
 		AndroidShowMenu(inMenuId, inTitle, inItems, inChecked, mMenuEventType);
 		return;
@@ -1997,7 +1997,7 @@ void TSDLApp::DownloadAndInstall(const std::vector<std::string>& inPackages)
 				if (!expected) {
 					item->fError = "Einstein doesn't know this package, so it can't check it.";
 				} else {
-#if TARGET_OS_ANDROID
+#ifdef __ANDROID__
 					// Android's HttpURLConnection, with timeouts and redirects.
 					std::vector<unsigned char> body;
 					if (AndroidHttpGet(item->fName, body, item->fError))

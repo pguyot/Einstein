@@ -328,7 +328,7 @@ private:
 	bool mEmulatorLogEnabled { false };
 	// The keyboard's Control key acts as the Newton's Command key. On by
 	// default on Android, which keeps the Meta key for its own shortcuts.
-#if TARGET_OS_ANDROID
+#ifdef __ANDROID__
 	bool mControlIsCommand { true };
 #else
 	bool mControlIsCommand { false };
