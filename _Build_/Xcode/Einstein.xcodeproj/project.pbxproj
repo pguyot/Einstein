@@ -104,6 +104,7 @@
 		A78AB26E278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */; };
 		A78AB26F278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */; };
 		A78AB272278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */; };
+		A78AB273278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB270278074400047B122 /* TSerialHostPortTCPServer.cpp */; };
 		B8189DC9309B416800165835 /* TSerialHostPortPTYBasilisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8189DC8309B416800165835 /* TSerialHostPortPTYBasilisk.cpp */; };
 		B8189DCA309B416800165835 /* TSerialHostPortPTYBasilisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8189DC8309B416800165835 /* TSerialHostPortPTYBasilisk.cpp */; };
 		B8189DCB309B416800165835 /* TSerialHostPortPTYBasilisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8189DC8309B416800165835 /* TSerialHostPortPTYBasilisk.cpp */; };
@@ -1880,6 +1881,7 @@
 				2389E9881A1E4D4A0001A8C5 /* TMappedFile.cpp in Sources */,
 				2389E9891A1E4D4A0001A8C5 /* TSymbolList.cpp in Sources */,
 				C97F21BA2779F65400539FAB /* TSerialPorts.cpp in Sources */,
+				A78AB273278074400047B122 /* TSerialHostPortTCPServer.cpp in Sources */,
 				2389E98A1A1E4D4A0001A8C5 /* TJITStatistics.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2242,9 +2244,7 @@
 				);
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = (
-					../../,
-				);
+				HEADER_SEARCH_PATHS = ../../;
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -2279,9 +2279,7 @@
 					USE_STORYBOARDS,
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = (
-					../../,
-				);
+				HEADER_SEARCH_PATHS = ../../;
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -2319,9 +2317,7 @@
 					USE_STORYBOARDS,
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = (
-					../../,
-				);
+				HEADER_SEARCH_PATHS = ../../;
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -2364,9 +2360,7 @@
 					_DEBUG,
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../",
-				);
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../";
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(APPLICATIONS)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -2403,9 +2397,7 @@
 				ENABLE_RESOURCE_ACCESS_CONTACTS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
-				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../",
-				);
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../";
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(APPLICATIONS)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -2595,9 +2587,7 @@
 				ENABLE_RESOURCE_ACCESS_CONTACTS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
-				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../",
-				);
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../";
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(APPLICATIONS)/Applications";
 				LIBRARY_SEARCH_PATHS = (
