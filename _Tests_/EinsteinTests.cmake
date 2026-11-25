@@ -57,7 +57,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		)
 	endif ()
 
-elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
+elseif ( UNIX AND NOT APPLE AND NOT ANDROID )
 
 	add_executable ( EinsteinTests
 		${common_sources}
@@ -66,8 +66,11 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 	)
 	target_compile_options ( EinsteinTests PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-		-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
+		-Wno-missing-field-initializers -Werror
 	)
+	if ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
+		target_compile_options ( EinsteinTests PUBLIC -Wno-stringop-truncation )
+	endif ()
 	target_compile_definitions ( EinsteinTests PRIVATE
 		TARGET_UI_FLTK=1
 	)

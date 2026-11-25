@@ -20,6 +20,7 @@
 // ==============================
 
 extern "C" {
+#include <fcntl.h>
 #include <stdio.h>
 #include <termios.h>
 #include <unistd.h>
