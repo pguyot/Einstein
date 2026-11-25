@@ -47,7 +47,8 @@ public:
 	enum class CardType {
 		kUndefined,
 		kNetwork,
-		kLinear
+		kLinear,
+		kNewsCard ///< Motorola NewsCard pager; the image path is the card folder
 	};
 
 	constexpr static const char* const kNetworkUUID = "3C709CD5-6573-4D91-B3B2-7B0D122C6AB5";
@@ -58,6 +59,9 @@ public:
 	static TFLPCCardSettings* LinkLinearPCCard(const char* inName, const char* inImageFilename);
 	static TFLPCCardSettings* NewLinearPCCard(const char* inName, const char* inImageFilename, KUInt32 inSizeMB);
 	static TFLPCCardSettings* NewATACard(const char* inName, const char* inImageFilename, KUInt32 inSizeMB);
+	static TFLPCCardSettings* LinkNewsCard(const char* inName, const char* inFolder);
+	/// True if inFolder holds a usable NewsCard flash.bin.
+	static bool IsNewsCardFolder(const char* inFolder);
 	~TFLPCCardSettings();
 
 	TPCMCIACard* GetCard();

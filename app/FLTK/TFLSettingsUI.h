@@ -208,6 +208,8 @@ private:
   static Fl_Menu_Item menu_[];
   inline void cb_Add_i(Fl_Menu_*, void*);
   static void cb_Add(Fl_Menu_*, void*);
+  inline void cb_Add1_i(Fl_Menu_*, void*);
+  static void cb_Add1(Fl_Menu_*, void*);
   inline void cb_New_i(Fl_Menu_*, void*);
   static void cb_New(Fl_Menu_*, void*);
   inline void cb_Create_i(Fl_Menu_*, void*);

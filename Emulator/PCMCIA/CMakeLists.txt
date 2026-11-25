@@ -13,6 +13,8 @@ list ( APPEND common_sources
 	Emulator/PCMCIA/TLinearCard.h
 	Emulator/PCMCIA/TNE2000Card.cpp
 	Emulator/PCMCIA/TNE2000Card.h
+	Emulator/PCMCIA/TNewsCard.cpp
+	Emulator/PCMCIA/TNewsCard.h
 	Emulator/PCMCIA/TPCMCIACard.cpp
 	Emulator/PCMCIA/TPCMCIACard.h
 	Emulator/PCMCIA/TPCMCIAController.cpp
