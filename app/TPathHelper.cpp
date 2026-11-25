@@ -11,14 +11,17 @@
 
 #include <K/Defines/KDefinitions.h>
 
-#if TARGET_OS_MAC
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#if TARGET_OS_OSX
 #include "TCocoaPathHelper.h"
+#endif
 #endif
 
 std::string
 TPathHelper::GetSerialPipeBasePath()
 {
-#if TARGET_OS_MAC
+#if defined(__APPLE__) && TARGET_OS_OSX
 	return TCocoaPathHelper::GetSerialPipeBasePath();
 #else
 	KPrintf("TPathHelper::GetSerialPipeBasePath() not implemented on this platform!\n");

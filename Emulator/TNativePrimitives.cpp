@@ -33,6 +33,9 @@
 #if !TARGET_OS_WIN32
 #include <unistd.h>
 #endif
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#endif
 
 // K
 #include <K/Streams/TStream.h>
@@ -55,7 +58,7 @@
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 #include "Emulator/Platform/PlatformGestalt.h"
 #include "Emulator/Platform/TPlatformManager.h"
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 #include "Emulator/NativeCalls/TObjCBridgeCalls.h"
 #endif
 
@@ -119,7 +122,7 @@ TNativePrimitives::TNativePrimitives(
 #if HAVE_LIBFFI
 	mNativeCalls = new TNativeCalls(inMemory);
 #endif
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 	mObjCBridgeCalls = new TObjCBridgeCalls(inMemory);
 #endif
 	// mLogMask = ENABLE_LOG_PLATFORM | ENABLE_LOG_SCREEN;
@@ -236,7 +239,7 @@ TNativePrimitives::ExecuteNative(KUInt32 inInstruction)
 				ExecuteNetworkManagerNative(inInstruction);
 				break;
 
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 			case 0x00000B:
 				ExecuteHostiOSNativeiOS(inInstruction);
 				break;
@@ -978,8 +981,7 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 // CalibrateTablet.
 #if TARGET_OS_WIN32
 			// FIXME call the Win32 tablet calibration app
-#elif TARGET_IOS
-#elif TARGET_OS_MAC
+#elif defined(__APPLE__)
 #elif defined(__ANDROID__)
 #else
 		{
@@ -3198,7 +3200,7 @@ TNativePrimitives::ExecuteNetworkManagerNative(KUInt32 inInstruction)
 	}
 }
 
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 void
 TNativePrimitives::ExecuteHostiOSNativeiOS(KUInt32 inInstruction)
 {
@@ -3276,7 +3278,7 @@ TNativePrimitives::ExecuteHostiOSNativeiOS(KUInt32 inInstruction)
 }
 #endif
 
-#if defined(TARGET_UI_FLTK) || TARGET_IOS
+#if defined(TARGET_UI_FLTK) || (defined(__APPLE__) && TARGET_OS_IOS)
 // -------------------------------------------------------------------------- //
 //  * ExecutePrinterDriverNative( KUInt32 )
 // -------------------------------------------------------------------------- //

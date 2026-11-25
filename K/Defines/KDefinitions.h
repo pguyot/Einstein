@@ -114,6 +114,20 @@
 
 #define HAS_EXCEPTION_HANDLING 1
 
+#if defined(__APPLE__) && !(defined(TARGET_OS_NEWTON) && TARGET_OS_NEWTON)
+#include <TargetConditionals.h>
+#ifndef TARGET_OS_OPENSTEP
+#define TARGET_OS_OPENSTEP 1
+#endif
+#ifndef TARGET_IOS
+#if TARGET_OS_IOS
+#define TARGET_IOS 1
+#else
+#define TARGET_IOS 0
+#endif
+#endif
+#endif
+
 #if defined(TARGET_OS_OPENSTEP_PPC) && TARGET_OS_OPENSTEP_PPC
 #define TARGET_OS_OPENSTEP 1
 #endif
@@ -214,7 +228,7 @@
 #pragma warn_implicitconv off
 #endif
 #ifdef __OBJC__
-#if TARGET_IOS
+#if TARGET_OS_IOS
 #import <CFNetwork/CFNetwork.h>
 #else
 #import <CoreServices/CoreServices.h>

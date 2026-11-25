@@ -2236,7 +2236,6 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_DEBUG,
-					TARGET_IOS,
 					NO_X11,
 					"$(inherited)",
 					USE_STORYBOARDS,
@@ -2275,7 +2274,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					TARGET_IOS,
 					NO_X11,
 					"$(inherited)",
 					USE_STORYBOARDS,
@@ -2316,7 +2314,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					TARGET_IOS,
 					NO_X11,
 					"$(inherited)",
 					USE_STORYBOARDS,
@@ -2462,7 +2459,6 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TARGET_OS_OPENSTEP=1",
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
 					NO_X11,
@@ -2514,7 +2510,6 @@
 				EXCLUDED_ARCHS = "";
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TARGET_OS_OPENSTEP=1",
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
 					NO_X11,
@@ -2565,7 +2560,6 @@
 				EXCLUDED_ARCHS = "";
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TARGET_OS_OPENSTEP=1",
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
 					NO_X11,

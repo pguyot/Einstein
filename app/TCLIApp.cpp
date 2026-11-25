@@ -39,7 +39,7 @@
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TROMImage.h"
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #endif
 #if AUDIO_PULSEAUDIO
@@ -336,7 +336,7 @@ TCLIApp::Run(int argc, char* argv[])
 	(void) ::printf("This is %s.\n", VERSION_STRING);
 	if (theSoundManagerClass == nil)
 	{
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 		mSoundManager = new TCoreAudioSoundManager(mLog);
 #else
 		mSoundManager = new TNullSoundManager(mLog);
@@ -891,7 +891,7 @@ TCLIApp::CreateSoundManager(const char* inClass)
 	if (::strcmp(inClass, "null") == 0)
 	{
 		mSoundManager = new TNullSoundManager(mLog);
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 	} else if (::strcmp(inClass, "coreaudio") == 0)
 	{
 		mSoundManager = new TCoreAudioSoundManager(mLog);

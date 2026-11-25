@@ -137,7 +137,7 @@ private:
 	static void*
 	SEntryPoint(void* inUserData)
 	{
-#if !TARGET_OS_OPENSTEP && !TARGET_OS_WIN32
+#if !defined(__APPLE__) && !TARGET_OS_WIN32
 		PreRun();
 #endif
 		((TRunnable*) inUserData)->Run();
@@ -149,7 +149,7 @@ private:
 	///
 	void SuspendSelf(void);
 
-#if !TARGET_OS_OPENSTEP && !TARGET_OS_WIN32
+#if !defined(__APPLE__) && !TARGET_OS_WIN32
 	///
 	/// Setup the thread (register signal actions).
 	///

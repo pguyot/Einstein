@@ -29,7 +29,7 @@
 class TFLApp;
 #include "TFLSettings.h"
 #include "TFLApp.h"
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 #include <FL/Fl_Sys_Menu_Bar.H>
 #endif
 #include <FL/Fl_Double_Window.H>
@@ -335,7 +335,7 @@ private:
   static void cb_Close(Fl_Button*, void*);
 public:
   void HandlePopupMenu();
-#if TARGET_OS_MAC
+#ifdef __APPLE__
   Fl_Sys_Menu_Bar *wSysMenubar = nullptr;
 #endif
 };

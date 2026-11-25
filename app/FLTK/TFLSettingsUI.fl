@@ -76,7 +76,7 @@ decl {\#include <FL/Fl.H>} {private local
 decl {\#include <FL/fl_draw.H>} {private local
 }
 
-declblock {\#if TARGET_OS_MAC} {open public map 3 after {\#endif}
+declblock {\#ifdef __APPLE__} {open public map 3 after {\#endif}
 } {
   decl {\#include <FL/Fl_Sys_Menu_Bar.H>} {public global
   }
@@ -1350,7 +1350,7 @@ Otherwise the last machine starts at once.} xywh {48 422 126 21} down_box DOWN_B
         slot1menu[1].user_data((void*)i);
     }
   }
-\#if TARGET_OS_MAC
+\#ifdef __APPLE__
   if (wSysMenubar) {
     wSysMenubar->update();
   }
@@ -1815,7 +1815,7 @@ if (choice && choice->callback()) {
     choice->callback_(RMB, choice->user_data_);
 }} {}
   }
-  declblock {\#if TARGET_OS_MAC} {open public map 3 after {\#endif}
+  declblock {\#ifdef __APPLE__} {open public map 3 after {\#endif}
   } {
     decl {Fl_Sys_Menu_Bar *wSysMenubar = nullptr;} {public local
     }

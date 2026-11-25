@@ -48,7 +48,7 @@ TObjCBridgeCalls::TObjCBridgeCalls(TMemory* inMemoryIntf) :
 	// Initialization
 }
 
-#if TARGET_IOS || TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 
 KUInt32
 TObjCBridgeCalls::HostGetCPUArchitecture()

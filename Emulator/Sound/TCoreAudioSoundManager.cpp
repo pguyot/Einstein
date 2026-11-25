@@ -28,8 +28,10 @@
 #include <stdio.h>
 #include <strings.h>
 
+#include <TargetConditionals.h>
+
 // CoreServices
-#if TARGET_IOS
+#if TARGET_OS_IOS
 #include <CFNetwork/CFNetwork.h>
 #else
 #include <CoreServices/CoreServices.h>
@@ -123,7 +125,7 @@ TCoreAudioSoundManager::~TCoreAudioSoundManager(void)
 	dispatch_release((dispatch_source_t) mStopTimer);
 	dispatch_release((dispatch_queue_t) mStopQueue);
 
-#if TARGET_IOS
+#if TARGET_OS_IOS
 	AudioComponentInstanceDispose(mOutputUnit);
 #else
 	AudioComponentInstanceDispose(mOutputUnit);
@@ -149,7 +151,7 @@ TCoreAudioSoundManager::CreateDefaultAU(void)
 		AudioComponentDescription desc;
 
 		desc.componentType = kAudioUnitType_Output;
-#if TARGET_IOS
+#if TARGET_OS_IOS
 		desc.componentSubType = kAudioUnitSubType_RemoteIO;
 #else
 		desc.componentSubType = kAudioUnitSubType_DefaultOutput;

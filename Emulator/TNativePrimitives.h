@@ -44,7 +44,7 @@ class TNativeCalls;
 #endif
 class TVirtualizedCalls;
 class TStream;
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 class TObjCBridgeCalls;
 #endif
 
@@ -273,7 +273,7 @@ private:
 	/// Interface for virtualized calls.
 	TVirtualizedCalls* mVirtualizedCalls { nullptr };
 
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 	/// Interface for iOS calls.
 	TObjCBridgeCalls* mObjCBridgeCalls { nullptr };
 #endif

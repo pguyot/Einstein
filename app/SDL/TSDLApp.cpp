@@ -67,6 +67,9 @@
 #include <K/Defines/KDefinitions.h>
 
 #include <algorithm>
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#endif
 
 #include "TSDLApp.h"
 

@@ -51,7 +51,7 @@ public:
 	///
 	~TObjCBridgeCalls(void);
 
-#if TARGET_IOS || TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 
 	///
 	/// Returns the number of bits of the host running the emulator.
@@ -100,7 +100,7 @@ public:
 	/// \name Variables
 	TMemory* mMemoryIntf; ///< Interface to memory.
 
-#endif // TARGET_IOS
+#endif // __APPLE__
 };
 
 #endif // _TNATIVEIOSCALLS_H
