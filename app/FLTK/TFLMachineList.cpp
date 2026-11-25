@@ -1328,7 +1328,7 @@ TFLMachineList::ShowMenu(TFLMachineSettings* inMachine)
 {
 #ifdef __APPLE__
 	const char* showFolder = "Show in Finder";
-#elif TARGET_OS_WIN32
+#elif defined(_WIN32)
 	const char* showFolder = "Show in Explorer";
 #else
 	const char* showFolder = "Show Folder";

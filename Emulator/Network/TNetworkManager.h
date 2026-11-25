@@ -26,7 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <cstddef>
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #ifdef _WINSOCKAPI_
 #error winsock.h included before winsock2.h - you must define WIN32_LEAN_AND_MEAN somewhere!
 #endif

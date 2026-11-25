@@ -32,11 +32,6 @@
 #include <cstddef>
 #include <sys/stat.h>
 #include <sys/types.h>
-#if TARGET_OS_WIN32
-#define __PRETTY_FUNCTION__ __FUNCTION__
-#else
-#include <unistd.h>
-#endif
 
 #define FILE_LOGGING 0
 
@@ -185,7 +180,7 @@ TFileManager::do_sys_open(const char* name, const char* mode)
 {
 	if (FILE_LOGGING)
 	{
-		KPrintf("%s name='%s', mode='%s'\n", __PRETTY_FUNCTION__, name, mode);
+		KPrintf("%s name='%s', mode='%s'\n", __func__, name, mode);
 	}
 	if (mLog)
 	{
@@ -231,7 +226,7 @@ TFileManager::do_sys_close(KUInt32 fp)
 {
 	if (FILE_LOGGING)
 	{
-		KPrintf("%s fp=%i\n", __PRETTY_FUNCTION__, (int) fp);
+		KPrintf("%s fp=%i\n", __func__, (int) fp);
 	}
 	if (mLog)
 	{
@@ -272,7 +267,7 @@ TFileManager::do_sys_istty(KUInt32 fp)
 {
 	if (FILE_LOGGING)
 	{
-		KPrintf("%s fp=%i\n", __PRETTY_FUNCTION__, (int) fp);
+		KPrintf("%s fp=%i\n", __func__, (int) fp);
 	}
 	if (mLog)
 	{
@@ -298,7 +293,7 @@ TFileManager::do_sys_read(KUInt32 fp, void* buf, KUInt32 nbyte)
 {
 	if (FILE_LOGGING)
 	{
-		KPrintf("%s fp=%i, buf=%p, nbyte=%i\n", __PRETTY_FUNCTION__, (int) fp, buf, (int) nbyte);
+		KPrintf("%s fp=%i, buf=%p, nbyte=%i\n", __func__, (int) fp, buf, (int) nbyte);
 	}
 	if (mLog)
 	{
@@ -337,7 +332,7 @@ TFileManager::do_sys_write(KUInt32 fp, const void* buf, KUInt32 nbyte)
 {
 	if (FILE_LOGGING)
 	{
-		KPrintf("%s fp=%i, buf=%p, nbyte=%i\n", __PRETTY_FUNCTION__, (int) fp, buf, (int) nbyte);
+		KPrintf("%s fp=%i, buf=%p, nbyte=%i\n", __func__, (int) fp, buf, (int) nbyte);
 	}
 	if (mLog)
 	{
@@ -370,7 +365,7 @@ TFileManager::do_sys_set_input_notify(KUInt32 fp, KUInt32 address)
 {
 	if (FILE_LOGGING)
 	{
-		KPrintf("%s fp=%i, address=0x%08x\n", __PRETTY_FUNCTION__, (int) fp, (unsigned) address);
+		KPrintf("%s fp=%i, address=0x%08x\n", __func__, (int) fp, (unsigned) address);
 	}
 	if (mLog)
 	{
@@ -396,7 +391,7 @@ TFileManager::do_sys_seek(KUInt32 fp, KUInt32 pos)
 
 	if (FILE_LOGGING)
 	{
-		KPrintf("%s fp=%i, pos=%i\n", __PRETTY_FUNCTION__, (int) fp, (unsigned) pos);
+		KPrintf("%s fp=%i, pos=%i\n", __func__, (int) fp, (unsigned) pos);
 	}
 	if (mLog)
 	{
@@ -428,7 +423,7 @@ TFileManager::do_sys_flen(KUInt32 fp)
 {
 	if (FILE_LOGGING)
 	{
-		KPrintf("%s fp=%i\n", __PRETTY_FUNCTION__, (int) fp);
+		KPrintf("%s fp=%i\n", __func__, (int) fp);
 	}
 	if (mLog)
 	{

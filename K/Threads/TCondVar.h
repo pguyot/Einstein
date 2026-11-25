@@ -39,7 +39,7 @@
 #include <K/Defines/KDefinitions.h>
 
 // ANSI C & POSIX
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <process.h>
 #include <windows.h>
 typedef struct {
@@ -135,7 +135,7 @@ private:
 	TCondVar& operator=(const TCondVar& inCopy);
 
 	/// \name Variables
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	win_pthread_cond_t mCondVar; ///< Condition variable.
 #else
 	pthread_cond_t mCondVar; ///< Condition variable.

@@ -94,7 +94,7 @@ elseif ( WIN32 )
 		target_link_options( EinsteinTests PRIVATE -static )
 	endif ()
 	target_compile_definitions ( EinsteinTests PRIVATE
-		TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
+		TARGET_UI_FLTK=1
 		WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
 	)
 	target_link_libraries ( EinsteinTests

@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <utility>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <fcntl.h>
@@ -36,7 +36,7 @@
 #include <unistd.h>
 #endif
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 // Lock one byte at 4 GB, so the lock does not keep anyone from reading the
 // file (Windows locks are mandatory for the bytes they cover).
 static void
@@ -63,7 +63,7 @@ TFLFileLock::TryLock()
 {
 	if (mLocked)
 		return true;
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	HANDLE theFile = CreateFileA(mPath.c_str(), GENERIC_READ | GENERIC_WRITE,
 		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL, nullptr);
@@ -98,7 +98,7 @@ TFLFileLock::Unlock()
 {
 	if (!mLocked)
 		return;
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	OVERLAPPED theOverlapped;
 	SetLockOffset(theOverlapped);
 	UnlockFileEx((HANDLE) mHandle, 0, 1, 0, &theOverlapped);
@@ -115,7 +115,7 @@ TFLFileLock::Unlock()
 bool
 TFLFileLock::IsHeldElsewhere(const std::string& inPath)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	HANDLE theFile = CreateFileA(inPath.c_str(), GENERIC_READ | GENERIC_WRITE,
 		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL, nullptr);
@@ -145,7 +145,7 @@ TFLFileLock::WriteContent(const std::string& inText)
 {
 	if (!mLocked)
 		return;
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	SetFilePointer((HANDLE) mHandle, 0, nullptr, FILE_BEGIN);
 	DWORD theWritten = 0;
 	WriteFile((HANDLE) mHandle, inText.data(), (DWORD) inText.size(), &theWritten, nullptr);

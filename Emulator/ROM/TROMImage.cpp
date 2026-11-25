@@ -24,8 +24,11 @@
 #include "TROMImage.h"
 
 // ANSI C & POSIX
+#include <algorithm>
 #include <bit>
+#include <cctype>
 #include <fcntl.h>
+#include <string_view>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,7 +36,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <io.h>
 #else
 #include <sys/uio.h>
@@ -425,13 +428,6 @@ TROMImage::ComputeROMId(KUInt8* inROMPtr, bool& outCRCValid)
 	return romID;
 }
 
-#if TARGET_OS_WIN32 && !defined(__MINGW32__)
-static int
-strcasecmp(const char* a, const char* b)
-{
-	return stricmp(a, b);
-}
-#endif
 
 #if TARGET_UI_FLTK
 
@@ -503,7 +499,12 @@ TROMImage::LoadROMAndREX(const char* theROMImagePath, bool useMonitor, bool useB
 
 	// Read an .aif image
 	const char* ext = fl_filename_ext(theROMImagePath);
-	if (ext && strcasecmp(ext, ".aif") == 0)
+	auto asciiIEqual = [](std::string_view a, std::string_view b) {
+		return std::ranges::equal(a, b, [](unsigned char x, unsigned char y) {
+			return std::tolower(x) == std::tolower(y);
+		});
+	};
+	if (ext && asciiIEqual(ext, ".aif"))
 	{
 		char theREX0Path[FL_PATH_MAX];
 		strcpy(theREX0Path, theROMImagePath);

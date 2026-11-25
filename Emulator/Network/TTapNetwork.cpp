@@ -24,7 +24,7 @@
 #include "TTapNetwork.h"
 #include "Emulator/Log/TLog.h"
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #else
 #include <net/if.h>
 #include <netinet/in.h>

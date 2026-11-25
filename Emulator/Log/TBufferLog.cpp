@@ -27,7 +27,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <io.h>
 #else
 #include <sys/uio.h>

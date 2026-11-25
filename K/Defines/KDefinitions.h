@@ -297,13 +297,10 @@
 #endif
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) || (defined(TARGET_OS_WIN32) && TARGET_OS_WIN32)
 #ifndef TARGET_OS_WIN32
 #define TARGET_OS_WIN32 1
 #endif
-#endif
-
-#if TARGET_OS_WIN32
 #define TARGET_OS_ANDROID 0
 #define TARGET_OS_BEOS 0
 #define TARGET_OS_BSD 0
@@ -543,7 +540,7 @@ typedef uint8_t KUInt8;
 typedef int8_t KSInt8;
 typedef uintptr_t KUIntPtr;
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #if !defined(__MINGW32__) && !defined(_SSIZE_T_DEFINED)
 typedef signed long ssize_t;
 #endif

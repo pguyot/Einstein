@@ -39,7 +39,7 @@
 #include <K/Defines/KDefinitions.h>
 
 // ANSI C & POSIX
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <pthread.h>
@@ -104,7 +104,7 @@ private:
 	TMutex& operator=(const TMutex& inCopy);
 
 	/// \name Variables
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	HANDLE mMutex; ///< Mutex
 #else
 	pthread_mutex_t mMutex; ///< Mutex.

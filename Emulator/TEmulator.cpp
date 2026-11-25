@@ -38,7 +38,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#if !TARGET_OS_WIN32
+#ifndef _WIN32
 #include <sys/time.h>
 #include <unistd.h>
 #endif
@@ -677,7 +677,7 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 		StateError("Could not save the emulator state to %s (writing failed).", inPath);
 		return false;
 	}
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	(void) ::remove(inPath); // rename() does not replace files on Windows
 #endif
 	if (::rename(theTempPath.c_str(), inPath) != 0)

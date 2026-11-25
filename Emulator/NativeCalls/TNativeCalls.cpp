@@ -182,11 +182,6 @@ TNativeCalls::OpenLib(KUInt32 inPathAddr)
 void*
 TNativeCalls::DoOpenLib(const char* inPath)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-	return 0L;
-#else
 	void* theResult = NULL;
 	char* theDirNameBuf = NULL;
 	char* theBaseNameBuf = NULL;
@@ -272,7 +267,6 @@ TNativeCalls::DoOpenLib(const char* inPath)
 	}
 
 	return theResult;
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -281,10 +275,6 @@ TNativeCalls::DoOpenLib(const char* inPath)
 void
 TNativeCalls::CloseLib(KUInt32 inLibRef)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	(void) dlclose(mNativeLibs[inLibRef].fHandle);
 	mNativeLibs[inLibRef].fFreeRec = true;
 
@@ -298,7 +288,6 @@ TNativeCalls::CloseLib(KUInt32 inLibRef)
 		} while (mNativeLibs[lastNativeLib].fFreeRec);
 		mNbNativeLibs = lastNativeLib + 1;
 	}
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -310,11 +299,6 @@ TNativeCalls::PrepareFFIStructure(
 	KUInt32 inSymbolAddr,
 	KUInt32 inNbArgs)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-	return 0;
-#else
 	KUInt32 theResult = mNbNativeFuncs;
 	// Get a new record.
 	if (theResult == mAllocatedNativeFuncs)
@@ -358,7 +342,6 @@ TNativeCalls::PrepareFFIStructure(
 	}
 
 	return theResult;
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -371,10 +354,6 @@ TNativeCalls::SetArgValue_string(
 	KUInt32 inStringAddr,
 	KUInt32 inSize)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	// Allocate the string.
 	KUInt8* theString = (KUInt8*) ::malloc(inSize + 1);
 	if (mMemoryIntf->FastReadBuffer(inStringAddr, inSize, theString))
@@ -391,7 +370,6 @@ TNativeCalls::SetArgValue_string(
 		// Set the null terminator.
 		theString[inSize] = 0;
 	}
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -404,10 +382,6 @@ TNativeCalls::SetArgValue_binary(
 	KUInt32 inStringAddr,
 	KUInt32 inSize)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	// Allocate the binary.
 	KUInt8* theBinary = (KUInt8*) ::malloc(inSize);
 	if (mMemoryIntf->FastReadBuffer(inStringAddr, inSize, theBinary))
@@ -421,7 +395,6 @@ TNativeCalls::SetArgValue_binary(
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr = theBinary;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fToFree = true;
 	}
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -432,10 +405,6 @@ TNativeCalls::SetResultType(
 	KUInt32 inFFIStructure,
 	EFFI_Type inType)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	ffi_type* theType = NULL;
 	switch (inType)
 	{
@@ -497,7 +466,6 @@ TNativeCalls::SetResultType(
 	}
 
 	mNativeFuncs[inFFIStructure].fResultType = theType;
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -506,10 +474,6 @@ TNativeCalls::SetResultType(
 void
 TNativeCalls::Call(KUInt32 inFFIStructure, SStorage* outResult)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	ffi_cif theCif;
 	SFunctionRec* theStructure = &mNativeFuncs[inFFIStructure];
 	if (theStructure->fFuncPtr == NULL)
@@ -534,7 +498,6 @@ TNativeCalls::Call(KUInt32 inFFIStructure, SStorage* outResult)
 			KPrintf("Error with ffi_prep_cif\n");
 		}
 	}
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -543,13 +506,8 @@ TNativeCalls::Call(KUInt32 inFFIStructure, SStorage* outResult)
 void
 TNativeCalls::Call_void(KUInt32 inFFIStructure)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -558,11 +516,6 @@ TNativeCalls::Call_void(KUInt32 inFFIStructure)
 KUInt32
 TNativeCalls::Call_int(KUInt32 inFFIStructure)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-	return 0;
-#else
 	KUInt32 theReturnValue;
 	SStorage theResult;
 	ffi_type* theType = mNativeFuncs[inFFIStructure].fResultType;
@@ -584,7 +537,6 @@ TNativeCalls::Call_int(KUInt32 inFFIStructure)
 	}
 
 	return theReturnValue;
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -593,11 +545,6 @@ TNativeCalls::Call_int(KUInt32 inFFIStructure)
 double
 TNativeCalls::Call_real(KUInt32 inFFIStructure)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-	return 0.0;
-#else
 	double theReturnValue;
 	SStorage theResult;
 	ffi_type* theType = mNativeFuncs[inFFIStructure].fResultType;
@@ -617,7 +564,6 @@ TNativeCalls::Call_real(KUInt32 inFFIStructure)
 	}
 
 	return theReturnValue;
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -629,10 +575,6 @@ TNativeCalls::Call_string(
 	KUInt32 inResultAddr,
 	KUInt32 inSize)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
 
@@ -641,7 +583,6 @@ TNativeCalls::Call_string(
 		inResultAddr,
 		&size,
 		(const char*) theResult.fPointer.fPtr);
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -650,16 +591,10 @@ TNativeCalls::Call_string(
 KUIntPtr
 TNativeCalls::Call_pointer(KUInt32 inFFIStructure)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-	return 0;
-#else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
 
 	return (KUIntPtr) theResult.fPointer.fPtr;
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -672,10 +607,6 @@ TNativeCalls::GetOutArgValue_string(
 	KUInt32 inStringAddr,
 	KUInt32 inStringSize)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	char* theArgCopy = (char*)
 						   mNativeFuncs[inFFIStructure]
 							   .fArgValues[inArgIndex]
@@ -684,7 +615,6 @@ TNativeCalls::GetOutArgValue_string(
 	// Copy back the string.
 	KUInt32 count = inStringSize;
 	(void) mMemoryIntf->FastWriteString(inStringAddr, &count, theArgCopy);
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -697,10 +627,6 @@ TNativeCalls::GetOutArgValue_binary(
 	KUInt32 inBinaryAddr,
 	KUInt32 inBinarySize)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	KUInt8* theArgCopy = (KUInt8*)
 							 mNativeFuncs[inFFIStructure]
 								 .fArgValues[inArgIndex]
@@ -708,7 +634,6 @@ TNativeCalls::GetOutArgValue_binary(
 
 	// Copy back the binary.
 	(void) mMemoryIntf->FastWriteBuffer(inBinaryAddr, inBinarySize, theArgCopy);
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -717,10 +642,6 @@ TNativeCalls::GetOutArgValue_binary(
 void
 TNativeCalls::DisposeFFIStructure(KUInt32 inFFIStructure)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	SFunctionRec* theStructure = &mNativeFuncs[inFFIStructure];
 
 	// Free the arguments.
@@ -752,7 +673,6 @@ TNativeCalls::DisposeFFIStructure(KUInt32 inFFIStructure)
 		}
 		mNbNativeFuncs = newNbNativeFuncs;
 	}
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -761,10 +681,6 @@ TNativeCalls::DisposeFFIStructure(KUInt32 inFFIStructure)
 void
 TNativeCalls::GetErrorMessage(KUInt32 inStringAddr, KUInt32 inSize)
 {
-#if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-#else
 	KUInt32 theSize = inSize;
 	const char* theErrStr = dlerror();
 	if (theErrStr != NULL)
@@ -774,7 +690,6 @@ TNativeCalls::GetErrorMessage(KUInt32 inStringAddr, KUInt32 inSize)
 	{
 		(void) mMemoryIntf->FastWriteString(inStringAddr, &theSize, "no error");
 	}
-#endif
 }
 
 // -------------------------------------------------------------------------- //

@@ -27,18 +27,12 @@
 
 // POSIX & ANSI C
 #include <errno.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#if TARGET_OS_WIN32
-#include <sys/timeb.h>
-#include <time.h>
-#else
-#include <sys/time.h>
-#endif
-
 // C++ std lib
+#include <chrono>
+#include <ctime>
 #include <thread>
 
 // K
@@ -725,79 +719,14 @@ TInterruptManager::Run(void)
 inline KUInt32
 TInterruptManager::GetTimeInTicks(void)
 {
-#if TARGET_OS_WIN32
-	// FIXME optimize this to avoid using floating point variables
-	static BOOL checked = FALSE, found = FALSE;
-	static double mult = 0.0;
-	if (!checked)
-	{
-		checked = TRUE;
-		LARGE_INTEGER f;
-		found = QueryPerformanceFrequency(&f);
-		// 24000000 on Windows X11 ARM64 (24MHz)
-		// Ticks are running at 3.6864MHz
-		//
-		if (found)
-		{
-			if (f.QuadPart == 0)
-				found = FALSE;
-			else
-				mult = 3686400.0 / ((double) f.QuadPart);
-		}
-	}
-	if (found)
-	{
-		LARGE_INTEGER f;
-		QueryPerformanceCounter(&f);
-		double ticks_d = ((double) f.QuadPart) * mult;
-		if (ticks_d > 4294967295.0) // Max Value for KUInt32
-			ticks_d = fmod(ticks_d, 4294967295.0);
-		KUInt32 ticks = static_cast<KUInt32>(ticks_d);
-		return ticks;
-	} else
-	{
-		struct _timeb ft;
-		_ftime(&ft);
-		KUInt32 theResult = ft.time * 4000000;
-		theResult += (KUInt32) (ft.millitm * 4000);
-		return theResult;
-	}
-#else
-	// Get the time now.
-	struct timeval now;
-	(void) gettimeofday(&now, NULL);
-
-	//	kern_return_t ret;
-	//	clock_serv_t aClock;
-	//	mach_timespec_t now;
-
-	//	ret = host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &aClock);
-	//	if (ret != KERN_SUCCESS) {
-	//		KPrintf("host_get_clock_service() failed: %s\n", mach_error_string(ret));
-	//		abort();
-	//	}
-	//	ret = clock_get_time(aClock, &now);
-	//	if (ret != KERN_SUCCESS) {
-	//		KPrintf("clock_get_time() failed: %s\n", mach_error_string(ret));
-	//		abort();
-	//	}
-
-	// Translate to ticks:
-#if 1
-	// slower and accurate
-	// 3.6864 MHz -> 3686400 per seconds.
-	KUInt32 theResult = (KUInt32) now.tv_sec * 3686400;
-	// theResult += (KUInt32) (now.tv_usec * 3.6864);
-	theResult += (KUInt32) ((((KUInt64) now.tv_usec) * 36864) / 10000);
-#else
-	// faster and inaccurate
-	// We simply multiply with 4000000 to avoid the expensive float to int
-	// conversion.
-	KUInt32 theResult = now.tv_sec * 4000000;
-	theResult += (KUInt32) (now.tv_usec * 4);
-#endif
-	return theResult;
-#endif
+	static const auto sStartTime = std::chrono::steady_clock::now();
+	const auto elapsed = std::chrono::steady_clock::now() - sStartTime;
+	const auto secs = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
+	const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed - secs);
+	// NewtonOS hardware clock runs at 3.6864 MHz (3,686,400 ticks/s).
+	return static_cast<KUInt32>(
+		static_cast<KUInt64>(secs.count()) * 3686400ULL
+		+ (static_cast<KUInt64>(ns.count()) * 36864ULL) / 10000000ULL);
 }
 
 // -------------------------------------------------------------------------- //
@@ -1177,7 +1106,7 @@ HostUTCOffset(time_t inTime, bool* outIsDST)
 {
 	struct tm gm;
 	struct tm local;
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	gmtime_s(&gm, &inTime);
 	gm.tm_isdst = -1;
 	localtime_s(&local, &inTime);

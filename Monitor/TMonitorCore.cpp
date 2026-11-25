@@ -31,7 +31,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <assert.h>
 #else
 #include <strings.h>
@@ -110,7 +110,7 @@ TMonitorCore::ExecuteScript(const char* inScriptFile)
 bool
 TMonitorCore::ExecuteCommand(const char* inCommand)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	assert(0); // FIXME later
 	return 0;
 #else

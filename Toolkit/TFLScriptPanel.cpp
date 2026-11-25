@@ -26,8 +26,8 @@
 #include "TTkScript.h"
 #include "TToolkit.h"
 
+#include <cctype>
 #include <cstdlib>
-#include <ctype.h>
 
 // MARK: - TFLScriptPanel -
 
@@ -238,23 +238,18 @@ TFLScriptEditor::~TFLScriptEditor()
 	delete mStyleBuffer;
 }
 
-#if TARGET_OS_WIN32 && !defined(__MINGW32__)
-static int
-strcasecmp(const char* a, const char* b)
-{
-	return stricmp(a, b);
-}
-#endif
-
 extern "C" int
 compare_keywords(const void* a, const void* b)
 {
-	//    static const char *lut[] = {"<", "=", ">"};
-	const char* aa = *(const char**) a;
-	const char* bb = *(const char**) b;
-	int ret = (strcasecmp(aa, bb));
-	//    printf("%s %s %s\n", aa, lut[((rewt > 0) - (ret < 0))+1], bb);
-	return ret;
+	const auto* aa = reinterpret_cast<const unsigned char*>(*static_cast<const char* const*>(a));
+	const auto* bb = reinterpret_cast<const unsigned char*>(*static_cast<const char* const*>(b));
+	for (; *aa && *bb; ++aa, ++bb)
+	{
+		int diff = std::tolower(*aa) - std::tolower(*bb);
+		if (diff != 0)
+			return diff;
+	}
+	return std::tolower(*aa) - std::tolower(*bb);
 }
 
 //

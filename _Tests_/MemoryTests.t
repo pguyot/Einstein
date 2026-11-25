@@ -1,7 +1,7 @@
 #include "Emulator/TMemory.h"
 #include <K/Defines/UByteSex.h>
 #include <bit>
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #define kTempFlashPath "c:/EinsteinTests.flash"
 #else
 #define kTempFlashPath "/tmp/EinsteinTests.flash"

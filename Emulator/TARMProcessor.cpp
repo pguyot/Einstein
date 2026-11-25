@@ -28,9 +28,6 @@
 #include <signal.h>
 #include <sys/types.h>
 
-#if !TARGET_OS_WIN32
-#include <unistd.h>
-#endif
 
 // K
 #include <K/Streams/TStream.h>

@@ -49,9 +49,6 @@
 #include <cstring>
 #include <sys/types.h>
 
-#if !TARGET_OS_WIN32
-#include <ctime>
-#endif
 
 #include "Emulator/TDMAManager.h"
 #include "Emulator/TInterruptManager.h"

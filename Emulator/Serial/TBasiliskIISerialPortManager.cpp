@@ -37,7 +37,7 @@ static constexpr int kRxMicrosecondsPerByte = 90; // BasiliskII to Newton
 #include <string.h>
 #include <sys/types.h>
 
-#if !TARGET_OS_WIN32
+#ifndef _WIN32
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>

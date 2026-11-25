@@ -45,7 +45,7 @@
 #include "Emulator/Platform/TPlatformManager.h"
 #include "app/FLTK/TFLApp.h"
 
-#if TARGET_OS_WIN32 || defined(__APPLE__)
+#if defined(_WIN32) || defined(__APPLE__)
 #define SRC_BITMAP_FORMAT_RGBA 1
 #else
 #define SRC_BITMAP_FORMAT_RGBA 0
@@ -255,7 +255,7 @@ public:
 		// FIXME center the bitmap if it is smaller
 		if (mPowerState)
 		{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 			// Windows GDI provides a function that scales the bitmap while the hardware blits it to the screen
 			static int useGDI = -1; // initially, we don't know
 			if (useGDI == -1)

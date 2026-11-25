@@ -67,10 +67,6 @@
 // ANSI C & POSIX
 #include <stdio.h>
 
-#if TARGET_OS_WIN32
-#else
-#include <sys/param.h>
-#endif
 
 TSymbolList* UDisasm::pSymbolList = 0L;
 TMemory* UDisasm::pMemory = 0L;

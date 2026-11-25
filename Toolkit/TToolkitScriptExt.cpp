@@ -56,17 +56,17 @@ extern "C" {
 #include <FL/Fl_Shared_Image.H>
 #include <FL/fl_ask.H>
 
-#if TARGET_OS_WIN32
-#include <winsock2.h>
+#ifdef _WIN32
 #include <direct.h>
 #include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
 #else
-#include <arpa/inet.h>
 #include <unistd.h>
 #endif
 
+#include <bit>
+#include <cstdint>
 #include <cstdlib>
 #include <errno.h>
 #include <fcntl.h>
@@ -251,9 +251,14 @@ NewtMakeIconFromFile(const char* srcfilename, bool /*literal*/)
 	bits_size = h * dld + 16;
 	uint8_t* bits_data = (uint8_t*) ::calloc(1, bits_size);
 	uint16_t* bits_desc = (uint16_t*) bits_data;
-	bits_desc[2] = htons(dld);
-	bits_desc[6] = htons(h);
-	bits_desc[7] = htons(w);
+	auto toBE16 = [](uint16_t v) -> uint16_t {
+		if constexpr (std::endian::native == std::endian::little)
+			return static_cast<uint16_t>((v << 8) | (v >> 8));
+		return v;
+	};
+	bits_desc[2] = toBE16(static_cast<uint16_t>(dld));
+	bits_desc[6] = toBE16(static_cast<uint16_t>(h));
+	bits_desc[7] = toBE16(static_cast<uint16_t>(w));
 	const uint8_t* data = (const uint8_t*) img->data()[0];
 	if ((d == 2) || (d == 4))
 	{
@@ -414,7 +419,8 @@ NewtPatchFileFromARM(const char* text, const char* filename, bool /*literal*/)
 		if (n != 2)
 			continue;
 		lseek(bin, addr, SEEK_SET);
-		data = htonl(data);
+		if constexpr (std::endian::native == std::endian::little)
+			data = ((data & 0x000000FFu) << 24) | ((data & 0x0000FF00u) << 8) | ((data & 0x00FF0000u) >> 8) | ((data & 0xFF000000u) >> 24);
 		if (sep[4] == ' ')
 			write(bin, d + 3, 1);
 		else if (sep[6] == ' ')
