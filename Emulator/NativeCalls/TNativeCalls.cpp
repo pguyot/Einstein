@@ -55,15 +55,7 @@ TNativeCalls::~TNativeCalls() = default;
 // Constantes
 // -------------------------------------------------------------------------- //
 #ifndef DYLIBSUFFIX
-#if TARGET_OS_OPENSTEP
-#define DYLIBSUFFIX ".dylib"
-#elif TARGET_OS_LINUX
-#define DYLIBSUFFIX ".so"
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-#define DYLIBSUFFIX ".so"
-#else
-#error Please define DYLIBSUFFIX
-#endif
+#define DYLIBSUFFIX EINSTEIN_SHARED_LIBRARY_SUFFIX
 #endif
 
 // -------------------------------------------------------------------------- //

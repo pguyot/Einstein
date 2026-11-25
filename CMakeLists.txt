@@ -538,10 +538,10 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 			-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
 		)
 		target_compile_definitions ( Einstein PRIVATE
-			TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
+			TARGET_UI_FLTK=1
 		)
 		target_compile_definitions ( EinsteinFLGUI PRIVATE
-			TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
+			TARGET_UI_FLTK=1
 		)
 		target_link_libraries ( Einstein
 			${system_libs}
@@ -554,7 +554,7 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		)
 	elseif ( EINSTEIN_SDL3_FRONTEND )
 		target_compile_definitions ( Einstein PRIVATE
-			TARGET_UI_SDL=1 TARGET_OS_LINUX=1
+			TARGET_UI_SDL=1
 		)
 		target_link_libraries ( Einstein
 			${system_libs}

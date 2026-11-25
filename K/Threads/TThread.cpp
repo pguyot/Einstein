@@ -47,10 +47,6 @@
 #include <errno.h>
 #include <signal.h>
 
-#if RASPBERRY_PI || TARGET_OS_LINUX
-#include <stdlib.h>
-#endif
-
 // Mach
 #if TARGET_OS_OPENSTEP
 #include <mach/thread_act.h>
