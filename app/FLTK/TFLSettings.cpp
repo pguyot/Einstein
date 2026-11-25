@@ -51,6 +51,7 @@
 #include "Emulator/PCMCIA/TATACard.h"
 #include "Emulator/PCMCIA/TLinearCard.h"
 #include "Emulator/PCMCIA/TNE2000Card.h"
+#include "Emulator/PCMCIA/TNewsCard.h"
 #include "Emulator/ROM/TROMImage.h"
 #include "app/FLTK/TFLApp.h"
 #include "app/FLTK/TFLFileLock.h"
@@ -77,6 +78,13 @@ TFLPCCardSettings::TFLPCCardSettings(Fl_Preferences& prefs)
 		case 2:
 			SetType(CardType::kLinear);
 			SetTag("FLSH");
+			if (mImagePath)
+				::free(mImagePath);
+			prefs.get("imagePath", mImagePath, "");
+			break;
+		case 3:
+			SetType(CardType::kNewsCard);
+			SetTag("PAGR");
 			if (mImagePath)
 				::free(mImagePath);
 			prefs.get("imagePath", mImagePath, "");
@@ -138,6 +146,25 @@ TFLPCCardSettings::NewATACard(const char* inName, const char* inImageFilename, K
 	return card;
 }
 
+/// A Motorola NewsCard (POCSAG pager). inFolder holds the card's flash.bin
+/// (see TNewsCard.h); optional ram.bin, attr.bin and config_4a_ff.bin.
+TFLPCCardSettings*
+TFLPCCardSettings::LinkNewsCard(const char* inName, const char* inFolder)
+{
+	TFLPCCardSettings* card = new TFLPCCardSettings();
+	card->SetName(inName);
+	card->SetType(CardType::kNewsCard);
+	card->SetTag("PAGR");
+	card->SetImagePath(inFolder);
+	return card;
+}
+
+bool
+TFLPCCardSettings::IsNewsCardFolder(const char* inFolder)
+{
+	return inFolder && TNewsCard::IsFlashImage((std::string(inFolder) + "/flash.bin").c_str());
+}
+
 TPCMCIACard*
 TFLPCCardSettings::GetCard()
 {
@@ -151,6 +178,9 @@ TFLPCCardSettings::GetCard()
 				break;
 			case CardType::kNetwork:
 				mCard = new TNE2000Card();
+				break;
+			case CardType::kNewsCard:
+				mCard = new TNewsCard(mImagePath);
 				break;
 			case CardType::kLinear: {
 				const char* dot = strrchr(mImagePath, '.');
@@ -196,6 +226,10 @@ TFLPCCardSettings::WritePrefs(Fl_Preferences& prefs)
 			break;
 		case CardType::kLinear:
 			prefs.set("type", 2);
+			prefs.set("imagePath", mImagePath);
+			break;
+		case CardType::kNewsCard:
+			prefs.set("type", 3);
 			prefs.set("imagePath", mImagePath);
 			break;
 	}

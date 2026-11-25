@@ -259,13 +259,15 @@ tells you what changed.
 
 ## 8. PC Cards
 
-The Newton has two PC Card slots. Einstein emulates three kinds of cards:
+The Newton has two PC Card slots. Einstein emulates four kinds of cards:
 
 - **Linear flash cards** (2 MB to 32 MB), like the Newton memory cards.
 - **ATA flash cards** (4 MB to 64 MB), like CompactFlash cards in an adapter.
   ATA card emulation requires Paul Guyot's ATA card driver installed on the Newton.
 - **The Einstein Network Card**, for networking (see
   [section 10](#10-networking)).
+- **The Motorola NewsCard**, a POCSAG pager card, sold by Apple as the
+  Newton Messaging Card (see [below](#motorola-newscard-pager-card)).
 
 ### Creating cards
 
@@ -306,6 +308,94 @@ Einstein ATA card files use the same format as Newton's ATA cards. You can
 dump the snapshot of a physical card, mount it in Einstein (tested, working),
 and write the image back to the physical card (untested).
 
+
+### Motorola NewsCard (pager card)
+
+The Motorola NewsCard Data Receiver, sold by Apple as the *Newton Messaging
+Card*, is a POCSAG pager on a PC Card. Pages it receives arrive in the
+Newton's In Box. Einstein emulates the card; you feed it pages through a
+folder on your computer.
+
+You need:
+
+- **The card's flash image.** The card carries its own Newton software,
+  which the Newton loads from the card. It is not part of Einstein. Download
+  `flash-full-128k.bin` from
+  <https://archive.org/details/motorola-newscard-newton-messaging-card-dump>
+  and save it as `flash.bin` in a new, empty folder: the card folder. Use
+  the whole file; the Newton also mounts a small store in the flash.
+- **Apple's Newton Messaging Enabler** on the Newton: install
+  `MsgEnblr.pkg` and the Messaging Card module `MM_MsgCd.pkg`. UNNA keeps it
+  in <https://web.mit.edu/unna/drivers/other/NewtonMessagingCard>
+  (tested with version 1.2).
+
+Then:
+
+1. In the **PC Cards** tab of the Settings, click **+** and choose
+   *Add NewsCard (Pager) Folder...*. Select the card folder and give the card
+   a name.
+2. Insert the card with **Platform > Upper PCCard** or **Lower PCCard**, or
+   keep it in a slot.
+3. In the In Box, tap **Receive** and choose **Messaging Card**.
+
+![The NewsCard in the PC Cards tab](images/newscard-settings.png)
+
+To send a page to the card, create the folder `ctl/inbox` inside the card
+folder (Einstein does not create it) and put a text file with the extension
+`.page` into it. Its first line says which of the card's two pager
+addresses and which POCSAG function (A to D) the page came in on; the rest
+is the text:
+
+```text
+slot=0 func=A
+Server backup finished at 02:00. All volumes OK.
+```
+
+The text is ASCII. Any 7-bit character can be written as `<0xNN>`, control
+characters also by name, for example `<CR>` or `<LF>`. The card stores the
+page with its own clock as the time it was received. Einstein first renames
+the file to `.page.work`, and to `.page.done` once the page is stored. While
+the card is full (read messages are deleted first to make room), the file
+stays `.page.work` and waits. Pages longer than 2019 characters, the most
+the real card takes, and files without a valid first line are renamed to
+`.page.rejected`. Einstein renames these files, so `ctl/inbox` must be
+writable. Write a page file under another name first and rename it to
+`.page` when it is complete.
+
+![Pages in the In Box](images/newscard-inbox.png)
+![A page](images/newscard-message.png)
+
+Other files in `ctl` change the card:
+
+| file | content |
+|---|---|
+| `switch` | `on`, `silent` or `off`, the switch on the card |
+| `battery` | `ok` or `low` |
+| `year` | `translate` (default), `strict` or `accept`, see below |
+
+While the switch is `off`, the card receives nothing: pages wait in
+`ctl/inbox`.
+
+The card keeps a two-digit year and refuses the year the Newton sends after
+1999. With `translate`, Einstein passes 2026 to the card as 26 and the
+card's 26 back to the Newton as 2026, so dates are right. `strict` behaves
+like the real card.
+
+The Newton's settings for the card are in the In Box: tap **i**, then
+*Messaging Prefs*, **Device**, *Messaging Card*. **Sound** turns the card's
+beep on or off; **Clock** sets which clock sets the other when the card is
+inserted.
+
+![Messaging Card Prefs](images/newscard-prefs.png)
+
+The card keeps its messages, clock and settings in memory, and they are
+saved with fast start and checkpoints (see
+[section 6](#6-fast-start-saving-and-restoring)). Einstein does not change
+`flash.bin` or the other card files; only the page files in `ctl/inbox` are
+renamed. The saved state belongs to the card folder: after the folder is
+moved or another folder is chosen, the Newton starts without fast start.
+Without a saved state the card starts empty, or with the messages in a
+`ram.bin` in the card folder, if there is one.
 
 ## 9. Serial port and Dock
 

@@ -696,6 +696,28 @@ void TFLSettingsUI::cb_Add(Fl_Menu_* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_Add_i(o,v);
 }
 
+void TFLSettingsUI::cb_Add1_i(Fl_Menu_*, void*) {
+  // Motorola NewsCard: a card folder that holds flash.bin.
+  const char *a = gApp->ChooseExistingDirectory("Select a NewsCard folder", nullptr, nullptr);
+  if (a) {
+    std::string folder(a);
+    if (!TFLPCCardSettings::IsNewsCardFolder(folder.c_str())) {
+      fl_alert("This folder has no usable flash.bin (128 KB).\nDownload the NewsCard flash.bin as described in the User Guide\n(archive.org: motorola-newscard-newton-messaging-card-dump).");
+    } else {
+      const char *e = fl_input("Please enter a name for your NewsCard", "NewsCard");
+      if (e) {
+        std::string cardName(e);
+        TFLPCCardSettings* card = TFLPCCardSettings::LinkNewsCard(cardName.c_str(), folder.c_str());
+        wPCCardList->add(cardName.c_str(), card);
+      }
+    }
+  }
+  settingsChanged();
+}
+void TFLSettingsUI::cb_Add1(Fl_Menu_* o, void* v) {
+  ((TFLSettingsUI*)(o->parent()->parent()->parent()->user_data()))->cb_Add1_i(o,v);
+}
+
 void TFLSettingsUI::cb_New_i(Fl_Menu_*, void* v) {
   char imageFilename[FL_PATH_MAX];
     char buf[FL_PATH_MAX];
@@ -854,6 +876,7 @@ void TFLSettingsUI::cb_New1(Fl_Menu_* o, void* v) {
 Fl_Menu_Item TFLSettingsUI::menu_[] = {
  {"+", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Add existing Linear or ATA  Image...", 0,  (Fl_Callback*)TFLSettingsUI::cb_Add, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Add NewsCard (Pager) Folder...", 0,  (Fl_Callback*)TFLSettingsUI::cb_Add1, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"  Linear Cards:", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 1, 12, 0},
  {"New 2MB Linear Flash Card...", 0,  (Fl_Callback*)TFLSettingsUI::cb_New, (void*)(2), 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"New 4MB Linear Flash Card...", 0,  (Fl_Callback*)cb_New, (void*)(4), 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
@@ -958,6 +981,19 @@ void TFLSettingsUI::cb_wPCCardEditPath_i(Fl_Menu_*, void*) {
       newPath = gApp->ChooseExistingFile("Please select the new PCCard Image location", "Linear Card\t*.pccard", oldPath);
     if (newPath)
       card->SetImagePath(newPath);
+  } else if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kNewsCard) {
+    const char *newPath = gApp->ChooseExistingDirectory("Please select the new NewsCard folder", nullptr, card->GetImagePath());
+    if (newPath) {
+      std::string folder(newPath);
+      if (!TFLPCCardSettings::IsNewsCardFolder(folder.c_str())) {
+        fl_alert("This folder has no usable flash.bin (128 KB).\nThe card keeps its folder.");
+      } else {
+        card->SetImagePath(folder.c_str());
+        // A card in use keeps its messages in memory until Einstein quits.
+        if (card->Card())
+          fl_message("The NewsCard uses the new folder after Einstein is restarted.");
+      }
+    }
   }
   settingsChanged();
 }

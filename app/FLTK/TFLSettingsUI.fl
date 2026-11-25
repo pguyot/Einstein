@@ -828,6 +828,26 @@ settingsChanged();}
                 xywh {0 0 100 20} labelsize 12 divider
               }
               MenuItem {} {
+                label {Add NewsCard (Pager) Folder...}
+                callback {// Motorola NewsCard: a card folder that holds flash.bin.
+const char *a = gApp->ChooseExistingDirectory("Select a NewsCard folder", nullptr, nullptr);
+if (a) {
+  std::string folder(a);
+  if (!TFLPCCardSettings::IsNewsCardFolder(folder.c_str())) {
+    fl_alert("This folder has no usable flash.bin (128 KB).\\nDownload the NewsCard flash.bin as described in the User Guide\\n(archive.org: motorola-newscard-newton-messaging-card-dump).");
+  } else {
+    const char *e = fl_input("Please enter a name for your NewsCard", "NewsCard");
+    if (e) {
+      std::string cardName(e);
+      TFLPCCardSettings* card = TFLPCCardSettings::LinkNewsCard(cardName.c_str(), folder.c_str());
+      wPCCardList->add(cardName.c_str(), card);
+    }
+  }
+}
+settingsChanged();}
+                xywh {0 0 100 20} labelsize 12 divider
+              }
+              MenuItem {} {
                 label {  Linear Cards:}
                 xywh {0 0 100 20} labelfont 1 labelsize 12
               }
@@ -1124,6 +1144,19 @@ if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
     newPath = gApp->ChooseExistingFile("Please select the new PCCard Image location", "Linear Card\\t*.pccard", oldPath);
   if (newPath)
     card->SetImagePath(newPath);
+} else if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kNewsCard) {
+  const char *newPath = gApp->ChooseExistingDirectory("Please select the new NewsCard folder", nullptr, card->GetImagePath());
+  if (newPath) {
+    std::string folder(newPath);
+    if (!TFLPCCardSettings::IsNewsCardFolder(folder.c_str())) {
+      fl_alert("This folder has no usable flash.bin (128 KB).\\nThe card keeps its folder.");
+    } else {
+      card->SetImagePath(folder.c_str());
+      // A card in use keeps its messages in memory until Einstein quits.
+      if (card->Card())
+        fl_message("The NewsCard uses the new folder after Einstein is restarted.");
+    }
+  }
 }
 settingsChanged();}
                 xywh {10 10 100 20} labelsize 12
