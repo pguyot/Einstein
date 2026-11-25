@@ -37,7 +37,7 @@
 #if TARGET_OS_COMPAT_POSIX
 #include <arpa/inet.h>
 #endif
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 #include <libkern/OSByteOrder.h>
 #endif
 
@@ -63,7 +63,7 @@ public:
 	static inline KUInt16
 	Swap(const KUInt16 inWord)
 	{
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 		return OSSwapInt16((UInt16) inWord);
 #elif TARGET_RT_LITTLE_ENDIAN && TARGET_OS_COMPAT_POSIX
 		return (KUInt16) htons((uint16_t) inWord);
@@ -82,7 +82,7 @@ public:
 	static inline KUInt32
 	Swap(const KUInt32 inWord)
 	{
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 		return OSSwapInt32((UInt32) inWord);
 #elif TARGET_RT_LITTLE_ENDIAN && TARGET_OS_COMPAT_POSIX
 		return (KUInt32) htonl((uint32_t) inWord);

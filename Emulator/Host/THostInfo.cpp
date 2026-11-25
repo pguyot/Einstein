@@ -24,9 +24,9 @@
 #include "THostInfo.h"
 
 // MacOS X
-#if TARGET_OS_OPENSTEP
-#ifdef TARGET_IOS
-#else
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#if TARGET_OS_OSX
 #include <AddressBook/AddressBook.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreServices/CoreServices.h>
@@ -223,9 +223,8 @@ THostInfo::RetrieveUserInfo(void)
 #elif defined(__ANDROID__)
 		// do nothing
 #else
-#if TARGET_OS_OPENSTEP
-#ifdef TARGET_IOS
-#else
+#ifdef __APPLE__
+#if TARGET_OS_OSX
 #ifndef NO_USER_PERMISSION
 		// On MacOS X, I try:
 		// - The AddressBook
@@ -495,7 +494,7 @@ THostInfo::RetrieveUserInfo(void)
 	} while (false);
 }
 
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 // -------------------------------------------------------------------------- //
 //  * ConvertCFString( CFStringRef )
 // -------------------------------------------------------------------------- //

@@ -48,7 +48,7 @@
 #include <signal.h>
 
 // Mach
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 #include <mach/thread_act.h>
 #endif
 
@@ -119,7 +119,7 @@ TThread::Suspend(void)
 		{
 			mState = kSuspended;
 
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 			kern_return_t err = ::thread_suspend(::pthread_mach_thread_np(mThread));
 			assert(err == 0);
 			(void) err;
@@ -172,7 +172,7 @@ TThread::Resume(void)
 				mSuspendCondVar.Signal();
 			} else
 			{
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 				kern_return_t err = ::thread_resume(
 					::pthread_mach_thread_np(mThread));
 				assert(err == 0);
@@ -193,7 +193,7 @@ TThread::Resume(void)
 	mMutex.Unlock();
 }
 
-#if !TARGET_OS_OPENSTEP && !TARGET_OS_WIN32
+#if !defined(__APPLE__) && !TARGET_OS_WIN32
 // ------------------------------------------------------------------------- //
 //  * SignalUSR2( int )
 // ------------------------------------------------------------------------- //

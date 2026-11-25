@@ -41,8 +41,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 	)
 	target_compile_definitions ( EinsteinTests PRIVATE
-		TARGET_UI_FLTK=1 NO_X11 TARGET_OS_OPENSTEP=1
-		TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
+		TARGET_UI_FLTK=1 NO_X11 NS_BLOCK_ASSERTIONS=1
 	)
 	if ( EINSTEIN_FLTK_FRONTEND )
 		target_link_libraries ( EinsteinTests

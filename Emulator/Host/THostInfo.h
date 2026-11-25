@@ -26,7 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
@@ -104,7 +104,7 @@ private:
 	///
 	void RetrieveUserInfo(void);
 
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 	///
 	/// Convert a CF string to a UTF-16 buffer.
 	///

@@ -937,7 +937,7 @@ TFLSettings::loadPreferences()
 		screen.get("LaunchMonitorAtBoot", mLaunchMonitorAtBoot, 0);
 		screen.get("BreakAtROMBoot", mBreakAtROMBoot, 0);
 
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 		screen.get("ShowMenubar", mShowMenubar, 0);
 #else
 		screen.get("ShowMenubar", mShowMenubar, 1);
@@ -1313,7 +1313,7 @@ CanonicalPath(const std::string& inPath)
 		std::free(theFullFolder);
 	}
 #endif
-#if TARGET_OS_WIN32 || TARGET_OS_MAC
+#if TARGET_OS_WIN32 || defined(__APPLE__)
 	// The file systems ignore case, usually.
 	std::transform(thePath.begin(), thePath.end(), thePath.begin(), [](unsigned char c) { return (char) tolower(c); });
 #endif

@@ -82,7 +82,7 @@ test(const char* inTestName, const char* inArgument)
 	{
 		// inArgument: code to execute.
 		UProcessorTests::RunCode(inArgument, &theLog);
-#ifndef TARGET_OS_MAC
+#ifndef NO_X11
 	} else if (::strcmp(inTestName, "screen-x11") == 0)
 	{
 		UScreenTests::TestX11();

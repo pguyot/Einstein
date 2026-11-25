@@ -37,9 +37,6 @@
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
-#if TARGET_OS_MAC
-#include <CoreServices/CoreServices.h>
-#endif
 #endif
 
 #include "Emulator/TARMProcessor.h"

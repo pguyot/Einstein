@@ -44,9 +44,9 @@
 #include <stdio.h>
 #endif
 
-#if TARGET_OS_OPENSTEP
+#ifdef __APPLE__
 #ifdef __OBJC__
-#if TARGET_IOS
+#if TARGET_OS_IOS
 #import <CFNetwork/CFNetwork.h>
 #else
 #import <CoreServices/CoreServices.h>

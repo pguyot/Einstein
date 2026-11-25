@@ -38,7 +38,7 @@
 #include <FL/Fl_Native_File_Chooser.H>
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 #endif
 
 static void cb_keepInSlot0(Fl_Menu_Item* mi, void* user_data) {
@@ -2298,7 +2298,7 @@ void TFLSettingsUI::updateMenus() {
           slot1menu[1].user_data((void*)i);
       }
     }
-#if TARGET_OS_MAC
+#ifdef __APPLE__
     if (wSysMenubar) {
       wSysMenubar->update();
     }
@@ -2782,7 +2782,7 @@ void TFLSettingsUI::HandlePopupMenu() {
       choice->callback_(RMB, choice->user_data_);
   }
 }
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 #endif
 
 // ======================================================== //

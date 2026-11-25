@@ -45,13 +45,13 @@
 #include "Emulator/Platform/TPlatformManager.h"
 #include "app/FLTK/TFLApp.h"
 
-#if TARGET_OS_WIN32 || TARGET_OS_MAC
+#if TARGET_OS_WIN32 || defined(__APPLE__)
 #define SRC_BITMAP_FORMAT_RGBA 1
 #else
 #define SRC_BITMAP_FORMAT_RGBA 0
 #endif
 
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 #include <CoreGraphics/CoreGraphics.h>
 #endif
 
@@ -279,7 +279,7 @@ public:
 			{
 				fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_, 4); // 32 bits: RGBx
 			}
-#elif TARGET_OS_MAC
+#elif defined(__APPLE__)
 			// TODO: this code is faster than the FLTK version, but slower than expected. We should invest
 			//       some time to find the perfect setup for maximum speed and full GPU support.
 			CGColorSpaceRef lut = 0;
@@ -481,7 +481,7 @@ public:
 					}
 					return 1;
 				}
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 				// FLTK on MacOS sends only one keystroke down when the capslock is typed
 				// and a key_up event when it is typed again
 				if (Fl::event_key() == 65509)
@@ -505,7 +505,7 @@ public:
 					mAppKeyDown = 0;
 					return 1;
 				}
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 				if (Fl::event_key() == 65509)
 				{
 					screenManager_->KeyDown(eventKeyToMac());

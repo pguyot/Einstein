@@ -216,7 +216,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <FL/fl_ask.H>
 #include <FL/fl_draw.H>
 #include <FL/x.H>
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 #include <FL/Fl_Sys_Menu_Bar.H>
 #endif
 
@@ -227,7 +227,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <sys/wait.h>
 #include <unistd.h>
 #endif
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 #include <mach-o/dyld.h>
 
 #include "app/FLTK/TFLAppMac.h"
@@ -500,7 +500,7 @@ TFLApp::Run(int argc, char* argv[])
 	Fl::lock();
 	wAppWindow->show(1, argv);
 	StoreAppWindowSize();
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 	// Closing the window is Close now, but Quit in the application menu
 	// must still quit.
 	TFLRedirectAppMenuQuit();
@@ -635,7 +635,7 @@ TFLApp::UserActionClose()
 static std::string
 ExecutablePath()
 {
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 	char buf[FL_PATH_MAX];
 	uint32_t size = sizeof(buf);
 	if (_NSGetExecutablePath(buf, &size) != 0)
@@ -787,7 +787,7 @@ TFLApp::CloseNow()
 	mFLSettings->UnlockFlash();
 	mFLSettings->EmulationEnded();
 
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 	// The menu bar belongs to the machine that ended.
 	delete mFLSettings->wSysMenubar;
 	mFLSettings->wSysMenubar = nullptr;
@@ -1916,7 +1916,7 @@ TFLApp::InitScreen()
 		wMenubar->show();
 	} else
 	{
-#if TARGET_OS_MAC
+#ifdef __APPLE__
 		wMenuItemEssentials->flags &= ~FL_MENU_DIVIDER;
 		wMenuItemAbout->hide();
 		mFLSettings->wSysMenubar = new Fl_Sys_Menu_Bar(0, 0, 1, 1);
