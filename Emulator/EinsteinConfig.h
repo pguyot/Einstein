@@ -13,6 +13,7 @@
 #define HAVE_PULSEAUDIO 0
 #define HAVE_WAVEOUT 0
 #define HAVE_LIBFFI 0
+#define EINSTEIN_SHARED_LIBRARY_SUFFIX ".dylib"
 #else
 #error "Non-CMake builds must define capability macros or EINSTEIN_HAVE_GENERATED_CONFIG"
 #endif

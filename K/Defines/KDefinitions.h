@@ -371,7 +371,10 @@
 #include <SupportDefs.h>
 #endif
 
-#if TARGET_OS_BSD
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__) || (defined(TARGET_OS_BSD) && TARGET_OS_BSD)
+#ifndef TARGET_OS_BSD
+#define TARGET_OS_BSD 1
+#endif
 #define TARGET_OS_ANDROID 0
 #define TARGET_OS_BEOS 0
 #define TARGET_OS_LINUX 0
@@ -406,7 +409,10 @@
 #endif
 #endif
 
-#if TARGET_OS_LINUX
+#if (defined(__linux__) && !defined(__ANDROID__)) || (defined(TARGET_OS_LINUX) && TARGET_OS_LINUX)
+#ifndef TARGET_OS_LINUX
+#define TARGET_OS_LINUX 1
+#endif
 #include <cstdint>
 #define TARGET_OS_ANDROID 0
 #define TARGET_OS_BEOS 0
