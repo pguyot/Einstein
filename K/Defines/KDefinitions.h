@@ -313,7 +313,10 @@
 #define HAS_COND_TIMEDWAIT_RELATIVE_NP 1
 #endif
 
-#if TARGET_OS_ANDROID
+#if defined(__ANDROID__) || (defined(TARGET_OS_ANDROID) && TARGET_OS_ANDROID)
+#ifndef TARGET_OS_ANDROID
+#define TARGET_OS_ANDROID 1
+#endif
 #define TARGET_OS_BEOS 0
 #define TARGET_OS_BSD 0
 #define TARGET_OS_LINUX 0

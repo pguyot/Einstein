@@ -192,9 +192,6 @@ typedef int socklen_t;
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#ifdef __ANDROID__
-#include <malloc.h>
-#endif
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET -1
 #endif

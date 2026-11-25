@@ -666,7 +666,7 @@ elseif ( ANDROID )
 		${cmake_sources}
 	)
 	target_compile_definitions ( einstein PRIVATE
-		TARGET_UI_SDL=1 TARGET_OS_ANDROID=1
+		TARGET_UI_SDL=1
 	)
 	target_link_libraries ( einstein PRIVATE
 		SDL3::SDL3
