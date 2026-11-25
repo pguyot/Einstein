@@ -49,7 +49,7 @@
 // -------------------------------------------------------------------------- //
 TMutex::TMutex(void)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	mMutex = CreateMutex(0L, FALSE, 0L);
 	assert(mMutex);
 #else
@@ -64,7 +64,7 @@ TMutex::TMutex(void)
 // -------------------------------------------------------------------------- //
 TMutex::~TMutex(void)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	BOOL ret = CloseHandle(mMutex);
 	mMutex = INVALID_HANDLE_VALUE;
 	assert(ret != 0);
@@ -81,7 +81,7 @@ TMutex::~TMutex(void)
 void
 TMutex::Lock(void)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	if (mMutex != INVALID_HANDLE_VALUE)
 	{
 		DWORD ret = WaitForSingleObject(mMutex, INFINITE);
@@ -100,7 +100,7 @@ TMutex::Lock(void)
 void
 TMutex::Unlock(void)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	if (mMutex != INVALID_HANDLE_VALUE)
 	{
 		BOOL ret = ReleaseMutex(mMutex);
@@ -119,7 +119,7 @@ TMutex::Unlock(void)
 bool
 TMutex::TryLock(void)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	DWORD ret = WaitForSingleObject(mMutex, 0);
 	if (ret == WAIT_TIMEOUT)
 	{

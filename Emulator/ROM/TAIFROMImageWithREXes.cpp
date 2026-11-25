@@ -32,7 +32,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <io.h>
 #define PATH_MAX MAX_PATH
@@ -71,7 +71,7 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
 	const char* inREX1Path)
 {
 	// Open the ROM file.
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	int fd = ::open(inAIFPath, O_RDONLY | O_BINARY, 0);
 #else
 	int fd = ::open(inAIFPath, O_RDONLY, 0);
@@ -97,7 +97,7 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
 	time_t theModDate = theInfos.st_mtime;
 
 	int rex0fd, rex1fd = -1;
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	rex0fd = ::open(inREX0Path, O_RDONLY | O_BINARY, 0);
 #else
 	rex0fd = ::open(inREX0Path, O_RDONLY, 0);
@@ -120,7 +120,7 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
 	}
 	if (inREX1Path)
 	{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		rex1fd = ::open(inREX1Path, O_RDONLY | O_BINARY, 0);
 #else
 		rex1fd = ::open(inREX1Path, O_RDONLY, 0);

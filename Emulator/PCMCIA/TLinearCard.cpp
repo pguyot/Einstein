@@ -32,15 +32,10 @@
 #include <K/Misc/CRC32.h>
 #include <K/Streams/TStream.h>
 
-#if TARGET_OS_WIN32
-#include <winsock2.h>
-#else
-#include <arpa/inet.h>
-#endif
-
 #include <errno.h>
 
 #include <algorithm>
+#include <bit>
 #include <chrono>
 #include <future>
 #include <thread>
@@ -999,19 +994,27 @@ cleanup:
 	return err;
 }
 
+static constexpr KUInt32
+toBigEndian32(KUInt32 v)
+{
+	if constexpr (std::endian::native == std::endian::little)
+		return ((v & 0x000000FFu) << 24) | ((v & 0x0000FF00u) << 8) | ((v & 0x00FF0000u) >> 8) | ((v & 0xFF000000u) >> 24);
+	return v;
+}
+
 void
 TLinearCard::ImageInfo::flipByteOrder()
 {
-	pNameSize = htonl(pNameSize);
-	pNameStart = htonl(pNameStart);
-	pIconSize = htonl(pIconSize);
-	pIconStart = htonl(pIconStart);
-	pCISSize = htonl(pCISSize);
-	pCISStart = htonl(pCISStart);
-	pDataSize = htonl(pDataSize);
-	pDataStart = htonl(pDataStart);
-	pType = htonl(pType);
-	pVersion = htonl(pVersion);
+	pNameSize = toBigEndian32(pNameSize);
+	pNameStart = toBigEndian32(pNameStart);
+	pIconSize = toBigEndian32(pIconSize);
+	pIconStart = toBigEndian32(pIconStart);
+	pCISSize = toBigEndian32(pCISSize);
+	pCISStart = toBigEndian32(pCISStart);
+	pDataSize = toBigEndian32(pDataSize);
+	pDataStart = toBigEndian32(pDataStart);
+	pType = toBigEndian32(pType);
+	pVersion = toBigEndian32(pVersion);
 }
 
 int

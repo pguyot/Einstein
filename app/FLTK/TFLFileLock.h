@@ -79,7 +79,7 @@ private:
 
 	std::string mPath;
 	bool mLocked { false };
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	void* mHandle { nullptr };
 #else
 	int mFile { -1 };

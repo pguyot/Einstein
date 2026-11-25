@@ -31,7 +31,7 @@
 #include <cstring>
 #include <sys/types.h>
 
-#if !TARGET_OS_WIN32
+#ifndef _WIN32
 #include <sys/time.h>
 #include <unistd.h>
 #endif

@@ -65,7 +65,7 @@
 #include <unistd.h>
 #endif
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #if _MSC_VER
 #include <crtdbg.h>
 #include <signal.h>
@@ -268,7 +268,7 @@
 	(void) ::fprintf(stderr, (str), (arg1), (arg2), (arg3), (arg4), (arg5))
 #define KDPRINTF_SETUP
 #endif
-#elif TARGET_OS_WIN32
+#elif defined(_WIN32)
 #if _MSC_VER
 // KDPRINTF to the VisualC debugging console
 #define KDPRINTF(str) \
@@ -327,7 +327,7 @@
 		UPStrings::C2PStrCopy(theDebugStr, cstr); \
 		::DebugStr(theDebugStr);                  \
 	}
-#elif TARGET_OS_WIN32
+#elif defined(_WIN32)
 #if _MSC_VER
 // KDPRINTF to the VisualC debugging console
 #define KDEBUGSTR(cstr)          \

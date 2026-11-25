@@ -30,9 +30,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#if !TARGET_OS_WIN32
-#include <unistd.h>
-#endif
 #ifdef __APPLE__
 #include <TargetConditionals.h>
 #endif
@@ -979,7 +976,7 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 
 		case 0x1D:
 // CalibrateTablet.
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 			// FIXME call the Win32 tablet calibration app
 #elif defined(__APPLE__)
 #elif defined(__ANDROID__)

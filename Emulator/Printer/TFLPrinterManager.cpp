@@ -30,15 +30,25 @@
 #include <FL/Fl_RGB_Image.H>
 #include <FL/fl_draw.H>
 
-#include <stdlib.h>
+#include <bit>
+#include <cstdint>
+#include <cstdlib>
 
-#if TARGET_OS_WIN32
-#include <winsock2.h>
-#include <string.h>
-#else
-#include <arpa/inet.h>
-#include <strings.h>
-#endif
+static constexpr uint16_t
+toBigEndian16(uint16_t v)
+{
+	if constexpr (std::endian::native == std::endian::little)
+		return static_cast<uint16_t>((v << 8) | (v >> 8));
+	return v;
+}
+
+static constexpr uint32_t
+toBigEndian32(uint32_t v)
+{
+	if constexpr (std::endian::native == std::endian::little)
+		return ((v & 0x000000FFu) << 24) | ((v & 0x0000FF00u) << 8) | ((v & 0x00FF0000u) >> 8) | ((v & 0xFF000000u) >> 24);
+	return v;
+}
 
 // Einstein.
 
@@ -315,13 +325,13 @@ TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 	// #define    kPixMapDepth    0x000000FF  // bits 0..7 are chunky pixel depth
 
 	mMemory->FastReadBuffer(inBand, sizeof(mBand), (KUInt8*) &mBand);
-	mBand.baseAddr = htonl(mBand.baseAddr);
-	mBand.rowBytes = htons(mBand.rowBytes);
-	mBand.top = htons(mBand.top);
-	mBand.left = htons(mBand.left);
-	mBand.bottom = htons(mBand.bottom);
-	mBand.right = htons(mBand.right);
-	mBand.pixMapFlags = htonl(mBand.pixMapFlags);
+	mBand.baseAddr = toBigEndian32(mBand.baseAddr);
+	mBand.rowBytes = toBigEndian16(mBand.rowBytes);
+	mBand.top = toBigEndian16(mBand.top);
+	mBand.left = toBigEndian16(mBand.left);
+	mBand.bottom = toBigEndian16(mBand.bottom);
+	mBand.right = toBigEndian16(mBand.right);
+	mBand.pixMapFlags = toBigEndian32(mBand.pixMapFlags);
 
 	int w = mBand.right - mBand.left;
 	int h = mBand.bottom - mBand.top;
@@ -414,17 +424,17 @@ TFLPrinterManager::GetPageInfo(KUInt32 inDrvr, KUInt32 inInfo)
 	mDrvr = inDrvr;
 
 	mMemory->FastReadBuffer(inInfo, sizeof(mPageInfo), (KUInt8*) &mPageInfo);
-	mPageInfo.horizontalDPI = htonl(mPageInfo.horizontalDPI);
-	mPageInfo.verticalDPI = htonl(mPageInfo.verticalDPI);
-	mPageInfo.width = htons(mPageInfo.width);
-	mPageInfo.height = htons(mPageInfo.height);
+	mPageInfo.horizontalDPI = toBigEndian32(mPageInfo.horizontalDPI);
+	mPageInfo.verticalDPI = toBigEndian32(mPageInfo.verticalDPI);
+	mPageInfo.width = toBigEndian16(mPageInfo.width);
+	mPageInfo.height = toBigEndian16(mPageInfo.height);
 
 	CallAsync(AsyncGetPageInfoCB);
 
-	mPageInfo.horizontalDPI = htonl(mPageInfo.horizontalDPI);
-	mPageInfo.verticalDPI = htonl(mPageInfo.verticalDPI);
-	mPageInfo.width = htons(mPageInfo.width);
-	mPageInfo.height = htons(mPageInfo.height);
+	mPageInfo.horizontalDPI = toBigEndian32(mPageInfo.horizontalDPI);
+	mPageInfo.verticalDPI = toBigEndian32(mPageInfo.verticalDPI);
+	mPageInfo.width = toBigEndian16(mPageInfo.width);
+	mPageInfo.height = toBigEndian16(mPageInfo.height);
 	mMemory->FastWriteBuffer(inInfo, sizeof(mPageInfo), (KUInt8*) &mPageInfo);
 }
 

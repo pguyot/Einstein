@@ -32,7 +32,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <windows.h>
 #define PATH_MAX MAX_PATH
 #include <io.h>
@@ -65,7 +65,7 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 {
 	int romfd, rexfd = -1;
 	// Open the ROM file.
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	romfd = ::open(inROMPath, O_RDONLY | O_BINARY, 0);
 #else
 	romfd = ::open(inROMPath, O_RDONLY, 0);
@@ -104,7 +104,7 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 
 	if (inREXPath)
 	{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		rexfd = ::open(inREXPath, O_RDONLY | O_BINARY, 0);
 #else
 		rexfd = ::open(inREXPath, O_RDONLY, 0);

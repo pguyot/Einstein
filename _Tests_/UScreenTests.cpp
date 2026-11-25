@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <assert.h>
 #else
 #include <unistd.h>
@@ -36,7 +36,7 @@
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #define kTempFlashPath "c:/EinsteinTests.flash"
 #else
 #define kTempFlashPath "/tmp/EinsteinTests.flash"

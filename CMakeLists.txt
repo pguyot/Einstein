@@ -621,11 +621,11 @@ elseif ( WIN32 )
 	endif ()
 	if ( EINSTEIN_FLTK_FRONTEND )
 		target_compile_definitions ( Einstein PRIVATE
-			TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
+			TARGET_UI_FLTK=1
 			WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
 		)
 		target_compile_definitions ( EinsteinFLGUI PRIVATE
-			TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
+			TARGET_UI_FLTK=1
 			WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
 		)
 		target_link_libraries ( Einstein
@@ -642,7 +642,7 @@ elseif ( WIN32 )
 	endif ()
 	if ( EINSTEIN_SDL3_FRONTEND )
 		target_compile_definitions ( Einstein PRIVATE
-			TARGET_UI_SDL=1 TARGET_OS_WIN32=1
+			TARGET_UI_SDL=1
 			WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
 		)
 		target_link_libraries ( Einstein

@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #else
 #include <dirent.h>
 #endif
@@ -886,7 +886,7 @@ TPlatformManager::InstallPackage(const char* inPackagePath)
 void
 TPlatformManager::InstallNewPackages(const char* inPackageDir)
 {
-#if !TARGET_OS_WIN32
+#ifndef _WIN32
 	// -- find the directory
 	if (!inPackageDir)
 		inPackageDir = mDocDir;

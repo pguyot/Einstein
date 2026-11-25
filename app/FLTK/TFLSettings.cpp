@@ -31,7 +31,7 @@
 #include <FL/fl_ask.H>
 #include <FL/fl_utf8.h>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <direct.h>
 #else
 #include <sys/stat.h>
@@ -239,7 +239,7 @@ TFLPCCardSettings::SetImagePath(const char* inImagePath)
 static void
 MakeFolder(const std::string& inPath)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	(void) _mkdir(inPath.c_str());
 #else
 	(void) mkdir(inPath.c_str(), 0755);
@@ -324,7 +324,7 @@ bool
 TFLMachineSettings::IsInFolder(const char* inPath, std::string& outName) const
 {
 	std::string thePath = inPath ? inPath : "";
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	std::replace(thePath.begin(), thePath.end(), '\\', '/');
 #endif
 	if (thePath.size() <= mFolder.size() || thePath.compare(0, mFolder.size(), mFolder) != 0)
@@ -559,7 +559,7 @@ TFLMachineSettings::GetStatePath() const
 		return mFolder + "Einstein.state";
 	// Only a name: in the machine's folder.
 	if (!strchr(mStatePath, '/')
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		&& !strchr(mStatePath, '\\') && !strchr(mStatePath, ':')
 #endif
 	)
@@ -1289,7 +1289,7 @@ TFLSettings::UnlockCard(int inSlot)
 static std::string
 CanonicalPath(const std::string& inPath)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	char theFull[FL_PATH_MAX];
 	if (!_fullpath(theFull, inPath.c_str(), FL_PATH_MAX))
 		return inPath;
@@ -1313,7 +1313,7 @@ CanonicalPath(const std::string& inPath)
 		std::free(theFullFolder);
 	}
 #endif
-#if TARGET_OS_WIN32 || defined(__APPLE__)
+#if defined(_WIN32) || defined(__APPLE__)
 	// The file systems ignore case, usually.
 	std::transform(thePath.begin(), thePath.end(), thePath.begin(), [](unsigned char c) { return (char) tolower(c); });
 #endif
@@ -1773,7 +1773,7 @@ TFLSettings::AddExistingMachine()
 	if (!theChosen)
 		return;
 	std::string theSource = theChosen;
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	std::replace(theSource.begin(), theSource.end(), '\\', '/');
 #endif
 	while (theSource.size() > 1 && theSource.back() == '/')

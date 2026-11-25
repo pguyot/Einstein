@@ -29,7 +29,7 @@
 #include "Emulator/ROM/TROMImage.h"
 #include "app/Version.h"
 #include "app/FLTK/TFLTabs.h"
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include "winsock2.h"
 #endif
 #include <string.h>

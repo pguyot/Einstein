@@ -37,7 +37,7 @@
 #include "TThread.h"
 
 // ANSI C & POSIX
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <ctime>
 #include <sys/timeb.h>
 #else
@@ -61,7 +61,7 @@
 // -------------------------------------------------------------------------- //
 TThread::~TThread(void)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	DWORD ret = WaitForSingleObject(mThread, INFINITE);
 	assert(ret == WAIT_OBJECT_0);
 #else
@@ -91,7 +91,7 @@ TThread::~TThread(void)
 bool
 TThread::IsCurrentThread(void) const
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	return GetCurrentThreadId() == mThreadId;
 #else
 	return (::pthread_equal(mThread, ::pthread_self()) != 0);
@@ -123,7 +123,7 @@ TThread::Suspend(void)
 			kern_return_t err = ::thread_suspend(::pthread_mach_thread_np(mThread));
 			assert(err == 0);
 			(void) err;
-#elif TARGET_OS_WIN32
+#elif defined(_WIN32)
 			DWORD ret = SuspendThread(mThread);
 			assert((int) ret != -1);
 #else
@@ -177,7 +177,7 @@ TThread::Resume(void)
 					::pthread_mach_thread_np(mThread));
 				assert(err == 0);
 				(void) err;
-#elif TARGET_OS_WIN32
+#elif defined(_WIN32)
 				DWORD ret = ResumeThread(mThread);
 				assert((int) ret != -1);
 #else
@@ -193,7 +193,7 @@ TThread::Resume(void)
 	mMutex.Unlock();
 }
 
-#if !defined(__APPLE__) && !TARGET_OS_WIN32
+#if !defined(__APPLE__) && !defined(_WIN32)
 // ------------------------------------------------------------------------- //
 //  * SignalUSR2( int )
 // ------------------------------------------------------------------------- //

@@ -174,7 +174,7 @@
 #include <thread>
 #include <vector>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <fcntl.h>
@@ -195,7 +195,7 @@ typedef int socklen_t;
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET -1
 #endif
-#endif //! TARGET_OS_WIN32
+#endif // !_WIN32
 
 /**
  This is the time in timer() calls until an unused UDP connection is closed
@@ -1068,7 +1068,7 @@ public:
 	void
 	close_socket()
 	{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		if (mSocket != INVALID_SOCKET)
 		{
 			if (state != kStateDisconnected)
@@ -1220,7 +1220,7 @@ public:
 	static bool
 	wouldBlock()
 	{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		return WSAGetLastError() == WSAEWOULDBLOCK;
 #else
 		return errno == EAGAIN || errno == EWOULDBLOCK;
@@ -1233,7 +1233,7 @@ public:
 	static const char*
 	lastError()
 	{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		static char buf[32];
 		snprintf(buf, sizeof(buf), "error %d", WSAGetLastError());
 		return buf;
@@ -1292,7 +1292,7 @@ public:
 
 		// connect() would block. Put this socket into non-blocking mode first.
 		int err;
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		u_long arg = 1;
 		ioctlsocket(mSocket, FIONBIO, &arg);
 #else
@@ -1307,7 +1307,7 @@ public:
 		err = ::connect(mSocket, (struct sockaddr*) &sa, sizeof(sa));
 		if (err == 0)
 			return accept();
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		if (WSAGetLastError() != WSAEWOULDBLOCK)
 			return refuse("can't connect");
 #else
@@ -1841,7 +1841,7 @@ public:
 	void
 	close_socket()
 	{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		if (mSocket != INVALID_SOCKET)
 		{
 			::closesocket(mSocket);
@@ -1922,7 +1922,7 @@ public:
 			mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (mSocket == INVALID_SOCKET)
 				return -1;
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 			u_long arg = 1;
 			ioctlsocket(mSocket, FIONBIO, &arg);
 #else
@@ -2652,7 +2652,7 @@ public:
 TUsermodeNetwork::TUsermodeNetwork(TLog* inLog) :
 		TNetworkManager(inLog)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	WSADATA wsaData;
 	WORD wVersionRequested = MAKEWORD(2, 2);
 	WSAStartup(wVersionRequested, &wsaData);
@@ -2673,7 +2673,7 @@ TUsermodeNetwork::~TUsermodeNetwork()
 	// a lookup that still runs ends on its own
 	delete mDNSResolver;
 	// release all other resources
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	WSACleanup();
 #endif
 }

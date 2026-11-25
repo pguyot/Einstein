@@ -39,7 +39,7 @@
 // ANSI C & POSIX
 #include <assert.h>
 #include <sys/types.h>
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <ctime>
 #include <sys/timeb.h>
 #include <sys/types.h>
@@ -60,7 +60,7 @@
 // pthread conditions in WIN32 native code
 // -------------------------------------------------------------------------- //
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 
 // based on code by Douglas C. Schmidt and Irfan Pyarali
 // http://www.cs.wustl.edu/~schmidt/win32-cv-1.html
@@ -130,7 +130,7 @@ pthread_cond_timedwait_relative_np(win_pthread_cond_t* cv, HANDLE* external_mute
 int
 pthread_cond_timedwait(win_pthread_cond_t* cv, HANDLE* external_mutex, const struct timespec* tabs)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	struct _timeb msTime;
 	_ftime(&msTime);
 	unsigned __int64 t_now = msTime.time * 1000 + msTime.millitm;
@@ -180,7 +180,7 @@ pthread_cond_broadcast(win_pthread_cond_t* cv)
 		LeaveCriticalSection(&cv->waiters_count_lock_);
 	return 0; // FIXME error handling is missing!
 }
-#endif // TARGET_OS_WIN32
+#endif // _WIN32
 
 // -------------------------------------------------------------------------- //
 //  * TCondVar( void )

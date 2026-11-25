@@ -26,7 +26,7 @@
 
 #include "TBasicSerialPortManager.h"
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <winsock2.h>
 #endif
@@ -169,7 +169,7 @@ protected:
 	/// Set by NSSetOptions() when the server changed.
 	std::atomic<bool> mReconnectRequested { false };
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	WSAEVENT mTcpEvent { INVALID_HANDLE_VALUE };
 	WSAEVENT mQuitEvent { INVALID_HANDLE_VALUE };
 	WSAEVENT mOtherEvent { INVALID_HANDLE_VALUE };
@@ -195,7 +195,7 @@ protected:
 	/// the socket did not take all data; wait until it can take more
 	bool mSendBlocked { false };
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	/// the socket reported data or a disconnect that we did not read yet
 	bool mCanReceive { false };
 #endif

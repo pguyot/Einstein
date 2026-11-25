@@ -14,7 +14,7 @@
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #define kTempFlashPath "c:/EinsteinTests2.flash"
 #else
 #define kTempFlashPath "/tmp/EinsteinTests2.flash"

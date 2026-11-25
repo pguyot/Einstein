@@ -25,13 +25,6 @@
 
 #include <K/Streams/TStream.h>
 
-#include <stdlib.h>
-
-#ifdef TARGET_OS_WIN32
-#include <string.h>
-#else
-#include <strings.h>
-#endif
 
 // Einstein.
 #include "Emulator/TInterruptManager.h"

@@ -197,8 +197,11 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 
 // C++17
 #include <algorithm>
+#include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <filesystem>
+#include <string_view>
 #include <thread>
 
 // FLTK user interface
@@ -221,7 +224,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #endif
 
 // starting another Einstein, see TFLApp::LaunchMachine()
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <sys/wait.h>
@@ -647,7 +650,7 @@ ExecutablePath()
 		return result;
 	}
 	return std::string(buf);
-#elif TARGET_OS_WIN32
+#elif defined(_WIN32)
 	wchar_t buf[MAX_PATH];
 	DWORD n = GetModuleFileNameW(nullptr, buf, MAX_PATH);
 	char utf8[FL_PATH_MAX];
@@ -677,7 +680,7 @@ TFLApp::LaunchMachine(const char* inUUID)
 		fl_alert("Einstein can't find its own program file to start another machine.");
 		return;
 	}
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	std::string theCommand = "\"" + theProgram + "\" --machine " + inUUID;
 	wchar_t wideCommand[FL_PATH_MAX * 2];
 	fl_utf8towc(theCommand.c_str(), (unsigned) theCommand.size(), wideCommand, FL_PATH_MAX * 2);
@@ -824,13 +827,6 @@ TFLApp::UserActionToggleBacklight()
 	mPlatformManager->SendBacklightEvent();
 }
 
-#if TARGET_OS_WIN32 && !defined(__MINGW32__)
-static int
-strcasecmp(const char* a, const char* b)
-{
-	return stricmp(a, b);
-}
-#endif
 
 /**
  Install a package from a file.
@@ -876,7 +872,8 @@ TFLApp::InstallPackagesFromURI(const char* filenames)
 				fl_message("Can't install\n%s\nEinstein has no such package built in.", fn);
 		} else if (strncmp(fn, "http://", 7) == 0 || strncmp(fn, "https://", 8) == 0)
 		{
-			if (strcasecmp(fl_filename_ext(fn), ".pkg") == 0)
+			if (std::ranges::equal(std::string_view(fl_filename_ext(fn)), std::string_view(".pkg"),
+					[](unsigned char x, unsigned char y) { return std::tolower(x) == std::tolower(y); }))
 			{
 				try
 				{
@@ -1836,7 +1833,7 @@ void
 TFLApp::InitSettings()
 {
 	mFLSettings = new TFLSettingsUI();
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	mFLSettings->mSettingsPanel->icon((char*) LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
 	mFLSettings->setAppPath(mProgramName);
@@ -1946,7 +1943,7 @@ TFLApp::InitScreen()
 	if (windowWidth > screenWidth)
 		wAppWindow->size_range(screenWidth, screenHeight + emulatorScreenY + specialKeysHeight);
 	wAppWindow->resizable(nullptr);
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	wAppWindow->icon((char*) LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
 	wAppWindow->callback(close_cb, this);
@@ -2266,7 +2263,7 @@ TFLApp::InitMonitor(const char* theROMImagePath)
 {
 	mMonitorLog = new TBufferLog();
 #if !NDEBUG
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	mMonitorLog->OpenLog("C:/user/micro/Einstein_log.txt");
 #else
 	mMonitorLog->OpenLog("/tmp/Einstein_log.txt");

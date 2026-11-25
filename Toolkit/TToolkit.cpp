@@ -184,15 +184,13 @@ extern "C" {
 #include <FL/Fl_PNG_Image.H>
 #include <FL/fl_ask.H>
 
-#if TARGET_OS_WIN32
-#include <winsock2.h>
+#ifdef _WIN32
 #include <assert.h>
 #include <direct.h>
 #include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
 #else
-#include <arpa/inet.h>
 #include <unistd.h>
 #endif
 

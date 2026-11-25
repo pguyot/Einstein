@@ -39,7 +39,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <time.h>
 #include <windows.h>
 #else
@@ -218,7 +218,7 @@ THostInfo::RetrieveUserInfo(void)
 {
 	do
 	{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		// do nothing
 #elif defined(__ANDROID__)
 		// do nothing

@@ -32,7 +32,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #else
 #include <sys/select.h>
 #endif

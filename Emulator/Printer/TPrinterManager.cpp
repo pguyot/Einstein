@@ -23,13 +23,6 @@
 
 #include "TPrinterManager.h"
 
-#include <stdlib.h>
-
-#ifdef TARGET_OS_WIN32
-#include <string.h>
-#else
-#include <strings.h>
-#endif
 
 // Einstein.
 

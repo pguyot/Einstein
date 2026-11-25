@@ -39,7 +39,7 @@
 #include <K/Defines/KDefinitions.h>
 
 // ANSI C & POSIX
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <process.h>
 #include <windows.h>
 #else
@@ -137,7 +137,7 @@ private:
 	static void*
 	SEntryPoint(void* inUserData)
 	{
-#if !defined(__APPLE__) && !TARGET_OS_WIN32
+#if !defined(__APPLE__) && !defined(_WIN32)
 		PreRun();
 #endif
 		((TRunnable*) inUserData)->Run();
@@ -149,7 +149,7 @@ private:
 	///
 	void SuspendSelf(void);
 
-#if !defined(__APPLE__) && !TARGET_OS_WIN32
+#if !defined(__APPLE__) && !defined(_WIN32)
 	///
 	/// Setup the thread (register signal actions).
 	///
@@ -187,7 +187,7 @@ private:
 	TThread& operator=(const TThread& inCopy);
 
 	/// \name Variables
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	HANDLE mThread; ///< Thread.
 	DWORD mThreadId; ///< Unique ID per thread
 #else
@@ -210,7 +210,7 @@ TThread::TThread(TRunnable* inRunnable) :
 		mWakeCount(0),
 		mSuspendCount(0)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	// step-by-step conversion convinces Visual Studio
 	typedef void* (*dcall)(void*);
 	dcall tt = (dcall) (SEntryPoint<TRunnable>);

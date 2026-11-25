@@ -29,7 +29,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 typedef int socklen_t;
@@ -50,7 +50,7 @@ TSerialHostPortTCPServer::CloseSocketDescriptor(int inSocket)
 {
 	if (inSocket != -1)
 	{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		closesocket(inSocket);
 #else
 		::close(inSocket);
@@ -63,7 +63,7 @@ TSerialHostPortTCPServer::ShutdownSocketDescriptor(int inSocket)
 {
 	if (inSocket != -1)
 	{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		shutdown(inSocket, SD_BOTH);
 #else
 		shutdown(inSocket, SHUT_RDWR);
@@ -200,7 +200,7 @@ TSerialHostPortTCPServer::CreateServer()
 	mWriteBuffer = new TCircleBuffer(8 * 1024);
 	mSerialStatus = kSerialTxBufferEmpty;
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
@@ -263,7 +263,7 @@ TSerialHostPortTCPServer::CreateServer()
 void
 TSerialHostPortTCPServer::AcceptThreadEntry()
 {
-#if !TARGET_OS_WIN32
+#ifndef _WIN32
 	signal(SIGPIPE, SIG_IGN);
 #endif
 
@@ -347,7 +347,7 @@ TSerialHostPortTCPServer::AcceptThreadEntry()
 void
 TSerialHostPortTCPServer::ReadThreadEntry(int inClientSocket)
 {
-#if !TARGET_OS_WIN32
+#ifndef _WIN32
 	signal(SIGPIPE, SIG_IGN);
 #endif
 
@@ -408,7 +408,7 @@ TSerialHostPortTCPServer::ReadThreadEntry(int inClientSocket)
 void
 TSerialHostPortTCPServer::WriteThreadEntry(int inClientSocket)
 {
-#if !TARGET_OS_WIN32
+#ifndef _WIN32
 	signal(SIGPIPE, SIG_IGN);
 #endif
 
@@ -435,7 +435,7 @@ TSerialHostPortTCPServer::WriteThreadEntry(int inClientSocket)
 
 		if (toWrite > 0)
 		{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 			auto sent = ::send(inClientSocket, (const char*) wbuf, static_cast<int>(toWrite), 0);
 #else
 			auto sent = ::send(inClientSocket, wbuf, toWrite, 0);

@@ -31,10 +31,6 @@
 #include "Monitor/TSymbolList.h"
 
 #include <stdarg.h>
-#if TARGET_OS_WIN32
-#else
-#include <unistd.h>
-#endif
 #include <chrono>
 #include <thread>
 

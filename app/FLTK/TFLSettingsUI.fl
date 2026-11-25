@@ -52,7 +52,7 @@ decl {\#include "app/Version.h"} {private global
 decl {\#include "app/FLTK/TFLTabs.h"} {private global
 }
 
-declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
+declblock {\#ifdef _WIN32} {open after {\#endif}
 } {
   decl {\#include "winsock2.h"} {private local
   }

@@ -40,7 +40,7 @@ static constexpr int kRxMicrosecondsPerByte = 90; // server to Newton
 #include <chrono>
 #include <string>
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
@@ -115,7 +115,7 @@ TSerialPortDriverTcpClient::TSerialPortDriverTcpClient(
 		mTxThrottle(kTxMicrosecondsPerByte),
 		mRxThrottle(kRxMicrosecondsPerByte)
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	WSADATA wsaData;
 	WORD wVersionRequested = MAKEWORD(2, 2);
 	WSAStartup(wVersionRequested, &wsaData);
@@ -137,7 +137,7 @@ TSerialPortDriverTcpClient::~TSerialPortDriverTcpClient()
 		delete mWorkerThread;
 		mWorkerThread = nullptr;
 	}
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	if (mTcpEvent != INVALID_HANDLE_VALUE)
 		WSACloseEvent(mTcpEvent);
 	if (mQuitEvent != INVALID_HANDLE_VALUE)
@@ -162,7 +162,7 @@ TSerialPortDriverTcpClient::LogError(const char* text, bool systemError)
 	{
 		int errorId = 0;
 		const char* errorText = "undocumented";
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		auto res = WSAGetLastError();
 		char buf[1024];
 		buf[0] = 0;
@@ -214,7 +214,7 @@ TSerialPortDriverTcpClient::run(TInterruptManager* inInterruptManager,
 		return;
 	}
 
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	if (mQuitEvent != INVALID_HANDLE_VALUE)
 	{
 		LogError("run: trying to create the Quit Event again.");
@@ -264,7 +264,7 @@ TSerialPortDriverTcpClient::TriggerEvent(KUInt8 cmd)
 {
 	if (cmd == 'q')
 		mQuitRequested = true;
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	if (mQuitEvent == INVALID_HANDLE_VALUE)
 	{
 		LogError("TriggerEvent: called without initialization");
@@ -298,7 +298,7 @@ bool
 TSerialPortDriverTcpClient::Disconnect()
 {
 	bool wasConnected = mIsConnected;
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	if (mTcpSocket != INVALID_SOCKET)
 	{
 		closesocket(mTcpSocket);
@@ -363,7 +363,7 @@ TSerialPortDriverTcpClient::Connect()
 	}
 
 	// Create a new socket
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	mTcpSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
 	if (mTcpSocket == INVALID_SOCKET)
 	{
@@ -440,7 +440,7 @@ TSerialPortDriverTcpClient::FinishConnect(bool inDone, int inError)
 	}
 	if (inError != 0)
 	{
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		WSASetLastError(inError);
 #else
 		errno = inError;
@@ -475,7 +475,7 @@ sigpipe_handler(int unused)
 void
 TSerialPortDriverTcpClient::HandleDMA()
 {
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	for (;;)
 	{
 		// Decide how long to wait. mTcpEvent reports the connection, new
@@ -710,7 +710,7 @@ TSerialPortDriverTcpClient::HandleDMASend()
 	{
 		// The socket does not block. If it takes only some of the bytes, the
 		// rest is sent in the next round. If it takes none, wait until it can.
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 		WSABUF abuf = { n, (CHAR*) buf };
 		DWORD nWritten = 0;
 		if (WSASend(mTcpSocket, &abuf, 1, &nWritten, 0, nullptr, nullptr) == 0)
@@ -782,7 +782,7 @@ TSerialPortDriverTcpClient::HandleDMAReceive()
 		return;
 
 	KUInt8 buf[kMaxChunkSize];
-#if TARGET_OS_WIN32
+#ifdef _WIN32
 	DWORD nReceived = 0;
 	DWORD flags = 0;
 	WSABUF abuf = { nAllowed, (CHAR*) buf };
