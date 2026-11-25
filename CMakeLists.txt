@@ -67,14 +67,6 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	set( CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO" )
 	set( CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "" )
 
-elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
-
-	# Linux: nothing to do here
-
-elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
-
-	set_property ( GLOBAL PROPERTY FIND_LIBRARY_USE_OPENBSD_VERSIONING 1 )
-
 elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
 
 	# Link the C and C++ runtime statically (/MT), so Einstein.exe runs without
@@ -90,6 +82,12 @@ elseif ( ANDROID )
 	    message( WARNING "Changing frontend for Android to SDL3." )
     	set ( EINSTEIN_FLTK_FRONTEND OFF )
     	set ( EINSTEIN_SDL3_FRONTEND ON )
+	endif ()
+
+elseif ( UNIX AND NOT APPLE AND NOT ANDROID )
+
+	if ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
+		set_property ( GLOBAL PROPERTY FIND_LIBRARY_USE_OPENBSD_VERSIONING 1 )
 	endif ()
 
 else ()
@@ -509,7 +507,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		)
 	endif ()
 
-elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
+elseif ( UNIX AND NOT APPLE AND NOT ANDROID )
 
 	# create the application
 	add_executable ( Einstein
@@ -526,14 +524,20 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 	# how to compile and link
 	target_compile_options ( Einstein PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-		-Wno-missing-field-initializers -Wno-stringop-truncation # -Werror
+		-Wno-missing-field-initializers # -Werror
 		# Werror is disabled for testing purposes. Must reenable as soon as all Linux warnings are fixed.
 	)
+	if ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
+		target_compile_options ( Einstein PUBLIC -Wno-stringop-truncation )
+	endif ()
 	if ( EINSTEIN_FLTK_FRONTEND )
 		target_compile_options ( EinsteinFLGUI PUBLIC
 			-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-			-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
+			-Wno-missing-field-initializers -Werror
 		)
+		if ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
+			target_compile_options ( EinsteinFLGUI PUBLIC -Wno-stringop-truncation )
+		endif ()
 		target_compile_definitions ( Einstein PRIVATE
 			TARGET_UI_FLTK=1
 		)
