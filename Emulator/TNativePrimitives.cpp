@@ -137,7 +137,7 @@ TNativePrimitives::~TNativePrimitives(void)
 	if (mVirtualizedCalls)
 	{
 		delete mVirtualizedCalls;
-		mVirtualizedCalls = nil;
+		mVirtualizedCalls = nullptr;
 	}
 }
 
@@ -158,16 +158,16 @@ TNativePrimitives::SetEmulator(TEmulator* inEmulator)
 		mVirtualizedCalls = new TVirtualizedCalls(inEmulator, mMemory, inEmulator->GetProcessor());
 	} else
 	{
-		mNetworkManager = nil;
-		mPrinterManager = nil;
-		mSoundManager = nil;
-		mScreenManager = nil;
-		mPlatformManager = nil;
-		mEmulator = nil;
+		mNetworkManager = nullptr;
+		mPrinterManager = nullptr;
+		mSoundManager = nullptr;
+		mScreenManager = nullptr;
+		mPlatformManager = nullptr;
+		mEmulator = nullptr;
 		if (mVirtualizedCalls)
 		{
 			delete mVirtualizedCalls;
-			mVirtualizedCalls = nil;
+			mVirtualizedCalls = nullptr;
 		}
 	}
 }
@@ -521,7 +521,7 @@ TNativePrimitives::ExecuteFlashDriverNative(KUInt32 inInstruction)
 					(unsigned int) mProcessor->GetRegister(3));
 			}
 #endif
-			if (mMemory->TranslateAndCheckFlashAddress(mProcessor->GetRegister(2), nil))
+			if (mMemory->TranslateAndCheckFlashAddress(mProcessor->GetRegister(2), nullptr))
 			{
 				mProcessor->SetRegister(0,
 					(unsigned int) -10562 /* kError_Flash_AddressOutOfRange */);

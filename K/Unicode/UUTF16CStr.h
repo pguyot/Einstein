@@ -64,67 +64,67 @@ public:
 		const KUInt16* inInputCString,
 		KUInt8* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 	static void FromISO88591(
 		const KUInt8* inInputCString,
 		KUInt16* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 
 	static void ToISO88592(
 		const KUInt16* inInputCString,
 		KUInt8* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 	static void FromISO88592(
 		const KUInt8* inInputCString,
 		KUInt16* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 
 	static void ToASCII(
 		const KUInt16* inInputCString,
 		KUInt8* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 	static void FromASCII(
 		const KUInt8* inInputCString,
 		KUInt16* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 
 	static void ToMacRoman(
 		const KUInt16* inInputCString,
 		KUInt8* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 	static void FromMacRoman(
 		const KUInt8* inInputCString,
 		KUInt16* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 
 	static void ToUCS4(
 		const KUInt16* inInputCString,
 		KUInt32* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 	//	static void FromUCS4(
 	//		const KUInt32*	inInputCString,
 	//		KUInt16*		outOutputCString,
 	//		size_t			inLimit = 0,
-	//		size_t*			outStringSize = nil
+	//		size_t*			outStringSize = nullptr
 	//		);
 	static void ToUTF8(
 		const KUInt16* inInputCString,
 		KUInt8* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 	static void FromUTF8(
 		const KUInt8* inInputCString,
 		KUInt16* outOutputCString,
 		size_t inLimit = 0,
-		size_t* outStringSize = nil);
+		size_t* outStringSize = nullptr);
 
 	// Return the size of the CStrings minus the null terminator.
 	// (just like ANSI C strlen).

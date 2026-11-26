@@ -56,7 +56,7 @@
 // -------------------------------------------------------------------------- //
 //  * TPulseAudioSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
-TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
+TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nullptr */) :
 		TBufferedSoundManager(inLog),
 		mPAOperation(nullptr),
 		mPAOperationDescr(nullptr),

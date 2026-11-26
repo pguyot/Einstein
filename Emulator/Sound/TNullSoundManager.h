@@ -44,7 +44,7 @@ public:
 	///
 	/// Constructor from a log.
 	///
-	TNullSoundManager(TLog* inLog = nil);
+	TNullSoundManager(TLog* inLog = nullptr);
 
 	///
 	/// Destructor.

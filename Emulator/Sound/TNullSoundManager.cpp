@@ -34,7 +34,7 @@
 // -------------------------------------------------------------------------- //
 //  * TNullSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
-TNullSoundManager::TNullSoundManager(TLog* inLog /* = nil */) :
+TNullSoundManager::TNullSoundManager(TLog* inLog /* = nullptr */) :
 		TSoundManager(inLog)
 {
 }

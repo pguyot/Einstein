@@ -48,7 +48,7 @@
 //  * TCircleBuffer( KUIntPtr )
 // -------------------------------------------------------------------------- //
 TCircleBuffer::TCircleBuffer(KUIntPtr inInitialCapacity /* = 0 */) :
-		mBuffer(nil),
+		mBuffer(nullptr),
 		mProducerCrsr(0),
 		mConsumerCrsr(0),
 		mBufferSize(inInitialCapacity)

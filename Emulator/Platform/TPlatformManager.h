@@ -62,7 +62,7 @@ public:
 	/// \param inLog				log interface (can be null)
 	/// \param inScreenManager		screen interface (can be null)
 	///
-	TPlatformManager(TLog* inLog = nil, TScreenManager* inScreenManager = nil);
+	TPlatformManager(TLog* inLog = nullptr, TScreenManager* inScreenManager = nullptr);
 
 	///
 	/// Destructor.

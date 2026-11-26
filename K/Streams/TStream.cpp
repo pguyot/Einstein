@@ -66,7 +66,7 @@ TStream::GetCString(KUInt32 inNbChars)
 {
 	KUInt8* theResult = (KUInt8*) ::malloc(inNbChars + 1);
 
-	if (theResult == nil)
+	if (theResult == nullptr)
 	{
 #if HAS_EXCEPTION_HANDLING
 		throw MemError;
@@ -124,7 +124,7 @@ TStream::GetCString(void)
 	KUInt8* theResult = (KUInt8*) ::malloc(bufferLength);
 
 #if HAS_EXCEPTION_HANDLING
-	if (theResult == nil)
+	if (theResult == nullptr)
 	{
 		throw MemError;
 	}
@@ -165,7 +165,7 @@ TStream::GetCString(void)
 		throw; // Rethrow
 	}
 #else
-	if (theResult == nil)
+	if (theResult == nullptr)
 		return 0L;
 	KUInt8 theChar;
 	KUInt32 count = 1;
@@ -229,7 +229,7 @@ TStream::GetUniString(void)
 	KUInt16* theResult = (KUInt16*) ::malloc(bufferLength * sizeof(KUInt16));
 
 #if HAS_EXCEPTION_HANDLING
-	if (theResult == nil)
+	if (theResult == nullptr)
 	{
 		throw MemError;
 	}
@@ -268,7 +268,7 @@ TStream::GetUniString(void)
 		throw; // Rethrow
 	}
 #else
-	if (theResult == nil)
+	if (theResult == nullptr)
 		return 0L;
 	KUInt16 theChar;
 	KUInt32 count = 2;

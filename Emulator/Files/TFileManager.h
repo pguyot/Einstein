@@ -47,8 +47,8 @@ public:
 	/// \param inMemory				memory interface
 	///
 	TFileManager(
-		TLog* inLog = nil,
-		TMemory* inMemory = nil);
+		TLog* inLog = nullptr,
+		TMemory* inMemory = nullptr);
 
 	///
 	/// Destructor.

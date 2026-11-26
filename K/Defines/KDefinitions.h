@@ -517,17 +517,11 @@
 #endif
 #endif
 
-#ifndef NULL
-#define NULL nullptr
-#endif
-#ifndef nil
-#define nil nullptr
-#endif
-
 #ifndef HAS_COND_TIMEDWAIT_RELATIVE_NP
 #define HAS_COND_TIMEDWAIT_RELATIVE_NP 0
 #endif
 
+#include <cstddef>
 #include <cstdint>
 
 typedef uint64_t KUInt64;

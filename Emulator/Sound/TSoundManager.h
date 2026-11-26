@@ -48,7 +48,7 @@ public:
 	///
 	/// \param inLog				log interface (can be null)
 	///
-	TSoundManager(TLog* inLog = nil);
+	TSoundManager(TLog* inLog = nullptr);
 
 	///
 	/// Destructor.

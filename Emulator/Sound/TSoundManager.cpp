@@ -36,7 +36,7 @@
 // -------------------------------------------------------------------------- //
 //  * TSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
-TSoundManager::TSoundManager(TLog* inLog /* = nil */) :
+TSoundManager::TSoundManager(TLog* inLog /* = nullptr */) :
 		mLog(inLog)
 {
 }

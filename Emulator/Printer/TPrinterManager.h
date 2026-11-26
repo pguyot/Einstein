@@ -51,7 +51,7 @@ public:
 	///
 	/// \param inLog        log interface (can be null)
 	///
-	TPrinterManager(TLog* inLog = nil);
+	TPrinterManager(TLog* inLog = nullptr);
 
 	///
 	/// Destructor.

@@ -54,7 +54,7 @@
 // -------------------------------------------------------------------------- //
 //  * TWaveSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
-TWaveSoundManager::TWaveSoundManager(TLog* inLog /* = nil */) :
+TWaveSoundManager::TWaveSoundManager(TLog* inLog /* = nullptr */) :
 		TSoundManager(inLog),
 		waveOut(0L),
 		noWaveOut(false),

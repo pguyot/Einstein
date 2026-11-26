@@ -372,7 +372,7 @@ TPCMCIAController::WriteB(KUInt32 inOffset, KUInt8 inValue)
 void
 TPCMCIAController::InsertCard(TPCMCIACard* inCard)
 {
-	assert(mCard == nil);
+	assert(mCard == nullptr);
 
 	KUInt32 theOldPins = UpdatePins();
 
@@ -478,13 +478,13 @@ TPCMCIAController::TransferCardContents(TStream* inStream)
 void
 TPCMCIAController::RemoveCard(void)
 {
-	assert(mCard != nil);
+	assert(mCard != nullptr);
 
 	KUInt32 theOldPins = UpdatePins();
 
 	mCard->Remove();
 
-	mCard = nil;
+	mCard = nullptr;
 
 	// The card lock/eject switch is wired to GPIO 2, 3, 13, 14 for sockets
 	// 0..3 (gpioIntVectorNumbers in the ROM).

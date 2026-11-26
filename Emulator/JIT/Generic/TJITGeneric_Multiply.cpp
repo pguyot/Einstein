@@ -84,8 +84,6 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "Emulator/JIT/JIT.h"
-#include <K/Tests/KDebug.h>
-
 #ifdef JITTARGET_GENERIC
 
 // Einstein
@@ -133,8 +131,8 @@ void
 TJITGeneric_Multiply_assertions(void)
 {
 	// Check that the array has the expected size.
-	KCOMPILE_TIME_ASSERT_SIZE(
-		Multiply_Funcs, 2 * 15 * 15 * 15 * sizeof(void*));
+	static_assert(
+		sizeof(Multiply_Funcs) == 2 * 15 * 15 * 15 * sizeof(void*));
 }
 
 #endif

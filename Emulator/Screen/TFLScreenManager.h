@@ -63,7 +63,7 @@ public:
 	///
 	TFLScreenManager(
 		TFLApp* inApp,
-		TLog* inLog = nil,
+		TLog* inLog = nullptr,
 		KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 		KUInt32 inPortraitHeight = kDefaultPortraitHeight,
 		bool inFullScreen = false,

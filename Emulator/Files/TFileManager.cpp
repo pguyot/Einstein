@@ -39,7 +39,7 @@
 //  * TFileManager( TLog* )
 // -------------------------------------------------------------------------- //
 TFileManager::TFileManager(
-	TLog* inLog /* = nil */,
+	TLog* inLog /* = nullptr */,
 	TMemory* inMemory) :
 		mLog(inLog),
 		mMemory(inMemory)

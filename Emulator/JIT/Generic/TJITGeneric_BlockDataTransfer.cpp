@@ -23,8 +23,6 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "Emulator/JIT/JIT.h"
-#include <K/Tests/KDebug.h>
-
 #ifdef JITTARGET_GENERIC
 
 // Einstein
@@ -129,11 +127,11 @@ void
 TJITGeneric_BlockDataTransfer_assertions(void)
 {
 	// Check that the array has the expected size.
-	KCOMPILE_TIME_ASSERT_SIZE(BlockDataTransfer_LDM1_Funcs, 128 * sizeof(void*));
-	KCOMPILE_TIME_ASSERT_SIZE(BlockDataTransfer_LDM2_Funcs, 64 * sizeof(void*));
-	KCOMPILE_TIME_ASSERT_SIZE(BlockDataTransfer_LDM3_Funcs, 128 * sizeof(void*));
-	KCOMPILE_TIME_ASSERT_SIZE(BlockDataTransfer_STM1_Funcs, 128 * sizeof(void*));
-	KCOMPILE_TIME_ASSERT_SIZE(BlockDataTransfer_STM2_Funcs, 64 * sizeof(void*));
+	static_assert(sizeof(BlockDataTransfer_LDM1_Funcs) == 128 * sizeof(void*));
+	static_assert(sizeof(BlockDataTransfer_LDM2_Funcs) == 64 * sizeof(void*));
+	static_assert(sizeof(BlockDataTransfer_LDM3_Funcs) == 128 * sizeof(void*));
+	static_assert(sizeof(BlockDataTransfer_STM1_Funcs) == 128 * sizeof(void*));
+	static_assert(sizeof(BlockDataTransfer_STM2_Funcs) == 64 * sizeof(void*));
 }
 
 #endif

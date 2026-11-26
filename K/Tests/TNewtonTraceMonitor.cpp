@@ -74,12 +74,12 @@ TNewtonTraceMonitor::GetTraceMonitor(unsigned int inMode)
 {
 	TNewtonTraceMonitor* theResult = (TNewtonTraceMonitor*) GetObject(kName);
 
-	if (theResult == nil)
+	if (theResult == nullptr)
 	{
 		// Création de l'objet.
 		theResult = new TNewtonTraceMonitor(inMode);
 
-		if (theResult == nil)
+		if (theResult == nullptr)
 			OutOfMemory();
 
 		// Enregistrement.

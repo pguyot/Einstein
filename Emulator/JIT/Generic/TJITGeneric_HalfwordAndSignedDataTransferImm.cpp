@@ -23,8 +23,6 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "Emulator/JIT/JIT.h"
-#include <K/Tests/KDebug.h>
-
 #ifdef JITTARGET_GENERIC
 
 // Einstein
@@ -68,7 +66,7 @@ void
 TJITGeneric_HalfwordAndSignedDataTransferImm_assertions(void)
 {
 	// Check that the array has the expected size.
-	KCOMPILE_TIME_ASSERT_SIZE(HalfwordAndSignedDataTransferImm_Funcs, 0x04000 * sizeof(void*));
+	static_assert(sizeof(HalfwordAndSignedDataTransferImm_Funcs) == 0x04000 * sizeof(void*));
 }
 
 #endif

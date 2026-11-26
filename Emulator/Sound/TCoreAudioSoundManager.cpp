@@ -94,7 +94,7 @@ Trace(const char* inWhat, long inValue = -1, long inValue2 = -1)
 // -------------------------------------------------------------------------- //
 //  * TCoreAudioSoundManager( void )
 // -------------------------------------------------------------------------- //
-TCoreAudioSoundManager::TCoreAudioSoundManager(TLog* inLog /* = nil */) :
+TCoreAudioSoundManager::TCoreAudioSoundManager(TLog* inLog /* = nullptr */) :
 		TBufferedSoundManager(inLog),
 		mOutputBuffer(new TCircleBuffer(
 			kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16))),
