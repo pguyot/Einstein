@@ -192,7 +192,7 @@ THostInfo::GetUserInfo(EUserInfoSel inSelector) const
 			return mUserWorkFaxPhone;
 	}
 
-	return nil;
+	return nullptr;
 }
 
 // -------------------------------------------------------------------------- //
@@ -373,7 +373,7 @@ THostInfo::RetrieveUserInfo(void)
 						thePhones, indexPhones);
 					CFStringRef thePhone;
 
-					if ((mUserHomePhone == nil)
+					if ((mUserHomePhone == nullptr)
 						&& (CFStringCompare(theLabel, kABPhoneHomeLabel, 0)
 							== kCFCompareEqualTo))
 					{
@@ -384,7 +384,7 @@ THostInfo::RetrieveUserInfo(void)
 							mUserHomePhone = ConvertCFString(thePhone);
 							CFRelease(thePhone);
 						}
-					} else if ((mUserHomeFaxPhone == nil)
+					} else if ((mUserHomeFaxPhone == nullptr)
 						&& (CFStringCompare(theLabel, kABPhoneHomeFAXLabel, 0)
 							== kCFCompareEqualTo))
 					{
@@ -395,7 +395,7 @@ THostInfo::RetrieveUserInfo(void)
 							mUserHomeFaxPhone = ConvertCFString(thePhone);
 							CFRelease(thePhone);
 						}
-					} else if ((mUserWorkPhone == nil)
+					} else if ((mUserWorkPhone == nullptr)
 						&& (CFStringCompare(theLabel, kABPhoneWorkLabel, 0)
 							== kCFCompareEqualTo))
 					{
@@ -406,7 +406,7 @@ THostInfo::RetrieveUserInfo(void)
 							mUserWorkPhone = ConvertCFString(thePhone);
 							CFRelease(thePhone);
 						}
-					} else if ((mUserWorkFaxPhone == nil)
+					} else if ((mUserWorkFaxPhone == nullptr)
 						&& (CFStringCompare(theLabel, kABPhoneWorkFAXLabel, 0)
 							== kCFCompareEqualTo))
 					{

@@ -68,16 +68,16 @@
 //  * TCLIApp( void )
 // -------------------------------------------------------------------------- //
 TCLIApp::TCLIApp(void) :
-		mProgramName(nil),
-		mROMImage(nil),
-		mEmulator(nil),
-		mNetworkManager(nil),
-		mSoundManager(nil),
-		mScreenManager(nil),
-		mPlatformManager(nil),
-		mLog(nil),
-		mMonitor(nil),
-		mSymbolList(nil)
+		mProgramName(nullptr),
+		mROMImage(nullptr),
+		mEmulator(nullptr),
+		mNetworkManager(nullptr),
+		mSoundManager(nullptr),
+		mScreenManager(nullptr),
+		mPlatformManager(nullptr),
+		mLog(nullptr),
+		mMonitor(nullptr),
+		mSymbolList(nullptr)
 {
 	::pipe(mCmdPipe);
 }
@@ -132,10 +132,10 @@ TCLIApp::Run(int argc, char* argv[])
 	mProgramName = argv[0];
 
 	const char* defaultMachineString = "717006";
-	const char* theMachineString = nil;
-	const char* theRestoreFile = nil;
-	const char* theSoundManagerClass = nil;
-	const char* theScreenManagerClass = nil;
+	const char* theMachineString = nullptr;
+	const char* theRestoreFile = nullptr;
+	const char* theSoundManagerClass = nullptr;
+	const char* theScreenManagerClass = nullptr;
 	const char* theDataPath = ::getenv("EINSTEIN_HOME");
 	const char* theSerialPortDriver = "tcp"; // default settings,
 	int portraitWidth = TScreenManager::kDefaultPortraitWidth;
@@ -167,7 +167,7 @@ TCLIApp::Run(int argc, char* argv[])
 		} else if (::strcmp(argv[indexArgs], "-a") == 0)
 		{
 			indexArgs++;
-			if ((indexArgs == argc - 1) || (mSoundManager != nil))
+			if ((indexArgs == argc - 1) || (mSoundManager != nullptr))
 			{
 				SyntaxError(argv[indexArgs - 1]);
 			}
@@ -175,7 +175,7 @@ TCLIApp::Run(int argc, char* argv[])
 			theSoundManagerClass = argv[indexArgs];
 		} else if (::strncmp(argv[indexArgs], "--audio=", 8) == 0)
 		{
-			if (mSoundManager != nil)
+			if (mSoundManager != nullptr)
 			{
 				SyntaxError(argv[indexArgs]);
 			}
@@ -184,7 +184,7 @@ TCLIApp::Run(int argc, char* argv[])
 		} else if (::strcmp(argv[indexArgs], "-s") == 0)
 		{
 			indexArgs++;
-			if ((indexArgs == argc - 1) || (mScreenManager != nil))
+			if ((indexArgs == argc - 1) || (mScreenManager != nullptr))
 			{
 				SyntaxError(argv[indexArgs - 1]);
 			}
@@ -192,7 +192,7 @@ TCLIApp::Run(int argc, char* argv[])
 			theScreenManagerClass = argv[indexArgs];
 		} else if (::strncmp(argv[indexArgs], "--screen=", 9) == 0)
 		{
-			if (mScreenManager != nil)
+			if (mScreenManager != nullptr)
 			{
 				SyntaxError(argv[indexArgs]);
 			}
@@ -201,7 +201,7 @@ TCLIApp::Run(int argc, char* argv[])
 		} else if (::strcmp(argv[indexArgs], "-l") == 0)
 		{
 			indexArgs++;
-			if ((indexArgs == argc - 1) || (mLog != nil))
+			if ((indexArgs == argc - 1) || (mLog != nullptr))
 			{
 				SyntaxError(argv[indexArgs - 1]);
 			}
@@ -209,7 +209,7 @@ TCLIApp::Run(int argc, char* argv[])
 			CreateLog(argv[indexArgs]);
 		} else if (::strncmp(argv[indexArgs], "--log=", 6) == 0)
 		{
-			if (mLog != nil)
+			if (mLog != nullptr)
 			{
 				SyntaxError(argv[indexArgs]);
 			}
@@ -227,7 +227,7 @@ TCLIApp::Run(int argc, char* argv[])
 		} else if (::strcmp(argv[indexArgs], "-r") == 0)
 		{
 			indexArgs++;
-			if ((indexArgs == argc - 1) || (theRestoreFile != nil))
+			if ((indexArgs == argc - 1) || (theRestoreFile != nullptr))
 			{
 				SyntaxError(argv[indexArgs - 1]);
 			}
@@ -235,7 +235,7 @@ TCLIApp::Run(int argc, char* argv[])
 			theRestoreFile = argv[indexArgs];
 		} else if (::strncmp(argv[indexArgs], "--restore=", 10) == 0)
 		{
-			if (theRestoreFile != nil)
+			if (theRestoreFile != nullptr)
 			{
 				SyntaxError(argv[indexArgs]);
 			}
@@ -244,7 +244,7 @@ TCLIApp::Run(int argc, char* argv[])
 		} else if (::strcmp(argv[indexArgs], "-m") == 0)
 		{
 			indexArgs++;
-			if ((indexArgs == argc - 1) || (theMachineString != nil))
+			if ((indexArgs == argc - 1) || (theMachineString != nullptr))
 			{
 				SyntaxError(argv[indexArgs - 1]);
 			}
@@ -252,7 +252,7 @@ TCLIApp::Run(int argc, char* argv[])
 			theMachineString = argv[indexArgs];
 		} else if (::strncmp(argv[indexArgs], "--machine=", 10) == 0)
 		{
-			if (theMachineString != nil)
+			if (theMachineString != nullptr)
 			{
 				SyntaxError(argv[indexArgs]);
 			}
@@ -294,7 +294,7 @@ TCLIApp::Run(int argc, char* argv[])
 			theSerialPortDriver = argv[indexArgs] + 9;
 		} else if (::strcmp(argv[indexArgs], "--serial=null") == 0)
 		{
-			theSerialPortDriver = nil; // no string sets null driver
+			theSerialPortDriver = nullptr; // no string sets null driver
 		} else if (::strcmp(argv[indexArgs], "--aif") == 0)
 		{
 			useAIFROMFile = true;
@@ -334,7 +334,7 @@ TCLIApp::Run(int argc, char* argv[])
 
 	(void) ::printf("Welcome to Einstein console.\n");
 	(void) ::printf("This is %s.\n", VERSION_STRING);
-	if (theSoundManagerClass == nil)
+	if (theSoundManagerClass == nullptr)
 	{
 #ifdef __APPLE__
 		mSoundManager = new TCoreAudioSoundManager(mLog);
@@ -345,14 +345,14 @@ TCLIApp::Run(int argc, char* argv[])
 	{
 		CreateSoundManager(theSoundManagerClass);
 	}
-	if (theScreenManagerClass == nil)
+	if (theScreenManagerClass == nullptr)
 	{
 		CreateScreenManager("x11", portraitWidth, portraitHeight, fullscreen);
 	} else
 	{
 		CreateScreenManager(theScreenManagerClass, portraitWidth, portraitHeight, fullscreen);
 	}
-	if (theMachineString == nil)
+	if (theMachineString == nullptr)
 	{
 		theMachineString = defaultMachineString;
 	}

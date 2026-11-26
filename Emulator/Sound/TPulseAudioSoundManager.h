@@ -52,7 +52,7 @@ public:
 	///
 	/// Constructor from a log.
 	///
-	TPulseAudioSoundManager(TLog* inLog = nil);
+	TPulseAudioSoundManager(TLog* inLog = nullptr);
 
 	///
 	/// Destructor.

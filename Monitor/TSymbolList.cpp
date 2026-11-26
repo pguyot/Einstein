@@ -62,10 +62,10 @@ symbolAddressCompare(const void* a, const void* b)
 //  * TSymbolList( const char* )
 // -------------------------------------------------------------------------- //
 TSymbolList::TSymbolList(const char* inPath) :
-		mSymbolOffsets(nil),
+		mSymbolOffsets(nullptr),
 		mSymbolCount(0),
 		mSymbolCapacity(0),
-		mFile(nil)
+		mFile(nullptr)
 {
 	// Load symbols and keep them in memory to have fast access when searching.
 

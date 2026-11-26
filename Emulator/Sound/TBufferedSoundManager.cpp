@@ -38,7 +38,7 @@
 // -------------------------------------------------------------------------- //
 //  * TBufferedSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
-TBufferedSoundManager::TBufferedSoundManager(TLog* inLog /* = nil */) :
+TBufferedSoundManager::TBufferedSoundManager(TLog* inLog /* = nullptr */) :
 		TSoundManager(inLog)
 {
 	if constexpr (std::endian::native == std::endian::little)

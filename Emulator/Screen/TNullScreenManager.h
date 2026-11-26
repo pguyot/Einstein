@@ -45,7 +45,7 @@ public:
 	/// \param inScreenIsLandscape	whether the physical screen is in landscape.
 	///
 	TNullScreenManager(
-		TLog* inLog = nil,
+		TLog* inLog = nullptr,
 		KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 		KUInt32 inPortraitHeight = kDefaultPortraitHeight,
 		bool inFullScreen = false,

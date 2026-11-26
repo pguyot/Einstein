@@ -180,7 +180,7 @@ TEmulator::TEmulator(
 	gJITStatistics.SetEmulator(this);
 #endif
 	mDMAManager = new TDMAManager(inLog, this, &mMemory, mInterruptManager);
-	mPlatformManager = new TPlatformManager(inLog, nil);
+	mPlatformManager = new TPlatformManager(inLog, nullptr);
 
 	mNewtonID[0] = kMyNewtonIDHigh;
 	mNewtonID[1] = kMyNewtonIDLow;

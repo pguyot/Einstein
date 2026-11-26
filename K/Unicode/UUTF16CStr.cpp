@@ -45,7 +45,7 @@ UUTF16CStr::ToISO88591(
 	const KUInt16* inInputCString,
 	KUInt8* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Determine input string size.
@@ -88,7 +88,7 @@ UUTF16CStr::FromISO88591(
 	const KUInt8* inInputCString,
 	KUInt16* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Determine input string size.
@@ -125,7 +125,7 @@ UUTF16CStr::ToISO88592(
 	const KUInt16* inInputCString,
 	KUInt8* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Determine input string size.
@@ -168,7 +168,7 @@ UUTF16CStr::FromISO88592(
 	const KUInt8* inInputCString,
 	KUInt16* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Determine input string size.
@@ -205,7 +205,7 @@ UUTF16CStr::ToASCII(
 	const KUInt16* inInputCString,
 	KUInt8* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Determine input string size.
@@ -248,7 +248,7 @@ UUTF16CStr::FromASCII(
 	const KUInt8* inInputCString,
 	KUInt16* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Determine input string size.
@@ -285,7 +285,7 @@ UUTF16CStr::ToMacRoman(
 	const KUInt16* inInputCString,
 	KUInt8* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Determine input string size.
@@ -328,7 +328,7 @@ UUTF16CStr::FromMacRoman(
 	const KUInt8* inInputCString,
 	KUInt16* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Determine input string size.
@@ -363,7 +363,7 @@ UUTF16CStr::ToUCS4(
 	const KUInt16* inInputCString,
 	KUInt32* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Determine input string size.
@@ -403,7 +403,7 @@ UUTF16CStr::ToUTF8(
 	const KUInt16* inInputCString,
 	KUInt8* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Determine input string size.
@@ -442,7 +442,7 @@ UUTF16CStr::FromUTF8(
 	const KUInt8* inInputCString,
 	KUInt16* outOutputCString,
 	size_t inLimit /* = 0 */,
-	size_t* outStringSize /* = nil */
+	size_t* outStringSize /* = nullptr */
 )
 {
 	// Détermination de la taille de la chaîne en entrée.

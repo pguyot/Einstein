@@ -71,7 +71,7 @@ void
 UProcessorTests::ExecuteInstruction(const char* inHexWord, TLog* inLog)
 {
 	KUInt32 theInstruction;
-	if (inHexWord == nil)
+	if (inHexWord == nullptr)
 	{
 		(void) ::printf("This test requires an instruction in hexa.\n");
 	} else if (::sscanf(
@@ -131,7 +131,7 @@ void
 UProcessorTests::ExecuteInstructionState1(const char* inHexWord, TLog* inLog)
 {
 	KUInt32 theInstruction;
-	if (inHexWord == nil)
+	if (inHexWord == nullptr)
 	{
 		(void) ::printf("This test requires an instruction in hexa.\n");
 	} else if (::sscanf(
@@ -179,7 +179,7 @@ void
 UProcessorTests::ExecuteInstructionState2(const char* inHexWord, TLog* inLog)
 {
 	KUInt32 theInstruction;
-	if (inHexWord == nil)
+	if (inHexWord == nullptr)
 	{
 		(void) ::printf("This test requires an instruction in hexa.\n");
 	} else if (::sscanf(
@@ -206,7 +206,7 @@ void
 UProcessorTests::ExecuteTwoInstructions(const char* inHexWords, TLog* inLog)
 {
 	KUInt32 theInstructions[2];
-	if (inHexWords == nil)
+	if (inHexWords == nullptr)
 	{
 		(void) ::printf("This test requires two instructions in hexa.\n");
 	} else if (::sscanf(
@@ -293,7 +293,7 @@ void
 UProcessorTests::Step(const char* inCount, TLog* inLog)
 {
 	KUInt32 count;
-	if (inCount == nil)
+	if (inCount == nullptr)
 	{
 		(void) ::printf("This test requires a number of steps in decimal.\n");
 	} else if (::sscanf(inCount, "%d", (unsigned int*) &count) != 1)

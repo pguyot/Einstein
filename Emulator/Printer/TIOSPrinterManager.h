@@ -42,7 +42,7 @@ public:
 	///
 	/// \param inLog        log interface (can be null)
 	///
-	TIOSPrinterManager(TLog* inLog = nil);
+	TIOSPrinterManager(TLog* inLog = nullptr);
 
 	///
 	/// Destructor.

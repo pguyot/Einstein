@@ -200,9 +200,9 @@ TMemory::SetEmulator(TEmulator* inEmulator)
 		ComputeSerialNumber(inEmulator->GetNewtonID());
 	} else
 	{
-		mInterruptManager = nil;
-		mDMAManager = nil;
-		mEmulator = nil;
+		mInterruptManager = nullptr;
+		mDMAManager = nullptr;
+		mEmulator = nullptr;
 
 		int socketIx;
 		for (socketIx = 0; socketIx < kNbSockets; socketIx++)

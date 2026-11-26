@@ -46,7 +46,7 @@ public:
 	///
 	/// \param inLog        log interface (can be null)
 	///
-	TFLPrinterManager(TLog* inLog = nil);
+	TFLPrinterManager(TLog* inLog = nullptr);
 
 	///
 	/// Destructor.

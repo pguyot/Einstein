@@ -54,7 +54,7 @@ TNameServerSingleton::GetObject(
 
 	// On se moque de la version.
 	ULong theVersion;
-	TNameServerSingleton* theResult = nil;
+	TNameServerSingleton* theResult = nullptr;
 
 	(void) theNSClient.Lookup((char*) inName, (char*) inType,
 		(ULong*) &theResult, &theVersion);
@@ -92,7 +92,7 @@ TNameServerSingleton::DeleteObject(
 
 	// On se moque de la version.
 	ULong theVersion;
-	TNameServerSingleton* theObject = nil;
+	TNameServerSingleton* theObject = nullptr;
 
 	NewtonErr theErr = theNSClient.Lookup((char*) inName, (char*) inType,
 		(ULong*) &theObject, &theVersion);

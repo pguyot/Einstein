@@ -111,7 +111,7 @@ Swap_Pixels_FromBigEndian(const KUInt32 inWord)
 //  * TScreenManager( TLog* )
 // -------------------------------------------------------------------------- //
 TScreenManager::TScreenManager(
-	TLog* inLog /* = nil */,
+	TLog* inLog /* = nullptr */,
 	KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 	KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
 	bool inFullScreen /* = false */,

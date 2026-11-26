@@ -59,7 +59,7 @@ toBigEndian32(uint32_t v)
 // -------------------------------------------------------------------------- //
 //  * TFLPrinterManager(TLog*)
 // -------------------------------------------------------------------------- //
-TFLPrinterManager::TFLPrinterManager(TLog* inLog /* = nil */) :
+TFLPrinterManager::TFLPrinterManager(TLog* inLog /* = nullptr */) :
 		TPrinterManager(inLog)
 {
 	(void) mLog;

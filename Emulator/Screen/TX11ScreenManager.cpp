@@ -85,7 +85,7 @@ TX11ScreenManager::GetScreenSize(
 //  * TX11ScreenManager( TLog* )
 // -------------------------------------------------------------------------- //
 TX11ScreenManager::TX11ScreenManager(
-	TLog* inLog /* = nil */,
+	TLog* inLog /* = nullptr */,
 	KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 	KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
 	bool inFullScreen /* = false */,
@@ -97,7 +97,7 @@ TX11ScreenManager::TX11ScreenManager(
 			inFullScreen,
 			inScreenIsLandscape),
 		mWindow(0),
-		mThread(nil),
+		mThread(nullptr),
 		mPowerIsOn(false),
 		mImage(NULL),
 		mBitsPerPixel(0),
@@ -905,7 +905,7 @@ TX11ScreenManager::PowerOffScreen(void)
 	if (mThread)
 	{
 		delete mThread;
-		mThread = nil;
+		mThread = nullptr;
 	}
 
 	mPowerIsOn = false;

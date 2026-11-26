@@ -57,7 +57,7 @@ public:
 	///
 	/// \param inLog				log interface (can be null)
 	///
-	TWaveSoundManager(TLog* inLog = nil);
+	TWaveSoundManager(TLog* inLog = nullptr);
 
 	///
 	/// Destructor.

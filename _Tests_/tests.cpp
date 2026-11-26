@@ -35,7 +35,7 @@
 int
 main(int argc, char* argv[])
 {
-	const char* argument = nil;
+	const char* argument = nullptr;
 	if (argc == 3)
 	{
 		argument = argv[2];

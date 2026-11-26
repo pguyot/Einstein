@@ -23,8 +23,6 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "Emulator/JIT/JIT.h"
-#include <K/Tests/KDebug.h>
-
 // Einstein
 #include "Emulator/TARMProcessor.h"
 
