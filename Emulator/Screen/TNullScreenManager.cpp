@@ -32,7 +32,10 @@
 void
 TNullScreenManager::PowerOn(void)
 {
-	GetLog()->LogLine("TNullScreenManager::PowerOn()");
+	if (GetLog())
+	{
+		GetLog()->LogLine("TNullScreenManager::PowerOn()");
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -41,7 +44,10 @@ TNullScreenManager::PowerOn(void)
 void
 TNullScreenManager::PowerOff(void)
 {
-	GetLog()->LogLine("TNullScreenManager::PowerOff()");
+	if (GetLog())
+	{
+		GetLog()->LogLine("TNullScreenManager::PowerOff()");
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -50,7 +56,10 @@ TNullScreenManager::PowerOff(void)
 void
 TNullScreenManager::PowerOnScreen(void)
 {
-	GetLog()->LogLine("TNullScreenManager::PowerOnScreen()");
+	if (GetLog())
+	{
+		GetLog()->LogLine("TNullScreenManager::PowerOnScreen()");
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -59,7 +68,10 @@ TNullScreenManager::PowerOnScreen(void)
 void
 TNullScreenManager::PowerOffScreen(void)
 {
-	GetLog()->LogLine("TNullScreenManager::PowerOffScreen()");
+	if (GetLog())
+	{
+		GetLog()->LogLine("TNullScreenManager::PowerOffScreen()");
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -68,7 +80,10 @@ TNullScreenManager::PowerOffScreen(void)
 void
 TNullScreenManager::BacklightChanged(bool backlight)
 {
-	GetLog()->FLogLine("TNullScreenManager::BacklightChanged(%d)", (int) backlight);
+	if (GetLog())
+	{
+		GetLog()->FLogLine("TNullScreenManager::BacklightChanged(%d)", (int) backlight);
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -77,7 +92,10 @@ TNullScreenManager::BacklightChanged(bool backlight)
 void
 TNullScreenManager::ContrastChanged(KUInt32 contrast)
 {
-	GetLog()->FLogLine("TNullScreenManager::ContrastChanged(%u)", (unsigned int) contrast);
+	if (GetLog())
+	{
+		GetLog()->FLogLine("TNullScreenManager::ContrastChanged(%u)", (unsigned int) contrast);
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -86,7 +104,10 @@ TNullScreenManager::ContrastChanged(KUInt32 contrast)
 void
 TNullScreenManager::ScreenOrientationChanged(EOrientation inNewOrientation)
 {
-	GetLog()->FLogLine("TNullScreenManager::ScreenOrientationChanged(%u)", (unsigned int) inNewOrientation);
+	if (GetLog())
+	{
+		GetLog()->FLogLine("TNullScreenManager::ScreenOrientationChanged(%u)", (unsigned int) inNewOrientation);
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -95,7 +116,10 @@ TNullScreenManager::ScreenOrientationChanged(EOrientation inNewOrientation)
 void
 TNullScreenManager::TabletOrientationChanged(EOrientation inNewOrientation)
 {
-	GetLog()->FLogLine("TNullScreenManager::TabletOrientationChanged(%u)", (unsigned int) inNewOrientation);
+	if (GetLog())
+	{
+		GetLog()->FLogLine("TNullScreenManager::TabletOrientationChanged(%u)", (unsigned int) inNewOrientation);
+	}
 }
 
 // -------------------------------------------------------------------------- //

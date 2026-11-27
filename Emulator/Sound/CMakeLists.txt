@@ -15,7 +15,7 @@ list ( APPEND common_sources
 	Emulator/Sound/TSoundManager.h
 )
 
-if ( EINSTEIN_FLTK_FRONTEND )
+if ( EINSTEIN_FLTK_FRONTEND OR EINSTEIN_HEADLESS_FRONTEND )
 	if ( HAVE_COREAUDIO )
 		list (APPEND app_sources
 			Emulator/Sound/TCoreAudioSoundManager.cpp

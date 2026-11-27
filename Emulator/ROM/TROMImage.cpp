@@ -37,8 +37,10 @@
 #include <time.h>
 
 #ifdef _WIN32
+#include <windows.h>
 #include <io.h>
 #else
+#include <limits.h>
 #include <sys/uio.h>
 #include <unistd.h>
 #endif
@@ -435,7 +437,13 @@ TROMImage::ComputeROMId(KUInt8* inROMPtr, bool& outCRCValid)
 
 #else
 
+#ifdef _WIN32
+#define FL_PATH_MAX MAX_PATH
+#elif defined(PATH_MAX)
 #define FL_PATH_MAX PATH_MAX
+#else
+#define FL_PATH_MAX 4096
+#endif
 const char*
 fl_filename_name(const char* path)
 {

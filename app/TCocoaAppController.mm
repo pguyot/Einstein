@@ -39,9 +39,6 @@
 #include "Emulator/Screen/TCocoaScreenManager.h"
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #include "Emulator/Sound/TNullSoundManager.h"
-#ifdef OPTION_X11_SCREEN
-#include "Emulator/Screen/TX11ScreenManager.h"
-#endif
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TBufferLog.h"
@@ -388,39 +385,6 @@ TCocoaAppController ()
 			theHeight,
 			fullScreen,
 			screenIsLandscape);
-#ifdef OPTION_X11_SCREEN
-	} else
-	{
-		KUInt32 theWidth;
-		KUInt32 theHeight;
-		if (fullScreen)
-		{
-			KUInt32 theScreenWidth;
-			KUInt32 theScreenHeight;
-			TX11ScreenManager::GetScreenSize(&theScreenWidth, &theScreenHeight);
-			if (theScreenWidth >= theScreenHeight)
-			{
-				screenIsLandscape = true;
-				theWidth = theScreenHeight;
-				theHeight = theScreenWidth;
-			} else
-			{
-				screenIsLandscape = false;
-				theWidth = theScreenWidth;
-				theHeight = theScreenHeight;
-			}
-		} else
-		{
-			theWidth = [defaults integerForKey:kScreenWidthKey];
-			theHeight = [defaults integerForKey:kScreenHeightKey];
-		}
-		mScreenManager = new TX11ScreenManager(
-			mLog,
-			theWidth,
-			theHeight,
-			fullScreen,
-			screenIsLandscape);
-#endif
 	}
 
 	// Create the emulator.

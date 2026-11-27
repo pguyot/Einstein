@@ -679,7 +679,7 @@ TFLScreenManager::TFLScreenManager(
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TX11ScreenManager( void )
+//  * ~TFLScreenManager( void )
 // -------------------------------------------------------------------------- //
 TFLScreenManager::~TFLScreenManager()
 {

@@ -36,20 +36,19 @@
 #include <unistd.h>
 
 // Einstein
+#include "Emulator/EinsteinConfig.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TROMImage.h"
-#ifdef __APPLE__
+#if HAVE_COREAUDIO
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #endif
-#if AUDIO_PULSEAUDIO
+#if HAVE_PULSEAUDIO
 #include "Emulator/Sound/TPulseAudioSoundManager.h"
 #endif
 #include "Emulator/Sound/TNullSoundManager.h"
+#include "Emulator/Screen/TNullScreenManager.h"
 #include "Emulator/Screen/TScreenManager.h"
-#ifndef NOX11
-#include "Emulator/Screen/TX11ScreenManager.h"
-#endif
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
 #include "Monitor/TMonitor.h"
@@ -77,9 +76,14 @@ TCLIApp::TCLIApp(void) :
 		mPlatformManager(nullptr),
 		mLog(nullptr),
 		mMonitor(nullptr),
-		mSymbolList(nullptr)
+		mSymbolList(nullptr),
+		mQuit(false)
 {
-	::pipe(mCmdPipe);
+	if (::pipe(mCmdPipe) != 0)
+	{
+		mCmdPipe[0] = -1;
+		mCmdPipe[1] = -1;
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -87,8 +91,14 @@ TCLIApp::TCLIApp(void) :
 // -------------------------------------------------------------------------- //
 TCLIApp::~TCLIApp(void)
 {
-	::close(mCmdPipe[0]);
-	::close(mCmdPipe[1]);
+	if (mCmdPipe[0] >= 0)
+	{
+		::close(mCmdPipe[0]);
+	}
+	if (mCmdPipe[1] >= 0)
+	{
+		::close(mCmdPipe[1]);
+	}
 	if (mEmulator)
 	{
 		delete mEmulator;
@@ -141,9 +151,8 @@ TCLIApp::Run(int argc, char* argv[])
 	int portraitWidth = TScreenManager::kDefaultPortraitWidth;
 	int portraitHeight = TScreenManager::kDefaultPortraitHeight;
 	int ramSize = 0x40;
-	bool fullscreen = false; // Default is not full screen.
 	bool useAIFROMFile = false; // Default is to use flat rom format.
-	bool faceless = false; // Default is to have an interface.
+	bool faceless = false; // Default is to run with an interactive console.
 	bool useMonitor = false; // Default is to not have a monitor.
 	int indexArgs = 1;
 	if (argc < 2 && theDataPath == NULL)
@@ -301,9 +310,6 @@ TCLIApp::Run(int argc, char* argv[])
 		} else if (::strcmp(argv[indexArgs], "--faceless") == 0)
 		{
 			faceless = true;
-		} else if (::strcmp(argv[indexArgs], "--fullscreen") == 0)
-		{
-			fullscreen = true;
 		} else if ((::strcmp(argv[indexArgs], "--help") == 0)
 			|| (::strcmp(argv[indexArgs], "-h") == 0))
 		{
@@ -336,7 +342,7 @@ TCLIApp::Run(int argc, char* argv[])
 	(void) ::printf("This is %s.\n", VERSION_STRING);
 	if (theSoundManagerClass == nullptr)
 	{
-#ifdef __APPLE__
+#if HAVE_COREAUDIO
 		mSoundManager = new TCoreAudioSoundManager(mLog);
 #else
 		mSoundManager = new TNullSoundManager(mLog);
@@ -347,10 +353,10 @@ TCLIApp::Run(int argc, char* argv[])
 	}
 	if (theScreenManagerClass == nullptr)
 	{
-		CreateScreenManager("x11", portraitWidth, portraitHeight, fullscreen);
+		CreateScreenManager("null", portraitWidth, portraitHeight);
 	} else
 	{
-		CreateScreenManager(theScreenManagerClass, portraitWidth, portraitHeight, fullscreen);
+		CreateScreenManager(theScreenManagerClass, portraitWidth, portraitHeight);
 	}
 	if (theMachineString == nullptr)
 	{
@@ -368,14 +374,14 @@ TCLIApp::Run(int argc, char* argv[])
 		(void) ::snprintf(theREX0Path, 512, "%s/%s.rex", theDataPath, theMachineString);
 		(void) ::snprintf(theROMImagePath, 512, "%s/%s.aif", theDataPath, theMachineString);
 		mROMImage = new TAIFROMImageWithREXes(
-			theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor);
+			theROMImagePath, theREX0Path, theREX1Path);
 	} else
 	{
 		(void) ::snprintf(theROMImagePath, 512, "%s/%s", theDataPath, theMachineString);
 		mROMImage = new TFlatROMImageWithREX(
-			theROMImagePath, theREX1Path, theMachineString, useMonitor);
+			theROMImagePath, theREX1Path);
 	}
-	mNetworkManager = new TNullNetwork(mLog);
+	mNetworkManager = new TNullNetworkManager(mLog);
 	mEmulator = new TEmulator(
 		mLog, mROMImage, theFlashPath,
 		mSoundManager, mScreenManager, mNetworkManager, ramSize << 16);
@@ -384,7 +390,10 @@ TCLIApp::Run(int argc, char* argv[])
 
 	mEmulator->CallOnQuit(
 		[this]() {
-			::write(mCmdPipe[1], "Q", 1);
+			if (mCmdPipe[1] >= 0)
+			{
+				(void) ::write(mCmdPipe[1], "Q", 1);
+			}
 		});
 
 	// the commandline argument is --serial=tcp:server:port . We currently support only TCP connections
@@ -424,37 +433,17 @@ TCLIApp::Run(int argc, char* argv[])
 			::free(server);
 		}
 	}
-#if 0
-    // TODO: translate this code from whatever we did in macOS
-    TSerialPortDriver *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
-    if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
-    {
-        TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
-        tcp->SetServerAddress([[defaults stringForKey: kExtrTCPServerAddress] UTF8String]);
-        tcp->SetServerPort((int)[defaults integerForKey: kExtrTCPServerPort]);
-    }
-    mEmulator->SerialPorts.PortChangedCallback(
-            // THIS IS A LAMBDA FUNCTION. This function is called when an application
-            // on the emulated Newton changes the serial port settings
-            [self](int serPort)->void
-            {
-                if (serPort==TSerialPorts::kExtr) {
-                    TSerialPortDriver *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
-                    if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
-                        TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
-
-                        char *tcpServer = tcp->GetServerAddressDup();
-                        NSString *nsTcpServer = [NSString stringWithUTF8String:tcpServer];
-                        [[mUserDefaultsController defaults] setValue:nsTcpServer forKey:kExtrTCPServerAddress];
-                        ::free(tcpServer);
-
-                        int tcpPort = tcp->GetServerPort();
-                        [[mUserDefaultsController defaults] setInteger:tcpPort forKey:kExtrTCPServerPort];
-                    }
-                }
-            }
-    );
-#endif
+	if (theRestoreFile != nullptr)
+	{
+		if (!mEmulator->LoadState(theRestoreFile))
+		{
+			(void) ::fprintf(
+				stderr,
+				"Failed to restore state from %s\n",
+				theRestoreFile);
+			::exit(1);
+		}
+	}
 
 	if (useMonitor)
 	{
@@ -540,7 +529,6 @@ TCLIApp::MonitorMenuLoop(void)
 	(void) ::tcsetattr(STDIN_FILENO, TCSANOW, &theNewOptions);
 
 	int monitor_fd = mMonitor->GetMonitorSocket();
-	int max_fd = monitor_fd;
 
 	char theCommand[2048];
 	KUInt32 theIndex = 0;
@@ -635,7 +623,7 @@ TCLIApp::MonitorMenuLoop(void)
 			if (!knownCommand)
 			{
 				char buffer[256];
-				(void) ::sprintf(buffer, "Unknown command '%s'", theCommand);
+				(void) ::snprintf(buffer, sizeof(buffer), "Unknown command '%s'", theCommand);
 				(void) ::printf("\007");
 				PrintLine(buffer);
 			}
@@ -693,7 +681,7 @@ TCLIApp::AppMenuLoop(void)
 			if (!knownCommand)
 			{
 				char buffer[256];
-				(void) ::sprintf(buffer, "Unknown command '%s'", theCommand);
+				(void) ::snprintf(buffer, sizeof(buffer), "Unknown command '%s'", theCommand);
 				PrintLine(buffer);
 			}
 		} // else: ignore empty lines.
@@ -726,9 +714,6 @@ TCLIApp::ExecuteCommand(const char* inCommand)
 	} else if (::strcmp(inCommand, "backlight") == 0)
 	{
 		mPlatformManager->SendBacklightEvent();
-	} else if (::strcmp(inCommand, "insert") == 0)
-	{
-		mEmulator->InsertCard();
 	} else if (::sscanf(inCommand, "save %s", theArg) == 1)
 	{
 		mEmulator->SaveState(theArg);
@@ -835,7 +820,7 @@ TCLIApp::Help(void)
 	(void) ::printf(
 		"  -a | --audio=audiodriver        (null, coreaudio, pulseaudio)\n");
 	(void) ::printf(
-		"  -s | --screen=screen driver     (x11)\n");
+		"  -s | --screen=screen driver     (null)\n");
 	(void) ::printf(
 		"  --serial=serialdriver           (null, tcp:server:port, default is tcp:127.0.0.1:3679)\n");
 	(void) ::printf(
@@ -854,6 +839,8 @@ TCLIApp::Help(void)
 		"  --ram=size                      ram size in 64 KB (1-255) (default: 64, i.e. 4 MB)\n");
 	(void) ::printf(
 		"  --aif                           read aif files\n");
+	(void) ::printf(
+		"  --faceless                      run without interactive console menu\n");
 	::exit(1);
 }
 
@@ -891,12 +878,12 @@ TCLIApp::CreateSoundManager(const char* inClass)
 	if (::strcmp(inClass, "null") == 0)
 	{
 		mSoundManager = new TNullSoundManager(mLog);
-#ifdef __APPLE__
+#if HAVE_COREAUDIO
 	} else if (::strcmp(inClass, "coreaudio") == 0)
 	{
 		mSoundManager = new TCoreAudioSoundManager(mLog);
 #endif
-#if AUDIO_PULSEAUDIO
+#if HAVE_PULSEAUDIO
 	} else if (::strcmp(inClass, "pulseaudio") == 0)
 	{
 		mSoundManager = new TPulseAudioSoundManager(mLog);
@@ -909,56 +896,21 @@ TCLIApp::CreateSoundManager(const char* inClass)
 }
 
 // -------------------------------------------------------------------------- //
-// CreateScreenManager( const char*, int, int, bool )
+// CreateScreenManager( const char*, int, int )
 // -------------------------------------------------------------------------- //
 void
 TCLIApp::CreateScreenManager(
 	const char* inClass,
 	int inPortraitWidth,
-	int inPortraitHeight,
-	bool inFullScreen)
+	int inPortraitHeight)
 {
-#ifndef NOX11
-	if (::strcmp(inClass, "x11") == 0)
+	if (::strcmp(inClass, "null") == 0)
 	{
-		bool screenIsLandscape = true;
-
-		KUInt32 theWidth;
-		KUInt32 theHeight;
-		if (inFullScreen)
-		{
-			KUInt32 theScreenWidth;
-			KUInt32 theScreenHeight;
-			TX11ScreenManager::GetScreenSize(&theScreenWidth, &theScreenHeight);
-			if (theScreenWidth >= theScreenHeight)
-			{
-				screenIsLandscape = true;
-				//				theWidth = theScreenHeight;
-				//				theHeight = theScreenWidth;
-				theWidth = inPortraitHeight;
-				theHeight = inPortraitWidth;
-			} else
-			{
-				screenIsLandscape = false;
-				//				theWidth = theScreenWidth;
-				//				theHeight = theScreenHeight;
-				theWidth = inPortraitWidth;
-				theHeight = inPortraitHeight;
-			}
-		} else
-		{
-			theWidth = inPortraitWidth;
-			theHeight = inPortraitHeight;
-		}
-
-		mScreenManager = new TX11ScreenManager(
+		mScreenManager = new TNullScreenManager(
 			mLog,
-			theWidth,
-			theHeight,
-			inFullScreen,
-			screenIsLandscape);
+			(KUInt32) inPortraitWidth,
+			(KUInt32) inPortraitHeight);
 	} else
-#endif
 	{
 		(void) ::fprintf(stderr, "Unknown screen manager class %s\n", inClass);
 		::exit(1);

@@ -3,8 +3,7 @@
 #
 # This file is only included if EINSTEIN_BUILD_TESTS is ON, so normal builds of
 # Einstein don't download googletest or compile the tests. It is included at the
-# end of the main CMakeLists.txt, after the Einstein and EinsteinFLGUI targets
-# exist.
+# end of the main CMakeLists.txt without depending on any UI frontend.
 #
 
 # ---- Setup Google Testing
@@ -41,21 +40,16 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 	)
 	target_compile_definitions ( EinsteinTests PRIVATE
-		TARGET_UI_FLTK=1 NO_X11 NS_BLOCK_ASSERTIONS=1
+		NS_BLOCK_ASSERTIONS=1
 	)
-	if ( EINSTEIN_FLTK_FRONTEND )
-		target_link_libraries ( EinsteinTests
-			${system_libs}
-			fltk::fltk
-			EinsteinFLGUI
-			pthread
-			"-framework AddressBook"
-			"-framework AudioUnit"
-			"-framework AppKit"
-			"-framework CoreAudio"
-			"-framework Cocoa"
-		)
-	endif ()
+	target_link_libraries ( EinsteinTests
+		${system_libs}
+		pthread
+		"-framework Foundation"
+		"-framework AddressBook"
+		"-framework CoreFoundation"
+		"-framework CoreServices"
+	)
 
 elseif ( UNIX AND NOT APPLE AND NOT ANDROID )
 
@@ -71,14 +65,10 @@ elseif ( UNIX AND NOT APPLE AND NOT ANDROID )
 	if ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
 		target_compile_options ( EinsteinTests PUBLIC -Wno-stringop-truncation )
 	endif ()
-	target_compile_definitions ( EinsteinTests PRIVATE
-		TARGET_UI_FLTK=1
-	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
-		fltk::fltk
-		EinsteinFLGUI
 		pthread
+		${CMAKE_DL_LIBS}
 	)
 	if ( HAVE_LIBFFI )
 		target_include_directories ( EinsteinTests SYSTEM PUBLIC ${ffi_incl_dir} )
@@ -97,19 +87,13 @@ elseif ( WIN32 )
 		target_link_options( EinsteinTests PRIVATE -static )
 	endif ()
 	target_compile_definitions ( EinsteinTests PRIVATE
-		TARGET_UI_FLTK=1
 		WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
 		gdiplus
+		ws2_32
 	)
-	if ( EINSTEIN_FLTK_FRONTEND )
-		target_link_libraries ( EinsteinTests
-			fltk::fltk
-			EinsteinFLGUI
-		)
-	endif ()
 
 endif ()
 
@@ -119,7 +103,6 @@ target_include_directories (
 	EinsteinTests PUBLIC
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}/generated
-	${FLTK_INCLUDE_DIRS}
 )
 target_compile_definitions ( EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE EINSTEIN_HAVE_GENERATED_CONFIG=1 )
 

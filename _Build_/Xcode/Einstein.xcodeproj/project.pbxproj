@@ -771,8 +771,6 @@
 		DA4FF0BB1A35E76400092B5A /* UMemoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UMemoryTests.h; sourceTree = "<group>"; };
 		DA4FF0BC1A35E76400092B5A /* UProcessorTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UProcessorTests.cpp; sourceTree = "<group>"; };
 		DA4FF0BD1A35E76400092B5A /* UProcessorTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UProcessorTests.h; sourceTree = "<group>"; };
-		DA4FF0BE1A35E76400092B5A /* UScreenTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UScreenTests.cpp; sourceTree = "<group>"; };
-		DA4FF0BF1A35E76400092B5A /* UScreenTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UScreenTests.h; sourceTree = "<group>"; };
 		DA4FF1551A35ED5400092B5A /* EinsteinTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EinsteinTests.mm; sourceTree = "<group>"; };
 		DA52C88F1A409164008A17D0 /* TJITGenericROMPatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGenericROMPatch.cpp; sourceTree = "<group>"; };
 		DA52C8901A409164008A17D0 /* TJITGenericROMPatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGenericROMPatch.h; sourceTree = "<group>"; };
@@ -1553,8 +1551,6 @@
 				DA4FF0BB1A35E76400092B5A /* UMemoryTests.h */,
 				DA4FF0BC1A35E76400092B5A /* UProcessorTests.cpp */,
 				DA4FF0BD1A35E76400092B5A /* UProcessorTests.h */,
-				DA4FF0BE1A35E76400092B5A /* UScreenTests.cpp */,
-				DA4FF0BF1A35E76400092B5A /* UScreenTests.h */,
 				F1359A2F1B2A357400EFD22D /* Expected Results */,
 			);
 			name = _Tests_;
@@ -2238,7 +2234,6 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_DEBUG,
-					NO_X11,
 					"$(inherited)",
 					USE_STORYBOARDS,
 				);
@@ -2274,7 +2269,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					NO_X11,
 					"$(inherited)",
 					USE_STORYBOARDS,
 				);
@@ -2312,7 +2306,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					NO_X11,
 					"$(inherited)",
 					USE_STORYBOARDS,
 				);
@@ -2453,7 +2446,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
-					NO_X11,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2504,7 +2496,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
-					NO_X11,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2554,7 +2545,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
-					NO_X11,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
