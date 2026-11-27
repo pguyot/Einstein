@@ -23,6 +23,7 @@ endif()
 # Default to FLTK front end. The SDL3 option is under development.
 option (EINSTEIN_FLTK_FRONTEND "Use FLTK for the frontend" OFF)
 option (EINSTEIN_SDL3_FRONTEND "Use SDL3 for the frontend" OFF)
+option (EINSTEIN_HEADLESS_FRONTEND "Use the headless CLI frontend" OFF)
 
 # fluid is only needed to edit .fl files and for the 'fluid_update' target.
 # The CI builds don't need it. It is never built when cross compiling.
@@ -36,12 +37,18 @@ option (EINSTEIN_BUILD_TESTS "Build the EinsteinTests unit tests" OFF)
 # Requires an ARM cross-compiler (arm-none-eabi-gcc or arm-eabi-gcc) supporting armv4.
 option (EINSTEIN_BUILD_DRIVERS "Build NewtonOS REx drivers as part of Einstein" OFF)
 
-if ( EINSTEIN_FLTK_FRONTEND AND EINSTEIN_SDL3_FRONTEND )
-	message( FATAL_ERROR "Cannot select the FLTK and SDL3 frontend at the same time. Please choose either EINSTEIN_FLTK_FRONTEND or EINSTEIN_SDL3_FRONTEND." )
-elseif ( NOT EINSTEIN_FLTK_FRONTEND AND NOT EINSTEIN_SDL3_FRONTEND )
+set(_einstein_frontends 0)
+foreach(_opt EINSTEIN_FLTK_FRONTEND EINSTEIN_SDL3_FRONTEND EINSTEIN_HEADLESS_FRONTEND)
+	if (${_opt})
+		math(EXPR _einstein_frontends "${_einstein_frontends} + 1")
+	endif ()
+endforeach ()
+if (_einstein_frontends GREATER 1)
+	message( FATAL_ERROR "Cannot select multiple frontends at the same time. Please choose one of EINSTEIN_FLTK_FRONTEND, EINSTEIN_SDL3_FRONTEND, or EINSTEIN_HEADLESS_FRONTEND." )
+elseif (_einstein_frontends EQUAL 0)
 	message( STATUS "Defaulting to FLTK frontend." )
 	set ( EINSTEIN_FLTK_FRONTEND ON )
-endif()
+endif ()
 
 # ---- Configuration for all targets on all platforms
 
@@ -77,6 +84,10 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
 	set( FLTK_MSVC_RUNTIME_DLL OFF )
 
 elseif ( ANDROID )
+
+	if ( EINSTEIN_HEADLESS_FRONTEND )
+		message( FATAL_ERROR "EINSTEIN_HEADLESS_FRONTEND is not supported on Android." )
+	endif ()
 
 	if ( NOT EINSTEIN_SDL3_FRONTEND )
 	    message( WARNING "Changing frontend for Android to SDL3." )
@@ -394,7 +405,7 @@ if ( EINSTEIN_BUILD_DRIVERS )
 	add_subdirectory ( Drivers )
 endif ()
 
-if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
+if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND NOT EINSTEIN_HEADLESS_FRONTEND )
 	# additional source code
 	list ( APPEND app_sources
 		# Apple macOS required resources
@@ -424,20 +435,28 @@ endif ()
 
 if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 
-	# take care of the app icon
-	set( MACOSX_BUNDLE_ICON_FILE "Einstein.icns" )
-    set( MACOSX_BUNDLE_GUI_IDENTIFIER "org.messagepad.einstein" )
-	set_source_files_properties (
-		Resources/macOS/${MACOSX_BUNDLE_ICON_FILE}
-		PROPERTIES MACOSX_PACKAGE_LOCATION "Resources"
-	)
+	if ( EINSTEIN_HEADLESS_FRONTEND )
+		add_executable ( Einstein
+			${common_sources}
+			${app_sources}
+			${cmake_sources}
+		)
+	else ()
+		# take care of the app icon
+		set( MACOSX_BUNDLE_ICON_FILE "Einstein.icns" )
+		set( MACOSX_BUNDLE_GUI_IDENTIFIER "org.messagepad.einstein" )
+		set_source_files_properties (
+			Resources/macOS/${MACOSX_BUNDLE_ICON_FILE}
+			PROPERTIES MACOSX_PACKAGE_LOCATION "Resources"
+		)
 
-	# create the applications
-	add_executable ( Einstein MACOSX_BUNDLE
-		${common_sources}
-		${app_sources}
-		${cmake_sources}
-	)
+		# create the applications
+		add_executable ( Einstein MACOSX_BUNDLE
+			${common_sources}
+			${app_sources}
+			${cmake_sources}
+		)
+	endif ()
 	if ( EINSTEIN_FLTK_FRONTEND )
 		add_library ( EinsteinFLGUI STATIC
 			${fluid_sources}
@@ -455,17 +474,22 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	endif ()
 	if ( EINSTEIN_FLTK_FRONTEND )
 		target_compile_definitions ( Einstein PRIVATE
-			TARGET_UI_FLTK=1 NO_X11 NS_BLOCK_ASSERTIONS=1
+			TARGET_UI_FLTK=1 NS_BLOCK_ASSERTIONS=1
 		)
 	endif ()
 	if ( EINSTEIN_SDL3_FRONTEND )
 		target_compile_definitions ( Einstein PRIVATE
-			TARGET_UI_SDL=1 NO_X11 NS_BLOCK_ASSERTIONS=1
+			TARGET_UI_SDL=1 NS_BLOCK_ASSERTIONS=1
+		)
+	endif ()
+	if ( EINSTEIN_HEADLESS_FRONTEND )
+		target_compile_definitions ( Einstein PRIVATE
+			NS_BLOCK_ASSERTIONS=1
 		)
 	endif ()
 	if ( EINSTEIN_FLTK_FRONTEND )
 		target_compile_definitions ( EinsteinFLGUI PRIVATE
-			TARGET_UI_FLTK=1 NO_X11 NS_BLOCK_ASSERTIONS=1
+			TARGET_UI_FLTK=1 NS_BLOCK_ASSERTIONS=1
 		)
 	endif ()
 	target_link_libraries ( Einstein
@@ -493,12 +517,14 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		)
   	endif ()
 
-	set_target_properties ( Einstein PROPERTIES
-		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in"
-	)
-	set_target_properties ( Einstein PROPERTIES
-		CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Entitlements.plist"
-	)
+	if ( NOT EINSTEIN_HEADLESS_FRONTEND )
+		set_target_properties ( Einstein PROPERTIES
+			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in"
+		)
+		set_target_properties ( Einstein PROPERTIES
+			CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Entitlements.plist"
+		)
+	endif ()
 	if ( XCODE )
 		# Fix indentation settings that are cleared by CMake at every generator call.
 		add_custom_target ( FixTabSettings
@@ -562,6 +588,12 @@ elseif ( UNIX AND NOT APPLE AND NOT ANDROID )
 			SDL3::SDL3-static
 			pthread
 		)
+	elseif ( EINSTEIN_HEADLESS_FRONTEND )
+		target_link_libraries ( Einstein
+			${system_libs}
+			pthread
+			${CMAKE_DL_LIBS}
+		)
 	endif ()
 
 	if ( HAVE_LIBFFI )
@@ -569,7 +601,7 @@ elseif ( UNIX AND NOT APPLE AND NOT ANDROID )
 		target_link_libraries ( Einstein ${ffi_lib} )
 	endif ()
 
-	if ( EINSTEIN_FLTK_FRONTEND AND HAVE_PULSEAUDIO )
+	if ( (EINSTEIN_FLTK_FRONTEND OR EINSTEIN_HEADLESS_FRONTEND) AND HAVE_PULSEAUDIO )
 		target_include_directories ( Einstein SYSTEM PUBLIC ${pulse_incl} )
 		target_link_libraries ( Einstein ${pulse_lib} )
 	endif ()
@@ -586,6 +618,10 @@ elseif ( UNIX AND NOT APPLE AND NOT ANDROID )
 	endif ()
 
 elseif ( WIN32 )
+
+	if ( EINSTEIN_HEADLESS_FRONTEND )
+		message( FATAL_ERROR "EINSTEIN_HEADLESS_FRONTEND is not supported on Windows." )
+	endif ()
 
 	# Create a resources file for Windows
 	configure_file (

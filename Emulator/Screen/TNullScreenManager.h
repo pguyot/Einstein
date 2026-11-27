@@ -123,10 +123,6 @@ public:
 	///
 	virtual void UpdateScreenRect(SRect* inUpdatedRect);
 
-	///
-	/// Thread loop entry point.
-	///
-	void Run(void);
 };
 
 #endif

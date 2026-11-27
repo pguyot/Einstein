@@ -23,7 +23,6 @@
 #include "UHostInfoTests.h"
 #include "UMemoryTests.h"
 #include "UProcessorTests.h"
-#include "UScreenTests.h"
 #include "tests.h"
 
 // ------------------------------------------------------------------------- //
@@ -82,11 +81,6 @@ test(const char* inTestName, const char* inArgument)
 	{
 		// inArgument: code to execute.
 		UProcessorTests::RunCode(inArgument, &theLog);
-#ifndef NO_X11
-	} else if (::strcmp(inTestName, "screen-x11") == 0)
-	{
-		UScreenTests::TestX11();
-#endif
 	} else if (::strcmp(inTestName, "flash") == 0)
 	{
 		UMemoryTests::FlashTest(&theLog);

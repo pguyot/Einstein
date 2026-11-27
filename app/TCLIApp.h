@@ -113,8 +113,7 @@ private:
 	void CreateScreenManager(
 		const char* inClass,
 		int inPortraitWidth,
-		int inPortraitHeight,
-		bool inFullScreen);
+		int inPortraitHeight);
 
 	///
 	/// Crée le log.

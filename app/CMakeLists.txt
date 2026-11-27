@@ -10,6 +10,14 @@ if ( EINSTEIN_SDL3_FRONTEND )
 	include ( app/SDL/CMakeLists.txt )
 endif ()
 
+if ( EINSTEIN_HEADLESS_FRONTEND )
+	list ( APPEND app_sources
+		app/einstein.cpp
+		app/TCLIApp.cpp
+		app/TCLIApp.h
+	)
+endif ()
+
 list ( APPEND cmake_sources
 	app/CMakeLists.txt
 )
