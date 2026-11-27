@@ -25,9 +25,7 @@
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
-#include <K/Threads/TCondVar.h>
-#include <K/Threads/TMutex.h>
-#include <K/Threads/TThread.h>
+#include <cerrno>
 #include <chrono>
 #include <stdarg.h>
 #include <stdio.h>
@@ -63,12 +61,9 @@ TNetworkManager::Trace(const char* inFormat, ...)
 TNetworkManager::TNetworkManager(TLog* inLog) :
 		mLog(inLog)
 {
-	mSelectCondVar = new TCondVar();
-	mSelectMutex = new TMutex();
-	mSelectMutex->Lock();
-	mThread = new TThread(this);
-	mSelectCondVar->Wait(mSelectMutex);
-	mSelectMutex->Unlock();
+	std::unique_lock<std::mutex> lock(mSelectMutex);
+	mThread = std::thread(&TNetworkManager::Run, this);
+	mSelectCondVar.wait(lock, [this] { return mSelectThreadStarted; });
 }
 
 // -------------------------------------------------------------------------- //
@@ -76,9 +71,15 @@ TNetworkManager::TNetworkManager(TLog* inLog) :
 // -------------------------------------------------------------------------- //
 TNetworkManager::~TNetworkManager()
 {
-	delete mSelectMutex;
-	delete mThread;
-	delete mSelectCondVar;
+	{
+		std::lock_guard<std::mutex> lock(mSelectMutex);
+		mSelectExiting = true;
+		mSelectCondVar.notify_one();
+	}
+	if (mThread.joinable())
+	{
+		mThread.join();
+	}
 }
 
 void
@@ -338,11 +339,11 @@ TNetworkManager::GetIPv4Checksum(KUInt8* d, std::size_t n, bool set)
 void
 TNetworkManager::AsyncWaitForReadyToRead(int nfds, const fd_set* inFDSet)
 {
-	mSelectMutex->Lock();
+	std::lock_guard<std::mutex> lock(mSelectMutex);
 	mSelectNFDS = nfds;
 	mSelectSet = *inFDSet;
-	mSelectCondVar->Signal();
-	mSelectMutex->Unlock();
+	mSelectPending = true;
+	mSelectCondVar.notify_one();
 }
 
 // -------------------------------------------------------------------------- //
@@ -351,22 +352,48 @@ TNetworkManager::AsyncWaitForReadyToRead(int nfds, const fd_set* inFDSet)
 void
 TNetworkManager::Run()
 {
-	mSelectMutex->Lock();
-	mSelectCondVar->Signal(); // Synchronization with constructor.
-	while (true)
+	std::unique_lock<std::mutex> lock(mSelectMutex);
+	mSelectThreadStarted = true;
+	mSelectCondVar.notify_one(); // Synchronization with constructor.
+	while (!mSelectExiting)
 	{
-		mSelectCondVar->Wait(mSelectMutex);
-
-		int nbReady = select(mSelectNFDS, &mSelectSet, NULL, NULL, NULL);
-		if (nbReady > 0)
-		{
-			IsReadyToRead(&mSelectSet);
-		} else if (nbReady < 0)
+		mSelectCondVar.wait(lock, [this] { return mSelectExiting || mSelectPending; });
+		if (mSelectExiting)
 		{
 			break;
 		}
+
+		int nfds = mSelectNFDS;
+		fd_set readSet = mSelectSet;
+		mSelectPending = false;
+
+		while (!mSelectExiting)
+		{
+			if (mSelectPending)
+			{
+				nfds = mSelectNFDS;
+				readSet = mSelectSet;
+				mSelectPending = false;
+			}
+			fd_set activeSet = readSet;
+			lock.unlock();
+
+			struct timeval timeout { 0, 50000 };
+			int nbReady = select(nfds, &activeSet, NULL, NULL, &timeout);
+			if (nbReady > 0)
+			{
+				IsReadyToRead(&activeSet);
+				lock.lock();
+				break;
+			}
+
+			lock.lock();
+			if (nbReady < 0 && errno != EINTR)
+			{
+				return;
+			}
+		}
 	}
-	mSelectMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //

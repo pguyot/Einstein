@@ -45,7 +45,6 @@
 // K
 #include <K/Defines/UByteSex.h>
 #include <K/Misc/TCircleBuffer.h>
-#include <K/Threads/TMutex.h>
 
 // Einstein.
 #include "Emulator/Log/TLog.h"
@@ -97,9 +96,7 @@ Trace(const char* inWhat, long inValue = -1, long inValue2 = -1)
 TCoreAudioSoundManager::TCoreAudioSoundManager(TLog* inLog /* = nullptr */) :
 		TBufferedSoundManager(inLog),
 		mOutputBuffer(new TCircleBuffer(
-			kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16))),
-		mDataMutex(new TMutex()),
-		mRunMutex(new TMutex())
+			kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16)))
 {
 	dispatch_queue_t theQueue = dispatch_queue_create("Einstein sound stop", DISPATCH_QUEUE_SERIAL);
 	dispatch_source_t theTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, theQueue);
@@ -132,8 +129,6 @@ TCoreAudioSoundManager::~TCoreAudioSoundManager(void)
 	AudioUnitUninitialize(mOutputUnit);
 #endif
 
-	delete mRunMutex;
-	delete mDataMutex;
 	delete mOutputBuffer;
 }
 
@@ -271,9 +266,11 @@ TCoreAudioSoundManager::RenderCallback(
 
 	// Rate limiter - only request bytes from NewtonOS when bytes are needed
 	// Otherewise we exhaust the buffers too quickly and truncate the sounds.
-	mDataMutex->Lock();
-	KUIntPtr bytesInBuffer = mOutputBuffer->AvailableBytes();
-	mDataMutex->Unlock();
+	KUIntPtr bytesInBuffer = 0;
+	{
+		std::lock_guard<std::mutex> lock(mDataMutex);
+		bytesInBuffer = mOutputBuffer->AvailableBytes();
+	}
 
 	// Real hardware raises the interrupt when a buffer is played, this one as
 	// soon as there is room for the next. So NewtonOS stops the output while
@@ -287,16 +284,17 @@ TCoreAudioSoundManager::RenderCallback(
 	}
 
 	// Copy data from the circle buffer.
-	mDataMutex->Lock();
-
 	KUIntPtr wanted = inNumberFrames * sizeof(KSInt16);
 	KUIntPtr amount = std::min(bytesInBuffer, wanted);
-
-	KUIntPtr available = mOutputBuffer->Consume(
-		ioData->mBuffers[0].mData,
-		amount);
-	bool drained = mOutputBuffer->IsEmpty();
-	mDataMutex->Unlock();
+	KUIntPtr available = 0;
+	bool drained = false;
+	{
+		std::lock_guard<std::mutex> lock(mDataMutex);
+		available = mOutputBuffer->Consume(
+			ioData->mBuffers[0].mData,
+			amount);
+		drained = mOutputBuffer->IsEmpty();
+	}
 
 	if (available > 0 && drained)
 		Trace("played out");
@@ -331,10 +329,12 @@ TCoreAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 	{
 		// Write to the output buffer.
 		// Copy data.
-		mDataMutex->Lock();
-		mOutputBuffer->Produce(inBuffer, inSize);
-		KUIntPtr queued = mOutputBuffer->AvailableBytes();
-		mDataMutex->Unlock();
+		KUIntPtr queued = 0;
+		{
+			std::lock_guard<std::mutex> lock(mDataMutex);
+			mOutputBuffer->Produce(inBuffer, inSize);
+			queued = mOutputBuffer->AvailableBytes();
+		}
 		Trace("ScheduleOutput, now queued", (long) inSize, (long) queued);
 		// Ask for more data.
 		// RaiseOutputInterrupt();
@@ -347,7 +347,7 @@ TCoreAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 void
 TCoreAudioSoundManager::StartOutput(void)
 {
-	mRunMutex->Lock();
+	std::lock_guard<std::mutex> runLock(mRunMutex);
 	Trace("StartOutput");
 	mStopping = false;
 	mStartCount++;
@@ -368,7 +368,6 @@ TCoreAudioSoundManager::StartOutput(void)
 				err);
 		}
 	}
-	mRunMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -381,13 +380,14 @@ TCoreAudioSoundManager::StartOutput(void)
 void
 TCoreAudioSoundManager::StopOutput(void)
 {
-	mRunMutex->Lock();
-	mDataMutex->Lock();
-	KUIntPtr queued = mOutputBuffer->AvailableBytes();
-	mDataMutex->Unlock();
+	std::lock_guard<std::mutex> runLock(mRunMutex);
+	KUIntPtr queued = 0;
+	{
+		std::lock_guard<std::mutex> dataLock(mDataMutex);
+		queued = mOutputBuffer->AvailableBytes();
+	}
 	Trace("StopOutput, queued", (long) queued);
 	mStopping = true;
-	mRunMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -405,11 +405,13 @@ TCoreAudioSoundManager::SStopWhenDrained(void* inManager)
 void
 TCoreAudioSoundManager::StopWhenDrained(void)
 {
-	mRunMutex->Lock();
+	std::lock_guard<std::mutex> runLock(mRunMutex);
 	mStopScheduled = false;
-	mDataMutex->Lock();
-	bool drained = mOutputBuffer->IsEmpty();
-	mDataMutex->Unlock();
+	bool drained = false;
+	{
+		std::lock_guard<std::mutex> dataLock(mDataMutex);
+		drained = mOutputBuffer->IsEmpty();
+	}
 	// Not if NewtonOS started a sound in the meantime: then the render
 	// callback schedules another stop when that one is played.
 	if (mStopping && drained && (mStartCount == mStopStartCount))
@@ -417,7 +419,6 @@ TCoreAudioSoundManager::StopWhenDrained(void)
 		Trace("output unit stopped");
 		(void) AudioOutputUnitStop(mOutputUnit);
 	}
-	mRunMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //

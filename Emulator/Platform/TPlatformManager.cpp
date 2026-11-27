@@ -39,7 +39,6 @@
 
 // K
 #include <K/Streams/TStream.h>
-#include <K/Threads/TMutex.h>
 #include <K/Unicode/UUTF16CStr.h>
 
 // Einstein
@@ -86,7 +85,6 @@ TPlatformManager::TPlatformManager(
 {
 	mEventQueue = (SEvent*) ::malloc(sizeof(SEvent) * mEventQueueSize);
 	mBufferQueue = (SBuffer*) ::malloc(sizeof(SBuffer) * mBufferQueueSize);
-	mMutex = new TMutex();
 }
 
 // -------------------------------------------------------------------------- //
@@ -113,11 +111,6 @@ TPlatformManager::~TPlatformManager(void)
 		}
 		::free(mBufferQueue);
 	}
-
-	if (mMutex)
-	{
-		delete mMutex;
-	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -137,7 +130,7 @@ TPlatformManager::GetNextEvent(KUInt32 outEventPAddr)
 {
 	bool theResult = false;
 
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// If there are still events in the fifo, copy the next pending event
 	// from Einstein space into NewtonOS space.
@@ -185,8 +178,6 @@ TPlatformManager::GetNextEvent(KUInt32 outEventPAddr)
 		}
 	}
 
-	mMutex->Unlock();
-
 	return theResult;
 }
 
@@ -198,7 +189,7 @@ TPlatformManager::DisposeBuffer(KUInt32 inID)
 {
 	bool theResult = false;
 
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	KUInt32 bufferIndex;
 	for (bufferIndex = 0; bufferIndex < mBufferCount; bufferIndex++)
@@ -222,8 +213,6 @@ TPlatformManager::DisposeBuffer(KUInt32 inID)
 		}
 	}
 
-	mMutex->Unlock();
-
 	return theResult;
 }
 
@@ -239,7 +228,7 @@ TPlatformManager::CopyBufferData(
 {
 	bool theResult = false;
 
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	KUInt32 bufferIndex;
 	for (bufferIndex = 0; bufferIndex < mBufferCount; bufferIndex++)
@@ -267,8 +256,6 @@ TPlatformManager::CopyBufferData(
 		}
 	}
 
-	mMutex->Unlock();
-
 	return theResult;
 }
 
@@ -278,7 +265,7 @@ TPlatformManager::CopyBufferData(
 KUInt32
 TPlatformManager::AddBuffer(KUInt32 inSize, const KUInt8* inData)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Get a new ID.
 	KUInt32 theID = mBufferNextID++;
@@ -304,8 +291,6 @@ TPlatformManager::AddBuffer(KUInt32 inSize, const KUInt8* inData)
 	theNewRecord->fData = theData;
 	theNewRecord->fSize = inSize;
 
-	mMutex->Unlock();
-
 	return theID;
 }
 
@@ -317,7 +302,7 @@ TPlatformManager::SendAEvent(EPort inPortId, KUInt32 inSize, const KUInt8* inDat
 {
 	assert(inSize <= kMAXEVENTSIZE);
 
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Append the Event to the Einstein Platform queue
 	KUInt32 newPCrsr = mEventQueuePCrsr;
@@ -357,8 +342,6 @@ TPlatformManager::SendAEvent(EPort inPortId, KUInt32 inSize, const KUInt8* inDat
 		mQueuePreLock = true;
 		RaisePlatformInterrupt();
 	}
-
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -538,14 +521,8 @@ TPlatformManager::PowerOn(void)
 void
 TPlatformManager::TransferState(TStream* inStream)
 {
-	// The UI and sound threads add events at any time. The guard unlocks the
-	// mutex when we leave, even if reading fails with an exception.
-	struct SUnlockGuard {
-		TMutex* fMutex;
-		~SUnlockGuard() { fMutex->Unlock(); }
-	};
-	mMutex->Lock();
-	SUnlockGuard theUnlockGuard { mMutex };
+	// The UI and sound threads add events at any time.
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Power state, and the locks shared with the platform driver in NewtonOS.
 	// A reset powers on, empties the queues, and locks the queue until
@@ -648,9 +625,8 @@ TPlatformManager::TransferState(TStream* inStream)
 void
 TPlatformManager::LockEventQueue(void)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 	mQueueLockCount++;
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -659,7 +635,7 @@ TPlatformManager::LockEventQueue(void)
 void
 TPlatformManager::UnlockEventQueue(void)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// mQueueLockCount should never be less than or equal to zero. If it is, we called
 	// Unlock() more often than Lock(), which may trigger severe bugs
@@ -683,8 +659,6 @@ TPlatformManager::UnlockEventQueue(void)
 			RaisePlatformInterrupt();
 		}
 	}
-
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -696,9 +670,10 @@ TPlatformManager::UnlockQueueBootLock()
 	if (mQueueBootLock)
 	{
 		LockEventQueue();
-		mMutex->Lock();
-		mQueueBootLock = 0;
-		mMutex->Unlock();
+		{
+			std::lock_guard<std::mutex> lock(mMutex);
+			mQueueBootLock = 0;
+		}
 		UnlockEventQueue();
 	}
 }
@@ -709,10 +684,8 @@ TPlatformManager::UnlockQueueBootLock()
 bool
 TPlatformManager::IsQueueBootLocked() const
 {
-	mMutex->Lock();
-	bool locked = (mQueueBootLock != 0);
-	mMutex->Unlock();
-	return locked;
+	std::lock_guard<std::mutex> lock(mMutex);
+	return (mQueueBootLock != 0);
 }
 
 // -------------------------------------------------------------------------- //
@@ -721,12 +694,11 @@ TPlatformManager::IsQueueBootLocked() const
 void
 TPlatformManager::ResetEventQueueLocks()
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 	mQueuePreLock = false;
 	mQueueLockCount = 0;
 	mQueueBootLock = 1;
 	mBootCount++;
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //

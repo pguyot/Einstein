@@ -33,12 +33,9 @@
 // C++ std lib
 #include <chrono>
 #include <ctime>
-#include <thread>
 
 // K
 #include <K/Streams/TStream.h>
-#include <K/Threads/TMutex.h>
-#include <K/Threads/TThread.h>
 
 // Einstein
 #include "Log/TLog.h"
@@ -79,23 +76,18 @@ TInterruptManager::TInterruptManager(
 TInterruptManager::~TInterruptManager(void)
 {
 	// Stop the timer thread.
-	mMutex->Lock();
-
-	mExiting.store(true);
-	mTimerCondVar->Signal();
-
-	mMutex->Unlock();
-
-	// Wait for the thread to finish.
-	while (mExiting.load())
 	{
-		std::this_thread::yield();
-	};
+		std::lock_guard<std::mutex> lock(mMutex);
+		mExiting.store(true);
+		mRunning.store(false);
+		mTimerCondVar.notify_one();
+	}
 
-	delete mThread;
-	delete mTimerCondVar;
-	delete mEmulatorCondVar;
-	delete mMutex;
+	// Wait for the timer thread to finish completely.
+	if (mThread.joinable())
+	{
+		mThread.join();
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -110,25 +102,19 @@ TInterruptManager::Init(void)
 	mMatchRegisters[2] = 0;
 	mMatchRegisters[3] = 0;
 
-	mTimerCondVar = new TCondVar();
-	mEmulatorCondVar = new TCondVar();
-	mMutex = new TMutex();
-
-	mMutex->Lock();
+	std::unique_lock<std::mutex> lock(mMutex);
 
 	// The timer isn't running.
 	mRunning.store(false);
+	mTimerStateAcked = false;
 
-	// Create the thread
-	mThread = new TThread(this);
+	// Create the thread.
+	mThread = std::thread(&TInterruptManager::Run, this);
 
 	// Wait on the condition variable for the thread to be running.
 	//	KPrintf("%i-Emulator-Sleep-1\n", (int) time(NULL));
-	mEmulatorCondVar->Wait(mMutex);
+	mEmulatorCondVar.wait(lock, [this] { return mTimerStateAcked; });
 	//	KPrintf("%i-Emulator-WakeUp-1\n", (int) time(NULL));
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -140,23 +126,21 @@ TInterruptManager::ResumeTimer(void)
 	// Is the timer indeed suspended?
 	if (!mRunning.load())
 	{
-		mMutex->Lock();
+		std::unique_lock<std::mutex> lock(mMutex);
 
 		// Here the timer is waiting (since we have the mutex).
 
 		// Say the timer is running.
+		mTimerStateAcked = false;
 		mRunning.store(true);
 
 		// Signal the condition variable to wake the timer thread.
-		mTimerCondVar->Signal();
+		mTimerCondVar.notify_one();
 
 		// Wait for the thread to have been resumed.
 		//		KPrintf("%i-Emulator-Sleep-2\n", (int) time(NULL));
-		mEmulatorCondVar->Wait(mMutex);
+		mEmulatorCondVar.wait(lock, [this] { return mTimerStateAcked; });
 		//		KPrintf("%i-Emulator-WakeUp-2\n", (int) time(NULL));
-
-		// Release the mutex, so the timer thread will get it back.
-		mMutex->Unlock();
 	}
 }
 
@@ -169,23 +153,21 @@ TInterruptManager::SuspendTimer(void)
 	// Is the timer indeed running?
 	if (mRunning.load())
 	{
-		mMutex->Lock();
+		std::unique_lock<std::mutex> lock(mMutex);
 
 		// Here the timer is waiting (since we have the mutex).
 
 		// Say the timer is not running.
+		mTimerStateAcked = false;
 		mRunning.store(false);
 
 		// Signal the condition variable to wake the timer thread.
-		mTimerCondVar->Signal();
+		mTimerCondVar.notify_one();
 
 		// Wait for the thread to have been suspended.
 		//		KPrintf("%i-Emulator-Sleep-3\n", (int) time(NULL));
-		mEmulatorCondVar->Wait(mMutex);
+		mEmulatorCondVar.wait(lock, [this] { return mTimerStateAcked; });
 		//		KPrintf("%i-Emulator-WakeUp-3\n", (int) time(NULL));
-
-		// Release the mutex.
-		mMutex->Unlock();
 	}
 }
 
@@ -200,7 +182,7 @@ TInterruptManager::WaitUntilInterrupt(bool inMaskIRQ, bool inMaskFIQ)
 		//		mLog->LogLine( "Wait until interrupt" );
 	}
 
-	mMutex->Lock();
+	std::unique_lock<std::mutex> lock(mMutex);
 
 	// Here the timer is waiting (since we have the mutex).
 
@@ -212,18 +194,15 @@ TInterruptManager::WaitUntilInterrupt(bool inMaskIRQ, bool inMaskFIQ)
 	mMaskFIQ = inMaskFIQ;
 
 	// Wake the thread now, but it will actually wait until we go to sleep.
-	mTimerCondVar->Signal();
+	mTimerCondVar.notify_one();
 
 	// Wait for the thread to signal us.
 	//	KPrintf("%i-Emulator-Sleep-4\n", (int) time(NULL));
-	mEmulatorCondVar->Wait(mMutex);
+	mEmulatorCondVar.wait(lock);
 	//	KPrintf("%i-Emulator-WakeUp-4\n", (int) time(NULL));
 
 	// We're no longer waiting.
 	mWaiting.store(false);
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -232,7 +211,7 @@ TInterruptManager::WaitUntilInterrupt(bool inMaskIRQ, bool inMaskFIQ)
 void
 TInterruptManager::RaiseInterrupt(KUInt32 inIntMask)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Here the timer is waiting (since we have the mutex).
 
@@ -240,10 +219,7 @@ TInterruptManager::RaiseInterrupt(KUInt32 inIntMask)
 	mIntRaised |= inIntMask;
 
 	// Signal the condition variable to wake the timer thread.
-	mTimerCondVar->Signal();
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
+	mTimerCondVar.notify_one();
 }
 
 // -------------------------------------------------------------------------- //
@@ -261,7 +237,7 @@ TInterruptManager::GetRealTimeClock(void) const
 void
 TInterruptManager::SetRealTimeClock(KUInt32 inValue)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Here the timer is waiting (since we have the mutex).
 
@@ -272,10 +248,7 @@ TInterruptManager::SetRealTimeClock(KUInt32 inValue)
 	//  KPrintf("mCalendarDelta now is %i\n", (int) mCalendarDelta);
 
 	// Signal the condition variable to wake the timer thread.
-	mTimerCondVar->Signal();
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
+	mTimerCondVar.notify_one();
 }
 
 // -------------------------------------------------------------------------- //
@@ -284,7 +257,7 @@ TInterruptManager::SetRealTimeClock(KUInt32 inValue)
 void
 TInterruptManager::SetAlarm(KUInt32 inValue)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Here the timer is waiting (since we have the mutex).
 
@@ -293,10 +266,7 @@ TInterruptManager::SetAlarm(KUInt32 inValue)
 
 	// Signal the condition variable to wake the timer thread, which raises
 	// the alarm interrupt when the RTC reaches the register.
-	mTimerCondVar->Signal();
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
+	mTimerCondVar.notify_one();
 }
 
 // -------------------------------------------------------------------------- //
@@ -327,7 +297,7 @@ TInterruptManager::ArmAlarm(bool inEvenIfPassed)
 void
 TInterruptManager::SetTimerMatchRegister(KUInt32 inMatchReg, KUInt32 inValue)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Here the timer is waiting (since we have the mutex).
 
@@ -345,11 +315,8 @@ TInterruptManager::SetTimerMatchRegister(KUInt32 inMatchReg, KUInt32 inValue)
 	if (mIntCtrlReg & (kTimer0IntMask << inMatchReg))
 	{
 		// Signal the condition variable to wake the timer thread.
-		mTimerCondVar->Signal();
+		mTimerCondVar.notify_one();
 	}
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -358,7 +325,7 @@ TInterruptManager::SetTimerMatchRegister(KUInt32 inMatchReg, KUInt32 inValue)
 void
 TInterruptManager::SetIntCtrlReg(KUInt32 inValue)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Here the timer is waiting (since we have the mutex).
 
@@ -369,11 +336,8 @@ TInterruptManager::SetIntCtrlReg(KUInt32 inValue)
 		mIntCtrlReg = inValue;
 
 		// Signal the condition variable to wake the timer thread.
-		mTimerCondVar->Signal();
+		mTimerCondVar.notify_one();
 	}
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -382,7 +346,7 @@ TInterruptManager::SetIntCtrlReg(KUInt32 inValue)
 void
 TInterruptManager::SetIntEDReg1(KUInt32 inValue)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Here the timer is waiting (since we have the mutex).
 
@@ -392,11 +356,8 @@ TInterruptManager::SetIntEDReg1(KUInt32 inValue)
 		mIntEDReg1 = inValue;
 
 		// Signal the condition variable to wake the timer thread.
-		mTimerCondVar->Signal();
+		mTimerCondVar.notify_one();
 	}
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -405,7 +366,7 @@ TInterruptManager::SetIntEDReg1(KUInt32 inValue)
 void
 TInterruptManager::SetIntEDReg2(KUInt32 inValue)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Here the timer is waiting (since we have the mutex).
 
@@ -415,11 +376,8 @@ TInterruptManager::SetIntEDReg2(KUInt32 inValue)
 		mIntEDReg2 = inValue;
 
 		// Signal the condition variable to wake the timer thread.
-		mTimerCondVar->Signal();
+		mTimerCondVar.notify_one();
 	}
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -428,7 +386,7 @@ TInterruptManager::SetIntEDReg2(KUInt32 inValue)
 void
 TInterruptManager::SetIntEDReg3(KUInt32 inValue)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Here the timer is waiting (since we have the mutex).
 
@@ -438,11 +396,8 @@ TInterruptManager::SetIntEDReg3(KUInt32 inValue)
 		mIntEDReg3 = inValue;
 
 		// Signal the condition variable to wake the timer thread.
-		mTimerCondVar->Signal();
+		mTimerCondVar.notify_one();
 	}
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -451,7 +406,7 @@ TInterruptManager::SetIntEDReg3(KUInt32 inValue)
 void
 TInterruptManager::ClearInterrupts(KUInt32 inMask)
 {
-	mMutex->Lock();
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Here the timer is waiting (since we have the mutex).
 
@@ -460,10 +415,7 @@ TInterruptManager::ClearInterrupts(KUInt32 inMask)
 	mIntRaised &= ~inMask;
 
 	// Signal the condition variable to wake the timer thread.
-	mTimerCondVar->Signal();
-
-	// Release the mutex, so the timer thread will get it back.
-	mMutex->Unlock();
+	mTimerCondVar.notify_one();
 }
 
 // -------------------------------------------------------------------------- //
@@ -479,16 +431,14 @@ TInterruptManager::RaiseGPIO(KUInt32 inValue)
 		// Raise the GPIO interrupt.
 		RaiseInterrupt(kGPIOIntMask);
 
-		mMutex->Lock();
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		// Resume the processor if it was waiting in our
 		// WaitUntilInterrupt loop.
 		if (mWaiting.load())
 		{
-			mEmulatorCondVar->Signal();
+			mEmulatorCondVar.notify_one();
 		}
-
-		mMutex->Unlock();
 	}
 }
 
@@ -529,7 +479,7 @@ void
 TInterruptManager::Run(void)
 {
 	// Setup: make sure we're waiting on the condition variable.
-	mMutex->Lock();
+	std::unique_lock<std::mutex> lock(mMutex);
 
 	// The init thread is now waiting for sure, since we have the mutex.
 
@@ -565,7 +515,8 @@ TInterruptManager::Run(void)
 		if (mRunning.load())
 		{
 			// Wake the resuming thread.
-			mEmulatorCondVar->Signal();
+			mTimerStateAcked = true;
+			mEmulatorCondVar.notify_one();
 		}
 
 		// Are we running?
@@ -609,14 +560,14 @@ TInterruptManager::Run(void)
 				{
 					// Resume the processor if it was waiting in our
 					// WaitUntilInterrupt loop.
-					mEmulatorCondVar->Signal();
+					mEmulatorCondVar.notify_one();
 				}
 
 				// Save the timer value.
 				mTimer = newTicks - mTimerDelta;
 
 				// Wait.
-				TicksWaitOnCondVar(nextMatch - newTicks);
+				TicksWaitOnCondVar(lock, nextMatch - newTicks);
 			} else
 			{
 				// Shift the ticks.
@@ -653,7 +604,7 @@ TInterruptManager::Run(void)
 				{
 					// Resume the processor if it was waiting in our
 					// WaitUntilInterrupt loop.
-					mEmulatorCondVar->Signal();
+					mEmulatorCondVar.notify_one();
 				}
 
 				// Save the timer value.
@@ -661,7 +612,7 @@ TInterruptManager::Run(void)
 
 				// No interrupt is planned.
 				// Wait forever on the condition variable.
-				mTimerCondVar->Wait(mMutex);
+				mTimerCondVar.wait(lock);
 				//				KPrintf("%i-Timer-WakeUp-1\n", (int) time(NULL));
 			}
 
@@ -695,10 +646,11 @@ TInterruptManager::Run(void)
 		//		}
 
 		// Wake the suspending thread.
-		mEmulatorCondVar->Signal();
+		mTimerStateAcked = true;
+		mEmulatorCondVar.notify_one();
 
 		// Then wait forever on the condition variable.
-		mTimerCondVar->Wait(mMutex);
+		mTimerCondVar.wait(lock);
 		//		KPrintf("%i-Timer-WakeUp-2\n", (int) time(NULL));
 
 		if (mExiting.load())
@@ -707,8 +659,6 @@ TInterruptManager::Run(void)
 			break;
 		}
 	}
-
-	mMutex->Unlock();
 
 	mExiting.store(false);
 }
@@ -752,28 +702,19 @@ TInterruptManager::GetTimer(void) const
 //  * TimedWaitOnCondVar( KUInt32 )
 // -------------------------------------------------------------------------- //
 inline void
-TInterruptManager::TicksWaitOnCondVar(KUInt32 inTicks)
+TInterruptManager::TicksWaitOnCondVar(
+	std::unique_lock<std::mutex>& inLock,
+	KUInt32 inTicks)
 {
 	// Translate from ticks:
-#if 1
-	// slower and accurate
 	// 3.6864 MHz -> 3686400 per seconds.
 	KUInt32 sec = inTicks / 3686400;
 	KUInt32 rem = inTicks - (sec * 3686400);
-	struct timespec amount;
-	amount.tv_nsec = rem * 271; // (1000000000/3686400)
-	amount.tv_sec = sec;
-#else
-	// faster and inaccurate
-	// We simply divide with 4000000 to avoid the expensive float to int
-	// conversion.
-	struct timespec amount;
-	amount.tv_nsec = (inTicks * 250) % 1000000000;
-	amount.tv_sec = inTicks / 4000000;
-#endif
+	auto amount = std::chrono::seconds(sec)
+		+ std::chrono::nanoseconds(static_cast<KUInt64>(rem) * 271ULL); // (1000000000/3686400)
 
 	//	KPrintf("TicksWaitOnCondVar begin (%f)\n", inTicks/4000000.0f);
-	mTimerCondVar->TimedWaitRelative(mMutex, &amount);
+	mTimerCondVar.wait_for(inLock, amount);
 	//	KPrintf("TicksWaitOnCondVar\n" );
 	//	KPrintf("%i-Timer-WakeUp-3\n", (int) time(NULL));
 }
@@ -1026,7 +967,7 @@ TInterruptManager::FireTimersAndFindNext(
 			// mask (0x0F184800), not for those in the interrupt mask. Resume
 			// the processor if it waits in PowerOffSystem.
 			if (mWaiting.load() && (mIntEDReg3 & kRTCAlarmIntMask))
-				mEmulatorCondVar->Signal();
+				mEmulatorCondVar.notify_one();
 		} else
 		{
 			ArmAlarm(true); // not yet: check again later
@@ -1164,12 +1105,7 @@ TInterruptManager::TransferState(TStream* inStream)
 	// Other threads (sound, serial) may raise interrupts at any time. Hold the
 	// mutex, so the registers are saved or loaded as one consistent set. The
 	// guard unlocks it when we leave, even if reading fails with an exception.
-	struct SUnlockGuard {
-		TMutex* fMutex;
-		~SUnlockGuard() { fMutex->Unlock(); }
-	};
-	mMutex->Lock();
-	SUnlockGuard theUnlockGuard { mMutex };
+	std::lock_guard<std::mutex> lock(mMutex);
 
 	// Interrupt manager specific stuff.
 	// A reset clears the interrupt controller. The clock (calendar delta,

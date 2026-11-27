@@ -24,7 +24,10 @@
 
 #include "TSerialHostPort.h"
 #include <K/Misc/TCircleBuffer.h>
-#include <K/Threads/TThread.h>
+
+#include <atomic>
+#include <mutex>
+#include <thread>
 
 ///
 /// Class to handle host emulated serial port
@@ -76,10 +79,11 @@ protected:
 	int mFile { -1 };
 
 	/// Worker thread.
-	TThread* mIOThread { nullptr };
+	std::thread mIOThread;
+	std::atomic<bool> mExiting { false };
 
 	/// Class wide mutex.
-	TMutex* mReadMutex { nullptr };
+	std::mutex mReadMutex;
 
 	/// Buffer for incoming data.
 	TCircleBuffer* mReadBuffer { nullptr };

@@ -27,6 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 #include <atomic>
+#include <mutex>
 
 // Einstein
 #include "PlatformEvents.h"
@@ -40,7 +41,6 @@ class TARMProcessor;
 class TScreenManager;
 class TMemory;
 class TLog;
-class TMutex;
 class TPCMCIACard;
 class TStream;
 
@@ -423,7 +423,7 @@ private:
 	std::atomic<KUInt32> mBootCount { 0 };
 
 	/// Mutex of the queue.
-	TMutex* mMutex { nullptr };
+	mutable std::mutex mMutex;
 
 	/// Directory on host containing all kinds of documents
 	char* mDocDir { nullptr };

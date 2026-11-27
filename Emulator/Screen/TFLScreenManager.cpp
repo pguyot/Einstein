@@ -38,7 +38,6 @@
 
 // K
 #include <K/Defines/UByteSex.h>
-#include <K/Threads/TThread.h>
 
 // Einstein
 #include "Emulator/Log/TLog.h"

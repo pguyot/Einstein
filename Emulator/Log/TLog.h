@@ -26,8 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 
-// K
-#include <K/Threads/TMutex.h>
+#include <mutex>
 
 ///
 /// Classe to log emulator stuff.
@@ -89,7 +88,7 @@ protected:
 	void
 	LockMutex(void)
 	{
-		mMutex->Lock();
+		mMutex.lock();
 	}
 
 	///
@@ -98,7 +97,7 @@ protected:
 	void
 	UnlockMutex(void)
 	{
-		mMutex->Unlock();
+		mMutex.unlock();
 	}
 
 private:
@@ -124,7 +123,7 @@ private:
 	virtual void DoLogLine(const char* inLine) = 0;
 
 	/// Mutex to log the lines synchronously.
-	TMutex* mMutex { nullptr };
+	std::mutex mMutex;
 
 	/// If the log is enabled.
 	KUInt32 mEnabled { true };

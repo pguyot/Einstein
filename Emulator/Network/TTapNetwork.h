@@ -30,7 +30,6 @@
 class TLog;
 class TInterruptManager;
 class TMemoryManager;
-class TThread;
 
 ///
 /// Networking with /dev/tap device.

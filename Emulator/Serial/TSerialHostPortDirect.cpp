@@ -19,9 +19,12 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // ==============================
 
+#include <cerrno>
+
 extern "C" {
 #include <fcntl.h>
 #include <stdio.h>
+#include <sys/select.h>
 #include <termios.h>
 #include <unistd.h>
 }
@@ -69,10 +72,12 @@ TSerialHostPortDirect::TSerialHostPortDirect(
 		cfsetspeed(&options, 115200);
 		tcflush(mFile, TCIFLUSH);
 		tcsetattr(mFile, TCSANOW, &options);
-		mLog->FLogLine("TSerialHostPortDirect: port opened: %p", this);
-		mReadMutex = new TMutex();
+		if (mLog)
+		{
+			mLog->FLogLine("TSerialHostPortDirect: port opened: %p", this);
+		}
 		mReadBuffer = new TCircleBuffer(8 * 1024);
-		mIOThread = new TThread(this);
+		mIOThread = std::thread(&TSerialHostPortDirect::Run, this);
 	} else
 	{
 		mSerialStatus = kSerialChipGone;
@@ -82,13 +87,16 @@ TSerialHostPortDirect::TSerialHostPortDirect(
 
 TSerialHostPortDirect::~TSerialHostPortDirect()
 {
+	mExiting.store(true);
+	if (mIOThread.joinable())
+	{
+		mIOThread.join();
+	}
 	if (mFile != -1)
 	{
 		close(mFile);
 	}
-	delete mReadMutex;
 	delete mReadBuffer;
-	delete mIOThread;
 }
 
 void
@@ -103,13 +111,12 @@ KUInt8
 TSerialHostPortDirect::GetByte()
 {
 	KUInt8 data;
-	mReadMutex->Lock();
+	std::lock_guard<std::mutex> lock(mReadMutex);
 	mReadBuffer->Consume(&data, sizeof(data));
 	if (mReadBuffer->IsEmpty())
 	{
 		mSerialStatus &= ~kSerialRxCharAvailable;
 	}
-	mReadMutex->Unlock();
 	return data;
 }
 
@@ -194,24 +201,34 @@ void
 TSerialHostPortDirect::Run()
 {
 	fd_set fdSet;
-	while (true)
+	while (!mExiting.load())
 	{
-		mLog->LogLine("TSerialHostPortDirect: Waiting for data...");
 		FD_ZERO(&fdSet);
 		FD_SET(mFile, &fdSet);
-		if (select(FD_SETSIZE, &fdSet, 0, 0, 0) != -1 && FD_ISSET(mFile, &fdSet))
+		struct timeval timeout { 0, 50000 };
+		int ready = select(mFile + 1, &fdSet, nullptr, nullptr, &timeout);
+		if (ready == -1)
+		{
+			if (errno == EINTR)
+			{
+				continue;
+			}
+			break;
+		}
+		if (ready > 0 && FD_ISSET(mFile, &fdSet))
 		{
 			KUInt8 data;
-			mReadMutex->Lock();
-			if (mLog)
 			{
-				mLog->LogLine("TSerialHostPortDirect: data available");
+				std::lock_guard<std::mutex> lock(mReadMutex);
+				if (mLog)
+				{
+					mLog->LogLine("TSerialHostPortDirect: data available");
+				}
+				while (!mExiting.load() && read(mFile, &data, sizeof(data)) == sizeof(data))
+				{
+					mReadBuffer->Produce(&data, sizeof(data));
+				}
 			}
-			while (read(mFile, &data, sizeof(data)) == sizeof(data))
-			{
-				mReadBuffer->Produce(&data, sizeof(data));
-			}
-			mReadMutex->Unlock();
 			mSerialStatus |= kSerialRxCharAvailable;
 			mEmulator->GetInterruptManager()->RaiseInterrupt(mInterruptID);
 		}

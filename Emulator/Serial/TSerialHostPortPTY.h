@@ -93,7 +93,7 @@ protected:
 	std::atomic<bool> mStopRequested { false };
 
 	/// Class wide mutex
-	TMutex* mReadMutex { nullptr };
+	std::mutex mReadMutex;
 
 	/// Circle buffer for incoming data
 	TCircleBuffer* mReadBuffer { nullptr };

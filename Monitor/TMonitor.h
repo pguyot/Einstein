@@ -26,14 +26,12 @@
 #define _TMONITOR_H
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Threads/TCondVar.h>
-#include <K/Threads/TMutex.h>
-#include <K/Threads/TThread.h>
-
 #include <atomic>
+#include <condition_variable>
 #include <functional>
 #include <mutex>
 #include <string>
+#include <thread>
 
 #include "TMonitorCore.h"
 #include "Emulator/Log/TBufferLog.h"
@@ -411,34 +409,14 @@ protected:
 	/// \name Platform threading primitives
 
 	///
-	/// Create the condition variable and the mutex.
-	///
-	void CreateCondVarAndMutex(void);
-
-	///
-	/// Delete the condition variable and the mutex.
-	///
-	void DeleteCondVarAndMutex(void);
-
-	///
-	/// Signal the condition varaible.
+	/// Signal the condition variable.
 	///
 	void SignalCondVar(void);
 
 	///
-	/// Wait (forever) on the emulator condition varaible.
+	/// Wait (forever) on the emulator condition variable.
 	///
-	void WaitOnCondVar(void);
-
-	///
-	/// Acquire the mutex.
-	///
-	void AcquireMutex(void);
-
-	///
-	/// Release the mutex.
-	///
-	void ReleaseMutex(void);
+	void WaitOnCondVar(std::unique_lock<std::mutex>& inLock);
 
 	enum {
 		kTagInteger,
@@ -484,8 +462,9 @@ protected:
 	TInterruptManager* mInterruptManager { nullptr }; ///< Interrupt manager.
 	TBufferLog* mLog { nullptr }; ///< Interface to the log.
 	std::atomic<bool> mHalted { false }; ///< If the emulator is halted (written by the monitor thread, read by the UI).
-	TCondVar* mCondVar { nullptr };
-	TMutex* mMutex { nullptr };
+	std::condition_variable mCondVar;
+	std::mutex mMutex;
+	std::atomic<std::thread::id> mMonitorThreadId {};
 	std::atomic<ECommand> mCommand { kNop }; ///< Next command for the
 	///< monitor thread (written by the UI, read by the monitor thread).
 

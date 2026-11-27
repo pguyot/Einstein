@@ -31,8 +31,8 @@
 #include <AudioUnit/AudioUnit.h>
 
 #include <atomic>
+#include <mutex>
 
-class TMutex;
 class TCircleBuffer;
 
 ///
@@ -143,11 +143,11 @@ private:
 	TCircleBuffer* mOutputBuffer { nullptr };
 
 	/// Mutex on shared structures.
-	TMutex* mDataMutex { nullptr };
+	std::mutex mDataMutex;
 
 	/// Starting and stopping the output unit (never taken by the render
 	/// callback, so stopping the unit can wait for it).
-	TMutex* mRunMutex { nullptr };
+	std::mutex mRunMutex;
 
 	/// NewtonOS stopped the output; the samples in the buffer still play.
 	std::atomic<bool> mStopping { false };

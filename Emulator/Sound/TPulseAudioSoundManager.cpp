@@ -39,7 +39,6 @@
 
 // K
 #include <K/Misc/TCircleBuffer.h>
-#include <K/Threads/TMutex.h>
 
 // Einstein.
 #include "Emulator/Log/TLog.h"
@@ -66,7 +65,6 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nullptr */) :
 		mPAContext(nullptr),
 		mOutputBuffer(new TCircleBuffer(
 			kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16))),
-		mDataMutex(new TMutex()),
 		mOutputIsRunning(false),
 		mOutputRequestPending(false)
 {
@@ -279,10 +277,6 @@ TPulseAudioSoundManager::~TPulseAudioSoundManager(void)
 		pa_threaded_mainloop_stop(mPAMainLoop);
 		pa_threaded_mainloop_free(mPAMainLoop);
 	}
-	if (mDataMutex)
-	{
-		delete mDataMutex;
-	}
 	if (mOutputBuffer)
 	{
 		delete mOutputBuffer;
@@ -299,15 +293,17 @@ TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 	{
 		if (inSize > 0)
 		{
-			mDataMutex->Lock();
-			mOutputRequestPending = false;
-			mDataMutex->Unlock();
+			{
+				std::lock_guard<std::mutex> lock(mDataMutex);
+				mOutputRequestPending = false;
+			}
 			RequestOutputInterrupt();
 		} else if (mOutputIsRunning)
 		{
-			mDataMutex->Lock();
-			mOutputRequestPending = false;
-			mDataMutex->Unlock();
+			{
+				std::lock_guard<std::mutex> lock(mDataMutex);
+				mOutputRequestPending = false;
+			}
 			StopOutput();
 		}
 		return;
@@ -322,10 +318,11 @@ TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 				inSize, (inSize / sizeof(KSInt16)));
 		}
 #endif
-		mDataMutex->Lock();
-		mOutputBuffer->Produce(inBuffer, inSize);
-		mOutputRequestPending = false;
-		mDataMutex->Unlock();
+		{
+			std::lock_guard<std::mutex> lock(mDataMutex);
+			mOutputBuffer->Produce(inBuffer, inSize);
+			mOutputRequestPending = false;
+		}
 
 		pa_threaded_mainloop_lock(mPAMainLoop);
 		PAStreamWriteQueuedOutput(mOutputStream, pa_stream_writable_size(mOutputStream), false);
@@ -338,9 +335,10 @@ TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 			GetLog()->FLogLine("***** FROM NOS: ScheduleOutput no incoming data, STOP Output?");
 		}
 #endif
-		mDataMutex->Lock();
-		mOutputRequestPending = false;
-		mDataMutex->Unlock();
+		{
+			std::lock_guard<std::mutex> lock(mDataMutex);
+			mOutputRequestPending = false;
+		}
 		StopOutput();
 	}
 }
@@ -357,10 +355,11 @@ TPulseAudioSoundManager::StartOutput(void)
 		GetLog()->FLogLine("   _____  StartOutput  _____");
 	}
 #endif
-	mDataMutex->Lock();
-	mOutputIsRunning = true;
-	mOutputRequestPending = false;
-	mDataMutex->Unlock();
+	{
+		std::lock_guard<std::mutex> lock(mDataMutex);
+		mOutputIsRunning = true;
+		mOutputRequestPending = false;
+	}
 	if (!mOutputStream || !mPAMainLoop)
 	{
 		RequestOutputInterrupt();
@@ -413,19 +412,19 @@ TPulseAudioSoundManager::StopOutput(void)
 
 	if (!mOutputStream || !mPAMainLoop)
 	{
-		mDataMutex->Lock();
+		std::lock_guard<std::mutex> lock(mDataMutex);
 		mOutputIsRunning = false;
 		mOutputRequestPending = false;
-		mDataMutex->Unlock();
 		return;
 	}
 
 	pa_threaded_mainloop_lock(mPAMainLoop);
 
-	mDataMutex->Lock();
-	mOutputIsRunning = false;
-	mOutputRequestPending = false;
-	mDataMutex->Unlock();
+	{
+		std::lock_guard<std::mutex> lock(mDataMutex);
+		mOutputIsRunning = false;
+		mOutputRequestPending = false;
+	}
 
 	mPAOperationDescr = "DRAIN";
 	mPAOperation = pa_stream_drain(mOutputStream, &SPAStreamOpCB, this);
@@ -457,9 +456,10 @@ TPulseAudioSoundManager::OutputIsRunning(void)
 	}
 	bool streamCorked = (bool) pa_stream_is_corked(mOutputStream);
 	bool outputIsRunning;
-	mDataMutex->Lock();
-	outputIsRunning = mOutputIsRunning;
-	mDataMutex->Unlock();
+	{
+		std::lock_guard<std::mutex> lock(mDataMutex);
+		outputIsRunning = mOutputIsRunning;
+	}
 #ifdef DEBUG_SOUND
 	if (GetLog())
 	{
@@ -551,14 +551,15 @@ TPulseAudioSoundManager::PAStreamWriteQueuedOutput(pa_stream* s, size_t requeste
 	{
 		return;
 	}
-	if (mOutputBuffer == NULL || mDataMutex == NULL)
+	if (mOutputBuffer == NULL)
 	{
 		return;
 	}
 
-	mDataMutex->Lock();
-	bytesToWrite = std::min<size_t>(mOutputBuffer->AvailableBytes(), bytesToWrite);
-	mDataMutex->Unlock();
+	{
+		std::lock_guard<std::mutex> lock(mDataMutex);
+		bytesToWrite = std::min<size_t>(mOutputBuffer->AvailableBytes(), bytesToWrite);
+	}
 
 	if (bytesToWrite == 0)
 	{
@@ -587,9 +588,10 @@ TPulseAudioSoundManager::PAStreamWriteQueuedOutput(pa_stream* s, size_t requeste
 		return;
 	}
 
-	mDataMutex->Lock();
-	bytesCopied = mOutputBuffer->Peek(outBuffer, bytesToWrite);
-	mDataMutex->Unlock();
+	{
+		std::lock_guard<std::mutex> lock(mDataMutex);
+		bytesCopied = mOutputBuffer->Peek(outBuffer, bytesToWrite);
+	}
 
 	if (bytesCopied == 0)
 	{
@@ -610,10 +612,12 @@ TPulseAudioSoundManager::PAStreamWriteQueuedOutput(pa_stream* s, size_t requeste
 		return;
 	}
 
-	mDataMutex->Lock();
-	mOutputBuffer->Discard(bytesCopied);
-	KUIntPtr bytesLeft = mOutputBuffer->AvailableBytes();
-	mDataMutex->Unlock();
+	KUIntPtr bytesLeft = 0;
+	{
+		std::lock_guard<std::mutex> lock(mDataMutex);
+		mOutputBuffer->Discard(bytesCopied);
+		bytesLeft = mOutputBuffer->AvailableBytes();
+	}
 
 	if (requestMoreOutput && bytesLeft < kNewtonBufferSize)
 	{
@@ -626,18 +630,14 @@ TPulseAudioSoundManager::RequestOutputInterrupt(void)
 {
 	bool requestOutput = false;
 
-	if (mDataMutex == NULL)
 	{
-		return;
+		std::lock_guard<std::mutex> lock(mDataMutex);
+		if (mOutputIsRunning && !mOutputRequestPending)
+		{
+			mOutputRequestPending = true;
+			requestOutput = true;
+		}
 	}
-
-	mDataMutex->Lock();
-	if (mOutputIsRunning && !mOutputRequestPending)
-	{
-		mOutputRequestPending = true;
-		requestOutput = true;
-	}
-	mDataMutex->Unlock();
 
 	if (requestOutput)
 	{
