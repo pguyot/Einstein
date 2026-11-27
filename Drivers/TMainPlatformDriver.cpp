@@ -27,7 +27,6 @@
 #include <UserPorts.h>
 #include <UserTasks.h>
 
-#include "K/Misc/RelocHack.h"
 #include "UGlue.h"
 
 PROTOCOL_IMPL_SOURCE_MACRO(TMainPlatformDriver) // Magic stuff, do not touch
@@ -130,13 +129,7 @@ TMainPlatformDriver::New( void )
     TPlatformDriver* thisPtr = this;
     mTask = new TUTask();
     mTask->Init(
-#if __GNUC__
-// We need RelocFuncPtr if the package is not properly relocated in the Rex
-// which is the case with MPW's Rex tool/Packer/NCT toolchain
             (TaskProcPtr) &STaskProc,
-#else
-            (TaskProcPtr) RelocFuncPtr(&STaskProc),
-#endif
             kSpawnedTaskStackSize,
             sizeof(thisPtr),
             &thisPtr,
@@ -156,13 +149,7 @@ TMainPlatformDriver::RegisterPowerSwitchInterrupt( void )
     mInterrupt = GetGPIOInterfaceObject()->RegisterInterrupt(
             kPowerSwitchGPIOFunc,
             this,
-            (GPIOInterruptHandlerProcPtr)
-#if __GNUC__
-// Cf above
-                &SInterruptHandler,
-#else
-                RelocFuncPtr(&SInterruptHandler),
-#endif
+            (GPIOInterruptHandlerProcPtr) &SInterruptHandler,
             0 );
 
     return noErr;

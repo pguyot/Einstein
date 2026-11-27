@@ -37,9 +37,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// K
-#include <K/Misc/RelocHack.h>
-
 // NewtonOS
 #include <Objects.h>
 
@@ -55,7 +52,6 @@ TNewtonTraceMonitor::TNewtonTraceMonitor(unsigned int inMode) :
 		TTraceMonitor(inMode),
 		TNameServerSingleton()
 {
-	RelocVTable(&__VTABLE__19TNewtonTraceMonitor);
 }
 
 // ------------------------------------------------------------------------- //
