@@ -84,7 +84,6 @@ ObjectsNTKC	=	\
 		TNSRuntimeEventHandler.o \
 		TNSRuntimeEventHandlerGlue.o \
 		NSRuntime.exp.o \
-		RelocHack.o \
 		TMainPlatformDriverPrims.o \
 		TMainPlatformDriver.o \
 		TNativeCalls.o

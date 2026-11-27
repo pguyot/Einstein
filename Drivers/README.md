@@ -28,6 +28,17 @@ via Homebrew.
 Conversion of the compiled binaries requires the `Rex` and `ELFtoPKG` tools
 provided by [DCL](https://github.com/pguyot/DCL).
 
+Unlike Apple's legacy MPW `Packer` and `Rex` tools, DCL's `ELFtoPKG` emits
+NewtonOS relocation tables (`R_ARM_RELATIVE`) for drivers that take function
+pointers (such as interrupt, task, or Lantern event handlers), and DCL's `Rex`
+applies those relocations to each package's fixed REx address. Because of this,
+the legacy `RelocHack` runtime workaround is no longer needed or included. For
+legacy MPW (`ARM6c`/`ARM6Asm`/`ARMCpp` + `ARMLink`) builds, `AIFtoPKG` in
+[cDCL](https://github.com/ekoeppen/cDCL) provides the same relocation support for
+relocatable AIF binaries (though an MPW build still requires LF-to-CR
+conversion, `ARM6Asm` `.a` glue/API stubs, and avoiding post-cfront C++
+features in peripheral drivers).
+
 ### NCT and DDK Headers
 
 The C++ headers and Newton Platform file are obtained by cloning this

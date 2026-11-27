@@ -23,8 +23,6 @@
 
 #include "TMainTabletDriver.impl.h"
 
-#include "K/Misc/RelocHack.h"
-
 PROTOCOL_IMPL_SOURCE_MACRO(TMainTabletDriver)	// Magic stuff, do not touch
 
 typedef long (*InterruptHandlerProcPtr)(void*);
@@ -55,13 +53,7 @@ TMainTabletDriver::New( void )
 	mInterrupt = RegisterInterrupt(
 			kTabletInterruptMask,
 			this,
-			(InterruptHandlerProcPtr)
-#if __GNUC__
-// With gcc, assume we are using a modern, relocation-friendly toolchain.
-				&SInterruptHandler,
-#else
-				RelocFuncPtr(&SInterruptHandler),
-#endif
+			(InterruptHandlerProcPtr) &SInterruptHandler,
 			2 );
 
 	(void) EnableInterrupt(mInterrupt, 2);

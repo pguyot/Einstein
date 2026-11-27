@@ -25,7 +25,6 @@
 #include <OptionArray.h>
 #include <HALOptions.h>
 #include <CommErrors.h>
-#include "K/Misc/RelocHack.h"
 
 PROTOCOL_IMPL_SOURCE_MACRO(TSerialChipEinstein)	// Magic stuff, do not touch
 

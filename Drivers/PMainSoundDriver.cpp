@@ -22,7 +22,6 @@
 // ==============================
 
 #include "PMainSoundDriver.impl.h"
-#include "K/Misc/RelocHack.h"
 
 #include "UGlue.h"
 
@@ -65,27 +64,16 @@ PMainSoundDriver::New( void )
     // Register the interrupts.
     TDMAManager* theDMAManager = GetDMAManagerObject();
     theDMAManager->RequestAssignment( 10, &mOutputDMAChannel );
-    // We don't need RelocFuncPtr with our Rex tool.
     mOutputInterrupt = RegisterInterrupt(
             mOutputDMAChannel.mInterruptMask,
             this,
-#if __GNUC__
             OutputIntHandlerDispatcherGlue,
-#else
-            (InterruptHandlerProcPtr)
-                RelocFuncPtr(OutputIntHandlerDispatcherGlue),
-#endif
             1 );
     theDMAManager->RequestAssignment( 9, &mInputDMAChannel );
     mInputInterrupt = RegisterInterrupt(
             mInputDMAChannel.mInterruptMask,
             this,
-#if __GNUC__
             (InterruptHandlerProcPtr) InputIntHandlerDispatcherGlue,
-#else
-            (InterruptHandlerProcPtr)
-                RelocFuncPtr(InputIntHandlerDispatcherGlue),
-#endif
             1 );
 
     (void) EnableInterrupt(mOutputInterrupt, 1);
