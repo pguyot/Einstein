@@ -131,7 +131,7 @@ iEinsteinViewController ()
 		alertControllerWithTitle:@"Newton ROM not found."
 						 message:@"Einstein Emulator requires an MP2x00 US ROM image. "
 								 "The ROM file must be named 717006.rom and copied to "
-								 "this device using the iTunes File Sharing feature.\n\n"
+								 "this device using the Files app or the iOS share sheet.\n\n"
 								 "For more information please read the instructions at "
 								 "https://github.com/pguyot/Einstein/wiki/Build-Instructions.\n\n"
 								 "If running in iOS Simulator refer to console output."
@@ -146,7 +146,114 @@ iEinsteinViewController ()
 
 	[alertController addAction:quitAction];
 
+	mMissingROMAlertController = alertController;
 	[self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)dismissMissingROMAlertAndReset
+{
+	if (mMissingROMAlertController) {
+		[self dismissViewControllerAnimated:YES completion:nil];
+		mMissingROMAlertController = nil;
+
+		// Reset the emulator now that we have a ROM
+		[self resetEmulator];
+	}
+}
+
+- (TROMImage*)loadROMImage
+{
+	// Create the ROM.
+	TROMImage* romImage = nil;
+	NSString* einsteinRExPath = nil;
+	NSBundle* thisBundle = [NSBundle mainBundle];
+
+	if (!(einsteinRExPath = [thisBundle pathForResource:@"Einstein" ofType:@"rex"]))
+	{
+		//[self abortWithMessage: @"Couldn't load Einstein REX"];
+		mLog->LogLine("Couldn't load Einstein REX");
+		return nil;
+	}
+
+	NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+
+	NSString* theROMPath = [docdir stringByAppendingPathComponent:@"717006.rom"];
+	NSString* theDebugROMPath = [docdir stringByAppendingPathComponent:@"717006.aif"];
+	NSString* theDebugHighROMPath = [docdir stringByAppendingPathComponent:@"717006.rex"];
+	NSString* theImagePath = [docdir stringByAppendingPathComponent:@"717006.img"];
+
+	NSFileManager* theFileManager = [NSFileManager defaultManager];
+
+	if ([theFileManager fileExistsAtPath:theROMPath])
+	{
+#if 0
+		romImage = new TFlatROMImageWithREX(
+							[theROMPath fileSystemRepresentation],
+							[einsteinRExPath fileSystemRepresentation],
+							"717006", false,
+							[theImagePath fileSystemRepresentation]);
+#else
+		romImage = new TFlatROMImageWithREX(
+			[theROMPath fileSystemRepresentation],
+			[einsteinRExPath fileSystemRepresentation]);
+#endif
+	} else if ([theFileManager fileExistsAtPath:theDebugROMPath]
+		&& [theFileManager fileExistsAtPath:theDebugHighROMPath])
+	{
+#if 0
+		romImage = new TAIFROMImageWithREXes(
+											 [theDebugROMPath fileSystemRepresentation],
+											 [theDebugHighROMPath fileSystemRepresentation],
+											 [einsteinRExPath fileSystemRepresentation],
+											 "717006" );
+#else
+		romImage = new TAIFROMImageWithREXes(
+											 [theDebugROMPath fileSystemRepresentation],
+											 [theDebugHighROMPath fileSystemRepresentation],
+											 [einsteinRExPath fileSystemRepresentation]);
+#endif
+	}
+
+	NSString* theTempFilePath = [docdir stringByAppendingPathComponent:@"INSTALL ROM HERE.txt"];
+	if (romImage) {
+		// Remove the temporary file to make the Documents folder appear in the Files app
+		if([theFileManager fileExistsAtPath:theTempFilePath]) {
+			[theFileManager removeItemAtPath:theTempFilePath error:nil];
+		}
+		// Return the ROM image
+		return romImage;
+	} else {
+		// Add a temporary file to make the Documents folder appear in the Files app
+		if(![theFileManager fileExistsAtPath:theTempFilePath]) {
+			[theFileManager createFileAtPath:theTempFilePath contents:nil attributes:nil];
+		}
+		// Print a log message with the ROM location esp. for emulator users
+		fprintf(stderr, "ROM file required here:\n %s\nor here:\n %s\n %s\n\n",
+				[theROMPath fileSystemRepresentation],
+				[theDebugROMPath fileSystemRepresentation],
+				[theDebugHighROMPath fileSystemRepresentation]);
+	}
+	return nil;
+}
+
+- (BOOL)checkForROMImage
+{
+	// If we have a ROM already, do nothing
+	if (mROMImage) {
+		return YES;
+	}
+
+	// Try loading the ROM
+	mROMImage = [self loadROMImage];
+	if (mROMImage) {
+		if (mMissingROMAlertController) {
+			// ROM now exists and the alert is showing - dismiss it and reset
+			[self dismissMissingROMAlertAndReset];
+		}
+		return YES;
+	}
+
+	return NO;
 }
 
 - (void)openEinsteinMenu:(NSValue*)v
@@ -229,7 +336,7 @@ iEinsteinViewController ()
 		delete mSoundManager;
 		mSoundManager = NULL;
 	}
-
+	
 	delete mPrinterManager;
 	mPrinterManager = NULL;
 
@@ -274,61 +381,10 @@ iEinsteinViewController ()
 	mLog = new TStdOutLog();
 	//#endif
 
-	NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-
-	// Create the ROM.
-
-	NSString* einsteinRExPath = nil;
-	NSBundle* thisBundle = [NSBundle mainBundle];
-
-	if (!(einsteinRExPath = [thisBundle pathForResource:@"Einstein" ofType:@"rex"]))
+	// Load the ROM
+	mROMImage = [self loadROMImage];
+	if (!mROMImage)
 	{
-		//[self abortWithMessage: @"Couldn't load Einstein REX"];
-		mLog->LogLine("Couldn't load Einstein REX");
-		return 0;
-	}
-
-	NSString* theROMPath = [docdir stringByAppendingPathComponent:@"717006.rom"];
-	NSString* theDebugROMPath = [docdir stringByAppendingPathComponent:@"717006.aif"];
-	NSString* theDebugHighROMPath = [docdir stringByAppendingPathComponent:@"717006.rex"];
-
-	NSFileManager* theFileManager = [NSFileManager defaultManager];
-
-	if ([theFileManager fileExistsAtPath:theROMPath])
-	{
-#if 0
-        mROMImage = new TFlatROMImageWithREX(
-							[theROMPath fileSystemRepresentation],
-							[einsteinRExPath fileSystemRepresentation],
-							"717006", false,
-							[theImagePath fileSystemRepresentation]);
-#else
-		mROMImage = new TFlatROMImageWithREX(
-			[theROMPath fileSystemRepresentation],
-			[einsteinRExPath fileSystemRepresentation]);
-#endif
-	} else if ([theFileManager fileExistsAtPath:theDebugROMPath]
-		&& [theFileManager fileExistsAtPath:theDebugHighROMPath])
-	{
-#if 0
-        mROMImage = new TAIFROMImageWithREXes(
-                            [theDebugROMPath fileSystemRepresentation],
-                            [theDebugHighROMPath fileSystemRepresentation],
-                            [einsteinRExPath fileSystemRepresentation],
-                            "717006" );
-#else
-		mROMImage = new TAIFROMImageWithREXes(
-			[theDebugROMPath fileSystemRepresentation],
-			[theDebugHighROMPath fileSystemRepresentation],
-			[einsteinRExPath fileSystemRepresentation]);
-#endif
-	} else
-	{
-		fprintf(stderr, "ROM file required here:\n %s\nor here:\n %s\n %s\n\n",
-			[theROMPath fileSystemRepresentation],
-			[theDebugROMPath fileSystemRepresentation],
-			[theDebugHighROMPath fileSystemRepresentation]);
-
 		// Defer this call to explainMissingROM because self.view is not in the
 		// visible view hierarchy yet. (We arrive here from viewWillAppear due to
 		// other order-of-operations issues -- see issue #31)
@@ -396,7 +452,7 @@ iEinsteinViewController ()
 	mPrinterManager = new TIOSPrinterManager(mLog);
 
 	// Create the emulator.
-
+	NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
 	NSString* theFlashPath = [docdir stringByAppendingPathComponent:@"flash"];
 	printf("Flash file is %s\n", [theFlashPath fileSystemRepresentation]);
 
