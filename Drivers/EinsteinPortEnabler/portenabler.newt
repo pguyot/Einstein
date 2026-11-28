@@ -2,7 +2,7 @@ constant kAppSymbol := '|Port Enabler:40Hz|;
 constant kDockAppSymbol := '|HostTCPDock:40Hz|;
 constant kDockBasiliskAppSymbol := '|HostBasiliskDock:40Hz|;
 constant kPrefsFrame := {
-    extr: true,
+    extr: nil,
     mdem: nil,
     infr: nil,
     tblt: nil,
@@ -215,17 +215,20 @@ constant kHostBasiliskDockTransport := {
         RegPrefs(kAppSymbol, partFrame.enablerPrefs);
         prefsEntry := GetAppPrefs(kAppSymbol, kPrefsFrame);
         foreach port, default in kPrefsFrame do
-          if prefsEntry.(port) then partFrame:enable(SPrintObject(port), nil, nil);
-        local err := partFrame:enable("serv", nil, nil);
-        if GlobalFnExists('RegDesktopConnTransport) then begin
-            if err = 0 then
+        try
+            if prefsEntry.(port) then partFrame:enable(SPrintObject(port), nil, nil);
+        onexception |evt.ex| do
+            nil;
+        try
+            if partFrame:enable("serv", nil, nil) = 0 then
                 RegDesktopConnTransport(kDockAppSymbol, kHostTCPDockTransport);
-        end;
-        err := partFrame:enable("basi", nil, nil);
-        if GlobalFnExists('RegDesktopConnTransport) then begin
-            if err = 0 then
+        onexception |evt.ex| do
+            nil;
+        try
+            if partFrame:enable("basi", nil, nil) = 0 then
                 RegDesktopConnTransport(kDockBasiliskAppSymbol, kHostBasiliskDockTransport);
-        end;
+        onexception |evt.ex| do
+            nil;
         return removeFrame;
     end,
 
