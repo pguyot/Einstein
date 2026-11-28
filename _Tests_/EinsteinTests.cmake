@@ -100,13 +100,17 @@ endif ()
 # ---- Platform independent rules
 
 target_include_directories (
+	EinsteinTests BEFORE PUBLIC
+	$<TARGET_PROPERTY:cDCL::K,INTERFACE_INCLUDE_DIRECTORIES>
+)
+target_include_directories (
 	EinsteinTests PUBLIC
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 target_compile_definitions ( EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE EINSTEIN_HAVE_GENERATED_CONFIG=1 )
 
-target_link_libraries ( EinsteinTests gtest_main )
+target_link_libraries ( EinsteinTests gtest_main cDCL::K )
 
 # List the tests when ctest runs, not after linking, so the build does not
 # depend on running the test program (it hangs on the macOS CI runner).

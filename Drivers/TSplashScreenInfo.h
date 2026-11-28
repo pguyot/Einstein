@@ -15,8 +15,6 @@
 #ifndef _TSPLASHSCREENINFO_H
 #define _TSPLASHSCREENINFO_H
 
-#include <K/Defines/KDefinitions.h>
-
 ///
 /// Classe pour .
 ///

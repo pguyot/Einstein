@@ -27,7 +27,11 @@
 #include <K/Defines/KDefinitions.h>
 #include "TNetworkManager.h"
 
+#include <atomic>
 #include <chrono>
+#include <cstdint>
+#include <mutex>
+#include <thread>
 
 class TLog;
 class TInterruptManager;
@@ -152,7 +156,23 @@ public:
 	///
 	class DNSResolver* GetDNSResolver();
 
+	///
+	/// Wake the event-driven socket I/O worker so it picks up new or
+	/// updated sockets immediately.
+	///
+	void WakeWorker();
+
 private:
+	void StartWorker();
+	void StopWorker();
+	void WorkerLoop();
+
+	mutable std::mutex mMutex;
+	std::thread mWorkerThread;
+	std::atomic<bool> mStopWorker { false };
+	std::intptr_t mWakeReadFd { -1 };
+	std::intptr_t mWakeWriteFd { -1 };
+
 	// Linked list of packet handlers.
 	PacketHandler* mFirstPacketHandler { nullptr };
 	PacketHandler* mLastPacketHandler { nullptr };

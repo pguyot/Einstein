@@ -31,6 +31,7 @@
 #include <mmeapi.h>
 
 #include <atomic>
+#include <mutex>
 #include <thread>
 
 // Einstein
@@ -39,7 +40,6 @@
 // #define DEBUG_SOUND	0
 
 class TCircleBuffer;
-class TMutex;
 
 ///
 /// Class to handle sound input/output with MS Multimedia wave library.
@@ -143,7 +143,7 @@ private:
 
 	DWORD volume;
 
-	TMutex* mutex;
+	std::mutex mutex;
 
 	HANDLE doneEvent;
 

@@ -197,12 +197,12 @@ TFLMonitor::DrawScreen()
 void
 TFLMonitor::DrawScreenFromUI()
 {
-	if (mMutex->TryLock())
+	std::unique_lock<std::mutex> lock(mMutex, std::try_to_lock);
+	if (lock.owns_lock())
 	{
 		// The monitor thread is waiting, and can't start the emulator while
 		// we hold the mutex.
 		DrawScreen();
-		mMutex->Unlock();
 	} else if (!IsHalted())
 	{
 		// The emulator is running. The running view only reads the log.

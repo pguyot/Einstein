@@ -35,7 +35,6 @@
 // K
 #include <K/Defines/UByteSex.h>
 #include <K/Misc/TCircleBuffer.h>
-#include <K/Threads/TMutex.h>
 
 // Einstein.
 #include "Emulator/TMemory.h"
@@ -62,17 +61,16 @@ TWaveSoundManager::TWaveSoundManager(TLog* inLog /* = nullptr */) :
 		nextAvailable(0),
 		isPlaying(false),
 		volume(32768),
-		mutex(0L),
 		doneEvent(0L),
 		doneThread(0L),
 		quitDoneThread(false)
 {
-	mutex = new TMutex();
 	LOG KPrintf("v WAVE constructor\n");
-	mutex->Lock();
-	for (int i = 0; i < NWaveBuffer; i++)
-		initWaveBuffer(i);
-	mutex->Unlock();
+	{
+		std::lock_guard<std::mutex> lock(mutex);
+		for (int i = 0; i < NWaveBuffer; i++)
+			initWaveBuffer(i);
+	}
 	doneEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	doneThread = new std::thread(&TWaveSoundManager::doneThreadEntry, this);
 	LOG KPrintf("^ WAVE constructor\n");
@@ -91,16 +89,15 @@ TWaveSoundManager::~TWaveSoundManager(void)
 	doneThread->join();
 	delete doneThread;
 
-	mutex->Lock();
-	for (int i = 0; i < NWaveBuffer; i++)
-		freeWaveBuffer(i);
-	mutex->Unlock();
+	{
+		std::lock_guard<std::mutex> lock(mutex);
+		for (int i = 0; i < NWaveBuffer; i++)
+			freeWaveBuffer(i);
+	}
 
 	if (waveOut)
 		waveOutClose(waveOut);
 	CloseHandle(doneEvent);
-
-	delete mutex;
 
 	LOG KPrintf("^ WAVE destructor\n");
 }
@@ -121,50 +118,48 @@ TWaveSoundManager::ScheduleOutputBuffer(KUInt32 inBufferAddr, KUInt32 inSize)
 
 	LOG KPrintf("v WAVE schedule %d bytes\n", inSize);
 
-	mutex->Lock();
-
-	// find an available buffer
-	if (wb[nextAvailable].state != available)
 	{
-		LOG KPrintf("^ WAVE schedule (no available buffer)\n");
-		mutex->Unlock();
-		return;
-	}
+		std::lock_guard<std::mutex> lock(mutex);
 
-	if (!waveOut)
-	{
-		openWaveOut();
-		if (!waveOut)
+		// find an available buffer
+		if (wb[nextAvailable].state != available)
 		{
-			LOG KPrintf("^ WAVE schedule (no available audio device)\n");
-			mutex->Unlock();
+			LOG KPrintf("^ WAVE schedule (no available buffer)\n");
 			return;
 		}
-	}
 
-	// now fill the available buffer
-	int thisBuffer = nextAvailable;
-	nextAvailable = next(nextAvailable);
-
-	fillWaveBuffer(thisBuffer, inBufferAddr, inSize);
-
-	if (!OutputIsRunning())
-	{
-		playNext = thisBuffer;
-	} else
-	{
-		while (wb[playNext].state == pending)
+		if (!waveOut)
 		{
-			sendWaveBuffer(playNext);
+			openWaveOut();
+			if (!waveOut)
+			{
+				LOG KPrintf("^ WAVE schedule (no available audio device)\n");
+				return;
+			}
+		}
+
+		// now fill the available buffer
+		int thisBuffer = nextAvailable;
+		nextAvailable = next(nextAvailable);
+
+		fillWaveBuffer(thisBuffer, inBufferAddr, inSize);
+
+		if (!OutputIsRunning())
+		{
+			playNext = thisBuffer;
+		} else
+		{
+			while (wb[playNext].state == pending)
+			{
+				sendWaveBuffer(playNext);
+			}
+		}
+
+		if (wb[nextAvailable].state == available)
+		{
+			RaiseOutputInterrupt();
 		}
 	}
-
-	if (wb[nextAvailable].state == available)
-	{
-		RaiseOutputInterrupt();
-	}
-
-	mutex->Unlock();
 
 	LOG KPrintf("^ WAVE schedule %d bytes\n", inSize);
 }
@@ -177,21 +172,20 @@ TWaveSoundManager::StartOutput(void)
 {
 	LOG KPrintf("v WAVE start\n");
 
-	mutex->Lock();
-
-	if (playNext == -1)
 	{
-		LOG KPrintf("^ WAVE start (nothing to play)\n");
-		mutex->Unlock();
-		return;
-	}
+		std::lock_guard<std::mutex> lock(mutex);
 
-	while (wb[playNext].state == pending)
-	{
-		sendWaveBuffer(playNext);
-	}
+		if (playNext == -1)
+		{
+			LOG KPrintf("^ WAVE start (nothing to play)\n");
+			return;
+		}
 
-	mutex->Unlock();
+		while (wb[playNext].state == pending)
+		{
+			sendWaveBuffer(playNext);
+		}
+	}
 
 	LOG KPrintf("^ WAVE start\n");
 }
@@ -204,22 +198,22 @@ TWaveSoundManager::StopOutput(void)
 {
 	LOG KPrintf("v WAVE stop\n");
 
-	mutex->Lock();
-
-	// Nothing waits for the done thread here, so the mutex can be held.
-	if (waveOut)
-		waveOutReset(waveOut);
-
-	for (int i = 0; i < NWaveBuffer; i++)
 	{
-		WaveBuffer& b = wb[i];
-		if (waveOut && (b.waveHdr.dwFlags & WHDR_PREPARED))
-			waveOutUnprepareHeader(waveOut, &b.waveHdr, sizeof(b.waveHdr));
-		b.state = available;
-	}
-	isPlaying = false;
+		std::lock_guard<std::mutex> lock(mutex);
 
-	mutex->Unlock();
+		// Nothing waits for the done thread here, so the mutex can be held.
+		if (waveOut)
+			waveOutReset(waveOut);
+
+		for (int i = 0; i < NWaveBuffer; i++)
+		{
+			WaveBuffer& b = wb[i];
+			if (waveOut && (b.waveHdr.dwFlags & WHDR_PREPARED))
+				waveOutUnprepareHeader(waveOut, &b.waveHdr, sizeof(b.waveHdr));
+			b.state = available;
+		}
+		isPlaying = false;
+	}
 
 	LOG KPrintf("^ WAVE stop\n");
 }
@@ -251,7 +245,7 @@ TWaveSoundManager::doneThreadEntry()
 		WaitForSingleObject(doneEvent, INFINITE);
 		if (quitDoneThread)
 			break;
-		mutex->Lock();
+		std::lock_guard<std::mutex> lock(mutex);
 		// Oldest buffer first: the one after the next buffer to fill.
 		for (int k = 0; k < NWaveBuffer; k++)
 		{
@@ -259,7 +253,6 @@ TWaveSoundManager::doneThreadEntry()
 			if (wb[ix].state == playing && (wb[ix].waveHdr.dwFlags & WHDR_DONE))
 				bufferDone(ix);
 		}
-		mutex->Unlock();
 	}
 }
 

@@ -25,7 +25,10 @@
 #define _TNETWORKMANAGER_H
 
 #include <K/Defines/KDefinitions.h>
+#include <condition_variable>
 #include <cstddef>
+#include <mutex>
+#include <thread>
 #ifdef _WIN32
 #ifdef _WINSOCKAPI_
 #error winsock.h included before winsock2.h - you must define WIN32_LEAN_AND_MEAN somewhere!
@@ -43,9 +46,6 @@
 class TLog;
 class TInterruptManager;
 class TMemory;
-class TThread;
-class TMutex;
-class TCondVar;
 
 ///
 /// Emulation of a PCMCIA network card on PCMCIA driver level (see Lantern)
@@ -225,19 +225,24 @@ protected:
 
 private:
 	/// Main worker thread
-	TThread* mThread { nullptr };
+	std::thread mThread;
 
 	/// Class local mutex
-	TMutex* mSelectMutex { nullptr };
+	std::mutex mSelectMutex;
 
 	/// Class local thread signaling
-	TCondVar* mSelectCondVar { nullptr };
+	std::condition_variable mSelectCondVar;
+
+	/// Handshake and exit flags
+	bool mSelectThreadStarted { false };
+	bool mSelectExiting { false };
+	bool mSelectPending { false };
 
 	/// Highest number of file descriptor in select call
 	int mSelectNFDS { 0 };
 
 	/// Set of file descriptors for select call
-	fd_set mSelectSet;
+	fd_set mSelectSet {};
 };
 
 class TNullNetworkManager : public TNetworkManager

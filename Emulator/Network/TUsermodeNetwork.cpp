@@ -913,6 +913,36 @@ TraceTCP(const char* inDir, Packet* p)
 		(int) n, n ? text : "");
 }
 
+static void
+AddSelectFD(std::intptr_t fd, fd_set& set, int& maxFd)
+{
+	if (fd < 0)
+		return;
+#ifdef _WIN32
+	FD_SET((SOCKET) fd, &set);
+	(void) maxFd;
+#else
+	if (fd < FD_SETSIZE)
+	{
+		FD_SET((int) fd, &set);
+		if ((int) fd > maxFd)
+			maxFd = (int) fd;
+	}
+#endif
+}
+
+static bool
+IsSelectFDSet(std::intptr_t fd, const fd_set& set)
+{
+	if (fd < 0)
+		return false;
+#ifdef _WIN32
+	return FD_ISSET((SOCKET) fd, &set) != 0;
+#else
+	return fd < FD_SETSIZE && FD_ISSET((int) fd, &set) != 0;
+#endif
+}
+
 class PacketHandler
 {
 public:
@@ -952,6 +982,23 @@ public:
 	virtual void
 	timer()
 	{
+	}
+
+	virtual void
+	collectSelectFDs(fd_set& readSet, fd_set& writeSet, fd_set& exceptSet, int& maxFd)
+	{
+		(void) readSet;
+		(void) writeSet;
+		(void) exceptSet;
+		(void) maxFd;
+	}
+
+	virtual void
+	handleSelectFDs(const fd_set& readSet, const fd_set& writeSet, const fd_set& exceptSet)
+	{
+		(void) readSet;
+		(void) writeSet;
+		(void) exceptSet;
 	}
 
 	/**
@@ -1619,6 +1666,58 @@ public:
 	 * handler may be gone when this returns.
 	 */
 	void
+	collectSelectFDs(fd_set& readSet, fd_set& writeSet, fd_set& exceptSet, int& maxFd) override
+	{
+		if (mSocket == INVALID_SOCKET)
+			return;
+		if (state == kStateConnecting)
+		{
+			AddSelectFD(mSocket, writeSet, maxFd);
+			AddSelectFD(mSocket, exceptSet, maxFd);
+		} else if (state == kStateConnected || state == kStateConnectedWaitACK)
+		{
+			if (!mPeerClosed)
+			{
+				KUInt32 inFlight = mEinsteinPacketsSeq - mNewtonAck;
+				KUInt32 room = (mNewtonWindow > inFlight) ? mNewtonWindow - inFlight : 0;
+				if (room > 0 && !(room < kMinSegment && inFlight > 0))
+					AddSelectFD(mSocket, readSet, maxFd);
+			}
+			if (!mSendBuffer.empty())
+				AddSelectFD(mSocket, writeSet, maxFd);
+		}
+	}
+
+	void
+	handleSelectFDs(const fd_set& readSet, const fd_set& writeSet, const fd_set& exceptSet) override
+	{
+		if (mSocket == INVALID_SOCKET)
+			return;
+		if (state == kStateConnecting)
+		{
+			if (IsSelectFDSet(mSocket, writeSet) || IsSelectFDSet(mSocket, exceptSet))
+				checkConnecting();
+			return;
+		}
+		if (state == kStateConnected || state == kStateConnectedWaitACK)
+		{
+			if (!mSendBuffer.empty() && IsSelectFDSet(mSocket, writeSet))
+			{
+				if (!flush())
+					return; // the connection was reset, the handler is gone
+				if (mWindow < kMaxSendBuffer / 2 && kMaxSendBuffer - mSendBuffer.size() >= kMaxSendBuffer / 2)
+				{
+					Packet* reply = NewPacket(0);
+					UpdateChecksums(reply);
+					mNet->EnqueueAck(reply);
+				}
+			}
+			if (!mPeerClosed && IsSelectFDSet(mSocket, readSet))
+				fillWindow();
+		}
+	}
+
+	void
 	fillWindow()
 	{
 		for (int i = 0; i < kMaxSegmentsPerTick; i++)
@@ -1656,7 +1755,7 @@ public:
 		if (mDock)
 		{
 			auto peeked = ::recv(mSocket, (char*) buf, inSize, MSG_PEEK);
-			for (decltype(peeked) i = 8; i + 8 <= peeked; i++)
+			for (decltype(peeked) i = 1; i + 8 <= peeked; i++)
 				if (memcmp(buf + i, "newtdock", 8) == 0)
 				{
 					mNet->Trace("  TCP port %u: Dock command split after %d of %d bytes", myPort, (int) i, (int) peeked);
@@ -1674,6 +1773,7 @@ public:
 		{
 			// Peer has closed connection. The socket keeps reporting that,
 			// so the FIN waits until the Newton has all data.
+			mPeerClosed = true;
 			if (inFlight > 0)
 				return false;
 			LOG_PROTOCOL("  ,---- Einstein > Newton -- TCP ----------");
@@ -1780,6 +1880,7 @@ public:
 	static constexpr size_t kMaxSendBuffer = 16384; ///<! Newton data that the server did not take yet
 	bool mDockChecked = false; ///<! the first data of the Newton was looked at
 	bool mDock = false; ///<! a Dock connection: one Dock command per segment to the Newton
+	bool mPeerClosed = false; ///<! peer sent EOF; wait for inFlight == 0 before sending FIN
 	std::vector<KUInt8> mSendBuffer; ///<! Newton data that the server did not take yet
 	KUInt32 mWindow = kMaxSendBuffer; ///<! the window in our last packet to the Newton
 #ifdef MSG_NOSIGNAL
@@ -1957,33 +2058,36 @@ public:
 	 * interrupts to send data to the Newton.
 	 */
 	void
-	timer() override
+	collectSelectFDs(fd_set& readSet, fd_set& writeSet, fd_set& exceptSet, int& maxFd) override
 	{
-		// Don't do anything until Newton picked up all packages.
-		if (mNet->PacketAvailable()) // DataAvailable())
-			return;
+		(void) writeSet;
+		(void) exceptSet;
+		if (mSocket != INVALID_SOCKET && !mNet->PacketAvailable())
+			AddSelectFD(mSocket, readSet, maxFd);
+	}
+
+	void
+	handleSelectFDs(const fd_set& readSet, const fd_set& writeSet, const fd_set& exceptSet) override
+	{
+		(void) writeSet;
+		(void) exceptSet;
+		if (mSocket != INVALID_SOCKET && !mNet->PacketAvailable() && IsSelectFDSet(mSocket, readSet))
+			receiveReadyPackets();
+	}
+
+	bool
+	receiveReadyPackets()
+	{
+		if (mNet->PacketAvailable() || mSocket == INVALID_SOCKET)
+			return false;
 		KUInt8 buf[TUsermodeNetwork::kMaxRxBuffer];
 		socklen_t addrLen = sizeof(theirSockAddr);
-		if (mSocket == INVALID_SOCKET)
-			return;
-		int maxTry = 5;
-		for (; maxTry > 0; maxTry--)
+		bool received = false;
+		for (int maxTry = 5; maxTry > 0; maxTry--)
 		{
 			auto avail = recvfrom(mSocket, (char*) buf, sizeof(buf), 0, (struct sockaddr*) &theirSockAddr, &addrLen);
 			if (avail < 1)
-			{
-				if (--mExpire == 0)
-				{
-					LOG_PROTOCOL("[ Timer expired. Removing UDP handler for port %u to %u.%u.%u.%u.",
-						theirPort,
-						(unsigned int) ((theirIP >> 24) & 0xff),
-						(unsigned int) ((theirIP >> 16) & 0xff),
-						(unsigned int) ((theirIP >> 8) & 0xff),
-						(unsigned int) (theirIP & 0xff));
-					mNet->RemovePacketHandler(this);
-				}
-				return;
-			}
+				break;
 			LOG_PROTOCOL("  ,---- Einstein > Newton -- UDP ----------");
 			LOG_PROTOCOL("  | W>E N Received %d bytes (UDP).", (int) avail);
 			Packet* reply = NewPacket(avail);
@@ -1996,6 +2100,31 @@ public:
 			mNet->Enqueue(reply);
 			LOG_PROTOCOL("  `---- Einstein > Newton -- done ---------");
 			mExpire = kUDPExpirationTime;
+			received = true;
+		}
+		return received;
+	}
+
+	/**
+	 * Handle all reoccuring events (UDP inactivity expiration and fallback drain).
+	 */
+	void
+	timer() override
+	{
+		if (mNet->PacketAvailable() || mSocket == INVALID_SOCKET)
+			return;
+		if (!receiveReadyPackets())
+		{
+			if (--mExpire == 0)
+			{
+				LOG_PROTOCOL("[ Timer expired. Removing UDP handler for port %u to %u.%u.%u.%u.",
+					theirPort,
+					(unsigned int) ((theirIP >> 24) & 0xff),
+					(unsigned int) ((theirIP >> 16) & 0xff),
+					(unsigned int) ((theirIP >> 8) & 0xff),
+					(unsigned int) (theirIP & 0xff));
+				mNet->RemovePacketHandler(this);
+			}
 		}
 	}
 
@@ -2657,6 +2786,7 @@ TUsermodeNetwork::TUsermodeNetwork(TLog* inLog) :
 	WORD wVersionRequested = MAKEWORD(2, 2);
 	WSAStartup(wVersionRequested, &wsaData);
 #endif
+	StartWorker();
 }
 
 /**
@@ -2664,6 +2794,8 @@ TUsermodeNetwork::TUsermodeNetwork(TLog* inLog) :
  */
 TUsermodeNetwork::~TUsermodeNetwork()
 {
+	StopWorker();
+	std::lock_guard<std::mutex> lock(mMutex);
 	// release the package pipe
 	while (mFirstPacket)
 		DropPacket();
@@ -2678,6 +2810,146 @@ TUsermodeNetwork::~TUsermodeNetwork()
 #endif
 }
 
+void
+TUsermodeNetwork::StartWorker()
+{
+#ifdef _WIN32
+	SOCKET s = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (s != INVALID_SOCKET)
+	{
+		struct sockaddr_in addr;
+		memset(&addr, 0, sizeof(addr));
+		addr.sin_family = AF_INET;
+		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+		addr.sin_port = 0;
+		socklen_t addrLen = sizeof(addr);
+		if (::bind(s, (struct sockaddr*) &addr, sizeof(addr)) == 0
+			&& ::getsockname(s, (struct sockaddr*) &addr, &addrLen) == 0
+			&& ::connect(s, (struct sockaddr*) &addr, sizeof(addr)) == 0)
+		{
+			u_long arg = 1;
+			::ioctlsocket(s, FIONBIO, &arg);
+			mWakeReadFd = (std::intptr_t) s;
+			mWakeWriteFd = (std::intptr_t) s;
+		} else
+		{
+			::closesocket(s);
+		}
+	}
+#else
+	int fds[2];
+	if (::pipe(fds) == 0)
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			int fl = ::fcntl(fds[i], F_GETFL);
+			if (fl != -1)
+				::fcntl(fds[i], F_SETFL, fl | O_NONBLOCK);
+			int fdFl = ::fcntl(fds[i], F_GETFD);
+			if (fdFl != -1)
+				::fcntl(fds[i], F_SETFD, fdFl | FD_CLOEXEC);
+		}
+		mWakeReadFd = fds[0];
+		mWakeWriteFd = fds[1];
+	}
+#endif
+	if (mWakeReadFd != -1)
+		mWorkerThread = std::thread(&TUsermodeNetwork::WorkerLoop, this);
+}
+
+void
+TUsermodeNetwork::StopWorker()
+{
+	mStopWorker = true;
+	WakeWorker();
+	if (mWorkerThread.joinable())
+		mWorkerThread.join();
+#ifdef _WIN32
+	if (mWakeReadFd != -1)
+	{
+		::closesocket((SOCKET) mWakeReadFd);
+		mWakeReadFd = -1;
+		mWakeWriteFd = -1;
+	}
+#else
+	if (mWakeReadFd != -1)
+	{
+		::close((int) mWakeReadFd);
+		mWakeReadFd = -1;
+	}
+	if (mWakeWriteFd != -1)
+	{
+		::close((int) mWakeWriteFd);
+		mWakeWriteFd = -1;
+	}
+#endif
+}
+
+void
+TUsermodeNetwork::WakeWorker()
+{
+	if (mWakeWriteFd == -1)
+		return;
+	char b = 0;
+#ifdef _WIN32
+	::send((SOCKET) mWakeWriteFd, &b, 1, 0);
+#else
+	ssize_t ignored = ::write((int) mWakeWriteFd, &b, 1);
+	(void) ignored;
+#endif
+}
+
+void
+TUsermodeNetwork::WorkerLoop()
+{
+	while (!mStopWorker)
+	{
+		fd_set readSet, writeSet, exceptSet;
+		FD_ZERO(&readSet);
+		FD_ZERO(&writeSet);
+		FD_ZERO(&exceptSet);
+		int maxFd = -1;
+		AddSelectFD(mWakeReadFd, readSet, maxFd);
+		{
+			std::lock_guard<std::mutex> lock(mMutex);
+			for (PacketHandler* ph = mFirstPacketHandler; ph; ph = ph->mNext)
+				ph->collectSelectFDs(readSet, writeSet, exceptSet, maxFd);
+		}
+		int n = ::select(maxFd + 1, &readSet, &writeSet, &exceptSet, nullptr);
+		if (n < 0)
+		{
+#ifndef _WIN32
+			if (errno == EINTR)
+				continue;
+#endif
+			break;
+		}
+		if (IsSelectFDSet(mWakeReadFd, readSet))
+		{
+			char drain[64];
+#ifdef _WIN32
+			while (::recv((SOCKET) mWakeReadFd, drain, sizeof(drain), 0) > 0)
+				;
+#else
+			while (::read((int) mWakeReadFd, drain, sizeof(drain)) > 0)
+				;
+#endif
+		}
+		if (mStopWorker)
+			break;
+		{
+			std::lock_guard<std::mutex> lock(mMutex);
+			PacketHandler* ph = mFirstPacketHandler;
+			while (ph)
+			{
+				PacketHandler* pNext = ph->mNext;
+				ph->handleSelectFDs(readSet, writeSet, exceptSet);
+				ph = pNext;
+			}
+		}
+	}
+}
+
 /**
  * This function handles packet that are sent by the Newton to the outside
  * world. In user mode, these packages are emulated for information that is
@@ -2687,6 +2959,7 @@ TUsermodeNetwork::~TUsermodeNetwork()
 int
 TUsermodeNetwork::SendPacket(KUInt8* data, KUInt32 size)
 {
+	std::lock_guard<std::mutex> lock(mMutex);
 	int result = 0;
 	Packet packet(data, size, 0); // convert data into a packet
 	mLastActivity = std::chrono::steady_clock::now();
@@ -2753,6 +3026,7 @@ done:
 	} else if (result == 1)
 	{
 		LOG_PROTOCOL("`---- Einstein < Newton -- OK -----------");
+		WakeWorker();
 		ret = 0;
 	} else
 	{
@@ -2771,6 +3045,7 @@ done:
 int
 TUsermodeNetwork::TimerExpired()
 {
+	std::lock_guard<std::mutex> lock(mMutex);
 	PacketHandler* ph = mFirstPacketHandler;
 	while (ph)
 	{
@@ -2817,6 +3092,7 @@ TUsermodeNetwork::GetDeviceAddress(KUInt8* data, KUInt32 size)
 KUInt32
 TUsermodeNetwork::DataAvailable()
 {
+	std::lock_guard<std::mutex> lock(mMutex);
 	if (mLastPacket)
 		return (KUInt32) mLastPacket->Size();
 	else
@@ -2829,6 +3105,7 @@ TUsermodeNetwork::DataAvailable()
 int
 TUsermodeNetwork::ReceiveData(KUInt8* data, KUInt32 size)
 {
+	std::lock_guard<std::mutex> lock(mMutex);
 	LOG_CHATTY("    [ W E>N Newton requests packet, size %d", size);
 	Packet* pkt = mLastPacket;
 	if (pkt)
@@ -2838,6 +3115,8 @@ TUsermodeNetwork::ReceiveData(KUInt8* data, KUInt32 size)
 		{
 			memcpy(data, pkt->Data(), size);
 			DropPacket();
+			if (!mLastPacket)
+				WakeWorker();
 			return 0;
 		} else
 		{
@@ -2900,6 +3179,14 @@ TUsermodeNetwork::Enqueue(Packet* inPacket)
 	Trace("  reply queued, %d bytes", (int) inPacket->Size());
 	TraceTCP("E>N", inPacket);
 	mLastActivity = std::chrono::steady_clock::now();
+	Packet* n = mFirstPacket;
+	if (n)
+		n->mPrev = inPacket;
+	else
+		mLastPacket = inPacket;
+	inPacket->mNext = n;
+	inPacket->mPrev = NULL;
+	mFirstPacket = inPacket;
 	// Tell NewtonOS through the card interrupt that a packet waits: the
 	// driver receives it in its InterruptHandler without waiting for its
 	// next tick. Several interrupts before the handler runs make one call.
@@ -2914,14 +3201,6 @@ TUsermodeNetwork::Enqueue(Packet* inPacket)
 			}
 		}
 	}
-	Packet* n = mFirstPacket;
-	if (n)
-		n->mPrev = inPacket;
-	else
-		mLastPacket = inPacket;
-	inPacket->mNext = n;
-	inPacket->mPrev = NULL;
-	mFirstPacket = inPacket;
 }
 
 /**

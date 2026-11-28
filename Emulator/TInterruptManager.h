@@ -31,14 +31,12 @@
 
 // C++ std lib
 #include <atomic>
-
-// K
-#include <K/Threads/TCondVar.h>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
 class TARMProcessor;
 class TLog;
-class TThread;
-class TMutex;
 class TStream;
 
 ///
@@ -217,7 +215,7 @@ public:
 	void
 	WakeEmulatorThread(void)
 	{
-		mEmulatorCondVar->Signal();
+		mEmulatorCondVar.notify_one();
 	}
 
 	///
@@ -520,9 +518,10 @@ private:
 	///
 	/// Wait for some ticks on the condition variable.
 	///
+	/// \param inLock	locked mutex guard.
 	/// \param inTicks	number of ticks to sleep.
 	///
-	void TicksWaitOnCondVar(KUInt32 inTicks);
+	void TicksWaitOnCondVar(std::unique_lock<std::mutex>& inLock, KUInt32 inTicks);
 
 	///
 	/// Accessor on the time in ticks.
@@ -618,17 +617,20 @@ private:
 	/// Timer match registers (newton).
 	KUInt32 mMatchRegisters[4] { 0, 0, 0, 0 };
 
+	/// Handshake flag for Init/ResumeTimer/SuspendTimer (guarded by mMutex).
+	bool mTimerStateAcked { false };
+
 	/// Condition variable (timer thread).
-	TCondVar* mTimerCondVar { nullptr };
+	std::condition_variable mTimerCondVar;
 
 	/// Condition variable (emulator).
-	TCondVar* mEmulatorCondVar { nullptr };
+	std::condition_variable mEmulatorCondVar;
 
 	/// Mutex of the thread.
-	TMutex* mMutex { nullptr };
+	std::mutex mMutex;
 
 	/// The actual thread.
-	TThread* mThread { nullptr };
+	std::thread mThread;
 };
 
 #endif

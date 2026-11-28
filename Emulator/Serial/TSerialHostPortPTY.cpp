@@ -55,7 +55,6 @@ TSerialHostPortPTY::TSerialHostPortPTY(
 	}
 	AssignInterruptID();
 	CreatePTY();
-	mReadMutex = new TMutex();
 	mReadBuffer = new TCircleBuffer(8 * 1024);
 	mSerialStatus = kSerialTxBufferEmpty;
 	if (inStartWorker)
@@ -87,7 +86,6 @@ TSerialHostPortPTY::~TSerialHostPortPTY()
 	{
 		close(mRemote);
 	}
-	delete mReadMutex;
 	delete mReadBuffer;
 }
 
@@ -159,13 +157,12 @@ TSerialHostPortPTY::TeardownAndRecreatePTY()
 		mMain = mRemote = -1;
 	}
 	{
-		mReadMutex->Lock();
+		std::lock_guard<std::mutex> lock(mReadMutex);
 		if (mReadBuffer)
 		{
 			mReadBuffer->Discard(mReadBuffer->AvailableBytes());
 		}
 		mSerialStatus &= ~kSerialRxCharAvailable;
-		mReadMutex->Unlock();
 	}
 	usleep(500000);
 	if (mStopRequested)
@@ -202,7 +199,7 @@ KUInt8
 TSerialHostPortPTY::GetByte()
 {
 	KUInt8 data;
-	mReadMutex->Lock();
+	std::lock_guard<std::mutex> lock(mReadMutex);
 	mReadBuffer->Consume(&data, sizeof(data));
 	if (mReadBuffer->IsEmpty())
 	{
@@ -211,7 +208,6 @@ TSerialHostPortPTY::GetByte()
 	{
 		mEmulator->GetInterruptManager()->RaiseInterrupt(mInterruptID);
 	}
-	mReadMutex->Unlock();
 	return data;
 }
 
@@ -299,9 +295,11 @@ TSerialHostPortPTY::Run()
 		// Backpressure: while the Newton holds RTS low, received bytes pile
 		// up here. Stop reading once enough are waiting, so the PTY's own
 		// buffer fills and the writer on the host side blocks.
-		mReadMutex->Lock();
-		bool bufferFull = mReadBuffer->AvailableBytes() >= kMaxReadBufferSize;
-		mReadMutex->Unlock();
+		bool bufferFull = false;
+		{
+			std::lock_guard<std::mutex> lock(mReadMutex);
+			bufferFull = mReadBuffer->AvailableBytes() >= kMaxReadBufferSize;
+		}
 		if (bufferFull)
 		{
 			usleep(10000);
@@ -317,28 +315,29 @@ TSerialHostPortPTY::Run()
 			int n;
 			bool receivedData = false;
 			bool resetPTY = false;
-			mReadMutex->Lock();
-			while (mReadBuffer->AvailableBytes() < kMaxReadBufferSize
-				&& (n = (int) read(mMain, data, sizeof(data))) > 0)
 			{
-				bool resetRequested = false;
-				if (ProcessIncomingBytes(data, n, resetRequested))
+				std::lock_guard<std::mutex> lock(mReadMutex);
+				while (mReadBuffer->AvailableBytes() < kMaxReadBufferSize
+					&& (n = (int) read(mMain, data, sizeof(data))) > 0)
 				{
-					receivedData = true;
+					bool resetRequested = false;
+					if (ProcessIncomingBytes(data, n, resetRequested))
+					{
+						receivedData = true;
+					}
+					if (resetRequested)
+					{
+						resetPTY = true;
+						break;
+					}
 				}
-				if (resetRequested)
+				// Set the flag before unlocking, so that GetByte() can't see it
+				// without the data.
+				if (receivedData)
 				{
-					resetPTY = true;
-					break;
+					mSerialStatus |= kSerialRxCharAvailable;
 				}
 			}
-			// Set the flag before unlocking, so that GetByte() can't see it
-			// without the data.
-			if (receivedData)
-			{
-				mSerialStatus |= kSerialRxCharAvailable;
-			}
-			mReadMutex->Unlock();
 			if (receivedData)
 			{
 				mEmulator->GetInterruptManager()->RaiseInterrupt(mInterruptID);

@@ -138,8 +138,6 @@ TMonitor::TMonitor(
 	mLog->BindWithRefreshSocket(mSocketPair[1]);
 #endif
 
-	CreateCondVarAndMutex();
-
 #if !TARGET_UI_FLTK
 	// Clear the terminal and go to the uppermost position.
 	(void) ::printf("\033[1;1H");
@@ -155,7 +153,6 @@ TMonitor::TMonitor(
 // -------------------------------------------------------------------------- //
 TMonitor::~TMonitor()
 {
-	DeleteCondVarAndMutex();
 	if (mFilename)
 		free(mFilename);
 
@@ -173,7 +170,8 @@ void
 TMonitor::Run()
 {
 	// Acquire the mutex.
-	AcquireMutex();
+	std::unique_lock<std::mutex> lock(mMutex);
+	mMonitorThreadId.store(std::this_thread::get_id());
 
 	// At first, we're halted.
 	mHalted = true;
@@ -195,9 +193,9 @@ TMonitor::Run()
 		if (mCommand != kExit)
 			DrawScreen();
 		// Wait forever for a command.
-		WaitOnCondVar();
+		WaitOnCondVar(lock);
 
-		switch (mCommand)
+		switch (mCommand.exchange(kNop))
 		{
 			case kNop:
 				break;
@@ -225,9 +223,7 @@ TMonitor::Run()
 				break;
 		}
 	}
-
-	// Release the mutex.
-	ReleaseMutex();
+	mMonitorThreadId.store(std::thread::id {});
 }
 
 // -------------------------------------------------------------------------- //
@@ -564,12 +560,10 @@ TMonitor::Stop()
 		mEmulator->Stop();
 	}
 
-	AcquireMutex();
+	std::lock_guard<std::mutex> lock(mMutex);
 	//  I have the mutex, so the loop is waiting.
 
 	SignalCondVar();
-
-	ReleaseMutex();
 }
 
 // -------------------------------------------------------------------------- //
@@ -630,13 +624,14 @@ TMonitor::RunWhileHalted(const std::function<void()>& inWork)
 	// command, so once we have it, the emulator can't start. Don't block
 	// on it: a run command sent just before may start the emulator (with
 	// the mutex held) before mHalted turns false, so stop it again.
+	std::unique_lock<std::mutex> lock(mMutex, std::defer_lock);
 	while (true)
 	{
 		if (!mHalted)
 		{
 			wasRunning = true;
 			mEmulator->Stop();
-		} else if (mMutex->TryLock())
+		} else if (lock.try_lock())
 		{
 			break;
 		}
@@ -648,7 +643,6 @@ TMonitor::RunWhileHalted(const std::function<void()>& inWork)
 		mCommand = kRun;
 		SignalCondVar();
 	}
-	ReleaseMutex();
 	return true;
 }
 
@@ -661,16 +655,16 @@ TMonitor::ResumeEmulator(KUInt32 inTimeoutMS)
 	auto theDeadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(inTimeoutMS);
 	while (true)
 	{
-		// TryLock succeeds only while the monitor thread waits for a
+		// try_to_lock succeeds only while the monitor thread waits for a
 		// command: the emulator is halted and any request is done.
-		if (mMutex->TryLock())
+		std::unique_lock<std::mutex> lock(mMutex, std::try_to_lock);
+		if (lock.owns_lock())
 		{
 			if (mHalted)
 			{
 				mCommand = kRun;
 				SignalCondVar();
 			}
-			ReleaseMutex();
 			return true;
 		}
 		if (std::chrono::steady_clock::now() >= theDeadline)
@@ -691,13 +685,23 @@ TMonitor::RequestStateTransfer(EStateRequest inRequest, const char* inPath, bool
 	if (mStateRequest != kStateRequestNone)
 		return false;
 
-	if (mMutex->TryLock())
+	if (mMonitorThreadId.load() == std::this_thread::get_id())
 	{
-		// The emulator is halted and the monitor thread waits for a command.
-		// It can't start the emulator while we hold the mutex.
+		// Called on the monitor thread itself (e.g. from ExecuteStartupScript()),
+		// which already holds mMutex while halted.
 		DoStateTransfer(inRequest, inPath);
-		mMutex->Unlock();
 		return true;
+	}
+
+	{
+		std::unique_lock<std::mutex> lock(mMutex, std::try_to_lock);
+		if (lock.owns_lock())
+		{
+			// The emulator is halted and the monitor thread waits for a command.
+			// It can't start the emulator while we hold the mutex.
+			DoStateTransfer(inRequest, inPath);
+			return true;
+		}
 	}
 
 	// mHalted can't change while we hold this lock, so RunEmulator() either
@@ -2575,60 +2579,21 @@ TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsign
 }
 
 // -------------------------------------------------------------------------- //
-//  * CreateCondVarAndMutex( void )
-// -------------------------------------------------------------------------- //
-inline void
-TMonitor::CreateCondVarAndMutex()
-{
-	mCondVar = new TCondVar();
-	mMutex = new TMutex();
-}
-
-// -------------------------------------------------------------------------- //
-//  * DeleteCondVarAndMutex( void )
-// -------------------------------------------------------------------------- //
-inline void
-TMonitor::DeleteCondVarAndMutex()
-{
-	mMutex->Unlock();
-	delete mMutex;
-	delete mCondVar;
-}
-
-// -------------------------------------------------------------------------- //
 //  * SignalCondVar( void )
 // -------------------------------------------------------------------------- //
 inline void
 TMonitor::SignalCondVar()
 {
-	mCondVar->Signal();
+	mCondVar.notify_one();
 }
 
 // -------------------------------------------------------------------------- //
-//  * WaitOnCondVar( void )
+//  * WaitOnCondVar( std::unique_lock<std::mutex>& )
 // -------------------------------------------------------------------------- //
 inline void
-TMonitor::WaitOnCondVar()
+TMonitor::WaitOnCondVar(std::unique_lock<std::mutex>& inLock)
 {
-	mCondVar->Wait(mMutex);
-}
-
-// -------------------------------------------------------------------------- //
-//  * AcquireMutex( void )
-// -------------------------------------------------------------------------- //
-inline void
-TMonitor::AcquireMutex()
-{
-	mMutex->Lock();
-}
-
-// -------------------------------------------------------------------------- //
-//  * ReleaseMutex( void )
-// -------------------------------------------------------------------------- //
-inline void
-TMonitor::ReleaseMutex()
-{
-	mMutex->Unlock();
+	mCondVar.wait(inLock);
 }
 
 // ==================================================================== //

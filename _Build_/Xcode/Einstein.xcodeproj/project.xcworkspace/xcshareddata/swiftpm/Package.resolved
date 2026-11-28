@@ -1,0 +1,15 @@
+{
+  "originHash" : "aad7af8f2d2691331388562071cac946aad2afd920710b4e16a3206722b82172",
+  "pins" : [
+    {
+      "identity" : "cdcl",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ekoeppen/cDCL.git",
+      "state" : {
+        "revision" : "6fe3f238fb67c316a37d666ff9c8eafb188e181e",
+        "version" : "3.2.5"
+      }
+    }
+  ],
+  "version" : 3
+}

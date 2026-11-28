@@ -27,6 +27,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <mutex>
+
 // PulseAudio
 #include <pulse/error.h>
 #include <pulse/pulseaudio.h>
@@ -34,7 +36,6 @@
 // Einstein
 #include "TBufferedSoundManager.h"
 
-class TMutex;
 class TCircleBuffer;
 
 ///
@@ -141,7 +142,7 @@ private:
 	pa_mainloop_api* mPAMainLoopAPI;
 	pa_context* mPAContext;
 	TCircleBuffer* mOutputBuffer;
-	TMutex* mDataMutex;
+	std::mutex mDataMutex;
 	bool mOutputIsRunning;
 	bool mOutputRequestPending;
 };
