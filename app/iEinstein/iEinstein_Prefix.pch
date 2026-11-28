@@ -7,4 +7,4 @@
     #import <UIKit/UIKit.h>
 #endif
 
-#import "KDefinitions.h"
+#import <K/Defines/KDefinitions.h>

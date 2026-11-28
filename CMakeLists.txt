@@ -5,7 +5,7 @@
 # Copyright 2003-2026 by Paul Guyot (pguyot@kallisys.net) and others.
 # ==============================
 
-cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.21.0 FATAL_ERROR)
 
 # Minimum macOS version. This must be set before project(), so it applies to
 # all targets including FLTK and NEWT64. Override with -D CMAKE_OSX_DEPLOYMENT_TARGET=...
@@ -178,6 +178,26 @@ endif ()
 
 endif ()
 
+
+#
+# ---- cDCL K library ----------------------------------------------------------
+#
+
+set( _cdcl_exclude )
+if ( CMAKE_VERSION VERSION_GREATER_EQUAL 3.28 )
+	set( _cdcl_exclude EXCLUDE_FROM_ALL )
+endif ()
+
+FetchContent_Declare(
+	cDCL
+	GIT_REPOSITORY https://github.com/ekoeppen/cDCL.git
+	GIT_TAG        3.2.5
+	${_cdcl_exclude}
+)
+FetchContent_MakeAvailable(cDCL)
+if ( CMAKE_VERSION VERSION_LESS 3.28 AND TARGET DCL )
+	set_target_properties( DCL PROPERTIES EXCLUDE_FROM_ALL TRUE )
+endif ()
 
 #
 # ---- Newt/64 library ---------------------------------------------------------
@@ -389,7 +409,6 @@ configure_file(
 include( app/CMakeLists.txt )
 include( Emulator/CMakeLists.txt )
 include( Monitor/CMakeLists.txt )
-include( K/CMakeLists.txt )
 if ( NEWT64_FOUND MATCHES true )
 	include( Toolkit/CMakeLists.txt )
 endif ()
@@ -707,6 +726,7 @@ elseif ( ANDROID )
 	)
 	target_link_libraries ( einstein PRIVATE
 		SDL3::SDL3
+		cDCL::K
 	)
 
 endif ()
@@ -740,6 +760,10 @@ endif ()
 if ( ANDROID )
 
 target_include_directories (
+	einstein BEFORE PUBLIC
+	$<TARGET_PROPERTY:cDCL::K,INTERFACE_INCLUDE_DIRECTORIES>
+)
+target_include_directories (
 	einstein PUBLIC
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}/generated
@@ -748,6 +772,11 @@ target_compile_definitions ( einstein PUBLIC EINSTEIN_HAVE_GENERATED_CONFIG=1 )
 
 else ()
 
+target_link_libraries ( Einstein cDCL::K )
+target_include_directories (
+	Einstein BEFORE PUBLIC
+	$<TARGET_PROPERTY:cDCL::K,INTERFACE_INCLUDE_DIRECTORIES>
+)
 target_include_directories (
 	Einstein PUBLIC
 	${CMAKE_SOURCE_DIR}
@@ -755,6 +784,11 @@ target_include_directories (
 	${FLTK_INCLUDE_DIRS}
 )
 if ( EINSTEIN_FLTK_FRONTEND )
+	target_link_libraries ( EinsteinFLGUI cDCL::K )
+	target_include_directories (
+		EinsteinFLGUI BEFORE PUBLIC
+		$<TARGET_PROPERTY:cDCL::K,INTERFACE_INCLUDE_DIRECTORIES>
+	)
 	target_include_directories (
 		EinsteinFLGUI PUBLIC
 		${CMAKE_SOURCE_DIR}
