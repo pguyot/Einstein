@@ -24,8 +24,6 @@
 #ifndef _TCOMMTOOL_H
 #define _TCOMMTOOL_H
 
-#include <K/Defines/KDefinitions.h>
-
 // From Eckhart's Blunt
 
 class CMinBuffer

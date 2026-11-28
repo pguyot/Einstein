@@ -32,7 +32,9 @@
 #include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <chrono>
 #include <termios.h>
+#include <thread>
 #include <unistd.h>
 
 // Einstein
@@ -381,20 +383,40 @@ TCLIApp::Run(int argc, char* argv[])
 		mROMImage = new TFlatROMImageWithREX(
 			theROMImagePath, theREX1Path);
 	}
+	if (mROMImage->GetErrorCode() != TROMImage::kNoError)
+	{
+		(void) ::fprintf(
+			stderr,
+			"Failed to load ROM image %s (error %u)\n",
+			theROMImagePath,
+			(unsigned int) mROMImage->GetErrorCode());
+		::exit(1);
+	}
 	mNetworkManager = new TNullNetworkManager(mLog);
 	mEmulator = new TEmulator(
 		mLog, mROMImage, theFlashPath,
 		mSoundManager, mScreenManager, mNetworkManager, ramSize << 16);
 
 	mPlatformManager = mEmulator->GetPlatformManager();
+	mNextStopCount = mEmulator->GetStopCount();
 
-	mEmulator->CallOnQuit(
-		[this]() {
-			if (mCmdPipe[1] >= 0)
-			{
-				(void) ::write(mCmdPipe[1], "Q", 1);
-			}
-		});
+	if (!useMonitor)
+	{
+		mEmulator->CallOnQuit(
+			[this]() {
+				{
+					std::lock_guard<std::mutex> lock(mSaveMutex);
+					if (mSaveRequested)
+					{
+						return;
+					}
+				}
+				if (mCmdPipe[1] >= 0)
+				{
+					(void) ::write(mCmdPipe[1], "Q", 1);
+				}
+			});
+	}
 
 	// the commandline argument is --serial=tcp:server:port . We currently support only TCP connections
 	// theSerialDriver is either nil or text in the format 'server' or 'server:port' without single quotes
@@ -483,9 +505,40 @@ TCLIApp::ThreadEntry(void)
 	if (mMonitor)
 	{
 		mMonitor->Run();
+		if (mCmdPipe[1] >= 0)
+		{
+			(void) ::write(mCmdPipe[1], "Q", 1);
+		}
 	} else
 	{
-		mEmulator->Run();
+		while (true)
+		{
+			KUInt32 theStopCount = 0;
+			{
+				std::unique_lock<std::mutex> lock(mSaveMutex);
+				if (mSaveRequested)
+				{
+					mEmulatorStoppedForSave = true;
+					mSaveCondVar.notify_all();
+					mSaveCondVar.wait(lock, [this]() { return !mSaveRequested; });
+					mEmulatorStoppedForSave = false;
+					continue;
+				}
+				theStopCount = mNextStopCount;
+			}
+			mEmulator->Run(theStopCount);
+			std::unique_lock<std::mutex> lock(mSaveMutex);
+			if (!mSaveRequested)
+			{
+				mThreadExited = true;
+				mSaveCondVar.notify_all();
+				break;
+			}
+			mEmulatorStoppedForSave = true;
+			mSaveCondVar.notify_all();
+			mSaveCondVar.wait(lock, [this]() { return !mSaveRequested; });
+			mEmulatorStoppedForSave = false;
+		}
 	}
 	// Quit if the emulator quitted.
 	mQuit = true;
@@ -716,7 +769,49 @@ TCLIApp::ExecuteCommand(const char* inCommand)
 		mPlatformManager->SendBacklightEvent();
 	} else if (::sscanf(inCommand, "save %s", theArg) == 1)
 	{
-		mEmulator->SaveState(theArg);
+		if (mMonitor)
+		{
+			if (!mMonitor->RequestSaveState(theArg))
+			{
+				PrintLine("Monitor is busy, could not save state");
+			} else
+			{
+				while (mMonitor->IsStateRequestPending())
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(5));
+				}
+			}
+		} else
+		{
+			bool exited = false;
+			{
+				std::unique_lock<std::mutex> lock(mSaveMutex);
+				if (mThreadExited)
+				{
+					exited = true;
+				} else
+				{
+					mSaveRequested = true;
+					mEmulator->Stop();
+					mSaveCondVar.wait(lock, [this]() { return mEmulatorStoppedForSave || mThreadExited; });
+					exited = mThreadExited;
+				}
+			}
+			bool saved = mEmulator->SaveState(theArg);
+			{
+				std::lock_guard<std::mutex> lock(mSaveMutex);
+				mNextStopCount = mEmulator->GetStopCount();
+				mSaveRequested = false;
+				mSaveCondVar.notify_all();
+			}
+			if (!saved)
+			{
+				PrintLine("Saving emulator state failed");
+			} else if (exited)
+			{
+				PrintLine("Emulator state saved");
+			}
+		}
 	} else if (::strcmp(inCommand, "quit") == 0)
 	{
 		mQuit = true;
